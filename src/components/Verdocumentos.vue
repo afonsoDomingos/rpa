@@ -168,10 +168,35 @@ const reportarStatus = () => {
 
 <template>
   <section class="py-7">
-    <div class="container">
-      
-     
 
+    <div class="container">
+      <!-- Conteúdo de Navegação -->
+      <ul class="nav nav-pills nav-fill p-1" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'cadastrar' }"
+            @click.prevent="activeTab = 'cadastrar'" role="tab" aria-selected="true">
+            Cadastrar
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'procurar' }"
+            @click.prevent="activeTab = 'procurar'" role="tab" aria-selected="false">
+            Procurar
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'documentosReportados' }"
+            @click.prevent="activeTab = 'documentosReportados'" role="tab" aria-selected="false">
+            Reportados
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'documentosProprietarios' }"
+            @click.prevent="activeTab = 'documentosProprietarios'" role="tab" aria-selected="false">
+            Proprietários
+          </a>
+        </li>
+      </ul>
       <!-- Conteúdo das abas -->
       <div class="tab-content">
 
@@ -352,6 +377,19 @@ const reportarStatus = () => {
 
 
 <style scoped>
+
+.nav-link {
+  transition: background-color 0.3s ease, color 0.3s ease; /* Transição suave */
+}
+
+.nav-link:hover {
+  background-color: #f0f0f0; /* Cor de fundo ao passar o cursor */
+  color: #007bff; /* Cor do texto ao passar o cursor */
+}
+
+
+
+
 /* Estilo para os botões de navegação */
 .nav-link {
   color: #800080; /* Cor roxa para o texto da aba */
