@@ -5,8 +5,6 @@ import MaterialSwitch from "@/components/MaterialSwitch.vue"; // Componente para
 
 
 
-
-
 import eventBus from "@/eventBus";
 
 // Ouvir evento vindo do NavBarDefault.vue
@@ -14,13 +12,8 @@ const changeTab = (tabName) => {
   activeTab.value = tabName;
 };
 
-onMounted(() => {
-  eventBus.on("changeTab", changeTab);
-});
-
-onUnmounted(() => {
-  eventBus.off("changeTab", changeTab);
-});
+onMounted(() => eventBus.on("changeTab", changeTab));
+onUnmounted(() => eventBus.off("changeTab", changeTab));
 
 // Importação de função para efeitos na navegação de abas
 import setNavPills from "@/assets/js/nav-pills.js";
@@ -30,8 +23,11 @@ onMounted(() => {
   setNavPills();
 });
 
+
+
 // Estado reativo para controlar a aba ativa (inicialmente, a aba 'Cadastrar' está ativa)
 const activeTab = ref("cadastrar");
+
 
 // Campos para a aba "Cadastrar" (Submissão de documentos perdidos)
 const nome_completo = ref('');
@@ -62,6 +58,9 @@ const buscarDocumentos = async () => {
   }
 };
 
+
+
+
 // Funções para buscar documentos específicos (reportados e de proprietários)
 const documentosReportados = ref([]);
 const documentosProprietarios = ref([]);
@@ -86,61 +85,103 @@ const buscarDocumentosProprietarios = async () => {
 
 // Executa as funções de busca ao montar o componente
 onMounted(() => {
-  buscarDocumentosReportados(); 
+  buscarDocumentosReportados();
   buscarDocumentosProprietarios();
 });
 
 // Função para cadastrar um novo documento perdido
+// Variáveis reativas para mensagens
+const mensagemErro = ref('');
+const mensagemSucesso = ref('');
+
+// Função para cadastrar um novo documento perdido
 const cadastrarDocumento = async () => {
+  mensagemErro.value = ''; // Limpa a mensagem de erro antes de tentar cadastrar
+  mensagemSucesso.value = ''; // Limpa a mensagem de sucesso
+
+
+
   try {
     const novoDocumento = {
       nome_completo: nome_completo.value,
       tipo_documento: tipo_documento.value,
       numero_documento: numero_documento.value,
-      data_perda: data_perda.value,
       provincia: provincia.value,
-      origem: origem.value, 
+      data_perda: data_perda.value,
+      origem: origem.value,
       contacto: contacto.value
     };
 
     const response = await api.post('/documentos', novoDocumento); // Envia os dados do novo documento para a API
     console.log('Documento cadastrado com sucesso:', response.data);
 
+    // Exibe mensagem de sucesso com os dados cadastrados
+    mensagemSucesso.value = `Documento cadastrado com sucesso: Nome: ${response.data.nome_completo}, Tipo: ${response.data.tipo_documento}, Número: ${response.data.numero_documento}, Província: ${response.data.provincia}, Data: ${response.data.data_perda}`;
+
     // Após o cadastro, limpa os campos do formulário
     nome_completo.value = '';
     tipo_documento.value = '';
     numero_documento.value = '';
-    data_perda.value = '';
     provincia.value = '';
-    origem.value = ''; 
-    contacto.value = '',
+    data_perda.value = '';
+    origem.value = '';
+    contacto.value = '';
 
     // Atualiza a lista de documentos
     buscarDocumentos();
   } catch (error) {
-    console.error('Erro ao cadastrar documento:', error); // Exibe erro em caso de falha
+    console.error('Erro ao cadastrar documento:', error);
+
+    // Define a mensagem de erro de forma mais amigável
+    if (error.response) {
+      mensagemErro.value = error.response.data.message || 'Erro ao cadastrar. Verifique os dados e tente novamente.';
+    } else if (error.request) {
+      mensagemErro.value = 'Não foi possível se conectar ao servidor. Verifique sua conexão.';
+    } else {
+      mensagemErro.value = 'Ocorreu um erro inesperado. Tente novamente mais tarde.';
+    }
   }
 };
+
 
 // Função para procurar documentos perdidos por nome
 const documentosEncontrados = ref([]);
+const erroMensagem = ref("");
 
 const procurarDocumento = async () => {
+  erroMensagem.value = ""; // Reseta o erro antes da busca
+
+  if (!nome_completoRec.value.trim()) {
+    erroMensagem.value = "Por favor, insira um nome válido para a busca.";
+    return;
+  }
+
   try {
     const response = await api.get('/documentos', {
-      params: {
-        nome_completo: nome_completoRec.value.trim() // Busca documentos baseados no nome completo
-      }
+      params: { nome_completo: nome_completoRec.value.trim() }
     });
 
-    documentosEncontrados.value = response.data; // Atualiza a lista de documentos encontrados
+    documentosEncontrados.value = response.data;
+
     if (documentosEncontrados.value.length === 0) {
-      alert("Nenhum documento encontrado."); // Alerta caso nenhum documento seja encontrado
+      erroMensagem.value = "Nenhum documento encontrado para esse nome.";
     }
   } catch (error) {
-    console.error("Erro ao procurar documentos:", error); // Exibe erro em caso de falha
+    if (!error.response) {
+      erroMensagem.value = "Erro de conexão. Verifique sua internet.";
+    } else if (error.response.status === 404) {
+      erroMensagem.value = "Nenhum documento encontrado.";
+    } else {
+      erroMensagem.value = `Erro ao buscar documentos: ${error.response.data.message || "Tente novamente mais tarde."}`;
+    }
+
+    console.error("Erro ao procurar documentos:", error);
   }
 };
+
+
+
+
 
 // Executa a busca ao montar o componente
 onMounted(() => {
@@ -149,14 +190,14 @@ onMounted(() => {
 
 // Lista de províncias para o formulário
 const provincias = [
-  "Maputo", "Maputo Cidade", "Gaza", "Inhambane", "Sofala", 
+  "Maputo", "Maputo Cidade", "Gaza", "Inhambane", "Sofala",
   "Manica", "Tete", "Zambézia", "Nampula", "Niassa", "Cabo Delgado"
 ];
 
 // Lista de tipos de documentos disponíveis
 const tipo_documentos = [
-  "Bilhete de Identidade (BI)", "Passaporte", "Cartão de Eleitor", 
-  "Cartão de Estudante", "Carta de Condução", "Seguro do Veículo", 
+  "Bilhete de Identidade (BI)", "Passaporte", "Cartão de Eleitor",
+  "Cartão de Estudante", "Carta de Condução", "Seguro do Veículo",
   "Documento de Registro do Veículo (livrete)", "Cartão de Identidade Militar"
 ];
 
@@ -213,8 +254,8 @@ const reportarStatus = () => {
               <!-- Campo para Número do Documento -->
               <div class="col-md-12 mb-3">
                 <label for="numeroDocumento" class="form-label">Número do Documento</label>
-                <input type="number" id="numeroDocumento" class="form-control zoom-field" v-model="numero_documento"
-                  placeholder="Ex: 123" maxlength="12" required />
+                <input type="text" id="numeroDocumento" class="form-control zoom-field" v-model="numero_documento"
+                  placeholder="Ex: 123" maxlength="15" required />
               </div>
               <!-- Campo para Tipo de Documento -->
               <div class="col-md-12 mb-3">
@@ -236,8 +277,8 @@ const reportarStatus = () => {
               <!-- Campo para Contacto -->
               <div class="col-md-12 mb-3">
                 <label for="contato" class="form-label">Contacto</label>
-                <input type="number" id="contato" class="form-control zoom-field" v-model="contacto"
-                  placeholder="Ex: +258 84 123 4567" maxlength="9" pattern="\d*" required />
+                <input type="tel" pattern="\d{9}" id="contato" class="form-control zoom-field" v-model="contacto"
+                  placeholder="Ex: +258 84 123 4567" maxlength="9" required />
               </div>
               <!-- Campo para Data da Perda -->
               <div class="col-md-12 mb-3">
@@ -265,11 +306,26 @@ const reportarStatus = () => {
                 <button type="submit" class="btn btn-purple w-100 btn-lg shadow">Cadastrar</button>
               </div>
             </div>
+            <div class="text-center">
+              <!-- Mensagem de sucesso -->
+              <p v-if="mensagemSucesso" class=" alert-success btn btn-purple w-100 btn-lg shadow">
+                {{ mensagemSucesso }}
+              </p>
+
+              <!-- Mensagem de erro -->
+              <p v-if="mensagemErro" class=" alert-danger btn btn-purple w-100 btn-lg shadow">
+                {{ mensagemErro }}
+              </p>
+            </div>
+
           </form>
         </div>
 
-        <!-- Aba Procurar (Formulario para busca de documentos) -->
-        <div v-if="activeTab === 'procurar'" class="tab-pane fade show active" id="procurar-tabs-simple">
+
+
+
+        <!-- Aba Procurar (Formulário para busca de documentos) -->
+        <div v-if="activeTab === 'procurar'" class=" tab-pane fade show active" id="procurar-tabs-simple">
           <form @submit.prevent="procurarDocumento" class="form">
             <div class="row">
               <!-- Campo para Nome Completo -->
@@ -277,6 +333,10 @@ const reportarStatus = () => {
                 <label for="nomeRec" class="form-label">Nome Completo</label>
                 <input type="text" id="nomeRec" class="form-control" v-model="nome_completoRec"
                   placeholder="Ex: João Silva" required />
+                <!-- Exibição da Mensagem de Erro -->
+                <div v-if="erroMensagem" class="text-danger mt-2">
+                  {{ erroMensagem }}
+                </div>
               </div>
               <!-- Botão para Procurar Documento -->
               <div class="text-center">
@@ -284,9 +344,9 @@ const reportarStatus = () => {
               </div>
             </div>
           </form>
+
           <!-- Exibição de Documentos Encontrados -->
-          <div v-if="documentosEncontrados.length > 0" class="tab-pane fade show active"
-            id="documentosEncontrados-tabs-simple">
+          <div v-if="documentosEncontrados.length > 0" class="mt-4">
             <div class="table-responsive">
               <table class="table table-striped">
                 <thead>
@@ -305,6 +365,7 @@ const reportarStatus = () => {
             </div>
           </div>
         </div>
+
 
         <!-- Aba Documentos Reportados -->
         <div v-if="activeTab === 'documentosReportados'" class="tab-pane fade show active"
@@ -377,14 +438,16 @@ const reportarStatus = () => {
 
 
 <style scoped>
-
 .nav-link {
-  transition: background-color 0.3s ease, color 0.3s ease; /* Transição suave */
+  transition: background-color 0.3s ease, color 0.3s ease;
+  /* Transição suave */
 }
 
 .nav-link:hover {
-  background-color: #f0f0f0; /* Cor de fundo ao passar o cursor */
-  color: #007bff; /* Cor do texto ao passar o cursor */
+  background-color: #f0f0f0;
+  /* Cor de fundo ao passar o cursor */
+  color: #007bff;
+  /* Cor do texto ao passar o cursor */
 }
 
 
@@ -392,7 +455,8 @@ const reportarStatus = () => {
 
 /* Estilo para os botões de navegação */
 .nav-link {
-  color: #800080; /* Cor roxa para o texto da aba */
+  color: #800080;
+  /* Cor roxa para o texto da aba */
   font-weight: 600;
   border-radius: 30px;
   padding: 12px 30px;
@@ -400,23 +464,29 @@ const reportarStatus = () => {
 }
 
 .nav-link:hover {
-  background-color: #800080; /* Cor roxa de fundo ao passar o mouse */
-  color: white; /* Texto branco */
-  transform: scale(1.05); /* Efeito de aumento no tamanho da aba ao passar o mouse */
+  background-color: #800080;
+  /* Cor roxa de fundo ao passar o mouse */
+  color: white;
+  /* Texto branco */
+  transform: scale(1.05);
+  /* Efeito de aumento no tamanho da aba ao passar o mouse */
 }
 
 .nav-link.active {
-  background-color: #6a006a; /* Tom de roxo mais escuro para a aba ativa */
+  background-color: #6a006a;
+  /* Tom de roxo mais escuro para a aba ativa */
   color: white;
 }
 
 .nav-link:focus {
-  outline: none; /* Remove o contorno ao focar */
+  outline: none;
+  /* Remove o contorno ao focar */
 }
 
 /* Cor roxa para os botões */
 .btn-purple {
-  background-color: #800080; /* Cor roxa */
+  background-color: #800080;
+  /* Cor roxa */
   color: white;
   border-radius: 30px;
   border: none;
@@ -424,13 +494,16 @@ const reportarStatus = () => {
   font-size: 1.1rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  width: 100%; /* Garante que o botão tenha a mesma largura que os campos */
+  width: 100%;
+  /* Garante que o botão tenha a mesma largura que os campos */
 }
 
 .btn-purple:hover {
-  background-color: #6a006a; /* Tom de roxo mais escuro */
+  background-color: #6a006a;
+  /* Tom de roxo mais escuro */
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
-  transform: scale(1.05); /* Efeito de aumento no botão ao passar o mouse */
+  transform: scale(1.05);
+  /* Efeito de aumento no botão ao passar o mouse */
 }
 
 /* Estilo de zoom nos campos */
@@ -439,8 +512,10 @@ const reportarStatus = () => {
 }
 
 .zoom-field:hover {
-  transform: scale(1.05); /* Aumenta o tamanho ao passar o mouse */
-  box-shadow: 0 0 10px rgba(128, 0, 128, 0.3); /* Sombra roxa suave */
+  transform: scale(1.05);
+  /* Aumenta o tamanho ao passar o mouse */
+  box-shadow: 0 0 10px rgba(128, 0, 128, 0.3);
+  /* Sombra roxa suave */
 }
 
 /* Tabela */
@@ -471,9 +546,12 @@ const reportarStatus = () => {
 }
 
 .table tbody tr:hover {
-  transform: scale(1.02); /* Aumento suave ao passar o mouse */
-  background-color: #f1f1f1; /* Cor suave de fundo */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  transform: scale(1.02);
+  /* Aumento suave ao passar o mouse */
+  background-color: #f1f1f1;
+  /* Cor suave de fundo */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  /* Sombra suave */
 }
 
 .table td {
@@ -507,8 +585,10 @@ const reportarStatus = () => {
 }
 
 .btn-info:hover {
-  background-color: #138496; /* Tom mais escuro de azul */
-  transform: scale(1.05); /* Aumento suave ao passar o mouse */
+  background-color: #138496;
+  /* Tom mais escuro de azul */
+  transform: scale(1.05);
+  /* Aumento suave ao passar o mouse */
 }
 
 /* Estilos gerais de hover */
