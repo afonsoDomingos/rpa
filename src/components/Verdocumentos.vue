@@ -1,11 +1,11 @@
 <script setup>
 import api from "../api"; // Importa a instância da API para comunicação com o servidor
-import { ref, onMounted, onUnmounted } from "vue"; // Importa funções do Vue para trabalhar com reatividade e ciclo de vida
+import { ref, onMounted, onUnmounted, watch } from "vue"; // Importa funções do Vue para reatividade e ciclo de vida
 import MaterialSwitch from "@/components/MaterialSwitch.vue"; // Componente para um switch material
-
-
-
 import eventBus from "@/eventBus";
+
+// Estado reativo para controlar a aba ativa
+const activeTab = ref("cadastrar");
 
 // Ouvir evento vindo do NavBarDefault.vue
 const changeTab = (tabName) => {
@@ -19,17 +19,11 @@ onUnmounted(() => eventBus.off("changeTab", changeTab));
 import setNavPills from "@/assets/js/nav-pills.js";
 
 // Executa a função para configurar o efeito de navegação após a montagem do componente
-onMounted(() => {
-  setNavPills();
+onMounted(async () => {
+  await setNavPills();
 });
 
-
-
-// Estado reativo para controlar a aba ativa (inicialmente, a aba 'Cadastrar' está ativa)
-const activeTab = ref("cadastrar");
-
-
-// Campos para a aba "Cadastrar" (Submissão de documentos perdidos)
+// Campos para a aba "Cadastrar"
 const nome_completo = ref('');
 const tipo_documento = ref('');
 const numero_documento = ref('');
@@ -38,68 +32,109 @@ const provincia = ref('');
 const origem = ref('');
 const contacto = ref('');
 
-// Campos para a aba "Reportar" (Status de recuperação de documentos)
+// Campos para a aba "Reportar"
 const protocolo = ref('');
 
-// Campos para a aba "Procurar" (Pesquisa de documentos)
+// Campos para a aba "Procurar"
 const nome_completoRec = ref('');
 const tipo_documentoRec = ref('');
 const provinciaRec = ref('');
+const numero_documentoRec = ref('');
 
-// Função para buscar todos os documentos disponíveis
+
+// Lista de documentos
 const documentosDisponiveis = ref([]);
+const documentosReportados = ref([]);
+const documentosProprietarios = ref([]);
+const documentosEncontrados = ref([]);
 
-const buscarDocumentos = async () => {
-  try {
-    const response = await api.get('/documentos'); // Faz uma requisição para buscar todos os documentos
-    documentosDisponiveis.value = response.data; // Atualiza a lista de documentos disponíveis com a resposta
-  } catch (error) {
-    console.error("Erro ao buscar documentos:", error); // Exibe erro em caso de falha
+
+
+// Mensagens reativas para feedback
+const mensagemErro = ref('');
+const mensagemSucesso = ref('');
+const erroMensagem = ref('');
+const nomeError = ref(''); // Para armazenar erros do nome completo
+const contactoError = ref(''); // Variável para armazenar erros do contacto
+
+// Função de validação do nome completo
+const validarNome = () => {
+  const nomeRegex = /^[A-Za-zÀ-ÿ\s]+$/; // Regex para letras e espaços
+  if (!nome_completo.value) {
+    nomeError.value = 'O nome  é obrigatório.';
+    return false;
+  } else if (!nomeRegex.test(nome_completo.value)) {
+    nomeError.value = 'O nome completo deve conter apenas letras.';
+    return false;
   }
+  nomeError.value = ''; // Limpa o erro se tudo estiver correto
+  return true;
+};
+
+
+// Função de validação do contacto
+const validarContacto = () => {
+  const contactoRegex = /^(84|85|86|87|83)\d{7}$/; // Regex para validar números que começam com 84, 85, 83, 86, 87 ou 83 e têm 9 dígitos
+  if (!contacto.value) {
+    contactoError.value = 'O contacto é obrigatório.';
+    return false;
+  } else if (!contactoRegex.test(contacto.value)) {
+    contactoError.value = 'O contacto deve conter 9 dígitos e começar com 84, 85, 86, 87 ou 83.';
+    return false;
+  }
+  contactoError.value = ''; // Limpa o erro se tudo estiver correto
+  return true;
 };
 
 
 
+// Função para buscar todos os documentos disponíveis
+const buscarDocumentos = async () => {
+  try {
+    const response = await api.get('/documentos');
+    documentosDisponiveis.value = response.data;
+  } catch (error) {
+    console.error("Erro ao buscar documentos:", error);
+  }
 
-// Funções para buscar documentos específicos (reportados e de proprietários)
-const documentosReportados = ref([]);
-const documentosProprietarios = ref([]);
+  // Chama as validações do nome  e contacto
+  if (!validarNome() || !validarContacto()) {
+    return; // Não prossegue se alguma validação falhar
+  }
 
+};
+
+
+// Funções para buscar documentos específicos
 const buscarDocumentosReportados = async () => {
   try {
-    const response = await api.get('/documentos/reportados'); // Busca documentos reportados
-    documentosReportados.value = response.data; // Atualiza a lista com documentos reportados
+    const response = await api.get('/documentos/reportados');
+    documentosReportados.value = response.data;
   } catch (error) {
-    console.error("Erro ao buscar documentos reportados:", error); // Exibe erro em caso de falha
+    console.error("Erro ao buscar documentos reportados:", error);
   }
 };
 
 const buscarDocumentosProprietarios = async () => {
   try {
-    const response = await api.get('/documentos/proprietarios'); // Busca documentos de proprietários
-    documentosProprietarios.value = response.data; // Atualiza a lista com documentos de proprietários
+    const response = await api.get('/documentos/proprietarios');
+    documentosProprietarios.value = response.data;
   } catch (error) {
-    console.error("Erro ao buscar documentos proprietários:", error); // Exibe erro em caso de falha
+    console.error("Erro ao buscar documentos proprietários:", error);
   }
 };
 
-// Executa as funções de busca ao montar o componente
+// Executa buscas ao montar o componente
 onMounted(() => {
+  buscarDocumentos();
   buscarDocumentosReportados();
   buscarDocumentosProprietarios();
 });
 
 // Função para cadastrar um novo documento perdido
-// Variáveis reativas para mensagens
-const mensagemErro = ref('');
-const mensagemSucesso = ref('');
-
-// Função para cadastrar um novo documento perdido
 const cadastrarDocumento = async () => {
-  mensagemErro.value = ''; // Limpa a mensagem de erro antes de tentar cadastrar
-  mensagemSucesso.value = ''; // Limpa a mensagem de sucesso
-
-
+  mensagemErro.value = '';
+  mensagemSucesso.value = '';
 
   try {
     const novoDocumento = {
@@ -112,13 +147,12 @@ const cadastrarDocumento = async () => {
       contacto: contacto.value
     };
 
-    const response = await api.post('/documentos', novoDocumento); // Envia os dados do novo documento para a API
+    const response = await api.post('/documentos', novoDocumento);
     console.log('Documento cadastrado com sucesso:', response.data);
 
-    // Exibe mensagem de sucesso com os dados cadastrados
     mensagemSucesso.value = `Documento cadastrado com sucesso: Nome: ${response.data.nome_completo}, Tipo: ${response.data.tipo_documento}, Número: ${response.data.numero_documento}, Província: ${response.data.provincia}, Data: ${response.data.data_perda}`;
 
-    // Após o cadastro, limpa os campos do formulário
+    // Limpar os campos do formulário
     nome_completo.value = '';
     tipo_documento.value = '';
     numero_documento.value = '';
@@ -127,81 +161,85 @@ const cadastrarDocumento = async () => {
     origem.value = '';
     contacto.value = '';
 
-    // Atualiza a lista de documentos
-    buscarDocumentos();
+    buscarDocumentos(); // Atualiza a lista de documentos
   } catch (error) {
     console.error('Erro ao cadastrar documento:', error);
-
-    // Define a mensagem de erro de forma mais amigável
-    if (error.response) {
-      mensagemErro.value = error.response.data.message || 'Erro ao cadastrar. Verifique os dados e tente novamente.';
-    } else if (error.request) {
-      mensagemErro.value = 'Não foi possível se conectar ao servidor. Verifique sua conexão.';
-    } else {
-      mensagemErro.value = 'Ocorreu um erro inesperado. Tente novamente mais tarde.';
-    }
+    mensagemErro.value = error.response?.data?.message || 'Erro ao cadastrar. Verifique os dados e tente novamente.';
   }
 };
 
+// Filtro de busca de documentos
 
-// Função para procurar documentos perdidos por nome
-const documentosEncontrados = ref([]);
-const erroMensagem = ref("");
+// Estado do filtro
+const tipoFiltro = ref("nome");
 
+
+// Watch para resetar os campos ao mudar o filtro
+watch(tipoFiltro, (novoValor) => {
+  console.log("Filtro alterado para:", novoValor);
+  nome_completoRec.value = "";
+  tipo_documentoRec.value = "";
+  provinciaRec.value = "";
+  numero_documentoRec.value = "";
+});
+
+
+// Função para procurar documentos
 const procurarDocumento = async () => {
-  erroMensagem.value = ""; // Reseta o erro antes da busca
+  erroMensagem.value = ""; // Reseta o erro
 
-  if (!nome_completoRec.value.trim()) {
-    erroMensagem.value = "Por favor, insira um nome válido para a busca.";
+  // Verifica qual filtro está selecionado
+  let params = {};
+
+  if (tipoFiltro.value === "nome" && nome_completoRec.value.trim()) {
+    params.nome_completo = nome_completoRec.value.trim();
+  } else if (tipoFiltro.value === "tipo" && tipo_documentoRec.value) {
+    params.tipo_documento = tipo_documentoRec.value;
+  } else if (tipoFiltro.value === "provincia" && provinciaRec.value) {
+    params.provincia = provinciaRec.value;
+  } else if (tipoFiltro.value === "numero" && numero_documentoRec.value.trim()) { // Adiciona a condição para número de documento
+    params.numero_documento = numero_documentoRec.value.trim();
+  } else {
+    erroMensagem.value = "Por favor, preencha o campo correspondente ao filtro selecionado.";
     return;
   }
-
   try {
-    const response = await api.get('/documentos', {
-      params: { nome_completo: nome_completoRec.value.trim() }
-    });
-
+    const response = await api.get("/documentos", { params });
     documentosEncontrados.value = response.data;
 
     if (documentosEncontrados.value.length === 0) {
-      erroMensagem.value = "Nenhum documento encontrado para esse nome.";
+      erroMensagem.value = "Nenhum documento encontrado.";
     }
   } catch (error) {
-    if (!error.response) {
-      erroMensagem.value = "Erro de conexão. Verifique sua internet.";
-    } else if (error.response.status === 404) {
-      erroMensagem.value = "Nenhum documento encontrado.";
-    } else {
-      erroMensagem.value = `Erro ao buscar documentos: ${error.response.data.message || "Tente novamente mais tarde."}`;
-    }
-
+    erroMensagem.value = error.response?.data?.message || "Erro ao buscar documentos. Tente novamente.";
     console.error("Erro ao procurar documentos:", error);
   }
+
 };
 
 
-
-
-
-// Executa a busca ao montar o componente
-onMounted(() => {
-  buscarDocumentos(); // Chama a função para buscar os documentos disponíveis ao carregar o componente
+// Watch para resetar campos ao mudar de aba
+watch(activeTab, (novaAba) => {
+  if (novaAba !== "procurar") {
+    nome_completoRec.value = "";
+    tipo_documentoRec.value = "";
+  }
 });
 
-// Lista de províncias para o formulário
+// Lista de províncias
 const provincias = [
   "Maputo", "Maputo Cidade", "Gaza", "Inhambane", "Sofala",
   "Manica", "Tete", "Zambézia", "Nampula", "Niassa", "Cabo Delgado"
 ];
 
-// Lista de tipos de documentos disponíveis
+// Lista de tipos de documentos
 const tipo_documentos = [
-  "Bilhete de Identidade (BI)", "Passaporte", "Cartão de Eleitor",
+  "Bilhete de Identidade", "Passaporte", "Cartão de Eleitor",
   "Cartão de Estudante", "Carta de Condução", "Seguro do Veículo",
-  "Documento de Registro do Veículo (livrete)", "Cartão de Identidade Militar"
+  "Livrete", "Cartão de Identidade Militar"
 ];
 
-// Função para reportar o status da recuperação de um documento
+// Função para reportar status da recuperação de um documento
 const reportarStatus = () => {
   console.log('Protocolo de Recuperação:', protocolo.value, 'Nome:', nome_completo.value);
 };
@@ -249,7 +287,9 @@ const reportarStatus = () => {
               <div class="col-md-12 mb-3">
                 <label for="nomeSolicitante" class="form-label">Nome Completo</label>
                 <input type="text" id="nomeSolicitante" class="form-control zoom-field" v-model="nome_completo"
-                  placeholder="Ex: João Silva" maxlength="50" required />
+                  placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
+                <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                <!-- Adicionada a classe 'visible' -->
               </div>
               <!-- Campo para Número do Documento -->
               <div class="col-md-12 mb-3">
@@ -277,8 +317,9 @@ const reportarStatus = () => {
               <!-- Campo para Contacto -->
               <div class="col-md-12 mb-3">
                 <label for="contato" class="form-label">Contacto</label>
-                <input type="tel" pattern="\d{9}" id="contato" class="form-control zoom-field" v-model="contacto"
-                  placeholder="Ex: +258 84 123 4567" maxlength="9" required />
+                <input type="tel" id="contato" class="form-control zoom-field" v-model="contacto"
+                  placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
+                <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
               </div>
               <!-- Campo para Data da Perda -->
               <div class="col-md-12 mb-3">
@@ -308,36 +349,69 @@ const reportarStatus = () => {
             </div>
             <div class="text-center">
               <!-- Mensagem de sucesso -->
-              <p v-if="mensagemSucesso" class=" alert-success btn btn-purple w-100 btn-lg shadow">
+              <p v-if="mensagemSucesso" class="alert-success btn btn-purple w-100 btn-lg shadow visible">
                 {{ mensagemSucesso }}
               </p>
 
               <!-- Mensagem de erro -->
-              <p v-if="mensagemErro" class=" alert-danger btn btn-purple w-100 btn-lg shadow">
+              <p v-if="mensagemErro" class="alert-danger btn btn-purple w-100 btn-lg shadow visible">
                 {{ mensagemErro }}
               </p>
             </div>
-
           </form>
         </div>
-
-
-
-
         <!-- Aba Procurar (Formulário para busca de documentos) -->
-        <div v-if="activeTab === 'procurar'" class=" tab-pane fade show active" id="procurar-tabs-simple">
+        <div v-if="activeTab === 'procurar'" class="tab-pane fade show active" id="procurar-tabs-simple">
           <form @submit.prevent="procurarDocumento" class="form">
             <div class="row">
-              <!-- Campo para Nome Completo -->
+              <!-- Seletor de Tipo de Filtro -->
               <div class="col-md-12 mb-3">
+                <label for="tipoFiltro" class="form-label">Escolha o tipo de filtro</label>
+                <select id="tipoFiltro" class="form-control" v-model="tipoFiltro">
+                  <option value="nome">Nome Completo</option>
+                  <option value="tipo">Tipo de Documento</option>
+                  <option value="provincia">Província</option>
+                  <option value="numero">Número de Documento</option>
+                </select>
+              </div>
+
+              <!-- Campo para Nome Completo (Exibido se o filtro for por nome) -->
+              <div v-if="tipoFiltro === 'nome'" class="col-md-12 mb-3">
                 <label for="nomeRec" class="form-label">Nome Completo</label>
                 <input type="text" id="nomeRec" class="form-control" v-model="nome_completoRec"
                   placeholder="Ex: João Silva" required />
-                <!-- Exibição da Mensagem de Erro -->
-                <div v-if="erroMensagem" class="text-danger mt-2">
-                  {{ erroMensagem }}
-                </div>
               </div>
+
+              <!-- Campo para Tipo de Documento (Exibido se o filtro for por tipo) -->
+              <div v-if="tipoFiltro === 'tipo'" class="col-md-12 mb-3">
+                <label for="tipoDocumento" class="form-label">Tipo de Documento</label>
+                <select id="tipoDocumento" class="form-select zoom-field" v-model="tipo_documentoRec" required>
+                  <option disabled value="">Selecione o Tipo de Documento</option>
+                  <option v-for="tipo in tipo_documentos" :key="tipo" :value="tipo">{{ tipo }}</option>
+                </select>
+              </div>
+
+              <!-- Campo para Província (Exibido se o filtro for por província) -->
+              <div v-if="tipoFiltro === 'provincia'" class="col-md-12 mb-3">
+                <label for="provinciaRec" class="form-label">Província</label>
+                <select id="provinciaRec" class="form-select zoom-field" v-model="provinciaRec" required>
+                  <option disabled value="">Selecione a Província</option>
+                  <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                </select>
+              </div>
+
+              <!-- Campo para Número de Documento (Exibido se o filtro for por número) -->
+              <div v-if="tipoFiltro === 'numero'" class="col-md-12 mb-3">
+                <label for="numero_documentoRec" class="form-label">Número de Documento</label>
+                <input type="text" id="numero_documentoRec" class="form-control" v-model="numero_documentoRec"
+                  placeholder="Ex: 123456789" required />
+              </div>
+
+              <!-- Exibição da Mensagem de Erro -->
+              <div v-if="erroMensagem" class="text-danger mt-2">
+                {{ erroMensagem }}
+              </div>
+
               <!-- Botão para Procurar Documento -->
               <div class="text-center">
                 <button type="submit" class="btn btn-purple w-100 btn-lg shadow">Procurar</button>
@@ -595,5 +669,78 @@ const reportarStatus = () => {
 .table td:hover {
   cursor: pointer;
   background-color: #f1f1f1;
+}
+
+/* Efeiro de erro de mensagem NOME COMPLETO */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.text-warning {
+  animation: pulse 1s infinite;
+  /* Adiciona o efeito de pulsar */
+}
+
+
+/* Efeiro de Mensagem de Envio e Erro  de Cadastro */
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    color: #28a745;
+    /* Cor padrão para sucesso */
+  }
+
+  50% {
+    transform: scale(1.05);
+    color: rgb(255, 255, 255);
+    /* Cor branco durante o pulsar */
+  }
+
+  100% {
+    transform: scale(1);
+    color: #28a745;
+    /* Retorna para a cor padrão */
+  }
+}
+
+@keyframes pulse-danger {
+  0% {
+    transform: scale(1);
+    color: #dc3545;
+    /* Cor padrão para erro */
+  }
+
+  50% {
+    transform: scale(1.05);
+    color: rgb(255, 255, 255);
+    /* Cor branco durante o pulsar */
+  }
+
+  100% {
+    transform: scale(1);
+    color: #dc3545;
+    /* Retorna para a cor padrão */
+  }
+}
+
+.alert-success {
+  animation: pulse 1s infinite;
+  /* Adiciona o efeito de pulsar para sucesso */
+}
+
+.alert-danger {
+  animation: pulse-danger 1s infinite;
+  /* Adiciona o efeito de pulsar para erro */
 }
 </style>
