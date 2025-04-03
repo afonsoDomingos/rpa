@@ -197,6 +197,7 @@ watch(
                 <RouterLink :to="{ name: 'contactus' }" class="dropdown-item border-radius-md">
                   <span>Contacte-nos</span>
                 </RouterLink>
+
                <!-- <RouterLink :to="{ name: 'author' }" class="dropdown-item border-radius-md">
                   <span>Autor</span>
                 </RouterLink>-->
@@ -548,8 +549,16 @@ watch(
               Github
             </a>
           </li>
-        
+          <li class="nav-item dropdown dropdown-hover mx-2">
+            <a 
+              class="nav-link d-flex cursor-pointer align-items-center btn btn-sm mb-0 " :class="action.color">
+              <RouterLink :to="{ name: 'dashboard' }" class="dropdown-item border-radius-md">
+                        <span>Dashboard</span>
+                      </RouterLink>
+            </a>
+          </li> 
         </ul>
+        
         <ul class="navbar-nav d-lg-block d-none">
           <!--Antingo Link Nao Eliminar
           <li class="nav-item">
