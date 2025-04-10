@@ -27,9 +27,9 @@ O RPA é desenvolvido com as melhores práticas de segurança e tecnologia. A pl
 
 **Links Úteis**
 
-- [Acesse o RPA](https://www.rpa.com)
-- [Veja nosso FAQ](https://www.rpa.com/faq)
-- [Suporte Técnico](https://www.rpa.com/suporte)
+- [Acesse o RPA](https://www.recuperaqui.co.mz)
+- [Veja nosso FAQ](https://www.recuperaqui.co.mz/faq)
+- [Suporte Técnico](https://www.recuperaqui.co.mz/suporte)
 
 ## Como Funciona o RPA?
 
@@ -66,8 +66,9 @@ Rpa
     │   │   ├── MaterialSocialButton.vue
     │   │   ├── MaterialSwitch.vue
     │   │   └── MaterialTextArea
-            └── modal.vue
+            └── modalum.vue
             └── Verdocumentos
+            └── Verdocumentosadmin.vue
             
     │   ├── examples
     │   │   ├── cards
@@ -89,6 +90,7 @@ Rpa
     │   ├── views
     │   │   ├── LandingPages
     │   │   └── Presentation
+            └──pagetest.vue
     │   ├── App.vue
     │   ├── main.js
     │   └── material-kit.js

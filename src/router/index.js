@@ -24,17 +24,33 @@ import ElDropdowns from "../layouts/sections/elements/dropdowns/DropdownsView.vu
 import ElProgressBars from "../layouts/sections/elements/progress-bars/ProgressBarsView.vue";
 import ElToggles from "../layouts/sections/elements/toggles/TogglesView.vue";
 import ElTypography from "../layouts/sections/elements/typography/TypographyView.vue";
+import Pagetest from "../views/Pagetest.vue";
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+
     {
       path: "/",
-      name: "presentation",
-      component: PresentationView,
+      name: "signin-basic",
+      component: SignInBasicView,
+    },
+
+  
+    {
+      path: '/home',
+      name: 'presentation',
+      component: PresentationView
     },
 
     {
-      path: "/dashboard",
+      path: "/pagetest",
+      name: "pagetest",
+      component: Pagetest,
+    },
+
+    {
+      path: "/dashboard/admin",
       name: "dashboard",
       component: DashboardView,
     },
@@ -54,11 +70,10 @@ const router = createRouter({
       name: "author",
       component: AuthorView,
     },
-    {
-      path: "/pages/landing-pages/basic",
-      name: "signin-basic",
-      component: SignInBasicView,
-    },
+    
+
+   
+
     {
       path: "/sections/page-sections/page-headers",
       name: "page-headers",
