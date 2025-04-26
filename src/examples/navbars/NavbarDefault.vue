@@ -1,17 +1,56 @@
 <script setup>
 import { RouterLink } from "vue-router";
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { useWindowsWidth } from "../../assets/js/useWindowsWidth";
 
 // images
 import ArrDark from "@/assets/img/down-arrow-dark.svg";
-import downArrow from "@/assets/img/down-arrow.svg";
+//import downArrow from "@/assets/img/down-arrow.svg";
 import DownArrWhite from "@/assets/img/down-arrow-white.svg";
 
 import eventBus from '@/eventBus'; // Verifique se o caminho está correto
 
 
 
+const logout = () => {
+  localStorage.removeItem('email'); // Remove o email salvo
+  usuario.value = null; // Reseta o estado reativo do usuário
+
+  alert('Logout realizado com sucesso!'); // Alerta simples
+
+  router.push('/login'); // Redireciona para a página de login
+};
+
+
+import axios from 'axios';
+
+// Variável reativa para armazenar os dados do usuário
+const usuario = ref(null);
+
+// Função para buscar o usuário logado da API
+const buscarUsuario = async () => {
+  try {
+    const response = await axios.get('http://localhost:5000/api/auth/usuarios');
+    console.log('Resposta da API:', response.data);
+
+    // Supondo que você tenha o email do usuário logado, por exemplo:
+    const emailLogado = 'cliente@example.com';  // Altere para o email do usuário logado
+
+    // Buscar o usuário com o email correspondente no array de usuários
+    usuario.value = response.data.find(u => u.email === emailLogado);
+
+    if (!usuario.value) {
+      console.error('Usuário não encontrado na lista de usuários');
+    }
+  } catch (error) {
+    console.error('Erro ao buscar o usuário:', error);
+  }
+};
+
+// Hook onMounted para buscar o usuário assim que o componente for montado
+onMounted(() => {
+  buscarUsuario();
+});
 
 const goToCadastrar = () => {
   // Emitir o evento para mudar a aba
@@ -119,8 +158,8 @@ watch(
     ' navbar-dark bg-gradient-dark z-index-3 py-3': props.dark
   }">
     <div :class="props.transparent || props.light || props.dark
-        ? 'container'
-        : 'container-fluid px-0'
+      ? 'container'
+      : 'container-fluid px-0'
       ">
       <RouterLink class="navbar-brand d-none d-md-block" :class="[
         (props.transparent && textDark.value) || !props.transparent
@@ -131,8 +170,8 @@ watch(
         Recupera Aqui
       </RouterLink>
       <RouterLink class="navbar-brand d-block d-md-none" :class="props.transparent || props.dark
-          ? 'text-white'
-          : 'font-weight-bolder ms-sm-3'
+        ? 'text-white'
+        : 'font-weight-bolder ms-sm-3'
         " to="/" rel="tooltip" title="Designed and Coded by Creative Tim" data-placement="bottom">
         Menu
       </RouterLink>
@@ -261,20 +300,35 @@ watch(
               </div>
             </div>
           </li>
-          <li class="nav-item dropdown dropdown-hover mx-2">
-            <a href="https://www.github.com/creativetimofficial/vue-material-kit"
-              class="nav-link d-flex cursor-pointer align-items-center">
-              <svg width="20px" height="20px" class="material-icons me-2 opacity-6" viewBox="0 0 24 24"
-                aria-hidden="true" data-testid="GitHubIcon" :fill="props.transparent && '#fff'">
-                <path
-                  d="M12 1.27a11 11 0 00-3.48 21.46c.55.09.73-.28.73-.55v-1.84c-3.03.64-3.67-1.46-3.67-1.46-.55-1.29-1.28-1.65-1.28-1.65-.92-.65.1-.65.1-.65 1.1 0 1.73 1.1 1.73 1.1.92 1.65 2.57 1.2 3.21.92a2 2 0 01.64-1.47c-2.47-.27-5.04-1.19-5.04-5.5 0-1.1.46-2.1 1.2-2.84a3.76 3.76 0 010-2.93s.91-.28 3.11 1.1c1.8-.49 3.7-.49 5.5 0 2.1-1.38 3.02-1.1 3.02-1.1a3.76 3.76 0 010 2.93c.83.74 1.2 1.74 1.2 2.94 0 4.21-2.57 5.13-5.04 5.4.45.37.82.92.82 2.02v3.03c0 .27.1.64.73.55A11 11 0 0012 1.27">
-                </path>
-              </svg>
-              Github
-            </a>
-          </li>
-          
-         <!-- <li class="nav-item dropdown dropdown-hover mx-2">
+
+          <div v-if="usuario">
+            <li class="nav-item dropdown dropdown-hover mx-2">
+              <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" :class="getTextColor()"
+                id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="material-icons opacity-6 me-2 text-md" :class="getTextColor()">person</i>
+                {{ usuario.nome }}
+                <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-2 d-lg-block d-none" />
+              </a>
+              <div class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 border-radius-lg"
+                aria-labelledby="dropdownUser">
+                <a class="dropdown-item border-radius-md text-danger" @click="logout">
+                  <span>Sair</span>
+                </a>
+              </div>
+            </li>
+          </div>
+
+
+
+          <div v-else>
+            <li class="nav-item dropdown dropdown-hover mx-2">
+              <router-link to="/" class="nav-link d-flex cursor-pointer align-items-center">
+                <i class="material-icons opacity-6 me-2 text-md">person</i>
+                Entrar
+              </router-link>
+            </li>
+          </div>
+          <!-- <li class="nav-item dropdown dropdown-hover mx-2">
             <a class="nav-link d-flex cursor-pointer align-items-center btn btn-sm mb-0" :class="action.color">
               <RouterLink :to="{ name: 'dashboard' }" class="dropdown-item border-radius-md">
                 <span>Dashboard</span>
@@ -289,7 +343,6 @@ watch(
             <a :href="action.route" class="btn btn-sm mb-0" :class="action.color"
               onclick="smoothToPricing('pricing-soft-ui')">{{ action.label }}</a>
           </li>-->
-
           <li class="nav-item">
             <a @click="goToCadastrar" class="btn btn-sm mb-0" :class="action.color" role="button">
               {{ action.label }}

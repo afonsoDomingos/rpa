@@ -36,6 +36,7 @@ import logoTechvibe from "@/assets/img/logos/techvibe.jpg"
 import logoReact from "@/assets/img/logos/react.jpg";
 import logoSketch from "@/assets/img/logos/sketch.jpg";
 
+
 //hooks
 const body = document.getElementsByTagName("body")[0];
 onMounted(() => {
@@ -46,9 +47,11 @@ onUnmounted(() => {
   body.classList.remove("presentation-page");
   body.classList.remove("bg-gray-200");
 });
+
 </script>
 
 <template>
+  
   <div class="container position-sticky z-index-sticky top-0">
     <div class="row">
       <div class="col-12">
