@@ -116,6 +116,7 @@ const buscarDocumentosReportados = async () => {
   }
 };
 
+
 const buscarDocumentosProprietarios = async () => {
   try {
     const response = await api.get('/documentos/proprietarios');
