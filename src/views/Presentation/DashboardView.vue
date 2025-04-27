@@ -8,7 +8,7 @@ import Nossateam from "../../examples/footers/Nossateam.vue";
 import Header from "../../examples/Header.vue";
 
 //Vue Material Kit 2 components
-import VerDocumentosadmin from '@/components/VerDocumentosadmin.vue';
+import VerDocumentosadmin from '@/components/Verdocumentosadmin.vue';
 
 // sections  
 import PresentationCounter from "./Sections/PresentationCounter.vue";
