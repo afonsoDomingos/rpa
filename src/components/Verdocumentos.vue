@@ -136,6 +136,7 @@ const cadastrarDocumento = async () => {
   mensagemErro.value = '';
   mensagemSucesso.value = '';
 
+  
   try {
     const novoDocumento = {
       nome_completo: nome_completo.value,
