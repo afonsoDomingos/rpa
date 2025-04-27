@@ -10,7 +10,7 @@ import FilledInfoCard from "../../examples/cards/infoCards/FilledInfoCard.vue";
 
 //Vue Material Kit 2 components
 
-import VerDocumentos from '@/components/VerDocumentos.vue';
+import VerDocumentos from '@/components/Verdocumentos.vue';
 import MaterialSocialButton from "@/components/MaterialSocialButton.vue";
 
 
