@@ -1,6 +1,7 @@
 {
   "name": "vue-material-kit-2",
   "version": "2.0.0",
+
  "scripts": {
   "prebuild": "chmod +x node_modules/.bin/vite",
   "dev": "vite",
@@ -8,6 +9,7 @@
   "preview": "vite preview --port 4173",
   "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
 },
+
   "dependencies": {
     "@popperjs/core": "2.11.5",
     "axios": "^1.7.9",

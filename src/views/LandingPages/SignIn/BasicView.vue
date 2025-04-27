@@ -107,7 +107,7 @@ const register = async () => {
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
             <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
               <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">
-                Criar uma conta2
+                Criar uma conta
               </h4>
               <div class="row mt-3">
                 <div class="col-2 text-center ms-auto">

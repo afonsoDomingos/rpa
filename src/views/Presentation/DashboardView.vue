@@ -8,7 +8,7 @@ import Nossateam from "../../examples/footers/Nossateam.vue";
 import Header from "../../examples/Header.vue";
 
 //Vue Material Kit 2 components
-import VerDocumentosadmin from '@/components/VerDocumentosadmin.vue';
+import Verdocumentosadmin from '@/components/Verdocumentosadmin.vue';
 
 // sections  
 import PresentationCounter from "./Sections/PresentationCounter.vue";
@@ -63,7 +63,7 @@ onUnmounted(() => {
 
   <div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n6">
   <!-- Componente para Exibir Documentos -->
-  <VerDocumentosadmin />
+  <Verdocumentosadmin />
   <!-- Componente para Contador de Apresentação -->
   <PresentationCounter />
 </div> <!-- Fechamento da div card -->
