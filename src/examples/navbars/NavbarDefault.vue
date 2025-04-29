@@ -30,7 +30,7 @@ const usuario = ref(null);
 // Função para buscar o usuário logado da API
 const buscarUsuario = async () => {
   try {
-    const response = await axios.get('http://localhost:5000/api/auth/usuarios');
+    const response = await axios.get('https://apirpa.onrender.com/api/auth/usuarios');
     console.log('Resposta da API:', response.data);
 
     // Supondo que você tenha o email do usuário logado, por exemplo:
