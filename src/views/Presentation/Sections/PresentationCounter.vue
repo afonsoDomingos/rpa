@@ -9,7 +9,7 @@ const documentCount = ref(0);
 // Função para buscar a contagem de documentos da API
 onMounted(() => {
   // Requisição para pegar a contagem dos documentos
-  axios.get('http://localhost:5000/api/documentos/count')
+  axios.get('https://apirpa.onrender.com/api/documentos/count')
     .then(response => {
       documentCount.value = response.data.count;  // Atualiza a contagem com o valor da resposta
     })

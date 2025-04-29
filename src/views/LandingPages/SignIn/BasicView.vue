@@ -38,7 +38,7 @@ const login = async () => {
   const pass = password.value.trim();
 
   try {
-    const response = await axios.post('http://localhost:5000/api/auth/login', {
+    const response = await axios.post('https://apirpa.onrender.com/api/auth/login', {
       email: input,
       senha: pass
     });
@@ -65,7 +65,7 @@ const register = async () => {
   }
 
   try {
-    const response = await axios.post('http://localhost:5000/api/auth/register', {
+    const response = await axios.post('https://apirpa.onrender.com/api/auth/register', {
       nome: newUsername.value,
       email: newEmail.value,
       senha: newPassword.value
