@@ -31,14 +31,14 @@ const router = createRouter({
   routes: [
 
     {
-      path: "/login",
+      path: "/",
       name: "signin-basic",
       component: SignInBasicView,
     },
 
   
     {
-      path: '/',
+      path: '/home',
       name: 'presentation',
       component: PresentationView
     },
