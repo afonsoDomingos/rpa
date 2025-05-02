@@ -23,20 +23,20 @@ defineProps({
         link: "https://www.facebook.com/profile.php?id=61570930139844&sk=photos"
       },
       {
-        icon: '<i class="fab fa-twitter text-lg opacity-8"></i>',
-        link: ""
+        icon: '<i class="fab fa-linkedin text-lg opacity-8"></i>',
+        link: "https://www.linkedin.com/in/afonso-domingos-6b59361a5/"
       },
       {
         icon: '<i class="fab fa-dribbble text-lg opacity-8"></i>',
-        link: ""
+        link: "https://recuperaaqui.vercel.app"
       },
       {
         icon: '<i class="fab fa-github text-lg opacity-8"></i>',
-        link: ""
+        link: "https://github.com/afonsoDomingos/rpa"
       },
       {
         icon: '<i class="fab fa-youtube text-lg opacity-8"></i>',
-        link: ""
+        link: "https://www.youtube.com/channel/UClyCqvjCJeQHY21K5SMe2LA"
       }
     ]
   },

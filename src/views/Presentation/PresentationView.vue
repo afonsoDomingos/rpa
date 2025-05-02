@@ -154,10 +154,10 @@ onUnmounted(() => {
         </div>
         <div class="col-lg-5 me-lg-auto my-lg-auto text-lg-end mt-5">
           <MaterialSocialButton
-            route="https://www.facebook.com/profile.php?id=61570930139844&sk=photos"
-            component="twitter"
-            color="twitter"
-            label="twitter"
+            route="https://www.linkedin.com/in/afonso-domingos-6b59361a5/"
+            component="linkedin"
+            color="linkedin"
+            label="linkedin"
           />
           <MaterialSocialButton
             route="https://www.facebook.com/profile.php?id=61570930139844&sk=photos"
@@ -166,8 +166,8 @@ onUnmounted(() => {
           />
           <MaterialSocialButton
             route="https://docs.google.com/forms/d/e/1FAIpQLSdLO0mga6ygr6oVlCHQ6Hgt48baiZuQlXTzPRYynhXv0etD3g/viewform"
-            component="pinterest"
-            color="pinterest"
+            component="dribbble"
+            color="dribbble"
             label="Recupera Aqui"
           />
         </div>
