@@ -32,6 +32,7 @@ const tipo_documento = ref('');
 const numero_documento = ref('');
 const data_perda = ref('');
 const provincia = ref('');
+const contacto = ref('');
 
 
 
