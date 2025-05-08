@@ -24,7 +24,7 @@ import ElDropdowns from "../layouts/sections/elements/dropdowns/DropdownsView.vu
 import ElProgressBars from "../layouts/sections/elements/progress-bars/ProgressBarsView.vue";
 import ElToggles from "../layouts/sections/elements/toggles/TogglesView.vue";
 import ElTypography from "../layouts/sections/elements/typography/TypographyView.vue";
-import Pagetest from "../views/Pagetest.vue";
+import SolicitanteModal from "../components/SolicitanteModal.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,9 +44,9 @@ const router = createRouter({
     },
 
     {
-      path: "/pagetest",
-      name: "pagetest",
-      component: Pagetest,
+      path: '/solicitannte',
+      name: 'SolicitanteModal',
+      component: SolicitanteModal
     },
 
     {
@@ -70,9 +70,6 @@ const router = createRouter({
       name: "author",
       component: AuthorView,
     },
-    
-
-   
 
     {
       path: "/sections/page-sections/page-headers",

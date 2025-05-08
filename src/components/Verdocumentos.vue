@@ -4,8 +4,11 @@ import { ref, onMounted, onUnmounted, watch } from "vue"; // Importa funções d
 import MaterialSwitch from "@/components/MaterialSwitch.vue"; // Componente para um switch material
 import eventBus from "@/eventBus";
 
+//Vue Material Kit 2 components
+import MaterialButton from "@/components/MaterialButton.vue";
+
 // Estado reativo para controlar a aba ativa
-const activeTab = ref("cadastrar");
+const activeTab = ref("procurar");
 
 // Ouvir evento vindo do NavBarDefault.vue
 const changeTab = (tabName) => {
@@ -29,8 +32,8 @@ const tipo_documento = ref('');
 const numero_documento = ref('');
 const data_perda = ref('');
 const provincia = ref('');
-const origem = ref('');
-const contacto = ref('');
+
+
 
 // Campos para a aba "Reportar"
 const protocolo = ref('');
@@ -136,7 +139,7 @@ const cadastrarDocumento = async () => {
   mensagemErro.value = '';
   mensagemSucesso.value = '';
 
-  
+
   try {
     const novoDocumento = {
       nome_completo: nome_completo.value,
@@ -244,41 +247,156 @@ const tipo_documentos = [
 const reportarStatus = () => {
   console.log('Protocolo de Recuperação:', protocolo.value, 'Nome:', nome_completo.value);
 };
+
+
+
+///Minha Funcao de solicitane
+
 </script>
 
 <template>
   <section class="py-7">
-
     <div class="container">
       <!-- Conteúdo de Navegação -->
       <ul class="nav nav-pills nav-fill p-1" role="tablist">
         <li class="nav-item">
-          <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'cadastrar' }"
-            @click.prevent="activeTab = 'cadastrar'" role="tab" aria-selected="true">
-            Cadastrar
-          </a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'procurar' }"
-            @click.prevent="activeTab = 'procurar'" role="tab" aria-selected="false">
+            @click.prevent="activeTab = 'procurar'" role="tab" aria-selected="true">
             Procurar
           </a>
         </li>
         <li class="nav-item">
+          <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'cadastrar' }"
+            @click.prevent="activeTab = 'cadastrar'" role="tab" aria-selected="false">
+            Cadastrar
+          </a>
+        </li>
+        <!--<li class="nav-item">
           <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'documentosReportados' }"
             @click.prevent="activeTab = 'documentosReportados'" role="tab" aria-selected="false">
             Reportados
           </a>
-        </li>
-        <li class="nav-item">
+        </li>-->
+        <!--<li class="nav-item">
           <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'documentosProprietarios' }"
             @click.prevent="activeTab = 'documentosProprietarios'" role="tab" aria-selected="false">
             Proprietários
           </a>
-        </li>
+        </li>-->
       </ul>
       <!-- Conteúdo das abas -->
       <div class="tab-content">
+        <!-- Aba Procurar (Formulário para busca de documentos) -->
+        <div v-if="activeTab === 'procurar'" class="tab-pane fade show active" id="procurar-tabs-simple">
+          <form @submit.prevent="procurarDocumento" class="form">
+            <div class="row">
+              <!-- Seletor de Tipo de Filtro -->
+              <div class="col-md-12 mb-3">
+                <label for="tipoFiltro" class="form-label">Escolha o tipo de filtro</label>
+                <select id="tipoFiltro" class="form-control" v-model="tipoFiltro">
+                  <option value="nome">Nome Completo</option>
+                  <option value="tipo">Tipo de Documento</option>
+                  <option value="provincia">Província</option>
+                  <option value="numero">Número de Documento</option>
+                </select>
+              </div>
+
+              <!-- Campo para Nome Completo (Exibido se o filtro for por nome) -->
+              <div v-if="tipoFiltro === 'nome'" class="col-md-12 mb-3">
+                <label for="nomeRec" class="form-label">Nome Completo</label>
+                <input type="text" id="nomeRec" class="form-control" v-model="nome_completoRec"
+                  placeholder="Ex: João Silva" required />
+              </div>
+
+
+
+              <!-- Campo para Tipo de Documento (Exibido se o filtro for por tipo) -->
+              <div v-if="tipoFiltro === 'tipo'" class="col-md-12 mb-3">
+                <label for="tipoDocumento" class="form-label">Tipo de Documento</label>
+                <select id="tipoDocumento" class="form-select zoom-field" v-model="tipo_documentoRec" required>
+                  <option disabled value="">Selecione o Tipo de Documento</option>
+                  <option v-for="tipo in tipo_documentos" :key="tipo" :value="tipo">{{ tipo }}</option>
+                </select>
+              </div>
+
+              <!-- Campo para Província (Exibido se o filtro for por província) -->
+              <div v-if="tipoFiltro === 'provincia'" class="col-md-12 mb-3">
+                <label for="provinciaRec" class="form-label">Província</label>
+                <select id="provinciaRec" class="form-select zoom-field" v-model="provinciaRec" required>
+                  <option disabled value="">Selecione a Província</option>
+                  <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                </select>
+              </div>
+
+              <!-- Campo para Número de Documento (Exibido se o filtro for por número) -->
+              <div v-if="tipoFiltro === 'numero'" class="col-md-12 mb-3">
+                <label for="numero_documentoRec" class="form-label">Número de Documento</label>
+                <input type="text" id="numero_documentoRec" class="form-control" v-model="numero_documentoRec"
+                  placeholder="Ex: 123456789" required />
+              </div>
+
+              <!-- Exibição da Mensagem de Erro -->
+              <!--<div v-if="erroMensagem" class="text-danger mt-2">
+                {{ erroMensagem }}
+              </div>-->
+
+              <!-- Mensagem de erro com botão de redirecionamento -->
+              <div v-if="erroMensagem && documentosEncontrados.length === 0"
+                class="text-center mt-4 p-4 rounded shadow-sm animate-fade-in" style="background-color: #f8f9fa;">
+                <p class="text-danger fw-bold fs-5 mb-3">{{ erroMensagem }}</p>
+
+                <!-- Mensagem motivacional -->
+                <p class="text-muted fst-italic fs-6 mensagem-motivacional">
+                  Não desanime! Muitas pessoas encontram seus documentos depois de alguns dias, especialmente quando são
+                  registrados na plataforma.</p>
+
+                <!-- Botão com destaque -->
+                <button @click="activeTab = 'cadastrar'" class="btn btn-success btn-lg mt-3 px-4 py-2 btn-zoom"
+                  style="transition: 0.3s;" @mouseover="hover = true" @mouseleave="hover = false">
+                  📢 Não encontrou? Cadastre aqui
+                </button>
+              </div>
+
+              <br />
+              <!-- Botão para Procurar Documento -->
+              <div class="text-center">
+                <button type="submit" class="btn btn-purple w-100 btn-lg shadow">Procurar</button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Exibição de Documentos Encontrados -->
+          <div v-if="documentosEncontrados.length > 0" class="mt-4">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Tipo de Documento</th>
+                    <th>Acção</th>
+
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="doc in documentosEncontrados" :key="doc.numero_documento" class="table-row">
+                    <td>{{ doc.nome_completo }}</td>
+                    <td>{{ doc.tipo_documento }}</td>
+                    <td className="btn-zoom">
+
+                      <!-- Button trigger modal -->
+                      <MaterialButton variant="gradient" color="success" data-bs-toggle="modal"
+                        data-bs-target="#exampleModal">
+                        Solicitar
+                      </MaterialButton>
+
+                    </td>
+
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
 
         <!-- Aba Cadastrar (Formulario para cadastro de documentos) -->
         <div v-if="activeTab === 'cadastrar'" class="tab-pane fade show active" id="cadastrar-tabs-simple">
@@ -361,85 +479,7 @@ const reportarStatus = () => {
             </div>
           </form>
         </div>
-        <!-- Aba Procurar (Formulário para busca de documentos) -->
-        <div v-if="activeTab === 'procurar'" class="tab-pane fade show active" id="procurar-tabs-simple">
-          <form @submit.prevent="procurarDocumento" class="form">
-            <div class="row">
-              <!-- Seletor de Tipo de Filtro -->
-              <div class="col-md-12 mb-3">
-                <label for="tipoFiltro" class="form-label">Escolha o tipo de filtro</label>
-                <select id="tipoFiltro" class="form-control" v-model="tipoFiltro">
-                  <option value="nome">Nome Completo</option>
-                  <option value="tipo">Tipo de Documento</option>
-                  <option value="provincia">Província</option>
-                  <option value="numero">Número de Documento</option>
-                </select>
-              </div>
 
-              <!-- Campo para Nome Completo (Exibido se o filtro for por nome) -->
-              <div v-if="tipoFiltro === 'nome'" class="col-md-12 mb-3">
-                <label for="nomeRec" class="form-label">Nome Completo</label>
-                <input type="text" id="nomeRec" class="form-control" v-model="nome_completoRec"
-                  placeholder="Ex: João Silva" required />
-              </div>
-
-              <!-- Campo para Tipo de Documento (Exibido se o filtro for por tipo) -->
-              <div v-if="tipoFiltro === 'tipo'" class="col-md-12 mb-3">
-                <label for="tipoDocumento" class="form-label">Tipo de Documento</label>
-                <select id="tipoDocumento" class="form-select zoom-field" v-model="tipo_documentoRec" required>
-                  <option disabled value="">Selecione o Tipo de Documento</option>
-                  <option v-for="tipo in tipo_documentos" :key="tipo" :value="tipo">{{ tipo }}</option>
-                </select>
-              </div>
-
-              <!-- Campo para Província (Exibido se o filtro for por província) -->
-              <div v-if="tipoFiltro === 'provincia'" class="col-md-12 mb-3">
-                <label for="provinciaRec" class="form-label">Província</label>
-                <select id="provinciaRec" class="form-select zoom-field" v-model="provinciaRec" required>
-                  <option disabled value="">Selecione a Província</option>
-                  <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
-                </select>
-              </div>
-
-              <!-- Campo para Número de Documento (Exibido se o filtro for por número) -->
-              <div v-if="tipoFiltro === 'numero'" class="col-md-12 mb-3">
-                <label for="numero_documentoRec" class="form-label">Número de Documento</label>
-                <input type="text" id="numero_documentoRec" class="form-control" v-model="numero_documentoRec"
-                  placeholder="Ex: 123456789" required />
-              </div>
-
-              <!-- Exibição da Mensagem de Erro -->
-              <div v-if="erroMensagem" class="text-danger mt-2">
-                {{ erroMensagem }}
-              </div>
-
-              <!-- Botão para Procurar Documento -->
-              <div class="text-center">
-                <button type="submit" class="btn btn-purple w-100 btn-lg shadow">Procurar</button>
-              </div>
-            </div>
-          </form>
-
-          <!-- Exibição de Documentos Encontrados -->
-          <div v-if="documentosEncontrados.length > 0" class="mt-4">
-            <div class="table-responsive">
-              <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>Nome</th>
-                    <th>Tipo de Documento</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="doc in documentosEncontrados" :key="doc.numero_documento" class="table-row">
-                    <td>{{ doc.nome_completo }}</td>
-                    <td>{{ doc.tipo_documento }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
 
 
         <!-- Aba Documentos Reportados -->
@@ -509,6 +549,7 @@ const reportarStatus = () => {
       </div>
     </div>
   </section>
+
 </template>
 
 
@@ -577,6 +618,7 @@ const reportarStatus = () => {
   background-color: #6a006a;
   /* Tom de roxo mais escuro */
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+
   transform: scale(1.05);
   /* Efeito de aumento no botão ao passar o mouse */
 }
@@ -743,5 +785,131 @@ const reportarStatus = () => {
 .alert-danger {
   animation: pulse-danger 1s infinite;
   /* Adiciona o efeito de pulsar para erro */
+}
+
+
+
+
+.animate-fade-in {
+  animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.shadow-sm {
+  box-shadow: 0 0.3125rem 0.625rem 0 #80008036 !important;
+}
+
+/* Estilo da mensagem motivacional com efeito de digitação */
+.mensagem-motivacional {
+
+  color: #856404;
+  font-style: italic;
+  font-size: 1rem;
+  margin-bottom: 5px;
+  overflow: hidden;
+  /* Esconde o texto até ser mostrado */
+  white-space: nowrap;
+  /* Impede quebra de linha */
+  border-right: 3px solid #856404;
+  /* Simula o cursor de digitação */
+  width: 0;
+  /* Inicializa o tamanho do texto como 0 */
+  animation: typing 6s steps(60) 1s forwards, blink 0.75s step-end infinite;
+  /* Animação de digitação */
+}
+
+/* Animação de digitação horizontal (para desktop) */
+@keyframes typing {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+/* Animação de piscada do cursor */
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
+
+/* Ajustes para telas menores (dispositivos móveis) */
+@media (max-width: 768px) {
+  .mensagem-motivacional {
+    font-size: 0.9rem;
+    /* Reduz o tamanho da fonte para dispositivos móveis */
+    width: auto;
+    /* Ajusta a largura automaticamente */
+    white-space: normal;
+    /* Permite que o texto quebre em várias linhas */
+    word-wrap: break-word;
+    /* Permite quebra de linha */
+    max-width: 90%;
+    /* Limita a largura para não ocupar toda a tela */
+    margin: 0 auto;
+    /* Centraliza o texto */
+    height: 0;
+    /* Inicializa altura como 0 */
+    animation: typingVertical 4s steps(60) 1s forwards, blink 0.75s step-end infinite;
+    /* Animação de digitação vertical */
+  }
+}
+
+/* Efeito de digitação vertical (para dispositivos móveis) */
+@keyframes typingVertical {
+  from {
+    height: 0;
+  }
+
+  to {
+    height: 100%;
+  }
+}
+
+/* Ajustes para telas muito pequenas (smartphones com menos de 480px) */
+@media (max-width: 480px) {
+  .mensagem-motivacional {
+    font-size: 0.8rem;
+    /* Ajuste adicional para telas muito pequenas */
+  }
+}
+
+
+/* Classe de animação de zoom in e zoom out */
+.btn-zoom {
+  animation: zoomInOut 1.5s ease-in-out infinite;
+  /* Efeito de zoom contínuo */
+}
+
+/* Animação de zoom in e zoom out */
+@keyframes zoomInOut {
+  0% {
+    transform: scale(1);
+    /* Tamanho original */
+  }
+
+  50% {
+    transform: scale(1.1);
+    /* Aumenta o botão em 10% */
+  }
+
+  100% {
+    transform: scale(1);
+    /* Retorna ao tamanho original */
+  }
 }
 </style>

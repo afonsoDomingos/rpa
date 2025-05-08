@@ -1,7 +1,7 @@
 
 # RPA - Recuperação de Documentos Perdidos
 
-![Logo RPA](https://seulink.com/imagens/logo-rpa.jpg)
+![Logo RPA](https://github.com/afonsoDomingos/rpa/blob/main/src/assets/img/rPa.png)
 
 O RPA é a nossa plataforma inovadora focada em oferecer soluções para a recuperação de documentos perdidos. Criado com tecnologia de ponta, nosso sistema proporciona uma maneira simples e eficaz de registrar, buscar e recuperar documentos perdidos de forma segura e eficiente.
 
