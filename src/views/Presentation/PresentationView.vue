@@ -223,26 +223,26 @@ const solicitarDocumento = async () => {
           <!-- Formulário de solicitação -->
           <form id="formSolicitacao" @submit.prevent="solicitarDocumento">
             <div class="mb-3">
-              <label for="nomeSolicitante" class="form-label">Nome Completo</label>
+              <label for="nomeSolicitante" class="form-label fw-bold">Nome Completo</label>
               <input type="text" id="nomeSolicitante" class="form-control zoom-field" v-model="nome_completo"
                 placeholder="Ex: João Silva" maxlength="50" required />
               <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
             </div>
             <div class="mb-3">
-              <label for="contato" class="form-label">Contacto</label>
+              <label for="contato" class="form-label fw-bold">Contacto</label>
               <input type="tel" id="contato" class="form-control zoom-field" v-model="contacto"
                 placeholder="Ex: 84 123 4567" maxlength="9" required />
               <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
             </div>
             <div class="mb-3">
-              <label for="tipoDocumento" class="form-label">Tipo de Documento</label>
+              <label for="tipoDocumento" class="form-label fw-bold">Tipo de Documento</label>
               <select id="tipoDocumento" class="form-select zoom-field" v-model="tipo_documento" required>
                 <option disabled value="">Selecione o Tipo de Documento</option>
                 <option v-for="tipo in tipo_documentos" :key="tipo" :value="tipo">{{ tipo }}</option>
               </select>
             </div>
             <div class="mb-3">
-              <label for="motivo" class="form-label">Motivo da solicitação</label>
+              <label for="motivo" class="form-label fw-bold">Motivo da solicitação</label>
               <textarea class="form-control" id="motivo" v-model="motivo" rows="3"
                 placeholder="Explique por que está solicitando este documento (opcional)"></textarea>
             </div>

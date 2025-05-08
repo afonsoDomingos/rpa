@@ -293,7 +293,7 @@ const reportarStatus = () => {
             <div class="row">
               <!-- Seletor de Tipo de Filtro -->
               <div class="col-md-12 mb-3">
-                <label for="tipoFiltro" class="form-label">Escolha o tipo de filtro</label>
+                <label for="tipoFiltro" class="form-label fw-bold">Escolha o tipo de filtro</label>
                 <select id="tipoFiltro" class="form-control" v-model="tipoFiltro">
                   <option value="nome">Nome Completo</option>
                   <option value="tipo">Tipo de Documento</option>
@@ -304,7 +304,7 @@ const reportarStatus = () => {
 
               <!-- Campo para Nome Completo (Exibido se o filtro for por nome) -->
               <div v-if="tipoFiltro === 'nome'" class="col-md-12 mb-3">
-                <label for="nomeRec" class="form-label">Nome Completo</label>
+                <label for="nomeRec" class="form-label fw-bold">Nome Completo</label>
                 <input type="text" id="nomeRec" class="form-control" v-model="nome_completoRec"
                   placeholder="Ex: João Silva" required />
               </div>
@@ -313,7 +313,7 @@ const reportarStatus = () => {
 
               <!-- Campo para Tipo de Documento (Exibido se o filtro for por tipo) -->
               <div v-if="tipoFiltro === 'tipo'" class="col-md-12 mb-3">
-                <label for="tipoDocumento" class="form-label">Tipo de Documento</label>
+                <label for="tipoDocumento" class="form-label fw-bold">Tipo de Documento</label>
                 <select id="tipoDocumento" class="form-select zoom-field" v-model="tipo_documentoRec" required>
                   <option disabled value="">Selecione o Tipo de Documento</option>
                   <option v-for="tipo in tipo_documentos" :key="tipo" :value="tipo">{{ tipo }}</option>
@@ -322,7 +322,7 @@ const reportarStatus = () => {
 
               <!-- Campo para Província (Exibido se o filtro for por província) -->
               <div v-if="tipoFiltro === 'provincia'" class="col-md-12 mb-3">
-                <label for="provinciaRec" class="form-label">Província</label>
+                <label for="provinciaRec" class="form-label fw-bold">Província</label>
                 <select id="provinciaRec" class="form-select zoom-field" v-model="provinciaRec" required>
                   <option disabled value="">Selecione a Província</option>
                   <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
@@ -331,7 +331,7 @@ const reportarStatus = () => {
 
               <!-- Campo para Número de Documento (Exibido se o filtro for por número) -->
               <div v-if="tipoFiltro === 'numero'" class="col-md-12 mb-3">
-                <label for="numero_documentoRec" class="form-label">Número de Documento</label>
+                <label for="numero_documentoRec" class="form-label fw-bold">Número de Documento</label>
                 <input type="text" id="numero_documentoRec" class="form-control" v-model="numero_documentoRec"
                   placeholder="Ex: 123456789" required />
               </div>
@@ -405,7 +405,7 @@ const reportarStatus = () => {
             <div class="row">
               <!-- Campo para Nome Completo -->
               <div class="col-md-12 mb-3">
-                <label for="nomeSolicitante" class="form-label">Nome Completo</label>
+                <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
                 <input type="text" id="nomeSolicitante" class="form-control zoom-field" v-model="nome_completo"
                   placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
                 <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
@@ -413,13 +413,13 @@ const reportarStatus = () => {
               </div>
               <!-- Campo para Número do Documento -->
               <div class="col-md-12 mb-3">
-                <label for="numeroDocumento" class="form-label">Número do Documento</label>
+                <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
                 <input type="text" id="numeroDocumento" class="form-control zoom-field" v-model="numero_documento"
                   placeholder="Ex: 123" maxlength="15" required />
               </div>
               <!-- Campo para Tipo de Documento -->
               <div class="col-md-12 mb-3">
-                <label for="tipoDocumento" class="form-label">Tipo de Documento</label>
+                <label for="tipoDocumento" class="form-label fw-bold">Tipo de Documento</label>
                 <select id="tipoDocumento" class="form-select zoom-field" v-model="tipo_documento" required>
                   <option disabled value="">Selecione o Tipo de Documento</option>
                   <option v-for="tipo_documento in tipo_documentos" :key="tipo_documento" :value="tipo_documento">{{
@@ -428,7 +428,7 @@ const reportarStatus = () => {
               </div>
               <!-- Campo para Província -->
               <div class="col-md-12 mb-3">
-                <label for="provincia" class="form-label"> Província Local onde foi encontrado ou perdido</label>
+                <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou perdido</label>
                 <select id="provincia" class="form-select zoom-field" v-model="provincia" required>
                   <option disabled value="">Selecione o local</option>
                   <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
@@ -436,19 +436,19 @@ const reportarStatus = () => {
               </div>
               <!-- Campo para Contacto -->
               <div class="col-md-12 mb-3">
-                <label for="contato" class="form-label">Contacto</label>
+                <label for="contato" class="form-label fw-bold">Contacto</label>
                 <input type="tel" id="contato" class="form-control zoom-field" v-model="contacto"
                   placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
                 <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
               </div>
               <!-- Campo para Data da Perda -->
               <div class="col-md-12 mb-3">
-                <label for="dataPerda" class="form-label">Data</label>
+                <label for="dataPerda" class="form-label fw-bold">Data em que o documento foi perdido ou encontrado</label>
                 <input type="date" id="dataPerda" class="form-control zoom-field" v-model="data_perda" required />
               </div>
               <!-- Campo para Origem (Se é dono ou encontrou) -->
               <div class="col-md-12 mb-3">
-                <label for="origem" class="form-label">Você é o dono ou apenas encontrou?</label>
+                <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
                 <select id="origem" class="form-select zoom-field" v-model="origem" required>
                   <option disabled value="">Escolha uma opção</option>
                   <option value="proprietario">Sou o dono</option>

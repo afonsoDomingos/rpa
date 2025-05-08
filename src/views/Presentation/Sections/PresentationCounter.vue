@@ -28,7 +28,7 @@ onMounted(() => {
             <div class="col-md-4 position-relative">
               <DefaultCounterCard 
                 color="success"
-                title="Documentos Achados GET"
+                title="Documentos Encontrados"
                 description="Detalhes"
                 :count="documentCount" 
                 suffix="+"
@@ -39,7 +39,7 @@ onMounted(() => {
             <div class="col-md-4 position-relative">
               <DefaultCounterCard
                 color="success"
-                title="Documentos Disponiveis"
+                title="Documentos Disponíveis"
                 description="Detalhes"
                 :count="215"
                 suffix="+"
