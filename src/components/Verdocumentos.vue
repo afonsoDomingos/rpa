@@ -30,7 +30,7 @@ onMounted(async () => {
 const nome_completo = ref('');
 const tipo_documento = ref('');
 const numero_documento = ref('');
-const data_perda = ref('');
+//const data_perda = ref('');
 const provincia = ref('');
 const contacto = ref('');
 
@@ -60,6 +60,18 @@ const mensagemSucesso = ref('');
 const erroMensagem = ref('');
 const nomeError = ref(''); // Para armazenar erros do nome completo
 const contactoError = ref(''); // Variável para armazenar erros do contacto
+
+
+// Função para obter a data de hoje no formato 'YYYY-MM-DD'
+const getHoje = () => {
+  const hoje = new Date()
+  const ano = hoje.getFullYear()
+  const mes = String(hoje.getMonth() + 1).padStart(2, '0')
+  const dia = String(hoje.getDate()).padStart(2, '0')
+  return `${ano}-${mes}-${dia}`
+}
+const data_perda = ref(getHoje())
+
 
 // Função de validação do nome completo
 const validarNome = () => {
@@ -269,7 +281,7 @@ const reportarStatus = () => {
         <li class="nav-item">
           <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'cadastrar' }"
             @click.prevent="activeTab = 'cadastrar'" role="tab" aria-selected="false">
-            Cadastrar
+            Reportar
           </a>
         </li>
         <!--<li class="nav-item">
@@ -305,7 +317,7 @@ const reportarStatus = () => {
               <!-- Campo para Nome Completo (Exibido se o filtro for por nome) -->
               <div v-if="tipoFiltro === 'nome'" class="col-md-12 mb-3">
                 <label for="nomeRec" class="form-label fw-bold">Nome Completo</label>
-                <input type="text" id="nomeRec" class="form-control" v-model="nome_completoRec"
+                <input type="text" id="nomeRec" class="form-control borda-destacadanome" v-model="nome_completoRec"
                   placeholder="Ex: João Silva" required />
               </div>
 
@@ -406,16 +418,16 @@ const reportarStatus = () => {
               <!-- Campo para Nome Completo -->
               <div class="col-md-12 mb-3">
                 <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
-                <input type="text" id="nomeSolicitante" class="form-control zoom-field" v-model="nome_completo"
-                  placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
+                <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
+                  v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
                 <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
                 <!-- Adicionada a classe 'visible' -->
               </div>
               <!-- Campo para Número do Documento -->
               <div class="col-md-12 mb-3">
                 <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
-                <input type="text" id="numeroDocumento" class="form-control zoom-field" v-model="numero_documento"
-                  placeholder="Ex: 123" maxlength="15" required />
+                <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
+                  v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
               </div>
               <!-- Campo para Tipo de Documento -->
               <div class="col-md-12 mb-3">
@@ -428,7 +440,8 @@ const reportarStatus = () => {
               </div>
               <!-- Campo para Província -->
               <div class="col-md-12 mb-3">
-                <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou perdido</label>
+                <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
+                  perdido</label>
                 <select id="provincia" class="form-select zoom-field" v-model="provincia" required>
                   <option disabled value="">Selecione o local</option>
                   <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
@@ -437,15 +450,19 @@ const reportarStatus = () => {
               <!-- Campo para Contacto -->
               <div class="col-md-12 mb-3">
                 <label for="contato" class="form-label fw-bold">Contacto</label>
-                <input type="tel" id="contato" class="form-control zoom-field" v-model="contacto"
+                <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
                   placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
                 <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
               </div>
+              
               <!-- Campo para Data da Perda -->
-              <div class="col-md-12 mb-3">
-                <label for="dataPerda" class="form-label fw-bold">Data em que o documento foi perdido ou encontrado</label>
-                <input type="date" id="dataPerda" class="form-control zoom-field" v-model="data_perda" required />
+              <div class="col-md-12 mb-3" style="display: none;">
+                <label for="dataPerda" class="form-label fw-bold">
+                  Data
+                </label>
+                <input type="date" id="dataPerda" class="form-control zoom-field " v-model="data_perda" required />
               </div>
+
               <!-- Campo para Origem (Se é dono ou encontrou) -->
               <div class="col-md-12 mb-3">
                 <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
@@ -912,5 +929,27 @@ const reportarStatus = () => {
     transform: scale(1);
     /* Retorna ao tamanho original */
   }
+}
+
+
+
+.borda-destacadanome {
+  border: 2px solid #66bb6a;
+  border-radius: 5px;
+  padding: 10px;
+  outline: none;
+}
+
+.borda-destacada {
+  border: 1px solid #66bb6a;
+  border-radius: 5px;
+  padding: 10px;
+  outline: none;
+}
+
+.borda-destacada:focus {
+  border-color: #800080;
+  /* Roxo */
+  box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
 }
 </style>
