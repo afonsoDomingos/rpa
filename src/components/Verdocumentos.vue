@@ -305,8 +305,8 @@ const reportarStatus = () => {
             <div class="row">
               <!-- Seletor de Tipo de Filtro -->
               <div class="col-md-12 mb-3">
-                <label for="tipoFiltro" class="form-label fw-bold">Escolha o tipo de filtro</label>
-                <select id="tipoFiltro" class="form-control" v-model="tipoFiltro">
+                <label for="tipoFiltro" class="form-label fw-bold ">Escolha o tipo de filtro</label>
+                <select id="tipoFiltro" class="form-control borda-destacada form-select zoom-field" v-model="tipoFiltro">
                   <option value="nome">Nome Completo</option>
                   <option value="tipo">Tipo de Documento</option>
                   <option value="provincia">Província</option>
@@ -326,7 +326,7 @@ const reportarStatus = () => {
               <!-- Campo para Tipo de Documento (Exibido se o filtro for por tipo) -->
               <div v-if="tipoFiltro === 'tipo'" class="col-md-12 mb-3">
                 <label for="tipoDocumento" class="form-label fw-bold">Tipo de Documento</label>
-                <select id="tipoDocumento" class="form-select zoom-field" v-model="tipo_documentoRec" required>
+                <select id="tipoDocumento" class="form-control borda-destacada form-select zoom-field" v-model="tipo_documentoRec" required>
                   <option disabled value="">Selecione o Tipo de Documento</option>
                   <option v-for="tipo in tipo_documentos" :key="tipo" :value="tipo">{{ tipo }}</option>
                 </select>
@@ -335,7 +335,7 @@ const reportarStatus = () => {
               <!-- Campo para Província (Exibido se o filtro for por província) -->
               <div v-if="tipoFiltro === 'provincia'" class="col-md-12 mb-3">
                 <label for="provinciaRec" class="form-label fw-bold">Província</label>
-                <select id="provinciaRec" class="form-select zoom-field" v-model="provinciaRec" required>
+                <select id="provinciaRec" class="form-control borda-destacada form-select zoom-field" v-model="provinciaRec" required>
                   <option disabled value="">Selecione a Província</option>
                   <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
                 </select>
@@ -344,7 +344,7 @@ const reportarStatus = () => {
               <!-- Campo para Número de Documento (Exibido se o filtro for por número) -->
               <div v-if="tipoFiltro === 'numero'" class="col-md-12 mb-3">
                 <label for="numero_documentoRec" class="form-label fw-bold">Número de Documento</label>
-                <input type="text" id="numero_documentoRec" class="form-control" v-model="numero_documentoRec"
+                <input type="text" id="numero_documentoRec" class="form-control borda-destacada" v-model="numero_documentoRec"
                   placeholder="Ex: 123456789" required />
               </div>
 
@@ -432,7 +432,7 @@ const reportarStatus = () => {
               <!-- Campo para Tipo de Documento -->
               <div class="col-md-12 mb-3">
                 <label for="tipoDocumento" class="form-label fw-bold">Tipo de Documento</label>
-                <select id="tipoDocumento" class="form-select zoom-field" v-model="tipo_documento" required>
+                <select id="tipoDocumento" class="form-control borda-destacada form-select zoom-field" v-model="tipo_documento" required>
                   <option disabled value="">Selecione o Tipo de Documento</option>
                   <option v-for="tipo_documento in tipo_documentos" :key="tipo_documento" :value="tipo_documento">{{
                     tipo_documento }}</option>
@@ -442,7 +442,7 @@ const reportarStatus = () => {
               <div class="col-md-12 mb-3">
                 <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
                   perdido</label>
-                <select id="provincia" class="form-select zoom-field" v-model="provincia" required>
+                <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia" required>
                   <option disabled value="">Selecione o local</option>
                   <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
                 </select>
@@ -466,7 +466,7 @@ const reportarStatus = () => {
               <!-- Campo para Origem (Se é dono ou encontrou) -->
               <div class="col-md-12 mb-3">
                 <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
-                <select id="origem" class="form-select zoom-field" v-model="origem" required>
+                <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem" required>
                   <option disabled value="">Escolha uma opção</option>
                   <option value="proprietario">Sou o dono</option>
                   <option value="reportado">Apenas encontrei</option>
