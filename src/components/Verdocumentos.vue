@@ -335,7 +335,7 @@ const reportarStatus = () => {
               <!-- Campo para Província (Exibido se o filtro for por província) -->
               <div v-if="tipoFiltro === 'provincia'" class="col-md-12 mb-3">
                 <label for="provinciaRec" class="form-label fw-bold">Província</label>
-                <select id="provinciaRec" class="form-control borda-destacada form-select zoom-field" v-model="provinciaRec" required>
+                <select id="provinciaRec" class="form-control destacada form-select zoom-field" v-model="provinciaRec" required>
                   <option disabled value="">Selecione a Província</option>
                   <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
                 </select>
@@ -476,7 +476,7 @@ const reportarStatus = () => {
               <div class="col-md-12 mb-3">
                 <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
                   labelClass="ms-3 mb-0">
-                  Eu concordo com os <a href="javascript:;" class="text-dark"><u>Termos e Condições</u></a>.
+                  Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e Condições</u></router-link>..
                 </MaterialSwitch>
               </div>
               <!-- Botão para Cadastrar Documento -->
@@ -930,8 +930,6 @@ const reportarStatus = () => {
     /* Retorna ao tamanho original */
   }
 }
-
-
 
 .borda-destacadanome {
   border: 2px solid #66bb6a;

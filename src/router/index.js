@@ -25,6 +25,7 @@ import ElProgressBars from "../layouts/sections/elements/progress-bars/ProgressB
 import ElToggles from "../layouts/sections/elements/toggles/TogglesView.vue";
 import ElTypography from "../layouts/sections/elements/typography/TypographyView.vue";
 import SolicitanteModal from "../components/SolicitanteModal.vue"
+import TermsConditions from "../components/TermsConditions.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -47,6 +48,12 @@ const router = createRouter({
       path: '/solicitannte',
       name: 'SolicitanteModal',
       component: SolicitanteModal
+    },
+
+    {
+      path: '/termsconditions',
+      name: 'termsconditions',
+      component: TermsConditions
     },
 
     {
