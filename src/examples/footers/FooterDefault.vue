@@ -96,11 +96,11 @@ defineProps({
         items: [
           {
             name: "Termos e Condições",
-            href: ""
+            href: "TermsConditions"
           },
           {
             name: "Política de Privacidade",
-            href: ""
+            href: "PrivacyPolicy"
           },
           
         ]

@@ -26,6 +26,7 @@ import ElToggles from "../layouts/sections/elements/toggles/TogglesView.vue";
 import ElTypography from "../layouts/sections/elements/typography/TypographyView.vue";
 import SolicitanteModal from "../components/SolicitanteModal.vue"
 import TermsConditions from "../components/TermsConditions.vue"
+import PrivacyPolicy from "../components/PrivacyPolicy.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -54,6 +55,11 @@ const router = createRouter({
       path: '/termsconditions',
       name: 'termsconditions',
       component: TermsConditions
+    },
+       {
+      path: '/privacypolicy',
+      name: 'privacypolicy',
+      component: PrivacyPolicy
     },
 
     {
