@@ -14,8 +14,10 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 import { RouterView } from "vue-router";
+import CustomCursor from "./views/Presentation/CustomCursor.vue";
 </script>
 
 <template>
   <router-view />
+  <CustomCursor />
 </template>

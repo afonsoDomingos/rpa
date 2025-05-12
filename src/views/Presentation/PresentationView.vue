@@ -37,6 +37,9 @@ import logoReact from "@/assets/img/logos/react.jpg";
 import logoSketch from "@/assets/img/logos/sketch.jpg";
 
 
+
+
+
 //hooks
 const body = document.getElementsByTagName("body")[0];
 onMounted(() => {

@@ -12,7 +12,7 @@ import Header from "../examples/Header.vue";
 
 //Vue Material Kit 2 components
 
-import Verdocumentos from '@/components/Verdocumentos.vue';
+
 import MaterialSocialButton from "@/components/MaterialSocialButton.vue";
 
 
