@@ -4,8 +4,8 @@ import axios from 'axios';  // Importar axios
 import DefaultCounterCard from "../../../examples/cards/counterCards/DefaultCounterCard.vue";
 
 // Variável reativa para armazenar a contagem de documentos
-const documentCount = ref(0);
-
+const documentCount = ref(0);           // Documentos encontrados
+const solicitacoesCount = ref(0);       // Solicitações
 // Função para buscar a contagem de documentos da API
 onMounted(() => {
   // Requisição para pegar a contagem dos documentos
@@ -16,7 +16,22 @@ onMounted(() => {
     .catch(error => {
       console.error('Erro ao carregar contagem de documentos', error);  // Log de erro
     });
+
+
+     // Requisição para pegar a contagem dos documentos
+  axios.get('https://apirpa.onrender.com/api/solicitacoes/count')
+    .then(response => {
+      solicitacoesCount.value = response.data.count;  // Atualiza a contagem com o valor da resposta
+    })
+    .catch(error => {
+      console.error('Erro ao carregar contagem de documentos', error);  // Log de erro
+    });
+    
 });
+
+
+
+
 </script>
 
 <template>
@@ -41,7 +56,7 @@ onMounted(() => {
                 color="success"
                 title="Documentos Solicitados"
                 description="Detalhes"
-                :count="215"
+                :count="solicitacoesCount"
                 suffix="+"
                 :duration="3000"
                 divider="vertical"
