@@ -33,6 +33,7 @@ const numero_documento = ref('');
 //const data_perda = ref('');
 const provincia = ref('');
 const contacto = ref('');
+const origem = ref('');
 
 
 
@@ -354,13 +355,13 @@ const reportarStatus = () => {
               </div>-->
 
               <!-- Mensagem de erro com botão de redirecionamento -->
-              <div v-if="erroMensagem && documentosEncontrados.length === 0"
+              <div v-if="erroMensagem && documentosEncontrados.length === 0 && nome_completoRec"
                 class="text-center mt-4 p-4 rounded shadow-sm animate-fade-in" style="background-color: #f8f9fa;">
                 <p class="text-danger fw-bold fs-5 mb-3">{{ erroMensagem }}</p>
 
                 <!-- Mensagem motivacional -->
                 <p class="text-muted fst-italic fs-6 mensagem-motivacional">
-                  Não desanime! Muitas pessoas encontram seus documentos depois de alguns dias, especialmente quando são
+                  Não desanime {{ nome_completoRec.split(' ')[0] }}! Muitas pessoas encontram seus documentos depois de alguns dias, especialmente quando são
                   registrados na plataforma.</p>
 
                 <!-- Botão com destaque -->
