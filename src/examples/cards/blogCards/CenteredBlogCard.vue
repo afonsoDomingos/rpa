@@ -19,7 +19,7 @@ defineProps({
     label: String,
     default: () => ({
       color: "bg-gradient-success",
-      label: "Find Out More",
+      label: "Saiba Mais",
     }),
   },
 });
