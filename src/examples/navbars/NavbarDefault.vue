@@ -266,8 +266,8 @@ watch(
               <div class="d-none d-lg-block">
                 <ul class="list-group">
                   <li class="nav-item list-group-item border-0 p-0">
-                    <a class="dropdown-item py-2 ps-3 border-radius-md"
-                      href=" https://www.facebook.com/profile.php?id=61570930139844">
+                    <a class="dropdown-item py-2 ps-3 border-radius-md "
+                      href=" https://www.facebook.com/profile.php?id=61570930139844" target="_blank" rel="noopener noreferrer">
                       <h6
                         class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">
                         Facebook Rpa
@@ -277,7 +277,7 @@ watch(
                   </li>
                   <li class="nav-item list-group-item border-0 p-0">
                     <a class="dropdown-item py-2 ps-3 border-radius-md"
-                      href=" https://www.facebook.com/profile.php?id=61570930139844">
+                      href=" https://www.instagram.com/techvibemz/" target="_blank" rel="noopener noreferrer">
                       <h6
                         class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">
                         Instagram Rpa
@@ -287,7 +287,7 @@ watch(
                   </li>
                   <li class="nav-item list-group-item border-0 p-0">
                     <a class="dropdown-item py-2 ps-3 border-radius-md"
-                      href=" https://www.facebook.com/profile.php?id=61570930139844">
+                      href=" https://www.linkedin.com/in/afonso-domingos-6b59361a5/" target="_blank" rel="noopener noreferrer">
                       <h6
                         class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">
                         linkedin Rpa

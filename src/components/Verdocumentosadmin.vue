@@ -600,6 +600,7 @@ const atualizarStatus = async (documento) => {
                   <th>Nome</th>
                   <th>Tipo de Documento</th>
                   <th>Número do Documento</th>
+                   <th>Contacto</th>
                   <th>Província</th>
                   <th>Data</th>
                   <th>Ações</th> <!-- Coluna de ações -->
@@ -610,6 +611,7 @@ const atualizarStatus = async (documento) => {
                   <td>{{ documento.nome_completo }}</td>
                   <td>{{ documento.tipo_documento }}</td>
                   <td>{{ documento.numero_documento }}</td>
+                  <td>{{ documento.contacto }}</td>
                   <td>{{ documento.provincia }}</td>
                   <td>{{ documento.data_perda }}</td>
                   <td>

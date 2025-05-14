@@ -1,6 +1,10 @@
 <script setup>
 import { onMounted, onUnmounted } from "vue";
 
+
+import TabelaSolicitacoes from "../TabelaSolicitacoes.vue";
+import DocumentosCharts from "../DocumentosCharts.vue";
+
 //example components
 import NavbarDefault from "../..//examples/navbars/NavbarDefault.vue";
 import DefaultFooter from "../../examples/footers/FooterDefault.vue";
@@ -175,7 +179,12 @@ const solicitarDocumento = async () => {
 
   <div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n6">
   <!-- Componente para Exibir Documentos -->
+      <!-- Tabela de solicitações abaixo -->
+   <!-- Importação do Componente de Gráficos -->
+   <DocumentosCharts />
   <Verdocumentosadmin />
+    <!-- Tabela de solicitações abaixo -->
+  <TabelaSolicitacoes :solicitacoes="solicitacoes" />
   <!-- Componente para Contador de Apresentação -->
   <PresentationCounter />
 </div> <!-- Fechamento da div card -->
