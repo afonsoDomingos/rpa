@@ -52,6 +52,9 @@ onUnmounted(() => {
 });
 
 
+
+
+
 import api from "../../api";
 import { ref } from "vue"; // Importando ref para reatividade
 
@@ -239,8 +242,6 @@ const solicitarDocumento = async () => {
       </div>
     </div>
   </div> <!-- Fechamento da div card -->
-
-  <!-- Modal -->
 
   <!-- Modal -->
   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
