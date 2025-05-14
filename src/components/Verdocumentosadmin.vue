@@ -191,7 +191,7 @@ watch(tipoFiltro, (novoValor) => {
   tipo_documentoRec.value = "";
   provinciaRec.value = "";
   numero_documentoRec.value = "";
- // origemRec.value = "";//
+  // origemRec.value = "";//
 });
 
 
@@ -204,16 +204,16 @@ const procurarDocumento = async () => {
 
   if (tipoFiltro.value === "nome" && nome_completoRec.value.trim()) {
     params.nome_completo = nome_completoRec.value.trim();
-  } 
+  }
   else if (tipoFiltro.value === "tipo" && tipo_documentoRec.value) {
     params.tipo_documento = tipo_documentoRec.value;
   } else if (tipoFiltro.value === "provincia" && provinciaRec.value) {
     params.provincia = provinciaRec.value;
   } else if (tipoFiltro.value === "numero" && numero_documentoRec.value.trim()) { // Adiciona a condição para número de documento
     params.numero_documento = numero_documentoRec.value.trim();
-  } 
+  }
   //else if (tipoFiltro.value === "origem" && origemRec.value) {
-   // params.origem = origemRec.value; 
+  // params.origem = origemRec.value; 
   //} //
   else {
     erroMensagem.value = "Por favor, preencha o campo correspondente ao filtro selecionado.";
@@ -241,7 +241,7 @@ watch(activeTab, (novaAba) => {
     tipo_documentoRec.value = "";
     provinciaRec.value = "";
     numero_documentoRec.value = "";
-   //origemRec.value = "";//
+    //origemRec.value = "";//
   }
 });
 
@@ -287,11 +287,10 @@ const fecharModal = () => {
 // Função de salvar edição
 const salvarEdicao = async () => {
   try {
-    // Faz a requisição para atualizar o documento
-    await api.put(`/documentos/${documentoEditado.value.numero_documento}`, documentoEditado.value);
+    await api.put(`/documentos/${documentoEditado.value._id}`, documentoEditado.value);
 
-    // Atualiza a lista de documentos localmente
-    const index = documentosReportados.value.findIndex(doc => doc.numero_documento === documentoEditado.value.numero_documento);
+    // Atualiza a lista local
+    const index = documentosReportados.value.findIndex(doc => doc._id === documentoEditado.value._id);
     if (index !== -1) {
       documentosReportados.value[index] = { ...documentoEditado.value };
     }
@@ -307,10 +306,9 @@ const eliminarDocumento = async (documento) => {
   const confirmacao = confirm(`Tem certeza que deseja eliminar o documento ${documento.numero_documento}?`);
   if (confirmacao) {
     try {
-      // Chamando a API para excluir o documento
-      await api.delete(`/documentos/${documento.numero_documento}`);
-      // Após a exclusão, atualiza a lista de documentos
-      documentosReportados.value = documentosReportados.value.filter(doc => doc.numero_documento !== documento.numero_documento);
+      await api.delete(`/documentos/${documento._id}`);
+
+      documentosReportados.value = documentosReportados.value.filter(doc => doc._id !== documento._id);
       console.log("Documento eliminado:", documento);
     } catch (error) {
       console.error("Erro ao eliminar documento:", error);
@@ -320,6 +318,31 @@ const eliminarDocumento = async (documento) => {
 
 // Chamar a função para buscar documentos ao inicializar
 buscarDocumentos();
+
+const atualizarStatus = async (documento) => {
+  if (!documento.status || !['Pendente', 'Entregue'].includes(documento.status)) {
+    alert('Status inválido. Use "Pendente" ou "Entregue".');
+    return;
+  }
+
+  try {
+    await api.patch(`/documentos/${documento._id}/status`, {
+      status: documento.status,
+      isAdmin: true // Garantir acesso administrativo
+    });
+
+    const index = documentosReportados.value.findIndex(doc => doc._id === documento._id);
+    if (index !== -1) {
+      documentosReportados.value[index].status = documento.status;
+    }
+
+    alert('Status atualizado com sucesso!');
+  } catch (error) {
+    console.error('Erro ao atualizar status:', error);
+    alert('Erro ao atualizar status.');
+  }
+};
+
 </script>
 
 <template>
@@ -341,7 +364,7 @@ buscarDocumentos();
             Reportar Admin
           </a>
         </li>
-       
+
         <li class="nav-item">
           <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'documentosReportados' }"
             @click.prevent="activeTab = 'documentosReportados'" role="tab" aria-selected="false">
@@ -358,14 +381,15 @@ buscarDocumentos();
       <!-- Conteúdo das abas -->
       <div class="tab-content">
 
-          <!-- Aba Procurar (Formulário para busca de documentos) -->
+        <!-- Aba Procurar (Formulário para busca de documentos) -->
         <div v-if="activeTab === 'procurar'" class="tab-pane fade show active" id="procurar-tabs-simple">
           <form @submit.prevent="procurarDocumento" class="form">
             <div class="row">
               <!-- Seletor de Tipo de Filtro -->
               <div class="col-md-12 mb-3">
                 <label for="tipoFiltro" class="form-label fw-bold ">Escolha o tipo de filtro</label>
-                <select id="tipoFiltro" class="form-control borda-destacada form-select zoom-field" v-model="tipoFiltro">
+                <select id="tipoFiltro" class="form-control borda-destacada form-select zoom-field"
+                  v-model="tipoFiltro">
                   <option value="nome">Nome Completo</option>
                   <option value="tipo">Tipo de Documento</option>
                   <option value="provincia">Província</option>
@@ -385,7 +409,8 @@ buscarDocumentos();
               <!-- Campo para Tipo de Documento (Exibido se o filtro for por tipo) -->
               <div v-if="tipoFiltro === 'tipo'" class="col-md-12 mb-3">
                 <label for="tipoDocumento" class="form-label fw-bold">Tipo de Documento</label>
-                <select id="tipoDocumento" class="form-control borda-destacada form-select zoom-field" v-model="tipo_documentoRec" required>
+                <select id="tipoDocumento" class="form-control borda-destacada form-select zoom-field"
+                  v-model="tipo_documentoRec" required>
                   <option disabled value="">Selecione o Tipo de Documento</option>
                   <option v-for="tipo in tipo_documentos" :key="tipo" :value="tipo">{{ tipo }}</option>
                 </select>
@@ -394,7 +419,8 @@ buscarDocumentos();
               <!-- Campo para Província (Exibido se o filtro for por província) -->
               <div v-if="tipoFiltro === 'provincia'" class="col-md-12 mb-3">
                 <label for="provinciaRec" class="form-label fw-bold">Província</label>
-                <select id="provinciaRec" class="form-control destacada form-select zoom-field" v-model="provinciaRec" required>
+                <select id="provinciaRec" class="form-control destacada form-select zoom-field" v-model="provinciaRec"
+                  required>
                   <option disabled value="">Selecione a Província</option>
                   <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
                 </select>
@@ -403,8 +429,8 @@ buscarDocumentos();
               <!-- Campo para Número de Documento (Exibido se o filtro for por número) -->
               <div v-if="tipoFiltro === 'numero'" class="col-md-12 mb-3">
                 <label for="numero_documentoRec" class="form-label fw-bold">Número de Documento</label>
-                <input type="text" id="numero_documentoRec" class="form-control borda-destacada" v-model="numero_documentoRec"
-                  placeholder="Ex: 123456789" required />
+                <input type="text" id="numero_documentoRec" class="form-control borda-destacada"
+                  v-model="numero_documentoRec" placeholder="Ex: 123456789" required />
               </div>
 
               <!-- Exibição da Mensagem de Erro -->
@@ -419,7 +445,8 @@ buscarDocumentos();
 
                 <!-- Mensagem motivacional -->
                 <p class="text-muted fst-italic fs-6 mensagem-motivacional">
-                  Não desanime {{ nome_completoRec.split(' ')[0] }}! Muitas pessoas encontram seus documentos depois de alguns dias, especialmente quando são
+                  Não desanime {{ nome_completoRec.split(' ')[0] }}! Muitas pessoas encontram seus documentos depois de
+                  alguns dias, especialmente quando são
                   registrados na plataforma.</p>
 
                 <!-- Botão com destaque -->
@@ -491,7 +518,8 @@ buscarDocumentos();
               <!-- Campo para Tipo de Documento -->
               <div class="col-md-12 mb-3">
                 <label for="tipoDocumento" class="form-label fw-bold">Tipo de Documento</label>
-                <select id="tipoDocumento" class="form-control borda-destacada form-select zoom-field" v-model="tipo_documento" required>
+                <select id="tipoDocumento" class="form-control borda-destacada form-select zoom-field"
+                  v-model="tipo_documento" required>
                   <option disabled value="">Selecione o Tipo de Documento</option>
                   <option v-for="tipo_documento in tipo_documentos" :key="tipo_documento" :value="tipo_documento">{{
                     tipo_documento }}</option>
@@ -501,7 +529,8 @@ buscarDocumentos();
               <div class="col-md-12 mb-3">
                 <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
                   perdido</label>
-                <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia" required>
+                <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
+                  required>
                   <option disabled value="">Selecione o local</option>
                   <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
                 </select>
@@ -513,7 +542,7 @@ buscarDocumentos();
                   placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
                 <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
               </div>
-              
+
               <!-- Campo para Data da Perda -->
               <div class="col-md-12 mb-3" style="display: none;">
                 <label for="dataPerda" class="form-label fw-bold">
@@ -525,7 +554,8 @@ buscarDocumentos();
               <!-- Campo para Origem (Se é dono ou encontrou) -->
               <div class="col-md-12 mb-3">
                 <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
-                <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem" required>
+                <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
+                  required>
                   <option disabled value="">Escolha uma opção</option>
                   <option value="proprietario">Sou o dono</option>
                   <option value="reportado">Apenas encontrei</option>
@@ -535,7 +565,8 @@ buscarDocumentos();
               <div class="col-md-12 mb-3">
                 <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
                   labelClass="ms-3 mb-0">
-                  Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e Condições</u></router-link>..
+                  Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
+                      Condições</u></router-link>..
                 </MaterialSwitch>
               </div>
               <!-- Botão para Cadastrar Documento -->
@@ -559,83 +590,90 @@ buscarDocumentos();
 
 
 
-         <!-- Aba Documentos Reportados -->
-  <div v-if="activeTab === 'documentosReportados'" class="tab-pane fade show active" id="documentosReportados-tabs-simple">
-    <div class="table-responsive">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Tipo de Documento</th>
-            <th>Número do Documento</th>
-            <th>Província</th>
-            <th>Data</th>
-            <th>Ações</th> <!-- Coluna de ações -->
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="documento in documentosReportados" :key="documento.numero_documento" class="table-row">
-            <td>{{ documento.nome_completo }}</td>
-            <td>{{ documento.tipo_documento }}</td>
-            <td>{{ documento.numero_documento }}</td>
-            <td>{{ documento.provincia }}</td>
-            <td>{{ documento.data_perda }}</td>
-            <td>
-              <!-- Botão de editar -->
-              <button @click="editarDocumento(documento)" class="btn btn-warning">Editar</button>
-              <!-- Botão de eliminar -->
-              <button @click="eliminarDocumento(documento)" class="btn btn-danger">Eliminar</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        <!-- Aba Documentos Reportados -->
+        <div v-if="activeTab === 'documentosReportados'" class="tab-pane fade show active"
+          id="documentosReportados-tabs-simple">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Tipo de Documento</th>
+                  <th>Número do Documento</th>
+                  <th>Província</th>
+                  <th>Data</th>
+                  <th>Ações</th> <!-- Coluna de ações -->
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="documento in documentosReportados" :key="documento.numero_documento" class="table-row">
+                  <td>{{ documento.nome_completo }}</td>
+                  <td>{{ documento.tipo_documento }}</td>
+                  <td>{{ documento.numero_documento }}</td>
+                  <td>{{ documento.provincia }}</td>
+                  <td>{{ documento.data_perda }}</td>
+                  <td>
+                    <!-- Botão de editar -->
+                    <button @click="editarDocumento(documento)" class="btn btn-warning">Editar</button>
+                    <!-- Botão de eliminar -->
+                    <button @click="eliminarDocumento(documento)" class="btn btn-danger">Eliminar</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
-      <!-- Modal para edição de documento -->
-      <div v-if="isEditModalOpen" class="modal fade show d-block" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="editModalLabel">Editar Documento</h5>
-              <button type="button" class="close" @click="fecharModal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
+            <!-- Modal para edição de documento -->
+            <div v-if="isEditModalOpen" class="modal fade show d-block" tabindex="-1" role="dialog"
+              aria-labelledby="editModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Editar Documento</h5>
+                    <button type="button" class="close" @click="fecharModal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <!-- Formulário de edição -->
+                    <form @submit.prevent="salvarEdicao">
+                      <div class="form-group">
+                        <label for="nome_completo">Nome Completo</label>
+                        <input v-model="documentoEditado.nome_completo" type="text" class="form-control"
+                          id="nome_completo" required />
+                      </div>
+                      <div class="form-group">
+                        <label for="tipo_documento">Tipo de Documento</label>
+                        <input v-model="documentoEditado.tipo_documento" type="text" class="form-control"
+                          id="tipo_documento" required />
+                      </div>
+                      <div class="form-group">
+                        <label for="numero_documento">Número do Documento</label>
+                        <input v-model="documentoEditado.numero_documento" type="text" class="form-control"
+                          id="numero_documento" disabled />
+                      </div>
+                      <div class="form-group">
+                        <label for="provincia">Província</label>
+                        <input v-model="documentoEditado.provincia" type="text" class="form-control" id="provincia"
+                          required />
+                      </div>
+                      <div class="form-group">
+                        <label for="data_perda">Data da Perda</label>
+                        <input v-model="documentoEditado.data_perda" type="date" class="form-control" id="data_perda"
+                          required />
+                      </div>
+                      <button type="submit" class="btn btn-primary">Salvar</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="modal-body">
-              <!-- Formulário de edição -->
-              <form @submit.prevent="salvarEdicao">
-                <div class="form-group">
-                  <label for="nome_completo">Nome Completo</label>
-                  <input v-model="documentoEditado.nome_completo" type="text" class="form-control" id="nome_completo" required />
-                </div>
-                <div class="form-group">
-                  <label for="tipo_documento">Tipo de Documento</label>
-                  <input v-model="documentoEditado.tipo_documento" type="text" class="form-control" id="tipo_documento" required />
-                </div>
-                <div class="form-group">
-                  <label for="numero_documento">Número do Documento</label>
-                  <input v-model="documentoEditado.numero_documento" type="text" class="form-control" id="numero_documento" disabled />
-                </div>
-                <div class="form-group">
-                  <label for="provincia">Província</label>
-                  <input v-model="documentoEditado.provincia" type="text" class="form-control" id="provincia" required />
-                </div>
-                <div class="form-group">
-                  <label for="data_perda">Data da Perda</label>
-                  <input v-model="documentoEditado.data_perda" type="date" class="form-control" id="data_perda" required />
-                </div>
-                <button type="submit" class="btn btn-primary">Salvar</button>
-              </form>
+
+            <!-- Nota explicativa -->
+            <div class="tab-pane fade show active">
+              <strong>Nota:</strong> Esta é a lista de documentos perdidos registrados por alguém que os encontrou.
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Nota explicativa -->
-      <div class="tab-pane fade show active">
-        <strong>Nota:</strong> Esta é a lista de documentos perdidos registrados por alguém que os encontrou.
-      </div>
-    </div>
-  </div>
 
 
 
@@ -652,6 +690,8 @@ buscarDocumentos();
                   <th>Província</th>
                   <th>Contacto</th>
                   <th>Data</th>
+                  <th>Status</th>
+
                 </tr>
               </thead>
               <tbody>
@@ -662,6 +702,13 @@ buscarDocumentos();
                   <td>{{ documento.provincia }}</td>
                   <td>{{ documento.contacto }}</td>
                   <td>{{ documento.data_perda }}</td>
+                  <td>
+                    <select v-model="documento.status" @change="atualizarStatus(documento)"
+                      class="form-select form-select-sm">
+                      <option value="Pendente">Pendente</option>
+                      <option value="Recuperado">Entregue</option>
+                    </select>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -1058,5 +1105,4 @@ buscarDocumentos();
   /* Roxo */
   box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
 }
-
 </style>

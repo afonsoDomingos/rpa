@@ -568,7 +568,6 @@ const reportarStatus = () => {
       </div>
     </div>
   </section>
-
 </template>
 
 
