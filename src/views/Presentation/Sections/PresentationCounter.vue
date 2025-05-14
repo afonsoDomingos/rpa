@@ -67,7 +67,7 @@ onMounted(() => {
                 color="success"
                 title="Documentos Entregues"
                 description="Detalhes"
-                :count="50"
+                :count="2"
                 :duration="3000"
               />
             </div>

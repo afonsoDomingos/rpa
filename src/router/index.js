@@ -68,16 +68,20 @@ const router = createRouter({
       component: DashboardView,
     },
     
+   
     {
-      path: "/pages/landing-pages/about-us",
+      path: "/about",
       name: "about",
       component: AboutView,
     },
+   
+
     {
-      path: "/pages/landing-pages/contact-us",
+      path: "/contactus",
       name: "contactus",
       component: ContactView,
     },
+    
     {
       path: "/pages/landing-pages/author",
       name: "author",

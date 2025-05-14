@@ -54,7 +54,7 @@ defineProps({
         items: [
           {
             name: "Sobre Nós",
-            href: ""
+            href: "about"
           },
           {
             name: "Porquê Rpa",
@@ -86,7 +86,7 @@ defineProps({
         items: [
           {
             name: "Contacte-nos",
-            href: "pages/landing-pages/contact-us"
+            href: "contactus"  
           },
         
         ]
@@ -96,11 +96,11 @@ defineProps({
         items: [
           {
             name: "Termos e Condições",
-            href: "TermsConditions"
+            href: "termsconditions"
           },
           {
             name: "Política de Privacidade",
-            href: "PrivacyPolicy"
+            href: "privacypolicy"
           },
           
         ]
