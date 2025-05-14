@@ -27,7 +27,8 @@ defineProps({
 <template>
   <div class="card">
     <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-      <a :href="action.route" class="d-block blur-shadow-image">
+      <a :href="action.route"  target="_blank"
+      rel="noopener" class="d-block blur-shadow-image">
         <img :src="image" :alt="title" class="img-fluid border-radius-lg" />
       </a>
     </div>
@@ -38,9 +39,17 @@ defineProps({
       <p class="mb-0">
         {{ description }}
       </p>
-      <button type="button" class="btn btn-sm mb-0 mt-3" :class="action.color">
-        {{ action.label }}
-      </button>
+        <a
+      v-if="action.route"
+      :href="action.route"
+      target="_blank"
+      rel="noopener"
+      class="btn btn-sm mb-0 mt-3"
+      :class="action.color"
+    >
+      {{ action.label }}
+    </a>
+     
     </div>
   </div>
 </template>
