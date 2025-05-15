@@ -9,7 +9,7 @@ import Header from "../../examples/Header.vue";
 import FilledInfoCard from "../../examples/cards/infoCards/FilledInfoCard.vue";
 
 //Vue Material Kit 2 components
-
+import Guardardocumentos from '@/components/Guardardocumentos.vue'
 import Verdocumentos from '@/components/Verdocumentos.vue';
 import MaterialSocialButton from "@/components/MaterialSocialButton.vue";
 
@@ -192,6 +192,7 @@ const solicitarDocumento = async () => {
   <div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n6">
     <!-- Componente para Exibir Documentos -->
     <Verdocumentos />
+    <Guardardocumentos />
     <!-- Componente para Contador de Apresentação -->
     <PresentationCounter />
     <!-- Componente para Definir Popover (ajuda contextual ou informações extras ao interagir com elementos) -->
