@@ -307,7 +307,8 @@ const reportarStatus = () => {
               <!-- Seletor de Tipo de Filtro -->
               <div class="col-md-12 mb-3">
                 <label for="tipoFiltro" class="form-label fw-bold ">Escolha o tipo de filtro</label>
-                <select id="tipoFiltro" class="form-control borda-destacada form-select zoom-field" v-model="tipoFiltro">
+                <select id="tipoFiltro" class="form-control borda-destacada form-select zoom-field"
+                  v-model="tipoFiltro">
                   <option value="nome">Nome Completo</option>
                   <option value="tipo">Tipo de Documento</option>
                   <option value="provincia">Província</option>
@@ -327,7 +328,8 @@ const reportarStatus = () => {
               <!-- Campo para Tipo de Documento (Exibido se o filtro for por tipo) -->
               <div v-if="tipoFiltro === 'tipo'" class="col-md-12 mb-3">
                 <label for="tipoDocumento" class="form-label fw-bold">Tipo de Documento</label>
-                <select id="tipoDocumento" class="form-control borda-destacada form-select zoom-field" v-model="tipo_documentoRec" required>
+                <select id="tipoDocumento" class="form-control borda-destacada form-select zoom-field"
+                  v-model="tipo_documentoRec" required>
                   <option disabled value="">Selecione o Tipo de Documento</option>
                   <option v-for="tipo in tipo_documentos" :key="tipo" :value="tipo">{{ tipo }}</option>
                 </select>
@@ -336,7 +338,8 @@ const reportarStatus = () => {
               <!-- Campo para Província (Exibido se o filtro for por província) -->
               <div v-if="tipoFiltro === 'provincia'" class="col-md-12 mb-3">
                 <label for="provinciaRec" class="form-label fw-bold">Província</label>
-                <select id="provinciaRec" class="form-control destacada form-select zoom-field" v-model="provinciaRec" required>
+                <select id="provinciaRec" class="form-control destacada form-select zoom-field" v-model="provinciaRec"
+                  required>
                   <option disabled value="">Selecione a Província</option>
                   <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
                 </select>
@@ -345,8 +348,8 @@ const reportarStatus = () => {
               <!-- Campo para Número de Documento (Exibido se o filtro for por número) -->
               <div v-if="tipoFiltro === 'numero'" class="col-md-12 mb-3">
                 <label for="numero_documentoRec" class="form-label fw-bold">Número de Documento</label>
-                <input type="text" id="numero_documentoRec" class="form-control borda-destacada" v-model="numero_documentoRec"
-                  placeholder="Ex: 123456789" required />
+                <input type="text" id="numero_documentoRec" class="form-control borda-destacada"
+                  v-model="numero_documentoRec" placeholder="Ex: 123456789" required />
               </div>
 
               <!-- Exibição da Mensagem de Erro -->
@@ -361,7 +364,8 @@ const reportarStatus = () => {
 
                 <!-- Mensagem motivacional -->
                 <p class="text-muted fst-italic fs-6 mensagem-motivacional">
-                  Não desanime {{ nome_completoRec.split(' ')[0] }}! Muitas pessoas encontram seus documentos depois de alguns dias, especialmente quando são
+                  Não desanime {{ nome_completoRec.split(' ')[0] }}! Muitas pessoas encontram seus documentos depois de
+                  alguns dias, especialmente quando são
                   registrados na plataforma.</p>
 
                 <!-- Botão com destaque -->
@@ -416,74 +420,456 @@ const reportarStatus = () => {
         <div v-if="activeTab === 'cadastrar'" class="tab-pane fade show active" id="cadastrar-tabs-simple">
           <form @submit.prevent="cadastrarDocumento" class="form">
             <div class="row">
-              <!-- Campo para Nome Completo -->
-              <div class="col-md-12 mb-3">
-                <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
-                <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
-                  v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
-                <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
-                <!-- Adicionada a classe 'visible' -->
-              </div>
-              <!-- Campo para Número do Documento -->
-              <div class="col-md-12 mb-3">
-                <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
-                <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
-                  v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
-              </div>
-              <!-- Campo para Tipo de Documento -->
+              <!-- Tipo de Documento -->
               <div class="col-md-12 mb-3">
                 <label for="tipoDocumento" class="form-label fw-bold">Tipo de Documento</label>
-                <select id="tipoDocumento" class="form-control borda-destacada form-select zoom-field" v-model="tipo_documento" required>
+                <select id="tipoDocumento" class="form-control borda-destacada form-select zoom-field"
+                  v-model="tipo_documento" required>
                   <option disabled value="">Selecione o Tipo de Documento</option>
-                  <option v-for="tipo_documento in tipo_documentos" :key="tipo_documento" :value="tipo_documento">{{
-                    tipo_documento }}</option>
+                  <option v-for="tipo in tipo_documentos" :key="tipo" :value="tipo">{{ tipo }}</option>
                 </select>
-              </div>
-              <!-- Campo para Província -->
-              <div class="col-md-12 mb-3">
-                <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
-                  perdido</label>
-                <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia" required>
-                  <option disabled value="">Selecione o local</option>
-                  <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
-                </select>
-              </div>
-              <!-- Campo para Contacto -->
-              <div class="col-md-12 mb-3">
-                <label for="contato" class="form-label fw-bold">Contacto</label>
-                <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
-                  placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
-                <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
-              </div>
-              
-              <!-- Campo para Data da Perda -->
-              <div class="col-md-12 mb-3" style="display: none;">
-                <label for="dataPerda" class="form-label fw-bold">
-                  Data
-                </label>
-                <input type="date" id="dataPerda" class="form-control zoom-field " v-model="data_perda" required />
               </div>
 
-              <!-- Campo para Origem (Se é dono ou encontrou) -->
-              <div class="col-md-12 mb-3">
-                <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
-                <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem" required>
-                  <option disabled value="">Escolha uma opção</option>
-                  <option value="proprietario">Sou o dono</option>
-                  <option value="reportado">Apenas encontrei</option>
-                </select>
+              <!-- Bilhete de Identidade -->
+              <div v-if="tipo_documento === 'Bilhete de Identidade'" class="col-md-12 mb-3">
+                <!-- Campo para Nome Completo -->
+                <div class="col-md-12 mb-3">
+                  <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
+                  <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
+                    v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
+                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                  <!-- Adicionada a classe 'visible' -->
+                </div>
+                <!-- Campo para Número do Documento -->
+                <div class="col-md-12 mb-3">
+                  <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                  <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
+                    v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
+                </div>
+                <!-- Campo para Província -->
+                <div class="col-md-12 mb-3">
+                  <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
+                    perdido</label>
+                  <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
+                    required>
+                    <option disabled value="">Selecione o local</option>
+                    <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                  </select>
+                </div>
+                <!-- Campo para Contacto -->
+                <div class="col-md-12 mb-3">
+                  <label for="contato" class="form-label fw-bold">Contacto</label>
+                  <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
+                    placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
+                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
+                </div>
+                <!-- Campo para Origem (Se é dono ou encontrou) -->
+                <div class="col-md-12 mb-3">
+                  <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
+                  <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
+                    required>
+                    <option disabled value="">Escolha uma opção</option>
+                    <option value="proprietario">Sou o dono</option>
+                    <option value="reportado">Apenas encontrei</option>
+                  </select>
+                </div>
+                <!-- Campo para Concordância com Termos -->
+                <div class="col-md-12 mb-3">
+                  <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
+                    labelClass="ms-3 mb-0">
+                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
+                        Condições</u></router-link>..
+                  </MaterialSwitch>
+                </div>
+
               </div>
-              <!-- Campo para Concordância com Termos -->
-              <div class="col-md-12 mb-3">
-                <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
-                  labelClass="ms-3 mb-0">
-                  Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e Condições</u></router-link>..
-                </MaterialSwitch>
+
+              <!-- Passaporte -->
+              <div v-if="tipo_documento === 'Passaporte'" class="col-md-12 mb-3">
+                <!-- Campo para Nome Completo -->
+                <div class="col-md-12 mb-3">
+                  <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
+                  <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
+                    v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
+                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                  <!-- Adicionada a classe 'visible' -->
+                </div>
+                <!-- Campo para Número do Documento -->
+                <div class="col-md-12 mb-3">
+                  <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                  <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
+                    v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
+                </div>
+                <!-- Campo para Província -->
+                <div class="col-md-12 mb-3">
+                  <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
+                    perdido</label>
+                  <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
+                    required>
+                    <option disabled value="">Selecione o local</option>
+                    <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                  </select>
+                </div>
+                <!-- Campo para Contacto -->
+                <div class="col-md-12 mb-3">
+                  <label for="contato" class="form-label fw-bold">Contacto</label>
+                  <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
+                    placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
+                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
+                </div>
+                <!-- Campo para Origem (Se é dono ou encontrou) -->
+                <div class="col-md-12 mb-3">
+                  <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
+                  <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
+                    required>
+                    <option disabled value="">Escolha uma opção</option>
+                    <option value="proprietario">Sou o dono</option>
+                    <option value="reportado">Apenas encontrei</option>
+                  </select>
+                </div>
+                <!-- Campo para Concordância com Termos -->
+                <div class="col-md-12 mb-3">
+                  <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
+                    labelClass="ms-3 mb-0">
+                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
+                        Condições</u></router-link>..
+                  </MaterialSwitch>
+                </div>
               </div>
-              <!-- Botão para Cadastrar Documento -->
-              <div class="text-center">
-                <button type="submit" class="btn btn-purple w-100 btn-lg shadow">Cadastrar</button>
+
+              <!-- Carta de Condução -->
+              <div v-if="tipo_documento === 'Carta de Condução'" class="col-md-12 mb-3">
+                <!-- Campo para Nome Completo -->
+                <div class="col-md-12 mb-3">
+                  <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
+                  <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
+                    v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
+                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                  <!-- Adicionada a classe 'visible' -->
+                </div>
+                <!-- Campo para Número do Documento -->
+                <div class="col-md-12 mb-3">
+                  <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                  <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
+                    v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
+                </div>
+                <!-- Campo para Província -->
+                <div class="col-md-12 mb-3">
+                  <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
+                    perdido</label>
+                  <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
+                    required>
+                    <option disabled value="">Selecione o local</option>
+                    <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                  </select>
+                </div>
+                <!-- Campo para Contacto -->
+                <div class="col-md-12 mb-3">
+                  <label for="contato" class="form-label fw-bold">Contacto</label>
+                  <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
+                    placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
+                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
+                </div>
+                <!-- Campo para Origem (Se é dono ou encontrou) -->
+                <div class="col-md-12 mb-3">
+                  <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
+                  <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
+                    required>
+                    <option disabled value="">Escolha uma opção</option>
+                    <option value="proprietario">Sou o dono</option>
+                    <option value="reportado">Apenas encontrei</option>
+                  </select>
+                </div>
+                <!-- Campo para Concordância com Termos -->
+                <div class="col-md-12 mb-3">
+                  <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
+                    labelClass="ms-3 mb-0">
+                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
+                        Condições</u></router-link>..
+                  </MaterialSwitch>
+                </div>
               </div>
+
+              <!-- Cartão de Estudante -->
+              <div v-if="tipo_documento === 'Cartão de Estudante'" class="col-md-12 mb-3">
+                <!-- Campo para Nome Completo -->
+                <div class="col-md-12 mb-3">
+                  <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
+                  <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
+                    v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
+                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                  <!-- Adicionada a classe 'visible' -->
+                </div>
+                <!-- Campo para Número do Documento -->
+                <div class="col-md-12 mb-3">
+                  <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                  <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
+                    v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
+                </div>
+                <!-- Campo para Província -->
+                <div class="col-md-12 mb-3">
+                  <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
+                    perdido</label>
+                  <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
+                    required>
+                    <option disabled value="">Selecione o local</option>
+                    <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                  </select>
+                </div>
+                <!-- Campo para Contacto -->
+                <div class="col-md-12 mb-3">
+                  <label for="contato" class="form-label fw-bold">Contacto</label>
+                  <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
+                    placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
+                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
+                </div>
+                <!-- Campo para Origem (Se é dono ou encontrou) -->
+                <div class="col-md-12 mb-3">
+                  <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
+                  <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
+                    required>
+                    <option disabled value="">Escolha uma opção</option>
+                    <option value="proprietario">Sou o dono</option>
+                    <option value="reportado">Apenas encontrei</option>
+                  </select>
+                </div>
+                <!-- Campo para Concordância com Termos -->
+                <div class="col-md-12 mb-3">
+                  <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
+                    labelClass="ms-3 mb-0">
+                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
+                        Condições</u></router-link>..
+                  </MaterialSwitch>
+                </div>
+              </div>
+
+              <!-- Cartão de Eleitor -->
+              <div v-if="tipo_documento === 'Cartão de Eleitor'" class="col-md-12 mb-3">
+                <!-- Campo para Nome Completo -->
+                <div class="col-md-12 mb-3">
+                  <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
+                  <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
+                    v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
+                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                  <!-- Adicionada a classe 'visible' -->
+                </div>
+                <!-- Campo para Número do Documento -->
+                <div class="col-md-12 mb-3">
+                  <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                  <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
+                    v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
+                </div>
+                <!-- Campo para Província -->
+                <div class="col-md-12 mb-3">
+                  <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
+                    perdido</label>
+                  <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
+                    required>
+                    <option disabled value="">Selecione o local</option>
+                    <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                  </select>
+                </div>
+                <!-- Campo para Contacto -->
+                <div class="col-md-12 mb-3">
+                  <label for="contato" class="form-label fw-bold">Contacto</label>
+                  <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
+                    placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
+                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
+                </div>
+                <!-- Campo para Origem (Se é dono ou encontrou) -->
+                <div class="col-md-12 mb-3">
+                  <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
+                  <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
+                    required>
+                    <option disabled value="">Escolha uma opção</option>
+                    <option value="proprietario">Sou o dono</option>
+                    <option value="reportado">Apenas encontrei</option>
+                  </select>
+                </div>
+                <!-- Campo para Concordância com Termos -->
+                <div class="col-md-12 mb-3">
+                  <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
+                    labelClass="ms-3 mb-0">
+                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
+                        Condições</u></router-link>..
+                  </MaterialSwitch>
+                </div>
+              </div>
+
+              <!-- Seguro do Veículo -->
+              <div v-if="tipo_documento === 'Seguro do Veículo'" class="col-md-12 mb-3">
+                <!-- Campo para Nome Completo -->
+                <div class="col-md-12 mb-3">
+                  <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
+                  <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
+                    v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
+                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                  <!-- Adicionada a classe 'visible' -->
+                </div>
+                <!-- Campo para Número do Documento -->
+                <div class="col-md-12 mb-3">
+                  <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                  <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
+                    v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
+                </div>
+                <!-- Campo para Província -->
+                <div class="col-md-12 mb-3">
+                  <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
+                    perdido</label>
+                  <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
+                    required>
+                    <option disabled value="">Selecione o local</option>
+                    <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                  </select>
+                </div>
+                <!-- Campo para Contacto -->
+                <div class="col-md-12 mb-3">
+                  <label for="contato" class="form-label fw-bold">Contacto</label>
+                  <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
+                    placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
+                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
+                </div>
+                <!-- Campo para Origem (Se é dono ou encontrou) -->
+                <div class="col-md-12 mb-3">
+                  <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
+                  <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
+                    required>
+                    <option disabled value="">Escolha uma opção</option>
+                    <option value="proprietario">Sou o dono</option>
+                    <option value="reportado">Apenas encontrei</option>
+                  </select>
+                </div>
+                <!-- Campo para Concordância com Termos -->
+                <div class="col-md-12 mb-3">
+                  <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
+                    labelClass="ms-3 mb-0">
+                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
+                        Condições</u></router-link>..
+                  </MaterialSwitch>
+                </div>
+              </div>
+
+              <!-- Livrete -->
+              <div v-if="tipo_documento === 'Livrete'" class="col-md-12 mb-3">
+                <!-- Campo para Nome Completo -->
+                <div class="col-md-12 mb-3">
+                  <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
+                  <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
+                    v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
+                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                  <!-- Adicionada a classe 'visible' -->
+                </div>
+                <!-- Campo para Número do Documento -->
+                <div class="col-md-12 mb-3">
+                  <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                  <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
+                    v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
+                </div>
+                <!-- Campo para Província -->
+                <div class="col-md-12 mb-3">
+                  <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
+                    perdido</label>
+                  <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
+                    required>
+                    <option disabled value="">Selecione o local</option>
+                    <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                  </select>
+                </div>
+                <!-- Campo para Contacto -->
+                <div class="col-md-12 mb-3">
+                  <label for="contato" class="form-label fw-bold">Contacto</label>
+                  <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
+                    placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
+                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
+                </div>
+                <!-- Campo para Origem (Se é dono ou encontrou) -->
+                <div class="col-md-12 mb-3">
+                  <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
+                  <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
+                    required>
+                    <option disabled value="">Escolha uma opção</option>
+                    <option value="proprietario">Sou o dono</option>
+                    <option value="reportado">Apenas encontrei</option>
+                  </select>
+                </div>
+                <!-- Campo para Concordância com Termos -->
+                <div class="col-md-12 mb-3">
+                  <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
+                    labelClass="ms-3 mb-0">
+                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
+                        Condições</u></router-link>..
+                  </MaterialSwitch>
+                </div>
+              </div>
+
+              <!-- Cartão de Identidade Militar -->
+              <div v-if="tipo_documento === 'Cartão de Identidade Militar'" class="col-md-12 mb-3">
+                <!-- Campo para Nome Completo -->
+                <div class="col-md-12 mb-3">
+                  <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
+                  <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
+                    v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
+                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                  <!-- Adicionada a classe 'visible' -->
+                </div>
+                <!-- Campo para Número do Documento -->
+                <div class="col-md-12 mb-3">
+                  <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                  <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
+                    v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
+                </div>
+                <!-- Campo para Província -->
+                <div class="col-md-12 mb-3">
+                  <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
+                    perdido</label>
+                  <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
+                    required>
+                    <option disabled value="">Selecione o local</option>
+                    <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                  </select>
+                </div>
+                <!-- Campo para Contacto -->
+                <div class="col-md-12 mb-3">
+                  <label for="contato" class="form-label fw-bold">Contacto</label>
+                  <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
+                    placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
+                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
+                </div>
+                <!-- Campo para Origem (Se é dono ou encontrou) -->
+                <div class="col-md-12 mb-3">
+                  <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
+                  <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
+                    required>
+                    <option disabled value="">Escolha uma opção</option>
+                    <option value="proprietario">Sou o dono</option>
+                    <option value="reportado">Apenas encontrei</option>
+                  </select>
+                </div>
+                <!-- Campo para Concordância com Termos -->
+                <div class="col-md-12 mb-3">
+                  <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
+                    labelClass="ms-3 mb-0">
+                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
+                        Condições</u></router-link>..
+                  </MaterialSwitch>
+                </div>
+              </div>
+
+            </div>
+            <!--CAMPOS COMUNS-->
+
+            <!-- Campo para Data da Perda -->
+            <div class="col-md-12 mb-3" style="display: none;">
+              <label for="dataPerda" class="form-label fw-bold">
+                Data
+              </label>
+              <input type="date" id="dataPerda" class="form-control zoom-field " v-model="data_perda" required />
+            </div>
+
+
+            <!-- Botão para Cadastrar Documento -->
+            <div class="text-center">
+              <button type="submit" class="btn btn-purple w-100 btn-lg shadow">Cadastrar</button>
             </div>
             <div class="text-center">
               <!-- Mensagem de sucesso -->
