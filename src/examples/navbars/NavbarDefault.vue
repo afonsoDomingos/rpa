@@ -10,7 +10,8 @@ import DownArrWhite from "@/assets/img/down-arrow-white.svg";
 
 import eventBus from '@/eventBus'; // Verifique se o caminho está correto
 
-
+import { useRouter } from 'vue-router';
+const router = useRouter();
 
 const logout = () => {
   localStorage.removeItem('email'); // Remove o email salvo
@@ -18,7 +19,7 @@ const logout = () => {
 
   alert('Logout realizado com sucesso!'); // Alerta simples
 
-  router.push('/login'); // Redireciona para a página de login
+  router.push('/'); // Redireciona para a página de login
 };
 
 
@@ -34,14 +35,17 @@ const buscarUsuario = async () => {
     console.log('Resposta da API:', response.data);
 
     // Supondo que você tenha o email do usuário logado, por exemplo:
-    const emailLogado = 'cliente@example.com';  // Altere para o email do usuário logado
+    // const emailLogado = 'cliente@example.com';  // Altere para o email do usuário logado
+    const emailLogado = localStorage.getItem('email');
 
     // Buscar o usuário com o email correspondente no array de usuários
     usuario.value = response.data.find(u => u.email === emailLogado);
 
     if (!usuario.value) {
-      console.error('Usuário não encontrado na lista de usuários');
+      console.warn('Usuário não encontrado. Redirecionando para login...');
+      router.push('/');
     }
+
   } catch (error) {
     console.error('Erro ao buscar o usuário:', error);
   }
@@ -267,7 +271,8 @@ watch(
                 <ul class="list-group">
                   <li class="nav-item list-group-item border-0 p-0">
                     <a class="dropdown-item py-2 ps-3 border-radius-md "
-                      href=" https://www.facebook.com/profile.php?id=61570930139844" target="_blank" rel="noopener noreferrer">
+                      href=" https://www.facebook.com/profile.php?id=61570930139844" target="_blank"
+                      rel="noopener noreferrer">
                       <h6
                         class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">
                         Facebook Rpa
@@ -276,8 +281,8 @@ watch(
                     </a>
                   </li>
                   <li class="nav-item list-group-item border-0 p-0">
-                    <a class="dropdown-item py-2 ps-3 border-radius-md"
-                      href=" https://www.instagram.com/techvibemz/" target="_blank" rel="noopener noreferrer">
+                    <a class="dropdown-item py-2 ps-3 border-radius-md" href=" https://www.instagram.com/techvibemz/"
+                      target="_blank" rel="noopener noreferrer">
                       <h6
                         class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">
                         Instagram Rpa
@@ -287,7 +292,8 @@ watch(
                   </li>
                   <li class="nav-item list-group-item border-0 p-0">
                     <a class="dropdown-item py-2 ps-3 border-radius-md"
-                      href=" https://www.linkedin.com/in/afonso-domingos-6b59361a5/" target="_blank" rel="noopener noreferrer">
+                      href=" https://www.linkedin.com/in/afonso-domingos-6b59361a5/" target="_blank"
+                      rel="noopener noreferrer">
                       <h6
                         class="dropdown-header text-dark font-weight-bolder d-flex justify-content-cente align-items-center p-0">
                         linkedin Rpa
@@ -301,33 +307,35 @@ watch(
             </div>
           </li>
 
-          <div v-if="usuario">
-            <li class="nav-item dropdown dropdown-hover mx-2">
-              <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" :class="getTextColor()"
-                id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="material-icons opacity-6 me-2 text-md" :class="getTextColor()">person</i>
-                {{ usuario.nome }}
-                <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-2 d-lg-block d-none" />
-              </a>
-              <div class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 border-radius-lg"
-                aria-labelledby="dropdownUser">
-                <a class="dropdown-item border-radius-md text-danger" @click="logout">
-                  <span>Sair</span>
-                </a>
-              </div>
-            </li>
-          </div>
+
+          <li v-if="usuario" class="nav-item dropdown dropdown-hover mx-2">
+            <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" :class="getTextColor()"
+              id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="material-icons opacity-6 me-2 text-md" :class="getTextColor()">person</i>
+              {{ usuario?.nome || 'Usuário' }}
+
+              <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-2 d-lg-block d-none" />
+            </a>
+            <div class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 border-radius-lg"
+              aria-labelledby="dropdownUser">
+              <button class="dropdown-item border-radius-md text-danger" @click="logout">
+                <span>Sair</span>
+              </button>
+
+            </div>
+          </li>
 
 
 
-          <div v-else>
-            <li class="nav-item dropdown dropdown-hover mx-2">
-              <router-link to="/" class="nav-link d-flex cursor-pointer align-items-center">
-                <i class="material-icons opacity-6 me-2 text-md">person</i>
-                Entrar
-              </router-link>
-            </li>
-          </div>
+
+
+          <li v-else class="nav-item dropdown dropdown-hover mx-2">
+            <router-link to="/" class="nav-link d-flex cursor-pointer align-items-center">
+              <i class="material-icons opacity-6 me-2 text-md">person</i>
+              Entrar
+            </router-link>
+          </li>
+
           <!-- <li class="nav-item dropdown dropdown-hover mx-2">
             <a class="nav-link d-flex cursor-pointer align-items-center btn btn-sm mb-0" :class="action.color">
               <RouterLink :to="{ name: 'dashboard' }" class="dropdown-item border-radius-md">
@@ -336,7 +344,7 @@ watch(
             </a>
           </li>-->
 
-        
+
         </ul>
 
         <ul class="navbar-nav d-lg-block d-none">
@@ -352,14 +360,11 @@ watch(
           </li>
         </ul>
 
-        <a
-  class="btn btn-sm bg-gradient-primary mb-0 ms-2"
-  role="button"
-  @click="$router.push({ name: 'GuardarDocumentos' })"
->
-  Guardar Documentos
-</a>
-       
+        <a class="btn btn-sm bg-gradient-primary mb-0 ms-2" role="button"
+          @click="$router.push({ name: 'GuardarDocumentos' })">
+          Guardar Documentos
+        </a>
+
       </div>
     </div>
   </nav>

@@ -33,14 +33,13 @@ const router = createRouter({
   routes: [
 
     {
-      path: "/login",
+      path: "/",
       name: "signin-basic",
       component: SignInBasicView,
     },
-
   
     {
-      path: '/',
+      path: '/home',
       name: 'presentation',
       component: PresentationView
     },
@@ -191,5 +190,23 @@ const router = createRouter({
     }
   ],
 });
+
+
+router.beforeEach((to, from, next) => {
+  const publicPages = ['/login'];
+  const authRequired = !publicPages.includes(to.path);
+  const token = localStorage.getItem('token');
+
+  if (authRequired && !token) {
+    return next('/login');
+  }
+
+  next();
+});
+
+const logout = () => {
+  localStorage.removeItem("token");
+  router.push("/login");
+};
 
 export default router;

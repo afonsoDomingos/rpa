@@ -43,12 +43,12 @@ const login = async () => {
       senha: pass
     });
 
-    const { token, redirectUrl } = response.data;
+    const { token, redirectUrl, email } = response.data;
 
-    // Armazenando o token no localStorage
+    // Salva o token e o email para usar depois
     localStorage.setItem('authToken', token);
+    localStorage.setItem('email', email || input);
 
-    // Redireciona para a URL específica de acordo com o papel
     router.push(redirectUrl);
   } catch (error) {
     console.error('Erro no login', error);
@@ -182,13 +182,13 @@ const register = async () => {
         <div class="second-column">
 
 
-         
+
 
           <!--<h2 class="title title-second">faça login</h2>-->
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
             <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
               <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">
-                 Faça Login
+                Faça Login
               </h4>
               <div class="row mt-3">
                 <div class="col-2 text-center ms-auto">
@@ -233,8 +233,7 @@ const register = async () => {
             </label>
 
 
-            <MaterialSwitch  class="d-flex align-items-center mb-3" id="rememberMe"
-              labelClass="mb-0 ms-3">
+            <MaterialSwitch class="d-flex align-items-center mb-3" id="rememberMe" labelClass="mb-0 ms-3">
               Lembre de mim
             </MaterialSwitch>
 
