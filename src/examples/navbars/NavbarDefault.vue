@@ -335,6 +335,8 @@ watch(
               </RouterLink>
             </a>
           </li>-->
+
+        
         </ul>
 
         <ul class="navbar-nav d-lg-block d-none">
@@ -348,8 +350,16 @@ watch(
               {{ action.label }}
             </a>
           </li>
-
         </ul>
+
+        <a
+  class="btn btn-sm bg-gradient-primary mb-0 ms-2"
+  role="button"
+  @click="$router.push({ name: 'GuardarDocumentos' })"
+>
+  Guardar Documentos
+</a>
+       
       </div>
     </div>
   </nav>

@@ -1,6 +1,7 @@
 <template>
   <div class="container py-4">
-    <div class="card shadow rounded-4 p-4">
+
+ <div class="card shadow rounded-4 p-4">
       <h4 class="mb-4 text-center">
         <i class="bi bi-folder-plus text-primary me-2"></i>
         Guardar Meus Documentos
@@ -237,7 +238,7 @@
 
       <!-- Botão -->
       <div class="text-center mt-4">
-        <button class="btn btn-success px-4" @click="guardarLocalmente">
+        <button class="btn btn-success px-4" @click="salvarDocumento">
           <i class="bi bi-check-circle me-2"></i>
           Guardar Documento
         </button>
@@ -249,13 +250,94 @@
 
 
     </div>
+
+ <!-- Lista de documentos guardados -->
+<div class="container mt-5" v-if="documentos.length > 0">
+  <h4 class="mb-4 text-primary fw-bold">📁 Documentos Guardados</h4>
+
+  <div
+    v-for="(doc, index) in documentos"
+    :key="doc.id || index"
+    class="card shadow-sm mb-4"
+  >
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6" v-if="doc.tipoDocumento"><strong>Tipo:</strong> {{ doc.tipoDocumento }}</div>
+        <div class="col-md-6" v-if="doc.nome"><strong>Nome:</strong> {{ doc.nome }}</div>
+        <div class="col-md-6" v-if="doc.numeroDocumento"><strong>Número:</strong> {{ doc.numeroDocumento }}</div>
+        <div class="col-md-6" v-if="doc.dataEmissao"><strong>Data de Emissão:</strong> {{ doc.dataEmissao }}</div>
+        <div class="col-md-6" v-if="doc.validade"><strong>Validade:</strong> {{ doc.validade }}</div>
+        <div class="col-md-6" v-if="doc.categoria"><strong>Categoria:</strong> {{ doc.categoria }}</div>
+        <div class="col-md-6" v-if="doc.matricula"><strong>Matrícula:</strong> {{ doc.matricula }}</div>
+        <div class="col-md-6" v-if="doc.seguradora"><strong>Seguradora:</strong> {{ doc.seguradora }}</div>
+        <div class="col-md-6" v-if="doc.numeroConta"><strong>Nº Conta:</strong> {{ doc.numeroConta }}</div>
+        <div class="col-md-6" v-if="doc.numeroCartao"><strong>Nº Cartão:</strong> {{ doc.numeroCartao }}</div>
+        <div class="col-md-6" v-if="doc.zonaEleitoral"><strong>Zona Eleitoral:</strong> {{ doc.zonaEleitoral }}</div>
+        <div class="col-md-6" v-if="doc.numeroSegurancaSocial"><strong>Nº Segurança Social:</strong> {{ doc.numeroSegurancaSocial }}</div>
+        <div class="col-md-6" v-if="doc.patente"><strong>Patente:</strong> {{ doc.patente }}</div>
+        <div class="col-md-6" v-if="doc.modelo"><strong>Modelo:</strong> {{ doc.modelo }}</div>
+        <div class="col-md-6" v-if="doc.cartaoVirtualTipo"><strong>Tipo Cartão Virtual:</strong> {{ doc.cartaoVirtualTipo }}</div>
+        <div class="col-md-6" v-if="doc.codigoVirtual"><strong>Código Virtual:</strong> {{ doc.codigoVirtual }}</div>
+      </div>
+
+      <div class="mt-3 d-flex gap-2">
+        <button class="btn btn-outline-danger btn-sm" @click="removerDocumento(doc.id)">
+          🗑 Remover
+        </button>
+        <button class="btn btn-outline-primary btn-sm" @click="editarDocumento(doc)">
+          ✏️ Editar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div v-else class="text-center mt-5">
+  <p class="text-muted fs-5">📂 Nenhum documento guardado.</p>
+</div>
+
+<!-- Modal de edição -->
+<div v-if="modalAberto" class="modal-overlay" @click.self="fecharModal">
+  <div class="modal-content p-4 shadow-lg rounded bg-white" style="max-width: 800px; margin: auto;">
+    <h4 class="mb-4 text-center text-primary">✏️ Editar Documento</h4>
+    <form @submit.prevent="salvarEdicao">
+      <div class="row g-3">
+        <template v-for="chave in Object.keys(form)" :key="chave">
+          <div class="col-md-6">
+            <label class="form-label text-capitalize">{{ formatarLabel(chave) }}</label>
+            <input
+              :type="chave.includes('data') ? 'date' : 'text'"
+              class="form-control borda-destacada"
+              v-model="form[chave]"
+            />
+          </div>
+        </template>
+      </div>
+      <div class="mt-4 text-center">
+        <button type="submit" class="btn btn-success me-2">💾 Salvar</button>
+        <button type="button" class="btn btn-secondary" @click="fecharModal">❌ Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import api from '../api'
 
+// Reactive state
+const documentos = ref([])
+const mensagem = ref('')
+const mensagemTipo = ref('')
+
+
+// Formulário
 const form = ref({
+  id: null, // id para edição
   tipoDocumento: '',
   nome: '',
   numeroDocumento: '',
@@ -275,7 +357,87 @@ const form = ref({
 })
 
 
+const modalAberto = ref(false)
 
+
+
+
+const formatarLabel = (campo) => {
+  return campo
+    .replace(/([A-Z])/g, ' $1')         // adiciona espaço antes das maiúsculas
+    .replace(/^./, (str) => str.toUpperCase())  // capitaliza primeira letra
+    .replace(/numero/g, 'Número')
+    .replace(/data/g, 'Data')
+    .replace(/seguranca/g, 'Segurança')
+    .replace(/cartao/g, 'Cartão')
+    .replace(/virtual/g, 'Virtual')
+    .replace(/conta/g, 'Conta')
+    .replace(/zona/g, 'Zona')
+    .trim();
+};
+
+// Abre o modal e copia os dados do documento para o form (clone)
+//function editarDocumento(doc) {
+ // Object.assign(form, {}) // limpa
+ // Object.assign(form, doc)
+ // modalAberto.value = true
+//}
+
+//const editarDocumento = (doc) => {
+//  form.value = { ...doc }; // apenas campos existentes
+ // modalAberto.value = true;
+//}
+
+//const editarDocumento = (doc) => {
+  // Limpa o formulário e só adiciona os campos realmente existentes
+  //form.value = {};
+  //Object.keys(doc).forEach((chave) => {
+  // / if (doc[chave] !== undefined && doc[chave] !== null && doc[chave] !== '') {
+   //   form.value[chave] = doc[chave];
+   // }
+ // });
+  //modalAberto.value = true;
+//};
+
+const camposIgnorados = ['id', '_id', 'createdAt', 'updatedAt', '__v'];
+
+
+const editarDocumento = (doc) => {
+  form.value = {};
+  Object.keys(doc).forEach((chave) => {
+    const valor = doc[chave];
+    if (
+      !camposIgnorados.includes(chave) &&
+      valor !== undefined &&
+      valor !== null &&
+      valor !== ''
+    ) {
+      form.value[chave] = valor;
+    }
+  });
+  modalAberto.value = true;
+};
+
+
+
+// Fecha o modal
+function fecharModal() {
+  modalAberto.value = false
+}
+
+// Salva a edição: atualiza o documento no array e fecha o modal
+function salvarEdicao() {
+  const index = documentos.findIndex(d => d.id === form.id)
+  if (index !== -1) {
+    // Atualiza todos os campos (clonados do form)
+    Object.assign(documentos[index], form)
+  }
+  fecharModal()
+}
+
+
+
+// Lista de tipos de documento
 const tiposDocumento = [
   'Bilhete de Identidade',
   'Carta de Condução',
@@ -291,35 +453,69 @@ const tiposDocumento = [
   'Cartões Virtuais'
 ]
 
+// Limpa o formulário
+const limparFormulario = () => {
+  Object.keys(form.value).forEach(key => (form.value[key] = ''))
+  form.value.id = null
+}
 
+// Busca documentos
+const fetchDocumentos = async () => {
+  try {
+    const res = await api.get('/documentosguardados')
+    documentos.value = res.data
+  } catch {
+    mensagem.value = 'Erro ao carregar documentos.'
+    mensagemTipo.value = 'alert-danger'
+  }
+}
 
-
-
-
-const provincias = [
-  'Maputo', 'Gaza', 'Inhambane', 'Sofala', 'Manica', 'Tete',
-  'Zambézia', 'Nampula', 'Niassa', 'Cabo Delgado'
-]
-
-const mensagem = ref('')
-const mensagemTipo = ref('')
-
-const guardarLocalmente = () => {
-  if (!form.value.tipoDocumento || !form.value.numeroDocumento) {
-    mensagem.value = 'Preencha os campos obrigatórios.'
+// Salvar documento: POST se for novo, PUT se for edição
+function salvarDocumento() {
+  if (!form.value.tipoDocumento) {
+    mensagem.value = 'Selecione o tipo de documento.'
     mensagemTipo.value = 'alert-danger'
     return
   }
-
-  console.log('Documento guardado:', { ...form.value })
-
-  mensagem.value = 'Documento guardado com sucesso!'
-  mensagemTipo.value = 'alert-success'
-
-  const tipo = form.value.tipoDocumento
-  form.value = { tipoDocumento: tipo }
+  
+  if (form.value.id) {
+    // Atualizar documento existente
+    const index = documentos.value.findIndex(doc => doc.id === form.value.id)
+    if (index !== -1) {
+      documentos.value[index] = { ...form.value }
+      mensagem.value = 'Documento atualizado com sucesso.'
+      mensagemTipo.value = 'alert-success'
+    }
+  } else {
+    // Criar novo documento
+    form.value.id = Date.now() // id simples baseado em timestamp
+    documentos.value.push({ ...form.value })
+    mensagem.value = 'Documento guardado com sucesso.'
+    mensagemTipo.value = 'alert-success'
+  }
+  
+  limparFormulario()
 }
+
+
+
+function removerDocumento(id) {
+  const index = documentos.value.findIndex(doc => doc.id === id)
+  if (index !== -1) {
+    documentos.value.splice(index, 1)
+    mensagem.value = 'Documento removido com sucesso.'
+    mensagemTipo.value = 'alert-success'
+  }
+}
+
+
+
+// Carregar documentos ao montar o componente
+onMounted(() => {
+  fetchDocumentos()
+})
 </script>
+
 
 <style scoped>
 .container {
@@ -337,5 +533,38 @@ const guardarLocalmente = () => {
 .borda-destacada:focus {
   border-color: #800080;
   box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
+}
+
+
+
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.modal-content {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  min-width: 320px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-content form label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.modal-content form input {
+  width: 100%;
+  margin-top: 0.2rem;
+  margin-bottom: 1rem;
 }
 </style>

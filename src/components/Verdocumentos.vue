@@ -442,7 +442,7 @@ const reportarStatus = () => {
                 </div>
                 <!-- Campo para Número do Documento -->
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                  <label for="numeroDocumento" class="form-label fw-bold">Número do Bi</label>
                   <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
                     v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
                 </div>
@@ -496,7 +496,7 @@ const reportarStatus = () => {
                 </div>
                 <!-- Campo para Número do Documento -->
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                  <label for="numeroDocumento" class="form-label fw-bold">Número do Passaporte</label>
                   <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
                     v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
                 </div>
@@ -549,7 +549,7 @@ const reportarStatus = () => {
                 </div>
                 <!-- Campo para Número do Documento -->
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                  <label for="numeroDocumento" class="form-label fw-bold">Número da Carta de Condução</label>
                   <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
                     v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
                 </div>
@@ -602,7 +602,7 @@ const reportarStatus = () => {
                 </div>
                 <!-- Campo para Número do Documento -->
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                  <label for="numeroDocumento" class="form-label fw-bold">Número do Cartão de Estudante</label>
                   <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
                     v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
                 </div>
@@ -655,7 +655,7 @@ const reportarStatus = () => {
                 </div>
                 <!-- Campo para Número do Documento -->
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                  <label for="numeroDocumento" class="form-label fw-bold">Número do Cartão de Eleitor</label>
                   <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
                     v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
                 </div>
@@ -708,7 +708,7 @@ const reportarStatus = () => {
                 </div>
                 <!-- Campo para Número do Documento -->
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                  <label for="numeroDocumento" class="form-label fw-bold">Número do Seguro do Veículo</label>
                   <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
                     v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
                 </div>
@@ -761,7 +761,7 @@ const reportarStatus = () => {
                 </div>
                 <!-- Campo para Número do Documento -->
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                  <label for="numeroDocumento" class="form-label fw-bold">Número do Livrete</label>
                   <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
                     v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
                 </div>
@@ -814,7 +814,7 @@ const reportarStatus = () => {
                 </div>
                 <!-- Campo para Número do Documento -->
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                  <label for="numeroDocumento" class="form-label fw-bold">Número do Cartão de Identidade Militar</label>
                   <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
                     v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
                 </div>

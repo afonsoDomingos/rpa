@@ -27,7 +27,7 @@ import ElTypography from "../layouts/sections/elements/typography/TypographyView
 import SolicitanteModal from "../components/SolicitanteModal.vue"
 import TermsConditions from "../components/TermsConditions.vue"
 import PrivacyPolicy from "../components/PrivacyPolicy.vue"
-
+import GuardarDocumentos from "../components/Guardardocumentos.vue"
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -183,6 +183,12 @@ const router = createRouter({
       name: "el-typography",
       component: ElTypography,
     },
+
+    {
+      path: '/GuardarDocumentos',
+      name: 'GuardarDocumentos',
+      component: GuardarDocumentos,
+    }
   ],
 });
 
