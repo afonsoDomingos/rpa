@@ -13,6 +13,9 @@ import Header from "../../examples/Header.vue";
 
 //Vue Material Kit 2 components
 import Verdocumentosadmin from '@/components/Verdocumentosadmin.vue';
+//import ListaUsuarios from "@/components/ListaUsuarios.vue";
+
+import UsuariosView from "../../components/UsuariosView.vue";
 
 // sections  
 import PresentationCounter from "./Sections/PresentationCounter.vue";
@@ -181,8 +184,12 @@ const solicitarDocumento = async () => {
   <!-- Componente para Exibir Documentos -->
       <!-- Tabela de solicitações abaixo -->
    <!-- Importação do Componente de Gráficos -->
+      <section class="py-5">
+    <UsuariosView />
+  </section>
    <DocumentosCharts />
   <Verdocumentosadmin />
+ 
     <!-- Tabela de solicitações abaixo -->
   <TabelaSolicitacoes :solicitacoes="solicitacoes" />
   <!-- Componente para Contador de Apresentação -->
