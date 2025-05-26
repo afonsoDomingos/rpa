@@ -31,14 +31,21 @@ const usuario = ref(null);
 // Função para buscar o usuário logado da API
 const buscarUsuario = async () => {
   try {
+    const emailLogado = localStorage.getItem('email');
+    if (!emailLogado) {
+      console.warn('Email não encontrado no localStorage. Redirecionando...');
+      router.push('/');
+      return;
+    }
+
     const response = await axios.get('https://apirpa.onrender.com/api/auth/usuarios');
     console.log('Resposta da API:', response.data);
 
-    // Supondo que você tenha o email do usuário logado, por exemplo:
-    // const emailLogado = 'cliente@example.com';  // Altere para o email do usuário logado
-    const emailLogado = localStorage.getItem('email');
+    if (!Array.isArray(response.data)) {
+      console.error('Dados inválidos da API. Esperado um array de usuários.');
+      return;
+    }
 
-    // Buscar o usuário com o email correspondente no array de usuários
     usuario.value = response.data.find(u => u.email === emailLogado);
 
     if (!usuario.value) {
@@ -50,6 +57,7 @@ const buscarUsuario = async () => {
     console.error('Erro ao buscar o usuário:', error);
   }
 };
+
 
 // Hook onMounted para buscar o usuário assim que o componente for montado
 onMounted(() => {

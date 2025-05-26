@@ -192,21 +192,7 @@ const router = createRouter({
 });
 
 
-router.beforeEach((to, from, next) => {
-  const publicPages = ['/'];
-  const authRequired = !publicPages.includes(to.path);
-  const token = localStorage.getItem('token');
 
-  if (authRequired && !token) {
-    return next('/');
-  }
 
-  next();
-});
-
-const logout = () => {
-  localStorage.removeItem("token");
-  router.push("/");
-};
 
 export default router;
