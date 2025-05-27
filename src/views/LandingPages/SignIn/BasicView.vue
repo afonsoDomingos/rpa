@@ -108,7 +108,7 @@ const register = async () => {
 
 
 <template>
-  <NavbarDefault :sticky="true" />
+ 
 
   <div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n6">
 
@@ -274,7 +274,7 @@ const register = async () => {
 
     </div>
   </div>
-  <FooterDefault></FooterDefault>
+
 
 </template>
 
