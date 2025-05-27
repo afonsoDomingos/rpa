@@ -20,10 +20,13 @@ const router = useRouter();
 const setBodyClass = (className) => {
   document.body.className = className;
 };
-
 const login = async () => {
+  console.log('login() chamada');
+
   const input = emailOrUsername.value.trim().toLowerCase();
   const pass = password.value.trim();
+
+  console.log('input:', input, 'pass:', pass ? '*****' : '(vazio)');
 
   if (!input || !pass) {
     alert('Por favor, preencha email/usuário e senha.');
@@ -31,27 +34,34 @@ const login = async () => {
   }
 
   try {
-    console.log("Iniciando login...");
+    console.log("Tentando enviar requisição...");
     const response = await axios.post('https://apirpa.onrender.com/api/auth/login', {
       email: input,
       senha: pass,
     });
     console.log("Resposta da API:", response);
 
-    // Supondo que o token venha em response.data.token
     localStorage.setItem('email', input);
     localStorage.setItem('authToken', response.data.token);
 
-    router.push(response.data.redirectUrl || '/home');
+    try {
+      console.log("Redirecionando...");
+      await router.push(response.data.redirectUrl || '/home');
+      console.log("Redirecionamento concluído.");
+    } catch (navError) {
+      console.error("Erro no redirecionamento:", navError);
+    }
+
   } catch (error) {
+    console.error('Erro capturado no catch:', error);
     if (error.response?.status === 401) {
       alert('Credenciais inválidas. Por favor, verifique e tente novamente.');
     } else {
       alert('Erro ao tentar logar. Tente novamente mais tarde.');
     }
-    console.error('Erro no login:', error);
   }
 };
+
 
 
 const register = async () => {
