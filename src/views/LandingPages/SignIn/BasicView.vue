@@ -1,21 +1,13 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import axios from 'axios';
 
-// Exemplo de componentes
 import NavbarDefault from "../../../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../../../examples/footers/FooterDefault.vue";
-
-// Componentes do Vue Material Kit 2
-import MaterialInput from "@/components/MaterialInput.vue";
-import MaterialSwitch from "@/components/MaterialSwitch.vue";
 import MaterialButton from "@/components/MaterialButton.vue";
+import MaterialSwitch from "@/components/MaterialSwitch.vue";
 
-// Função para inicializar o MaterialInput
-import setMaterialInput from "@/assets/js/material-input";
-
-// Dados reativos
 const emailOrUsername = ref('');
 const password = ref('');
 const newEmail = ref('');
@@ -23,129 +15,84 @@ const newUsername = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 
-
 const router = useRouter();
 
-
-// Função para definir a classe do body
-function setBodyClass(className) {
+const setBodyClass = (className) => {
   document.body.className = className;
-}
+};
 
-// Função de login
 const login = async () => {
   const input = emailOrUsername.value.trim().toLowerCase();
   const pass = password.value.trim();
-
-  // Validação simples antes da requisição
-  if (!input || !pass) {
-    alert('Por favor, preencha email/usuário e senha.');
-    return;
-  }
+  if (!input || !pass) return alert('Por favor, preencha email/usuário e senha.');
 
   try {
-    const response = await axios.post('https://apirpa.onrender.com/api/auth/login', {
+    const { data } = await axios.post('https://apirpa.onrender.com/api/auth/login', {
       email: input,
-      senha: pass
+      senha: pass,
     });
 
-    const { token, redirectUrl } = response.data;
-
-    // Armazena o email e token no localStorage (ou sessionStorage para maior segurança)
     localStorage.setItem('email', input);
-    localStorage.setItem('authToken', token);
+    localStorage.setItem('authToken', data.token);
 
-    // Função para redirecionar o usuário
-    const goTo = (url) => router.push(url);
-
-    // Redireciona para a URL fornecida, senão vai para /home
-    goTo(redirectUrl || '/home');
-
+    router.push(data.redirectUrl || '/home');
   } catch (error) {
-    // Detecta erro de autenticação específico para dar mensagem personalizada
-    if (error.response && error.response.status === 401) {
-      alert('Credenciais inválidas. Por favor, verifique e tente novamente.');
-    } else {
-      alert('Erro ao tentar logar. Tente novamente mais tarde.');
-    }
+    if (error.response?.status === 401) alert('Credenciais inválidas. Por favor, verifique e tente novamente.');
+    else alert('Erro ao tentar logar. Tente novamente mais tarde.');
     console.error('Erro no login:', error);
   }
 };
 
-
-
-
-// Função de registro
 const register = async () => {
-  if (newPassword.value !== confirmPassword.value) {
-    alert('As senhas não coincidem!');
-    return;
-  }
+  if (newPassword.value !== confirmPassword.value) return alert('As senhas não coincidem!');
 
   try {
-    const response = await axios.post('https://apirpa.onrender.com/api/auth/register', {
+    await axios.post('https://apirpa.onrender.com/api/auth/register', {
       nome: newUsername.value,
       email: newEmail.value,
-      senha: newPassword.value
+      senha: newPassword.value,
     });
 
     alert('Cadastro realizado com sucesso!');
-    router.push('/');  // Redireciona para a página de login após o cadastro
+    router.push('/');
 
-    // Limpa os campos após o registro
     newEmail.value = '';
     newUsername.value = '';
     newPassword.value = '';
     confirmPassword.value = '';
-
   } catch (error) {
-    console.error('Erro no cadastro', error);
     alert('Erro ao registrar. Tente novamente.');
+    console.error('Erro no cadastro:', error);
   }
 };
-
 </script>
 
-
 <template>
- 
+  <NavbarDefault :sticky="true" />
 
   <div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n6">
-
     <div class="container page-header container">
+
       <div class="content first-content">
-        <div class="first-column">
+        <div class="first-column text-center">
           <h2 class="title title-primary">Bem-vindo!</h2>
           <p class="description description-primary">Para continuar conectado conosco</p>
           <p class="description description-primary">faça login com suas informações pessoais</p>
-          <button @click="setBodyClass('sign-in-js')" class="btn btn-primary">entrar</button>
+          <button @click="setBodyClass('sign-in-js')" class="btn btn-primary">Entrar</button>
         </div>
+
         <div class="second-column">
-          <!--<h2 class="title title-second">criar uma conta</h2>-->
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
             <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
-              <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">
-                Criar uma conta
-              </h4>
-              <div class="row mt-3">
-                <div class="col-2 text-center ms-auto">
-                  <a class="btn btn-link px-3" href="javascript:;">
-                    <i class="fa fa-facebook text-white text-lg"></i>
-                  </a>
-                </div>
-                <div class="col-2 text-center px-1">
-                  <a class="btn btn-link px-3" href="javascript:;">
-                    <i class="fa fa-github text-white text-lg"></i>
-                  </a>
-                </div>
-                <div class="col-2 text-center me-auto">
-                  <a class="btn btn-link px-3" href="javascript:;">
-                    <i class="fa fa-google text-white text-lg"></i>
-                  </a>
-                </div>
+              <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">Criar uma conta</h4>
+              <div class="row mt-3 text-center">
+                <div class="col-2 ms-auto"><a class="btn btn-link px-3" href="#"><i class="fa fa-facebook text-white text-lg"></i></a></div>
+                <div class="col-2 px-1"><a class="btn btn-link px-3" href="#"><i class="fa fa-github text-white text-lg"></i></a></div>
+                <div class="col-2 me-auto"><a class="btn btn-link px-3" href="#"><i class="fa fa-google text-white text-lg"></i></a></div>
               </div>
             </div>
           </div>
+
           <div class="social-media">
             <ul class="list-social-media">
               <li class="item-social-media"><i class="fab fa-facebook-f"></i></li>
@@ -153,7 +100,9 @@ const register = async () => {
               <li class="item-social-media"><i class="fab fa-linkedin-in"></i></li>
             </ul>
           </div>
-          <p class="description description-second">Insira seus dados ou use seu e-mail para se registrar::</p>
+
+          <p class="description description-second">Insira seus dados ou use seu e-mail para se registrar:</p>
+
           <form @submit.prevent="register" class="form">
             <label class="label-input">
               <i class="far fa-user icon-modify"></i>
@@ -162,7 +111,7 @@ const register = async () => {
 
             <label class="label-input">
               <i class="far fa-envelope icon-modify"></i>
-              <input v-model="newEmail" type="text" placeholder="E-mail" />
+              <input v-model="newEmail" type="email" placeholder="E-mail" />
             </label>
 
             <label class="label-input">
@@ -170,15 +119,14 @@ const register = async () => {
               <input v-model="newPassword" type="password" placeholder="Senha" />
             </label>
 
-            <!-- Novo campo: Confirmar Senha -->
             <label class="label-input">
               <i class="fas fa-lock icon-modify"></i>
               <input v-model="confirmPassword" type="password" placeholder="Confirmar Senha" />
             </label>
 
             <div class="text-center">
-              <MaterialButton type="submit" class="my-4 mb-2" variant="gradient" color="success" fullWidth>
-                Registar
+              <MaterialButton type="submit" variant="gradient" color="success" fullWidth>
+                Registrar
               </MaterialButton>
             </div>
 
@@ -191,42 +139,25 @@ const register = async () => {
       </div>
 
       <div class="content second-content">
-        <div class="first-column">
-          <h2 class="title title-primary">olá, amigo!</h2>
+        <div class="first-column text-center">
+          <h2 class="title title-primary">Olá, amigo!</h2>
           <p class="description description-primary">Insira seus dados</p>
           <p class="description description-primary">e comece a jornada conosco</p>
-          <button @click="setBodyClass('sign-up-js')" class="btn btn-primary">registrar</button>
+          <button @click="setBodyClass('sign-up-js')" class="btn btn-primary">Registrar</button>
         </div>
+
         <div class="second-column">
-
-
-         
-
-          <!--<h2 class="title title-second">faça login</h2>-->
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
             <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
-              <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">
-                 Faça Login
-              </h4>
-              <div class="row mt-3">
-                <div class="col-2 text-center ms-auto">
-                  <a class="btn btn-link px-3" href="javascript:;">
-                    <i class="fa fa-facebook text-white text-lg"></i>
-                  </a>
-                </div>
-                <div class="col-2 text-center px-1">
-                  <a class="btn btn-link px-3" href="javascript:;">
-                    <i class="fa fa-github text-white text-lg"></i>
-                  </a>
-                </div>
-                <div class="col-2 text-center me-auto">
-                  <a class="btn btn-link px-3" href="javascript:;">
-                    <i class="fa fa-google text-white text-lg"></i>
-                  </a>
-                </div>
+              <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">Faça Login</h4>
+              <div class="row mt-3 text-center">
+                <div class="col-2 ms-auto"><a class="btn btn-link px-3" href="#"><i class="fa fa-facebook text-white text-lg"></i></a></div>
+                <div class="col-2 px-1"><a class="btn btn-link px-3" href="#"><i class="fa fa-github text-white text-lg"></i></a></div>
+                <div class="col-2 me-auto"><a class="btn btn-link px-3" href="#"><i class="fa fa-google text-white text-lg"></i></a></div>
               </div>
             </div>
           </div>
+
           <div class="social-media">
             <ul class="list-social-media">
               <li class="item-social-media"><i class="fab fa-facebook-f"></i></li>
@@ -234,39 +165,33 @@ const register = async () => {
               <li class="item-social-media"><i class="fab fa-linkedin-in"></i></li>
             </ul>
           </div>
+
           <p class="description description-second">Insira seus dados ou use sua conta de e-mail para entrar:</p>
 
           <form @submit.prevent="login" class="form">
-            <label class="label-input"><i class="far fa-user icon-modify label-input input-group-outline mb-3"></i>
-              <input v-model="emailOrUsername" id="emailOrUsername"
-                :label="{ text: 'E-mail ou Nome de Usuário', class: 'form-label' }" type="email" required />
-
+            <label class="label-input">
+              <i class="far fa-user icon-modify"></i>
+              <input v-model="emailOrUsername" type="email" placeholder="E-mail ou Nome de Usuário" required />
             </label>
 
-
-            <label class="label-input"><i class="far fa-envelope icon-modify label-input input-group-outline mb-3"></i>
-              <input v-model="password" id="password" :label="{ text: 'Password', class: 'form-label' }" type="password"
-                required />
-
+            <label class="label-input">
+              <i class="fas fa-lock icon-modify"></i>
+              <input v-model="password" type="password" placeholder="Senha" required />
             </label>
 
-
-            <MaterialSwitch  class="d-flex align-items-center mb-3" id="rememberMe"
-              labelClass="mb-0 ms-3">
+            <MaterialSwitch class="d-flex align-items-center mb-3" id="rememberMe" labelClass="mb-0 ms-3">
               Lembre de mim
             </MaterialSwitch>
 
             <div class="text-center">
-              <MaterialButton type="submit" class="my-4 mb-2" variant="gradient" color="success" fullWidth>
+              <MaterialButton type="submit" variant="gradient" color="success" fullWidth>
                 Entrar
               </MaterialButton>
             </div>
 
             <p class="mt-4 text-sm text-center">
               Ainda não possui uma conta?
-              <a href="#" class="text-success text-gradient font-weight-bold">
-                Crie agora.
-              </a>
+              <a href="#" class="text-success text-gradient font-weight-bold">Crie agora.</a>
             </p>
           </form>
         </div>
@@ -275,7 +200,7 @@ const register = async () => {
     </div>
   </div>
 
-
+  <FooterDefault />
 </template>
 
 <style scoped>
