@@ -45,17 +45,22 @@ const login = async () => {
 
     const { token, redirectUrl } = response.data;
 
-    // Armazenando o email e o token no localStorage
-    localStorage.setItem('email', input)
-    // localStorage.setItem('authToken', token) // se quiser armazenar o token também
+    // Armazenando no localStorage
+    localStorage.setItem('email', input);
+    // localStorage.setItem('authToken', token); // caso queira guardar o token
 
-    // Redireciona para a URL específica de acordo com o papel
-    router.push(redirectUrl);
+    // Redireciona para a URL se fornecida, senão vai para /painel
+    if (redirectUrl) {
+      router.push(redirectUrl);
+    } else {
+      router.push('/home'); // rota padrão para usuários comuns
+    }
   } catch (error) {
     console.error('Erro no login', error);
     alert('Credenciais inválidas. Tente novamente.');
   }
 };
+
 
 
 
