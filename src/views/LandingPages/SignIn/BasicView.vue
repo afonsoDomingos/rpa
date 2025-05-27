@@ -99,7 +99,7 @@ const register = async () => {
     <div class="container page-header container">
       <div class="content first-content">
         <div class="first-column">
-          <h2 class="title title-primary">bem-vindo de volta!</h2>
+          <h2 class="title title-primary">Bem-vindo!</h2>
           <p class="description description-primary">Para continuar conectado conosco</p>
           <p class="description description-primary">faça login com suas informações pessoais</p>
           <button @click="setBodyClass('sign-in-js')" class="btn btn-primary">entrar</button>
@@ -177,7 +177,7 @@ const register = async () => {
       <div class="content second-content">
         <div class="first-column">
           <h2 class="title title-primary">olá, amigo!</h2>
-          <p class="description description-primary">Insira seus dados pessoais</p>
+          <p class="description description-primary">Insira seus dados</p>
           <p class="description description-primary">e comece a jornada conosco</p>
           <button @click="setBodyClass('sign-up-js')" class="btn btn-primary">registrar</button>
         </div>
@@ -259,7 +259,6 @@ const register = async () => {
     </div>
   </div>
   <FooterDefault></FooterDefault>
-
 
 </template>
 
