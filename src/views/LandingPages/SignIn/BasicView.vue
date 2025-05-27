@@ -24,24 +24,35 @@ const setBodyClass = (className) => {
 const login = async () => {
   const input = emailOrUsername.value.trim().toLowerCase();
   const pass = password.value.trim();
-  if (!input || !pass) return alert('Por favor, preencha email/usuário e senha.');
+
+  if (!input || !pass) {
+    alert('Por favor, preencha email/usuário e senha.');
+    return;
+  }
 
   try {
-    const { data } = await axios.post('https://apirpa.onrender.com/api/auth/login', {
+    console.log("Iniciando login...");
+    const response = await axios.post('https://apirpa.onrender.com/api/auth/login', {
       email: input,
       senha: pass,
     });
+    console.log("Resposta da API:", response);
 
+    // Supondo que o token venha em response.data.token
     localStorage.setItem('email', input);
-    localStorage.setItem('authToken', data.token);
+    localStorage.setItem('authToken', response.data.token);
 
-    router.push(data.redirectUrl || '/home');
+    router.push(response.data.redirectUrl || '/home');
   } catch (error) {
-    if (error.response?.status === 401) alert('Credenciais inválidas. Por favor, verifique e tente novamente.');
-    else alert('Erro ao tentar logar. Tente novamente mais tarde.');
+    if (error.response?.status === 401) {
+      alert('Credenciais inválidas. Por favor, verifique e tente novamente.');
+    } else {
+      alert('Erro ao tentar logar. Tente novamente mais tarde.');
+    }
     console.error('Erro no login:', error);
   }
 };
+
 
 const register = async () => {
   if (newPassword.value !== confirmPassword.value) return alert('As senhas não coincidem!');
