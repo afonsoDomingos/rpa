@@ -282,49 +282,34 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 100px); /* espaço para navbar/footer */
+  height: 100vh;
   background-color: #ffffff;
-  padding: 2rem;
   margin-top: 10%;
 }
-
-
 
 .content {
   background-color: #fff8ff;
   border-radius: 15px;
   width: 960px;
-  flex-wrap: wrap;
-  min-height: 400px;
-  height: auto;
+  height: 50%;
   justify-content: space-between;
   align-items: center;
   position: relative;
 }
 
-
-
 .content::before {
   content: "";
   position: absolute;
 
-  background-color: #ffffff;
+  background-color: #800080;
   width: 40%;
-  max-width: 400px;
   height: 100%;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
 
-  border-top-left-radius: 24px;
-  border-bottom-left-radius: 24px;
-
-  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
-
-  transition: all 0.3s ease-in-out;
 
   left: 0;
-  top: 0;
-  z-index: 1;
 }
-
 
 .title {
   font-size: 28px;
@@ -333,7 +318,7 @@ body {
 }
 
 .title-primary {
-  color: #000000;
+  color: #fff;
 }
 
 .title-second {
@@ -347,7 +332,7 @@ body {
 }
 
 .description-primary {
-  color: #000000;
+  color: #fff;
 }
 
 .description-second {
@@ -369,7 +354,7 @@ body {
 }
 
 .btn-primary {
-  background-color: #28a745;
+  background-color: transparent;
   border: 1px solid #fff;
   transition: background-color .5s;
 }
@@ -683,95 +668,165 @@ input:-webkit-autofill {
 
 
 
-/* Responsividade aprimorada para telas pequenas */
 
-@media screen and (max-width: 1024px) {
-  .container {
-    margin-top: 0;
-    padding: 1rem;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    margin-top: 50%;
-  }
-
+/*VERSÃO MOBILE*/
+@media screen and (max-width: 1040px) {
   .content {
-    flex-direction: column;
     width: 100%;
-    height: auto;
-    min-height: 100vh;
-    box-shadow: none;
+    height: 100%;
   }
 
   .content::before {
-    display: none; /* Remove o bloco animado lateral para simplificar no mobile */
+    width: 100%;
+    height: 40%;
+    top: 0;
+    border-radius: 0;
   }
 
   .first-content,
   .second-content {
     flex-direction: column;
-    width: 100%;
+    justify-content: space-around;
   }
 
   .first-column,
   .second-column {
     width: 100%;
-    padding: 1rem;
   }
 
-  .title,
-  .description,
-  .password {
-    text-align: center;
+  .sign-in-js .content::before {
+    top: 60%;
+    left: 0;
+    border-radius: 0;
+
   }
 
-  .form {
-    width: 100%;
-    padding: 1rem;
-  }
-
-  .btn {
-    margin: 1rem auto;
-  }
-
-  .list-social-media {
-    justify-content: center;
-  }
-}
-
-@media screen and (max-width: 768px) {
   .form {
     width: 90%;
   }
 
-  .title {
-    font-size: 24px;
+  /* ANIMAÇÃO MOBILE CSS*/
+
+  @keyframes deslocamentoEsq {
+
+    from {
+      top: 0;
+      opacity: 1;
+      z-index: 12;
+    }
+
+    25% {
+      top: -80px;
+      opacity: .5;
+      /* z-index: 12; NÃO HÁ NECESSIDADE */
+    }
+
+    50% {
+      top: -100px;
+      opacity: .2;
+      /* z-index: 12; NÃO HÁ NECESSIDADE */
+    }
+
+    to {
+      top: -110px;
+      opacity: 0;
+      z-index: -1;
+    }
   }
 
-  .description {
-    font-size: 13px;
+
+  @keyframes deslocamentoDir {
+
+    from {
+      top: 0;
+      z-index: 12;
+    }
+
+    25% {
+      top: 80px;
+      /* z-index: 12;  NÃO HÁ NECESSIDADE*/
+    }
+
+    50% {
+      top: 100px;
+      /* z-index: 12; NÃO HÁ NECESSIDADE*/
+      /* background-color: yellow;  Exemplo que dei no vídeo*/
+    }
+
+    to {
+      top: 110px;
+      z-index: -1;
+    }
   }
 
-  .btn {
-    font-size: 12px;
-    padding: 10px 30px;
+
+
+  @keyframes slidein {
+
+    from {
+      top: 0;
+      height: 40%;
+    }
+
+    25% {
+      top: 5%;
+      height: 50%;
+    }
+
+    50% {
+      top: 25%;
+      height: 60%;
+    }
+
+    75% {
+      top: 45%;
+      height: 50%;
+    }
+
+    to {
+      top: 60%;
+      height: 40%;
+    }
+  }
+
+  @keyframes slideout {
+
+    from {
+      top: 60%;
+      height: 40%;
+    }
+
+    25% {
+      top: 45%;
+      height: 50%;
+    }
+
+    50% {
+      top: 25%;
+      height: 60%;
+    }
+
+    75% {
+      top: 5%;
+      height: 50%;
+    }
+
+    to {
+      top: 0;
+      height: 40%;
+    }
+  }
+
+}
+
+@media screen and (max-width: 740px) {
+  .form {
+    width: 50%;
   }
 }
 
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 425px) {
   .form {
-    width: 100%;
-  }
-
-  .item-social-media {
-    width: 30px;
-    height: 30px;
-    line-height: 30px;
-    font-size: 14px;
-  }
-
-  .btn {
     width: 100%;
   }
 }
