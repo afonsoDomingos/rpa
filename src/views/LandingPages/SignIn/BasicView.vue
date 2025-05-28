@@ -42,7 +42,8 @@ const login = async () => {
     console.log("Resposta da API:", response);
 
     localStorage.setItem('email', input);
-    localStorage.setItem('authToken', response.data.token);
+    localStorage.setItem('token', response.data.token);
+    //localStorage.setItem('authToken', response.data.token);
 
     try {
       console.log("Redirecionando...");

@@ -1,12 +1,15 @@
-<!-- src/components/ListaUsuarios.vue -->
 <template>
   <div>
+    <input
+      v-model="filtro"
+      type="text"
+      placeholder="🔍 Filtrar por nome ou email"
+      class="form-control borda-destacada mb-3"
+    />
 
-    <input v-model="filtro" type="text" placeholder="Filtrar por nome ou email" class="form-control borda-destacada  mb-3 " />
-
-    <div class="table-responsive">
-      <table class="table table-striped table-bordered">
-        <thead class="table-light">
+    <div class="table-container">
+      <table class="custom-table">
+        <thead>
           <tr>
             <th>Nome</th>
             <th>Email</th>
@@ -16,32 +19,32 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="usuario in usuariosFiltradosPaginados" :key="usuario._id">
+          <tr v-for="usuario in usuariosFiltradosPaginados" :key="usuario.id">
             <td>
               <input
-                v-if="editandoId === usuario._id"
+                v-if="editandoId === usuario.id"
                 v-model="usuarioEditando.nome"
                 type="text"
-                class="form-control"
+                class="form-control borda-destacada"
                 required
               />
               <span v-else>{{ usuario.nome }}</span>
             </td>
             <td>
               <input
-                v-if="editandoId === usuario._id"
+                v-if="editandoId === usuario.id"
                 v-model="usuarioEditando.email"
                 type="email"
-                class="form-control"
+                class="form-control borda-destacada"
                 required
               />
               <span v-else>{{ usuario.email }}</span>
             </td>
             <td>
               <select
-                v-if="editandoId === usuario._id"
+                v-if="editandoId === usuario.id"
                 v-model="usuarioEditando.role"
-                class="form-select"
+                class="form-select borda-destacada"
               >
                 <option value="cliente">Cliente</option>
                 <option value="admin">Admin</option>
@@ -49,52 +52,48 @@
               <span v-else>{{ usuario.role }}</span>
             </td>
             <td>
-              <input
-                v-if="editandoId === usuario._id"
-                :type="senhaVisivel ? 'text' : 'password'"
-                v-model="usuarioEditando.senha"
-                class="form-control"
-                placeholder="Nova senha"
-              />
-              <button
-                v-if="editandoId === usuario._id"
-                type="button"
-                class="btn btn-sm btn-outline-secondary mt-1"
-                @click="senhaVisivel = !senhaVisivel"
-              >
-                {{ senhaVisivel ? 'Ocultar' : 'Mostrar' }}
-              </button>
+              <div v-if="editandoId === usuario.id">
+                <input
+                  :type="senhaVisivel ? 'text' : 'password'"
+                  v-model="usuarioEditando.senha"
+                  class="form-control borda-destacada"
+                  placeholder="Nova senha"
+                />
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary mt-1"
+                  @click="senhaVisivel = !senhaVisivel"
+                >
+                  {{ senhaVisivel ? 'Ocultar' : 'Mostrar' }}
+                </button>
+              </div>
               <span v-else>••••••••</span>
             </td>
             <td>
-              <template v-if="editandoId === usuario._id">
-                <button
-                  class="btn btn-sm btn-success me-2"
-                  @click="salvarEdicao"
-                >
-                  Salvar
-                </button>
-                <button
-                  class="btn btn-sm btn-warning"
-                  @click="cancelarEdicao"
-                >
-                  Cancelar
-                </button>
-              </template>
-              <template v-else>
-                <button
-                  class="btn btn-sm btn-outline-primary me-2"
-                  @click="editarUsuario(usuario)"
-                >
-                  Editar
-                </button>
-                <button
-                  class="btn btn-sm btn-outline-danger"
-                  @click="excluirUsuario(usuario._id)"
-                >
-                  Excluir
-                </button>
-              </template>
+              <div class="d-flex gap-2 flex-wrap">
+                <template v-if="editandoId === usuario.id">
+                  <button class="btn btn-success btn-sm" @click="salvarEdicao">
+                    💾 Salvar
+                  </button>
+                  <button class="btn btn-warning btn-sm" @click="cancelarEdicao">
+                    ❌ Cancelar
+                  </button>
+                </template>
+                <template v-else>
+                  <button
+                    class="btn btn-outline-primary btn-sm"
+                    @click="editarUsuario(usuario)"
+                  >
+                    ✏️ Editar
+                  </button>
+                  <button
+                    class="btn btn-outline-danger btn-sm"
+                    @click="excluirUsuario(usuario.id)"
+                  >
+                    🗑️ Excluir
+                  </button>
+                </template>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -107,20 +106,31 @@
         @click="paginaAtual--"
         :disabled="paginaAtual === 1"
       >
-        Anterior
+        ◀ Anterior
       </button>
-      <span>Página {{ paginaAtual }} de {{ totalPaginas }}</span>
+      <span class="fw-bold">Página {{ paginaAtual }} de {{ totalPaginas }}</span>
       <button
         class="btn btn-secondary btn-sm"
         @click="paginaAtual++"
         :disabled="paginaAtual === totalPaginas"
       >
-        Próxima
+        Próxima ▶
       </button>
     </div>
+
+    <!-- Mensagens de feedback -->
+    <transition name="fade">
+      <div
+        v-if="mensagem"
+        :class="['alert', tipoMensagem === 'sucesso' ? 'alert-success' : 'alert-danger']"
+        class="mt-3"
+        role="alert"
+      >
+        {{ mensagem }}
+      </div>
+    </transition>
   </div>
 </template>
-
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import api from '../api'
@@ -141,19 +151,32 @@ const usuarioEditando = ref({
 })
 const senhaVisivel = ref(false)
 
+// Notificações
+const mensagem = ref('')
+const tipoMensagem = ref('') // 'sucesso' ou 'erro'
+const mostrarMensagem = (msg, tipo = 'sucesso') => {
+  mensagem.value = msg
+  tipoMensagem.value = tipo
+  setTimeout(() => {
+    mensagem.value = ''
+  }, 4000)
+}
+
 const buscarUsuarios = async () => {
-  const { data } = await api.get('/auth/usuarios')
+  const token = localStorage.getItem('token')
+  const { data } = await api.get('/auth/usuarios', {
+    headers: { Authorization: `Bearer ${token}` }
+  })
   usuarios.value = data
 }
 
 const editarUsuario = (usuario) => {
-  editandoId.value = usuario._id
-  // Clonar objeto para edição
+  editandoId.value = usuario.id
   usuarioEditando.value = {
     nome: usuario.nome,
     email: usuario.email,
     role: usuario.role,
-    senha: '' // senha começa vazia para não exibir senha atual
+    senha: ''
   }
   senhaVisivel.value = false
 }
@@ -165,34 +188,59 @@ const cancelarEdicao = () => {
 }
 
 const salvarEdicao = async () => {
+  if (!editandoId.value) {
+    mostrarMensagem('ID do usuário não definido.', 'erro')
+    return
+  }
+
   try {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      mostrarMensagem('Token não encontrado. Faça login novamente.', 'erro')
+      return
+    }
+
     const payload = {
       nome: usuarioEditando.value.nome,
       email: usuarioEditando.value.email,
-      role: usuarioEditando.value.role
+      role: usuarioEditando.value.role,
     }
-    // Só envia a senha se foi digitada alguma coisa
-    if (usuarioEditando.value.senha && usuarioEditando.value.senha.trim() !== '') {
+
+    if (usuarioEditando.value.senha?.trim()) {
       payload.senha = usuarioEditando.value.senha
     }
-    await api.put(`/auth/usuarios/${editandoId.value}`, payload)
-    editandoId.value = null
-    usuarioEditando.value = { nome: '', email: '', role: '', senha: '' }
-    senhaVisivel.value = false
+
+    await api.patch(`/auth/usuarios/${editandoId.value}`, payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+
+    mostrarMensagem('Usuário atualizado com sucesso.', 'sucesso')
+    cancelarEdicao()
     buscarUsuarios()
   } catch (error) {
-    console.error('Erro ao salvar edição:', error)
-    alert('Falha ao salvar usuário.')
+    console.error('Erro ao salvar edição:', error.response?.data || error.message)
+    mostrarMensagem('Falha ao salvar usuário: ' + (error.response?.data?.msg || error.message), 'erro')
   }
 }
 
 const excluirUsuario = async (id) => {
-  if (confirm('Tem certeza que deseja excluir este usuário?')) {
-    await api.delete(`/auth/usuarios/${id}`)
-    if (editandoId.value === id) {
-      cancelarEdicao()
+  if (confirm(`Tem certeza que deseja excluir o usuário com ID: ${id}?`)) {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      mostrarMensagem('Token não encontrado. Faça login novamente.', 'erro')
+      return
     }
-    buscarUsuarios()
+
+    try {
+      await api.delete(`/auth/usuarios/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      mostrarMensagem('Usuário excluído com sucesso.', 'sucesso')
+      buscarUsuarios()
+    } catch (error) {
+      console.error('Erro ao excluir usuário:', error.response?.data || error.message)
+      mostrarMensagem('Erro ao excluir usuário: ' + (error.response?.data?.msg || 'Erro desconhecido'), 'erro')
+    }
   }
 }
 
@@ -216,34 +264,139 @@ const usuariosFiltradosPaginados = computed(() => {
 watch(filtro, () => {
   paginaAtual.value = 1
 })
+
 watch(totalPaginas, (novo) => {
   paginaAtual.value = Math.min(paginaAtual.value, novo || 1)
 })
+
 onMounted(buscarUsuarios)
 watch(() => props.atualizar, buscarUsuarios)
 </script>
-
 <style scoped>
-
-.borda-destacadatxt {
-  border: 1px solid #707070;
-  border-radius: 5px;
-  padding: 10px;
-  outline: none;
-}
-
+/* Estilo base da borda */
 .borda-destacada {
   border: 1px solid #66bb6a;
   border-radius: 5px;
   padding: 10px;
   outline: none;
 }
-
 .borda-destacada:focus {
   border-color: #800080;
-  /* Roxo */
   box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
 }
+
+/* Tabela estilizada */
+.table-container {
+  overflow-x: auto;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+}
+.custom-table thead {
+  background-color: #66bb6a;
+  color: white;
+}
+.custom-table th,
+.custom-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+.custom-table tr:last-child td {
+  border-bottom: none;
+}
+.custom-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Alertas bonitos */
+.alert {
+  transition: opacity 0.5s ease;
+  padding: 12px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+.alert-success {
+  background-color: #e0f7e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+.alert-danger {
+  background-color: #fdecea;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+}
+
+/* Animação */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Outros */
+.gap-2 {
+  gap: 0.5rem;
+}
+
+
+
+
+
+
+/* Estilo responsivo para tabela */
+@media (max-width: 768px) {
+  .custom-table thead {
+    display: none;
+  }
+
+  .custom-table, .custom-table tbody, .custom-table tr, .custom-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .custom-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    padding: 10px;
+    background: #fff;
+  }
+
+  .custom-table td {
+    padding: 10px;
+    position: relative;
+    text-align: left;
+    border-bottom: none;
+  }
+
+  .custom-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #555;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .d-flex {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+}
+
 </style>
+
 
 
