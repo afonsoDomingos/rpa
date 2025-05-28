@@ -7,6 +7,7 @@
       class="form-control borda-destacada mb-3"
     />
 
+
     <div class="table-container">
       <table class="custom-table">
         <thead>
@@ -99,6 +100,13 @@
         </tbody>
       </table>
     </div>
+        <!-- Coloque logo abaixo do input -->
+<transition name="contador-animado" mode="out-in">
+  <div key="count-{{ usuariosFiltrados.length }}" class="contador-usuarios mb-3">
+    <span>Usuários encontrados:</span>
+    <strong>{{ usuariosFiltrados.length }}</strong>
+  </div>
+</transition>
 
     <div class="d-flex justify-content-between align-items-center mt-3">
       <button
@@ -394,6 +402,52 @@ watch(() => props.atualizar, buscarUsuarios)
     flex-direction: column !important;
     align-items: flex-start !important;
   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+.contador-usuarios {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #e0f7e9;       /* verde clarinho */
+  color: #2e7d32;            /* verde escuro */
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.2);
+  font-size: 1.1rem;
+  user-select: none;
+  transition: background-color 0.3s ease;
+}
+
+.contador-usuarios strong {
+  font-size: 1.4rem;
+  color: #145214;
+}
+
+/* Animação fade + scale */
+.contador-animado-enter-active, .contador-animado-leave-active {
+  transition: all 0.4s ease;
+  position: relative;
+  display: inline-block;
+}
+.contador-animado-enter-from, .contador-animado-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
+}
+.contador-animado-enter-to, .contador-animado-leave-from {
+  opacity: 1;
+  transform: scale(1);
 }
 
 </style>
