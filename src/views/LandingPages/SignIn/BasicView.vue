@@ -89,7 +89,7 @@ const register = async () => {
     console.error('Erro no cadastro:', error);
     if (error.response) {
       // Exibe a mensagem de erro que a API retornou
-      alert(`Erro no cadastro: ${error.response.data.message || 'Tente novamente.'}`);
+      alert(`Erro no cadastro: ${error.response.data.message || 'Tente novamente Fazer O Registro.'}`);
     } else {
       alert('Erro de conexão. Tente novamente mais tarde.');
     }
