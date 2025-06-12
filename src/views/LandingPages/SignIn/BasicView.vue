@@ -36,32 +36,6 @@
       <button type="submit">Cadastrar</button>
     </form>
 
-    <!-- Formulário de Login -->
-    <form @submit.prevent="handleLoginSubmit">
-      <h2>Login</h2>
-      <div>
-        <label for="emailOrUsernameLogin">Email ou Nome de Usuário</label>
-        <input
-          v-model="emailOrUsernameLogin"
-          type="text"
-          id="emailOrUsernameLogin"
-          placeholder="Email ou Nome de Usuário"
-        />
-      </div>
-      
-      <div>
-        <label for="senhaLogin">Senha</label>
-        <input
-          v-model="senhaLogin"
-          type="password"
-          id="senhaLogin"
-          placeholder="Senha"
-        />
-      </div>
-
-      <button type="submit">Entrar</button>
-    </form>
-
     <!-- Mensagens de erro e sucesso -->
     <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
     <div v-if="successMessage" class="success">{{ successMessage }}</div>
@@ -79,19 +53,20 @@ const role = ref('');
 const successMessage = ref('');
 const errorMessage = ref('');
 
-// Dados do formulário de login
-const emailOrUsernameLogin = ref('');
-const senhaLogin = ref('');
-
 // Função para enviar os dados do formulário de registro
 const handleRegisterSubmit = async () => {
   const url = 'https://apirpa.onrender.com/api/auth/register'; // URL da API de registro
+
+  // Decida se o campo emailOrUsername é um email ou nome
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOrUsername.value);
 
   // Prepara os dados a serem enviados
   const data = {
     emailOrUsername: emailOrUsername.value,  // Email ou Nome de Usuário
     senha: senha.value,                      // Senha
     role: role.value || 'cliente',           // Role, se não for enviado, define como 'cliente'
+    nome: isEmail ? undefined : emailOrUsername.value, // Se for um e-mail, não envia nome
+    email: isEmail ? emailOrUsername.value : undefined, // Se for um nome de usuário, não envia email
   };
 
   try {
@@ -101,39 +76,6 @@ const handleRegisterSubmit = async () => {
     // Exibe a mensagem de sucesso
     successMessage.value = response.data.msg;
     errorMessage.value = ''; // Limpa qualquer mensagem de erro anterior
-  } catch (error) {
-    // Captura erro da requisição
-    if (error.response) {
-      // Exibe erro detalhado no console (para depuração)
-      console.error('Erro no servidor:', error.response.data);
-      errorMessage.value = error.response.data.msg || 'Erro desconhecido';  // Mensagem de erro
-    } else {
-      // Erro ao se comunicar com o servidor
-      errorMessage.value = 'Erro ao se comunicar com o servidor';
-    }
-  }
-};
-
-// Função para enviar os dados do formulário de login
-const handleLoginSubmit = async () => {
-  const url = 'https://apirpa.onrender.com/api/auth/login'; // URL da API de login
-
-  // Prepara os dados a serem enviados
-  const data = {
-    emailOrUsername: emailOrUsernameLogin.value,  // Email ou Nome de Usuário
-    senha: senhaLogin.value,                      // Senha
-  };
-
-  try {
-    // Envia a requisição para o backend
-    const response = await axios.post(url, data);
-
-    // Exibe a mensagem de sucesso
-    successMessage.value = 'Login bem-sucedido!';
-    errorMessage.value = ''; // Limpa qualquer mensagem de erro anterior
-
-    // Mostra o token JWT no console (ou você pode armazená-lo em localStorage ou Vuex)
-    console.log('Token:', response.data.token);
   } catch (error) {
     // Captura erro da requisição
     if (error.response) {
