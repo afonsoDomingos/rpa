@@ -23,11 +23,13 @@ const setBodyClass = (className) => {
 const login = async () => {
   console.log('login() chamada');
 
+  // Recupera o valor de email ou nome de usuário
   const input = emailOrUsername.value.trim().toLowerCase();
   const pass = password.value.trim();
 
   console.log('input:', input, 'pass:', pass ? '*****' : '(vazio)');
 
+  // Verificar se ambos os campos foram preenchidos
   if (!input || !pass) {
     alert('Por favor, preencha email/usuário e senha.');
     return;
@@ -35,18 +37,21 @@ const login = async () => {
 
   try {
     console.log("Tentando enviar requisição...");
+    // Enviar o login com emailOrUsername e senha
     const response = await axios.post('https://apirpa.onrender.com/api/auth/login', {
-      email: input,
+      emailOrUsername: input,  // Usar o campo único para login
       senha: pass,
     });
+
     console.log("Resposta da API:", response);
 
-    localStorage.setItem('email', input);
+    // Armazenar os dados no localStorage
+    localStorage.setItem('emailOrUsername', input);
     localStorage.setItem('token', response.data.token);
-    //localStorage.setItem('authToken', response.data.token);
 
     try {
       console.log("Redirecionando...");
+      // Redireciona para a URL de destino após login
       await router.push(response.data.redirectUrl || '/home');
       console.log("Redirecionamento concluído.");
     } catch (navError) {
@@ -55,6 +60,7 @@ const login = async () => {
 
   } catch (error) {
     console.error('Erro capturado no catch:', error);
+    // Tratar erro específico de credenciais inválidas
     if (error.response?.status === 401) {
       alert('Credenciais inválidas. Por favor, verifique e tente novamente.');
     } else {
