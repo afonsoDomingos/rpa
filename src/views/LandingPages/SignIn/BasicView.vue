@@ -1,53 +1,70 @@
 <template>
   <div>
-    <h1 v-if="isRegistering">Cadastro de Usuário</h1>
-    <h1 v-else>Login</h1>
-
-    <form @submit.prevent="handleSubmit">
+    <!-- Formulário de Registro -->
+    <form @submit.prevent="handleRegisterSubmit">
+      <h2>Registro</h2>
       <div>
         <label for="emailOrUsername">Email ou Nome de Usuário</label>
         <input
+          v-model="emailOrUsername"
           type="text"
           id="emailOrUsername"
-          v-model="emailOrUsername"
-          required
+          placeholder="Email ou Nome de Usuário"
         />
       </div>
-
+      
       <div>
         <label for="senha">Senha</label>
         <input
+          v-model="senha"
           type="password"
           id="senha"
-          v-model="senha"
-          required
+          placeholder="Senha"
+        />
+      </div>
+      
+      <div>
+        <label for="role">Role</label>
+        <input
+          v-model="role"
+          type="text"
+          id="role"
+          placeholder="Role (cliente, admin, etc.)"
         />
       </div>
 
-      <div v-if="isRegistering">
-        <label for="role">Role</label>
-        <select v-model="role">
-          <option value="cliente">Cliente</option>
-          <option value="admin">Admin</option>
-        </select>
-      </div>
-
-      <div v-if="errorMessage" class="error-message">
-        {{ errorMessage }}
-      </div>
-
-      <div v-if="successMessage" class="success-message">
-        {{ successMessage }}
-      </div>
-
-      <button type="submit">{{ isRegistering ? 'Cadastrar' : 'Entrar' }}</button>
+      <button type="submit">Cadastrar</button>
     </form>
 
-    <div>
-      <button @click="toggleForm">
-        {{ isRegistering ? 'Já tenho conta, faça login' : 'Ainda não tem conta? Cadastre-se' }}
-      </button>
-    </div>
+    <!-- Formulário de Login -->
+    <form @submit.prevent="handleLoginSubmit">
+      <h2>Login</h2>
+      <div>
+        <label for="emailOrUsernameLogin">Email ou Nome de Usuário</label>
+        <input
+          v-model="emailOrUsernameLogin"
+          type="text"
+          id="emailOrUsernameLogin"
+          placeholder="Email ou Nome de Usuário"
+        />
+      </div>
+      
+      <div>
+        <label for="senhaLogin">Senha</label>
+        <input
+          v-model="senhaLogin"
+          type="password"
+          id="senhaLogin"
+          placeholder="Senha"
+        />
+      </div>
+
+      <button type="submit">Entrar</button>
+    </form>
+
+    <!-- Mensagens de erro e sucesso -->
+    <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
+    <div v-if="successMessage" class="success">{{ successMessage }}</div>
   </div>
 </template>
 
@@ -55,51 +72,76 @@
 import { ref } from 'vue';
 import axios from 'axios';
 
-// Estado para controlar o formulário (Cadastro ou Login)
-const isRegistering = ref(true); // true -> Cadastro, false -> Login
-
-// Campos de entrada
+// Dados do formulário de registro
 const emailOrUsername = ref('');
 const senha = ref('');
-const role = ref('cliente'); // Só será usado no cadastro
+const role = ref('');
 const successMessage = ref('');
 const errorMessage = ref('');
 
-// Função para alternar entre o formulário de cadastro e login
-const toggleForm = () => {
-  isRegistering.value = !isRegistering.value;
-  errorMessage.value = '';
-  successMessage.value = '';
-};
+// Dados do formulário de login
+const emailOrUsernameLogin = ref('');
+const senhaLogin = ref('');
 
-// Função para enviar os dados para o backend (Cadastro ou Login)
-const handleSubmit = async () => {
-  const url = isRegistering.value
-    ? 'https://apirpa.onrender.com/api/auth/register'
-    : 'https://apirpa.onrender.com/api/auth/login';
+// Função para enviar os dados do formulário de registro
+const handleRegisterSubmit = async () => {
+  const url = 'https://apirpa.onrender.com/api/auth/register'; // URL da API de registro
 
+  // Prepara os dados a serem enviados
   const data = {
-    emailOrUsername: emailOrUsername.value,
-    senha: senha.value,
-    role: isRegistering.value ? role.value : undefined,
+    emailOrUsername: emailOrUsername.value,  // Email ou Nome de Usuário
+    senha: senha.value,                      // Senha
+    role: role.value || 'cliente',           // Role, se não for enviado, define como 'cliente'
   };
 
   try {
+    // Envia a requisição para o backend
     const response = await axios.post(url, data);
-    if (isRegistering.value) {
-      successMessage.value = response.data.msg;
-      errorMessage.value = '';
-    } else {
-      const token = response.data.token;
-      successMessage.value = 'Login bem-sucedido!';
-      errorMessage.value = '';
-      console.log('Token JWT:', token);
-      // Aqui você pode armazenar o token (localStorage ou Vuex, por exemplo)
-    }
+
+    // Exibe a mensagem de sucesso
+    successMessage.value = response.data.msg;
+    errorMessage.value = ''; // Limpa qualquer mensagem de erro anterior
   } catch (error) {
+    // Captura erro da requisição
     if (error.response) {
-      errorMessage.value = error.response.data.msg;
+      // Exibe erro detalhado no console (para depuração)
+      console.error('Erro no servidor:', error.response.data);
+      errorMessage.value = error.response.data.msg || 'Erro desconhecido';  // Mensagem de erro
     } else {
+      // Erro ao se comunicar com o servidor
+      errorMessage.value = 'Erro ao se comunicar com o servidor';
+    }
+  }
+};
+
+// Função para enviar os dados do formulário de login
+const handleLoginSubmit = async () => {
+  const url = 'https://apirpa.onrender.com/api/auth/login'; // URL da API de login
+
+  // Prepara os dados a serem enviados
+  const data = {
+    emailOrUsername: emailOrUsernameLogin.value,  // Email ou Nome de Usuário
+    senha: senhaLogin.value,                      // Senha
+  };
+
+  try {
+    // Envia a requisição para o backend
+    const response = await axios.post(url, data);
+
+    // Exibe a mensagem de sucesso
+    successMessage.value = 'Login bem-sucedido!';
+    errorMessage.value = ''; // Limpa qualquer mensagem de erro anterior
+
+    // Mostra o token JWT no console (ou você pode armazená-lo em localStorage ou Vuex)
+    console.log('Token:', response.data.token);
+  } catch (error) {
+    // Captura erro da requisição
+    if (error.response) {
+      // Exibe erro detalhado no console (para depuração)
+      console.error('Erro no servidor:', error.response.data);
+      errorMessage.value = error.response.data.msg || 'Erro desconhecido';  // Mensagem de erro
+    } else {
+      // Erro ao se comunicar com o servidor
       errorMessage.value = 'Erro ao se comunicar com o servidor';
     }
   }
@@ -107,11 +149,40 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-.error-message {
+/* Estilos para a exibição das mensagens de erro e sucesso */
+.error {
   color: red;
+  margin-top: 10px;
 }
 
-.success-message {
+.success {
   color: green;
+  margin-top: 10px;
+}
+
+/* Estilos básicos para o formulário */
+form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+form div {
+  margin-bottom: 10px;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+h2 {
+  text-align: center;
 }
 </style>
