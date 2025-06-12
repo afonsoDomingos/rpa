@@ -1,21 +1,13 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import axios from 'axios';
 
-// Exemplo de componentes
 import NavbarDefault from "../../../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../../../examples/footers/FooterDefault.vue";
-
-// Componentes do Vue Material Kit 2
-import MaterialInput from "@/components/MaterialInput.vue";
-import MaterialSwitch from "@/components/MaterialSwitch.vue";
 import MaterialButton from "@/components/MaterialButton.vue";
+import MaterialSwitch from "@/components/MaterialSwitch.vue";
 
-// Função para inicializar o MaterialInput
-import setMaterialInput from "@/assets/js/material-input";
-
-// Dados reativos
 const emailOrUsername = ref('');
 const password = ref('');
 const newEmail = ref('');
@@ -23,113 +15,106 @@ const newUsername = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 
-
 const router = useRouter();
 
-
-// Função para definir a classe do body
-function setBodyClass(className) {
+const setBodyClass = (className) => {
   document.body.className = className;
-}
-
-// Função de login
+};
 const login = async () => {
+  console.log('login() chamada');
+
   const input = emailOrUsername.value.trim().toLowerCase();
   const pass = password.value.trim();
 
-  try {
-    const response = await axios.post('https://apirpa.onrender.com/api/auth/login', {
-      email: input,
-      senha: pass
-    });
+  console.log('input:', input, 'pass:', pass ? '*****' : '(vazio)');
 
-    const { token, redirectUrl } = response.data;
-
-    // Armazenando o email e o token no localStorage
-    localStorage.setItem('email', input)
-    // localStorage.setItem('authToken', token) // se quiser armazenar o token também
-
-    // Redireciona para a URL específica de acordo com o papel
-    router.push(redirectUrl);
-  } catch (error) {
-    console.error('Erro no login', error);
-    alert('Credenciais inválidas. Tente novamente.');
-  }
-};
-
-
-
-// Função de registro
-const register = async () => {
-  if (newPassword.value !== confirmPassword.value) {
-    alert('As senhas não coincidem!');
+  if (!input || !pass) {
+    alert('Por favor, preencha email/usuário e senha.');
     return;
   }
 
   try {
-    const response = await axios.post('https://apirpa.onrender.com/api/auth/register', {
+    console.log("Tentando enviar requisição...");
+    const response = await axios.post('https://apirpa.onrender.com/api/auth/login', {
+      email: input,
+      senha: pass,
+    });
+    console.log("Resposta da API:", response);
+
+    localStorage.setItem('email', input);
+    localStorage.setItem('token', response.data.token);
+    //localStorage.setItem('authToken', response.data.token);
+
+    try {
+      console.log("Redirecionando...");
+      await router.push(response.data.redirectUrl || '/home');
+      console.log("Redirecionamento concluído.");
+    } catch (navError) {
+      console.error("Erro no redirecionamento:", navError);
+    }
+
+  } catch (error) {
+    console.error('Erro capturado no catch:', error);
+    if (error.response?.status === 401) {
+      alert('Credenciais inválidas. Por favor, verifique e tente novamente.');
+    } else {
+      alert('Erro ao tentar logar. Tente novamente mais tarde.');
+    }
+  }
+};
+
+
+
+const register = async () => {
+  if (newPassword.value !== confirmPassword.value) return alert('As senhas não coincidem!');
+
+  try {
+    await axios.post('https://apirpa.onrender.com/api/auth/register', {
       nome: newUsername.value,
       email: newEmail.value,
-      senha: newPassword.value
+      senha: newPassword.value,
     });
 
     alert('Cadastro realizado com sucesso!');
-    router.push('/');  // Redireciona para a página de login após o cadastro
+    router.push('/');
 
-    // Limpa os campos após o registro
     newEmail.value = '';
     newUsername.value = '';
     newPassword.value = '';
     confirmPassword.value = '';
-
   } catch (error) {
-    console.error('Erro no cadastro', error);
     alert('Erro ao registrar. Tente novamente.');
+    console.error('Erro no cadastro:', error);
   }
 };
-
 </script>
-
 
 <template>
   <NavbarDefault :sticky="true" />
 
   <div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n6">
-
     <div class="container page-header container">
+
       <div class="content first-content">
-        <div class="first-column">
-          <h2 class="title title-primary">bem-vindo de volta!</h2>
+        <div class="first-column text-center">
+          <h2 class="title title-primary">Bem-vindo!</h2>
           <p class="description description-primary">Para continuar conectado conosco</p>
           <p class="description description-primary">faça login com suas informações pessoais</p>
-          <button @click="setBodyClass('sign-in-js')" class="btn btn-primary">entrar</button>
+          <button @click="setBodyClass('sign-in-js')" class="btn btn-primary">Entrar</button>
         </div>
+
         <div class="second-column">
-          <!--<h2 class="title title-second">criar uma conta</h2>-->
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
             <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
-              <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">
-                Criar uma conta
-              </h4>
-              <div class="row mt-3">
-                <div class="col-2 text-center ms-auto">
-                  <a class="btn btn-link px-3" href="javascript:;">
-                    <i class="fa fa-facebook text-white text-lg"></i>
-                  </a>
-                </div>
-                <div class="col-2 text-center px-1">
-                  <a class="btn btn-link px-3" href="javascript:;">
-                    <i class="fa fa-github text-white text-lg"></i>
-                  </a>
-                </div>
-                <div class="col-2 text-center me-auto">
-                  <a class="btn btn-link px-3" href="javascript:;">
-                    <i class="fa fa-google text-white text-lg"></i>
-                  </a>
-                </div>
+              <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">Criar uma conta</h4>
+              <div class="row mt-3 text-center">
+                <div class="col-2 ms-auto"><a class="btn btn-link px-3" href="#"><i class="fa fa-facebook text-white text-lg"></i></a></div>
+                <div class="col-2 px-1"><a class="btn btn-link px-3" href="#"><i class="fa fa-github text-white text-lg"></i></a></div>
+                <div class="col-2 me-auto"><a class="btn btn-link px-3" href="#"><i class="fa fa-google text-white text-lg"></i></a></div>
               </div>
             </div>
           </div>
+
           <div class="social-media">
             <ul class="list-social-media">
               <li class="item-social-media"><i class="fab fa-facebook-f"></i></li>
@@ -137,7 +122,9 @@ const register = async () => {
               <li class="item-social-media"><i class="fab fa-linkedin-in"></i></li>
             </ul>
           </div>
-          <p class="description description-second">Insira seus dados ou use seu e-mail para se registrar::</p>
+
+          <p class="description description-second">Insira seus dados ou use seu e-mail para se registrar:</p>
+
           <form @submit.prevent="register" class="form">
             <label class="label-input">
               <i class="far fa-user icon-modify"></i>
@@ -146,7 +133,7 @@ const register = async () => {
 
             <label class="label-input">
               <i class="far fa-envelope icon-modify"></i>
-              <input v-model="newEmail" type="text" placeholder="E-mail" />
+              <input v-model="newEmail" type="email" placeholder="E-mail" />
             </label>
 
             <label class="label-input">
@@ -154,15 +141,14 @@ const register = async () => {
               <input v-model="newPassword" type="password" placeholder="Senha" />
             </label>
 
-            <!-- Novo campo: Confirmar Senha -->
             <label class="label-input">
               <i class="fas fa-lock icon-modify"></i>
               <input v-model="confirmPassword" type="password" placeholder="Confirmar Senha" />
             </label>
 
             <div class="text-center">
-              <MaterialButton type="submit" class="my-4 mb-2" variant="gradient" color="success" fullWidth>
-                Registar
+              <MaterialButton type="submit" variant="gradient" color="success" fullWidth>
+                Registrar
               </MaterialButton>
             </div>
 
@@ -175,42 +161,25 @@ const register = async () => {
       </div>
 
       <div class="content second-content">
-        <div class="first-column">
-          <h2 class="title title-primary">olá, amigo!</h2>
-          <p class="description description-primary">Insira seus dados pessoais</p>
+        <div class="first-column text-center">
+          <h2 class="title title-primary">Olá, amigo!</h2>
+          <p class="description description-primary">Insira seus dados</p>
           <p class="description description-primary">e comece a jornada conosco</p>
-          <button @click="setBodyClass('sign-up-js')" class="btn btn-primary">registrar</button>
+          <button @click="setBodyClass('sign-up-js')" class="btn btn-primary">Registrar</button>
         </div>
+
         <div class="second-column">
-
-
-         
-
-          <!--<h2 class="title title-second">faça login</h2>-->
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
             <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
-              <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">
-                 Faça Login
-              </h4>
-              <div class="row mt-3">
-                <div class="col-2 text-center ms-auto">
-                  <a class="btn btn-link px-3" href="javascript:;">
-                    <i class="fa fa-facebook text-white text-lg"></i>
-                  </a>
-                </div>
-                <div class="col-2 text-center px-1">
-                  <a class="btn btn-link px-3" href="javascript:;">
-                    <i class="fa fa-github text-white text-lg"></i>
-                  </a>
-                </div>
-                <div class="col-2 text-center me-auto">
-                  <a class="btn btn-link px-3" href="javascript:;">
-                    <i class="fa fa-google text-white text-lg"></i>
-                  </a>
-                </div>
+              <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">Faça Login</h4>
+              <div class="row mt-3 text-center">
+                <div class="col-2 ms-auto"><a class="btn btn-link px-3" href="#"><i class="fa fa-facebook text-white text-lg"></i></a></div>
+                <div class="col-2 px-1"><a class="btn btn-link px-3" href="#"><i class="fa fa-github text-white text-lg"></i></a></div>
+                <div class="col-2 me-auto"><a class="btn btn-link px-3" href="#"><i class="fa fa-google text-white text-lg"></i></a></div>
               </div>
             </div>
           </div>
+
           <div class="social-media">
             <ul class="list-social-media">
               <li class="item-social-media"><i class="fab fa-facebook-f"></i></li>
@@ -218,39 +187,33 @@ const register = async () => {
               <li class="item-social-media"><i class="fab fa-linkedin-in"></i></li>
             </ul>
           </div>
+
           <p class="description description-second">Insira seus dados ou use sua conta de e-mail para entrar:</p>
 
           <form @submit.prevent="login" class="form">
-            <label class="label-input"><i class="far fa-user icon-modify label-input input-group-outline mb-3"></i>
-              <input v-model="emailOrUsername" id="emailOrUsername"
-                :label="{ text: 'E-mail ou Nome de Usuário', class: 'form-label' }" type="email" required />
-
+            <label class="label-input">
+              <i class="far fa-user icon-modify"></i>
+              <input v-model="emailOrUsername" type="email" placeholder="E-mail ou Nome de Usuário" required />
             </label>
 
-
-            <label class="label-input"><i class="far fa-envelope icon-modify label-input input-group-outline mb-3"></i>
-              <input v-model="password" id="password" :label="{ text: 'Password', class: 'form-label' }" type="password"
-                required />
-
+            <label class="label-input">
+              <i class="fas fa-lock icon-modify"></i>
+              <input v-model="password" type="password" placeholder="Senha" required />
             </label>
 
-
-            <MaterialSwitch  class="d-flex align-items-center mb-3" id="rememberMe"
-              labelClass="mb-0 ms-3">
+            <MaterialSwitch class="d-flex align-items-center mb-3" id="rememberMe" labelClass="mb-0 ms-3">
               Lembre de mim
             </MaterialSwitch>
 
             <div class="text-center">
-              <MaterialButton type="submit" class="my-4 mb-2" variant="gradient" color="success" fullWidth>
+              <MaterialButton type="submit" variant="gradient" color="success" fullWidth>
                 Entrar
               </MaterialButton>
             </div>
 
             <p class="mt-4 text-sm text-center">
               Ainda não possui uma conta?
-              <a href="#" class="text-success text-gradient font-weight-bold">
-                Crie agora.
-              </a>
+              <a href="#" class="text-success text-gradient font-weight-bold">Crie agora.</a>
             </p>
           </form>
         </div>
@@ -258,9 +221,8 @@ const register = async () => {
 
     </div>
   </div>
-  <FooterDefault></FooterDefault>
 
-
+  <FooterDefault />
 </template>
 
 <style scoped>
@@ -282,34 +244,49 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: calc(100vh - 100px); /* espaço para navbar/footer */
   background-color: #ffffff;
+  padding: 2rem;
   margin-top: 10%;
 }
+
+
 
 .content {
   background-color: #fff8ff;
   border-radius: 15px;
   width: 960px;
-  height: 50%;
+  flex-wrap: wrap;
+  min-height: 400px;
+  height: auto;
   justify-content: space-between;
   align-items: center;
   position: relative;
 }
 
+
+
 .content::before {
   content: "";
   position: absolute;
 
-  background-color: #800080;
+  background-color: #ffffff;
   width: 40%;
+  max-width: 400px;
   height: 100%;
-  border-top-left-radius: 15px;
-  border-bottom-left-radius: 15px;
 
+  border-top-left-radius: 24px;
+  border-bottom-left-radius: 24px;
+
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+
+  transition: all 0.3s ease-in-out;
 
   left: 0;
+  top: 0;
+  z-index: 1;
 }
+
 
 .title {
   font-size: 28px;
@@ -318,7 +295,7 @@ body {
 }
 
 .title-primary {
-  color: #fff;
+  color: #000000;
 }
 
 .title-second {
@@ -332,7 +309,7 @@ body {
 }
 
 .description-primary {
-  color: #fff;
+  color: #000000;
 }
 
 .description-second {
@@ -354,7 +331,7 @@ body {
 }
 
 .btn-primary {
-  background-color: transparent;
+  background-color: #28a745;
   border: 1px solid #fff;
   transition: background-color .5s;
 }
@@ -668,165 +645,95 @@ input:-webkit-autofill {
 
 
 
+/* Responsividade aprimorada para telas pequenas */
 
-/*VERSÃO MOBILE*/
-@media screen and (max-width: 1040px) {
+@media screen and (max-width: 1024px) {
+  .container {
+    margin-top: 0;
+    padding: 1rem;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    margin-top: 50%;
+  }
+
   .content {
+    flex-direction: column;
     width: 100%;
-    height: 100%;
+    height: auto;
+    min-height: 100vh;
+    box-shadow: none;
   }
 
   .content::before {
-    width: 100%;
-    height: 40%;
-    top: 0;
-    border-radius: 0;
+    display: none; /* Remove o bloco animado lateral para simplificar no mobile */
   }
 
   .first-content,
   .second-content {
     flex-direction: column;
-    justify-content: space-around;
+    width: 100%;
   }
 
   .first-column,
   .second-column {
     width: 100%;
+    padding: 1rem;
   }
 
-  .sign-in-js .content::before {
-    top: 60%;
-    left: 0;
-    border-radius: 0;
-
+  .title,
+  .description,
+  .password {
+    text-align: center;
   }
 
+  .form {
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .btn {
+    margin: 1rem auto;
+  }
+
+  .list-social-media {
+    justify-content: center;
+  }
+}
+
+@media screen and (max-width: 768px) {
   .form {
     width: 90%;
   }
 
-  /* ANIMAÇÃO MOBILE CSS*/
-
-  @keyframes deslocamentoEsq {
-
-    from {
-      top: 0;
-      opacity: 1;
-      z-index: 12;
-    }
-
-    25% {
-      top: -80px;
-      opacity: .5;
-      /* z-index: 12; NÃO HÁ NECESSIDADE */
-    }
-
-    50% {
-      top: -100px;
-      opacity: .2;
-      /* z-index: 12; NÃO HÁ NECESSIDADE */
-    }
-
-    to {
-      top: -110px;
-      opacity: 0;
-      z-index: -1;
-    }
+  .title {
+    font-size: 24px;
   }
 
-
-  @keyframes deslocamentoDir {
-
-    from {
-      top: 0;
-      z-index: 12;
-    }
-
-    25% {
-      top: 80px;
-      /* z-index: 12;  NÃO HÁ NECESSIDADE*/
-    }
-
-    50% {
-      top: 100px;
-      /* z-index: 12; NÃO HÁ NECESSIDADE*/
-      /* background-color: yellow;  Exemplo que dei no vídeo*/
-    }
-
-    to {
-      top: 110px;
-      z-index: -1;
-    }
+  .description {
+    font-size: 13px;
   }
 
-
-
-  @keyframes slidein {
-
-    from {
-      top: 0;
-      height: 40%;
-    }
-
-    25% {
-      top: 5%;
-      height: 50%;
-    }
-
-    50% {
-      top: 25%;
-      height: 60%;
-    }
-
-    75% {
-      top: 45%;
-      height: 50%;
-    }
-
-    to {
-      top: 60%;
-      height: 40%;
-    }
-  }
-
-  @keyframes slideout {
-
-    from {
-      top: 60%;
-      height: 40%;
-    }
-
-    25% {
-      top: 45%;
-      height: 50%;
-    }
-
-    50% {
-      top: 25%;
-      height: 60%;
-    }
-
-    75% {
-      top: 5%;
-      height: 50%;
-    }
-
-    to {
-      top: 0;
-      height: 40%;
-    }
-  }
-
-}
-
-@media screen and (max-width: 740px) {
-  .form {
-    width: 50%;
+  .btn {
+    font-size: 12px;
+    padding: 10px 30px;
   }
 }
 
-@media screen and (max-width: 425px) {
+@media screen and (max-width: 480px) {
   .form {
+    width: 100%;
+  }
+
+  .item-social-media {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px;
+  }
+
+  .btn {
     width: 100%;
   }
 }
