@@ -39,6 +39,36 @@
     <!-- Mensagens de erro e sucesso -->
     <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
     <div v-if="successMessage" class="success">{{ successMessage }}</div>
+
+    <!-- Formulário de Login -->
+    <form @submit.prevent="handleLoginSubmit">
+      <h2>Login</h2>
+      <div>
+        <label for="emailOrUsername">Email ou Nome de Usuário</label>
+        <input
+          v-model="loginEmailOrUsername"
+          type="text"
+          id="loginEmailOrUsername"
+          placeholder="Email ou Nome de Usuário"
+        />
+      </div>
+
+      <div>
+        <label for="loginSenha">Senha</label>
+        <input
+          v-model="loginSenha"
+          type="password"
+          id="loginSenha"
+          placeholder="Senha"
+        />
+      </div>
+
+      <button type="submit">Entrar</button>
+    </form>
+
+    <!-- Mensagem de erro no Login -->
+    <div v-if="loginErrorMessage" class="error">{{ loginErrorMessage }}</div>
+    <div v-if="loginSuccessMessage" class="success">{{ loginSuccessMessage }}</div>
   </div>
 </template>
 
@@ -52,6 +82,12 @@ const senha = ref('');
 const role = ref('');
 const successMessage = ref('');
 const errorMessage = ref('');
+
+// Dados do formulário de login
+const loginEmailOrUsername = ref('');
+const loginSenha = ref('');
+const loginSuccessMessage = ref('');
+const loginErrorMessage = ref('');
 
 // Função para enviar os dados do formulário de registro
 const handleRegisterSubmit = async () => {
@@ -85,6 +121,40 @@ const handleRegisterSubmit = async () => {
     } else {
       // Erro ao se comunicar com o servidor
       errorMessage.value = 'Erro ao se comunicar com o servidor';
+    }
+  }
+};
+
+// Função para enviar os dados do formulário de login
+const handleLoginSubmit = async () => {
+  const url = 'https://apirpa.onrender.com/api/auth/login'; // URL da API de login
+
+  // Prepara os dados a serem enviados
+  const data = {
+    emailOrUsername: loginEmailOrUsername.value,  // Email ou Nome de Usuário
+    senha: loginSenha.value,                      // Senha
+  };
+
+  try {
+    // Envia a requisição para o backend
+    const response = await axios.post(url, data);
+
+    // Exibe a mensagem de sucesso
+    loginSuccessMessage.value = response.data.msg;
+    loginErrorMessage.value = ''; // Limpa qualquer mensagem de erro anterior
+
+    // Armazena o token JWT no localStorage ou Cookie (aqui é no localStorage)
+    localStorage.setItem('authToken', response.data.token);
+
+    // Redireciona o usuário baseado na role (admin ou cliente)
+    window.location.href = response.data.redirectUrl;
+  } catch (error) {
+    // Captura erro da requisição
+    if (error.response) {
+      console.error('Erro no servidor:', error.response.data);
+      loginErrorMessage.value = error.response.data.msg || 'Erro desconhecido';
+    } else {
+      loginErrorMessage.value = 'Erro ao se comunicar com o servidor';
     }
   }
 };
