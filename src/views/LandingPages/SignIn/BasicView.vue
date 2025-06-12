@@ -66,10 +66,12 @@ const login = async () => {
 
 
 const register = async () => {
-  if (newPassword.value !== confirmPassword.value) return alert('As senhas não coincidem!');
+  if (newPassword.value !== confirmPassword.value) {
+    return alert('As senhas não coincidem!');
+  }
 
   try {
-    await axios.post('https://apirpa.onrender.com/api/auth/register', {
+    const response = await axios.post('https://apirpa.onrender.com/api/auth/register', {
       nome: newUsername.value,
       email: newEmail.value,
       senha: newPassword.value,
@@ -78,15 +80,22 @@ const register = async () => {
     alert('Cadastro realizado com sucesso!');
     router.push('/');
 
+    // Limpar os campos após o sucesso
     newEmail.value = '';
     newUsername.value = '';
     newPassword.value = '';
     confirmPassword.value = '';
   } catch (error) {
-    alert('Erro ao registrar. Tente novamente.');
     console.error('Erro no cadastro:', error);
+    if (error.response) {
+      // Exibe a mensagem de erro que a API retornou
+      alert(`Erro no cadastro: ${error.response.data.message || 'Tente novamente.'}`);
+    } else {
+      alert('Erro de conexão. Tente novamente mais tarde.');
+    }
   }
 };
+
 </script>
 
 <template>
