@@ -86,11 +86,18 @@ const register = async () => {
     return alert('Por favor, preencha o e-mail ou nome de usuário!');
   }
 
+  // Verificar se o nome está vazio
+  if (!nome.value.trim()) {
+    return alert('Por favor, preencha o nome!');
+  }
+
   try {
     // Enviar a requisição POST para registrar o usuário
     await axios.post('https://apirpa.onrender.com/api/auth/register', {
+      nome: nome.value.trim(),  // Nome do usuário
       emailOrUsername: emailOrUsername,  // Campo único que pode ser email ou nome de usuário
       senha: newPassword.value,           // Senha
+      role: 'cliente',  // Valor padrão para o campo 'role'
     });
 
     // Sucesso
@@ -102,12 +109,14 @@ const register = async () => {
     newUsername.value = '';
     newPassword.value = '';
     confirmPassword.value = '';
+    nome.value = '';
   } catch (error) {
     // Erro
     alert('Erro ao registrar. Tente novamente.');
     console.error('Erro no cadastro:', error);
   }
 };
+
 
 </script>
 
@@ -147,38 +156,39 @@ const register = async () => {
 
           <p class="description description-second">Insira seus dados ou use seu e-mail para se registrar:</p>
 
-          <form @submit.prevent="register" class="form">
-            <label class="label-input">
-              <i class="far fa-user icon-modify"></i>
-              <input v-model="nome" type="text" placeholder="Nome" />
-            </label>
+         <form @submit.prevent="register" class="form">
+  <label class="label-input">
+    <i class="far fa-user icon-modify"></i>
+    <input v-model="nome" type="text" placeholder="Nome" />
+  </label>
 
-            <label class="label-input">
-              <i class="far fa-envelope icon-modify"></i>
-              <input v-model="newEmail" type="email" placeholder="E-mail" />
-            </label>
+  <label class="label-input">
+    <i class="far fa-envelope icon-modify"></i>
+    <input v-model="newEmail" type="email" placeholder="E-mail" />
+  </label>
 
-            <label class="label-input">
-              <i class="fas fa-lock icon-modify"></i>
-              <input v-model="newPassword" type="password" placeholder="Senha" />
-            </label>
+  <label class="label-input">
+    <i class="fas fa-lock icon-modify"></i>
+    <input v-model="newPassword" type="password" placeholder="Senha" />
+  </label>
 
-            <label class="label-input">
-              <i class="fas fa-lock icon-modify"></i>
-              <input v-model="confirmPassword" type="password" placeholder="Confirmar Senha" />
-            </label>
+  <label class="label-input">
+    <i class="fas fa-lock icon-modify"></i>
+    <input v-model="confirmPassword" type="password" placeholder="Confirmar Senha" />
+  </label>
 
-            <div class="text-center">
-              <MaterialButton type="submit" variant="gradient" color="success" fullWidth>
-                Registrar
-              </MaterialButton>
-            </div>
+  <div class="text-center">
+    <MaterialButton type="submit" variant="gradient" color="success" fullWidth>
+      Registrar
+    </MaterialButton>
+  </div>
 
-            <p class="mt-4 text-sm text-center">
-              Já possui uma conta?
-              <a href="#" class="text-success text-gradient font-weight-bold">Acesse agora.</a>
-            </p>
-          </form>
+  <p class="mt-4 text-sm text-center">
+    Já possui uma conta?
+    <a href="#" class="text-success text-gradient font-weight-bold">Acesse agora.</a>
+  </p>
+</form>
+
         </div>
       </div>
 
