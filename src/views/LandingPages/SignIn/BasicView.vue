@@ -9,6 +9,7 @@ import MaterialButton from "@/components/MaterialButton.vue";
 import MaterialSwitch from "@/components/MaterialSwitch.vue";
 
 const emailOrUsername = ref('');
+const nome = ref('');
 const password = ref('');
 const newEmail = ref('');
 const newUsername = ref('');
@@ -149,7 +150,7 @@ const register = async () => {
           <form @submit.prevent="register" class="form">
             <label class="label-input">
               <i class="far fa-user icon-modify"></i>
-              <input v-model="newUsername" type="text" placeholder="Nome" />
+              <input v-model="nome" type="text" placeholder="Nome" />
             </label>
 
             <label class="label-input">
