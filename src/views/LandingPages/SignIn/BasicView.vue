@@ -66,27 +66,42 @@ const login = async () => {
 
 
 const register = async () => {
-  if (newPassword.value !== confirmPassword.value) return alert('As senhas não coincidem!');
+  // Verificar se as senhas são iguais
+  if (newPassword.value !== confirmPassword.value) {
+    return alert('As senhas não coincidem!');
+  }
+
+  // Definir o valor para o campo 'emailOrUsername'
+  const emailOrUsername = newEmail.value.trim() || newUsername.value.trim(); // Se o email estiver vazio, usa o nome de usuário
+
+  // Verificar se o campo 'emailOrUsername' está vazio
+  if (!emailOrUsername) {
+    return alert('Por favor, preencha o e-mail ou nome de usuário!');
+  }
 
   try {
+    // Enviar a requisição POST para registrar o usuário
     await axios.post('https://apirpa.onrender.com/api/auth/register', {
-      nome: newUsername.value,
-      email: newEmail.value,
-      senha: newPassword.value,
+      emailOrUsername: emailOrUsername,  // Campo único que pode ser email ou nome de usuário
+      senha: newPassword.value,           // Senha
     });
 
+    // Sucesso
     alert('Cadastro realizado com sucesso!');
-    router.push('/');
+    router.push('/');  // Redirecionar após o sucesso
 
+    // Limpar campos após registro
     newEmail.value = '';
     newUsername.value = '';
     newPassword.value = '';
     confirmPassword.value = '';
   } catch (error) {
+    // Erro
     alert('Erro ao registrar. Tente novamente.');
     console.error('Erro no cadastro:', error);
   }
 };
+
 </script>
 
 <template>
