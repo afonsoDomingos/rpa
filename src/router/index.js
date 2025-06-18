@@ -192,24 +192,24 @@ const router = createRouter({
 });
 
 
-router.beforeEach((to, from, next) => {
-  const publicPages = ['/'];
-  const authRequired = !publicPages.includes(to.path);
+//router.beforeEach((to, from, next) => {
+//  const publicPages = ['/'];
+//  const authRequired = !publicPages.includes(to.path);
   //const token = localStorage.getItem('token');
-  const token = localStorage.getItem("authToken"); // usar a mesma chave do login
+ // const token = localStorage.getItem("authToken"); // usar a mesma chave do login
 
-  if (authRequired && !token) {
-    return next('/');
-  }
+ // if (authRequired && !token) {
+ //   return next('/');
+//  }
 
-  next();
-});
+//  next();
+//});
 
-const logout = () => {
-  localStorage.removeItem("authToken");
-  router.push("/");
-};
+//const logout = () => {
+//  localStorage.removeItem("authToken");
+//  router.push("/");
+//};
 
-export { logout };
+//export { logout };
 export default router;
 
