@@ -8,11 +8,10 @@ import FooterDefault from "../../../examples/footers/FooterDefault.vue";
 import MaterialButton from "@/components/MaterialButton.vue";
 import MaterialSwitch from "@/components/MaterialSwitch.vue";
 
-const emailOrUsername = ref('');
+const email = ref('');
 const nome = ref('');
 const password = ref('');
 const newEmail = ref('');
-const newUsername = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 
@@ -21,103 +20,70 @@ const router = useRouter();
 const setBodyClass = (className) => {
   document.body.className = className;
 };
-const login = async () => {
-  console.log('login() chamada');
 
-  // Recupera o valor de email ou nome de usuário
-  const input = emailOrUsername.value.trim().toLowerCase();
+const login = async () => {
+  const inputEmail = email.value.trim().toLowerCase();
   const pass = password.value.trim();
 
-  console.log('input:', input, 'pass:', pass ? '*****' : '(vazio)');
-
-  // Verificar se ambos os campos foram preenchidos
-  if (!input || !pass) {
-    alert('Por favor, preencha email/usuário e senha.');
+  if (!inputEmail || !pass) {
+    alert('Por favor, preencha o e-mail e a senha.');
     return;
   }
 
   try {
-    console.log("Tentando enviar requisição...");
-    // Enviar o login com emailOrUsername e senha
     const response = await axios.post('https://apirpa.onrender.com/api/auth/login', {
-      emailOrUsername: input,  // Usar o campo único para login
+      email: inputEmail,
       senha: pass,
     });
 
-    console.log("Resposta da API:", response);
-
-    // Armazenar os dados no localStorage
-    localStorage.setItem('emailOrUsername', input);
+    localStorage.setItem('email', inputEmail);
     localStorage.setItem('token', response.data.token);
 
-    try {
-      console.log("Redirecionando...");
-      // Redireciona para a URL de destino após login
-      await router.push(response.data.redirectUrl || '/home');
-      console.log("Redirecionamento concluído.");
-    } catch (navError) {
-      console.error("Erro no redirecionamento:", navError);
-    }
-
+    await router.push(response.data.redirectUrl || '/home');
   } catch (error) {
-    console.error('Erro capturado no catch:', error);
-    // Tratar erro específico de credenciais inválidas
     if (error.response?.status === 401) {
-      alert('Credenciais inválidas. Por favor, verifique e tente novamente.');
+      alert('Credenciais inválidas. Verifique seu e-mail e senha.');
     } else {
       alert('Erro ao tentar logar. Tente novamente mais tarde.');
     }
   }
 };
 
-
-
 const register = async () => {
-  // Verificar se as senhas são iguais
   if (newPassword.value !== confirmPassword.value) {
     return alert('As senhas não coincidem!');
   }
 
-  // Definir o valor para o campo 'emailOrUsername'
-  const emailOrUsername = newEmail.value.trim() || newUsername.value.trim(); // Se o email estiver vazio, usa o nome de usuário
+  const emailValue = newEmail.value.trim();
 
-  // Verificar se o campo 'emailOrUsername' está vazio
-  if (!emailOrUsername) {
-    return alert('Por favor, preencha o e-mail ou nome de usuário!');
+  if (!emailValue) {
+    return alert('Por favor, preencha o e-mail!');
   }
 
-  // Verificar se o nome está vazio
   if (!nome.value.trim()) {
     return alert('Por favor, preencha o nome!');
   }
 
   try {
-    // Enviar a requisição POST para registrar o usuário
     await axios.post('https://apirpa.onrender.com/api/auth/register', {
-      nome: nome.value.trim(),  // Nome do usuário
-      emailOrUsername: emailOrUsername,  // Campo único que pode ser email ou nome de usuário
-      senha: newPassword.value,           // Senha
-      role: 'cliente',  // Valor padrão para o campo 'role'
+      nome: nome.value.trim(),
+      email: emailValue,
+      senha: newPassword.value,
+      role: 'cliente',
     });
 
-    // Sucesso
     alert('Cadastro realizado com sucesso!');
-    router.push('/');  // Redirecionar após o sucesso
+    router.push('/');
 
-    // Limpar campos após registro
     newEmail.value = '';
-    newUsername.value = '';
     newPassword.value = '';
     confirmPassword.value = '';
     nome.value = '';
   } catch (error) {
-    // Erro
     alert('Erro ao registrar. Tente novamente.');
     console.error('Erro no cadastro:', error);
   }
 };
-
-
 </script>
 
 <template>
@@ -146,49 +112,40 @@ const register = async () => {
             </div>
           </div>
 
-          <div class="social-media">
-            <ul class="list-social-media">
-              <li class="item-social-media"><i class="fab fa-facebook-f"></i></li>
-              <li class="item-social-media"><i class="fab fa-google-plus-g"></i></li>
-              <li class="item-social-media"><i class="fab fa-linkedin-in"></i></li>
-            </ul>
-          </div>
-
           <p class="description description-second">Insira seus dados ou use seu e-mail para se registrar:</p>
 
-         <form @submit.prevent="register" class="form">
-  <label class="label-input">
-    <i class="far fa-user icon-modify"></i>
-    <input v-model="nome" type="text" placeholder="Nome" />
-  </label>
+          <form @submit.prevent="register" class="form">
+            <label class="label-input">
+              <i class="far fa-user icon-modify"></i>
+              <input v-model="nome" type="text" placeholder="Nome" required />
+            </label>
 
-  <label class="label-input">
-    <i class="far fa-envelope icon-modify"></i>
-    <input v-model="newEmail" type="email" placeholder="E-mail" />
-  </label>
+            <label class="label-input">
+              <i class="far fa-envelope icon-modify"></i>
+              <input v-model="newEmail" type="email" placeholder="E-mail" required />
+            </label>
 
-  <label class="label-input">
-    <i class="fas fa-lock icon-modify"></i>
-    <input v-model="newPassword" type="password" placeholder="Senha" />
-  </label>
+            <label class="label-input">
+              <i class="fas fa-lock icon-modify"></i>
+              <input v-model="newPassword" type="password" placeholder="Senha" required />
+            </label>
 
-  <label class="label-input">
-    <i class="fas fa-lock icon-modify"></i>
-    <input v-model="confirmPassword" type="password" placeholder="Confirmar Senha" />
-  </label>
+            <label class="label-input">
+              <i class="fas fa-lock icon-modify"></i>
+              <input v-model="confirmPassword" type="password" placeholder="Confirmar Senha" required />
+            </label>
 
-  <div class="text-center">
-    <MaterialButton type="submit" variant="gradient" color="success" fullWidth>
-      Registrar
-    </MaterialButton>
-  </div>
+            <div class="text-center">
+              <MaterialButton type="submit" variant="gradient" color="success" fullWidth>
+                Registrar
+              </MaterialButton>
+            </div>
 
-  <p class="mt-4 text-sm text-center">
-    Já possui uma conta?
-    <a href="#" class="text-success text-gradient font-weight-bold">Acesse agora.</a>
-  </p>
-</form>
-
+            <p class="mt-4 text-sm text-center">
+              Já possui uma conta?
+              <a href="#" class="text-success text-gradient font-weight-bold">Acesse agora.</a>
+            </p>
+          </form>
         </div>
       </div>
 
@@ -212,20 +169,12 @@ const register = async () => {
             </div>
           </div>
 
-          <div class="social-media">
-            <ul class="list-social-media">
-              <li class="item-social-media"><i class="fab fa-facebook-f"></i></li>
-              <li class="item-social-media"><i class="fab fa-google-plus-g"></i></li>
-              <li class="item-social-media"><i class="fab fa-linkedin-in"></i></li>
-            </ul>
-          </div>
-
-          <p class="description description-second">Insira seus dados ou use sua conta de e-mail para entrar:</p>
+          <p class="description description-second">Insira seu e-mail e senha para entrar:</p>
 
           <form @submit.prevent="login" class="form">
             <label class="label-input">
-              <i class="far fa-user icon-modify"></i>
-              <input v-model="emailOrUsername" type="email" placeholder="E-mail ou Nome de Usuário" required />
+              <i class="far fa-envelope icon-modify"></i>
+              <input v-model="email" type="email" placeholder="E-mail" required />
             </label>
 
             <label class="label-input">
@@ -250,12 +199,12 @@ const register = async () => {
           </form>
         </div>
       </div>
-
     </div>
   </div>
 
   <FooterDefault />
 </template>
+
 
 <style scoped>
 @import url('https://use.fontawesome.com/releases/v5.8.2/css/all.css');
