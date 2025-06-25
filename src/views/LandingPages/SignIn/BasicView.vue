@@ -23,9 +23,9 @@ const setBodyClass = (className) => {
 
 const login = async () => {
   const inputEmail = email.value.trim().toLowerCase();
-  const pass = password.value.trim();
+  const senhaLogin = password.value.trim(); // Renomeado para deixar claro que será enviado como "senha"
 
-  if (!inputEmail || !pass) {
+  if (!inputEmail || !senhaLogin) {
     alert('Por favor, preencha o e-mail e a senha.');
     return;
   }
@@ -33,7 +33,7 @@ const login = async () => {
   try {
     const response = await axios.post('https://apirpa.onrender.com/api/auth/login', {
       email: inputEmail,
-      senha: pass,
+      senha: senhaLogin, // 👈 Enviando como "senha", que é o que o backend espera
     });
 
     localStorage.setItem('email', inputEmail);
@@ -41,49 +41,55 @@ const login = async () => {
 
     await router.push(response.data.redirectUrl || '/home');
   } catch (error) {
-    if (error.response?.status === 401) {
-      alert('Credenciais inválidas. Verifique seu e-mail e senha.');
+    if (error.response?.status === 400 || error.response?.status === 401) {
+      alert(error.response.data.msg || 'Credenciais inválidas. Verifique seu e-mail e senha.');
     } else {
       alert('Erro ao tentar logar. Tente novamente mais tarde.');
     }
   }
 };
 
+
 const register = async () => {
-  if (newPassword.value !== confirmPassword.value) {
+  const nomeUsuario = nome.value.trim();
+  const emailUsuario = newEmail.value.trim().toLowerCase();
+  const senhaUsuario = newPassword.value.trim();
+  const senhaConfirmacao = confirmPassword.value.trim();
+
+  if (!nomeUsuario || !emailUsuario || !senhaUsuario || !senhaConfirmacao) {
+    return alert('Por favor, preencha todos os campos!');
+  }
+
+  if (senhaUsuario !== senhaConfirmacao) {
     return alert('As senhas não coincidem!');
-  }
-
-  const emailValue = newEmail.value.trim();
-
-  if (!emailValue) {
-    return alert('Por favor, preencha o e-mail!');
-  }
-
-  if (!nome.value.trim()) {
-    return alert('Por favor, preencha o nome!');
   }
 
   try {
     await axios.post('https://apirpa.onrender.com/api/auth/register', {
-      nome: nome.value.trim(),
-      email: emailValue,
-      senha: newPassword.value,
-      role: 'cliente',
+      nome: nomeUsuario,
+      email: emailUsuario,
+      senha: senhaUsuario, // 👈 nome correto esperado pelo backend
+      role: 'cliente'      // 👈 padrão, pode ser omitido se já estiver fixo no backend
     });
 
     alert('Cadastro realizado com sucesso!');
     router.push('/');
 
+    // Limpar os campos
+    nome.value = '';
     newEmail.value = '';
     newPassword.value = '';
     confirmPassword.value = '';
-    nome.value = '';
   } catch (error) {
-    alert('Erro ao registrar. Tente novamente.');
-    console.error('Erro no cadastro:', error);
+    if (error.response?.status === 400) {
+      alert(error.response.data.msg || 'Erro: e-mail já cadastrado.');
+    } else {
+      alert('Erro ao registrar. Tente novamente.');
+    }
+    console.error('Erro no registro:', error);
   }
 };
+
 </script>
 
 <template>
