@@ -9,11 +9,21 @@ import axios from 'axios';
  // baseURL: process.env.VUE_APP_API_URL,  // Obtém o valor da variável de ambiente
 //});
 
+
 const api = axios.create({
   baseURL: 'https://apirpa.onrender.com/api',
-  // poderia colocar o token aqui como default, por exemplo:
-  // headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
 });
+
+// ✅ Interceptor para injetar o token JWT em todas as requisições
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token'); // certifique-se de usar a mesma chave usada no login
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+
 
 // Opcional: um interceptor para injetar token em todas as requisições
 //api.interceptors.request.use((config) => {

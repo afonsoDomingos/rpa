@@ -24,10 +24,12 @@ import ElDropdowns from "../layouts/sections/elements/dropdowns/DropdownsView.vu
 import ElProgressBars from "../layouts/sections/elements/progress-bars/ProgressBarsView.vue";
 import ElToggles from "../layouts/sections/elements/toggles/TogglesView.vue";
 import ElTypography from "../layouts/sections/elements/typography/TypographyView.vue";
-import SolicitanteModal from "../components/SolicitanteModal.vue"
-import TermsConditions from "../components/TermsConditions.vue"
-import PrivacyPolicy from "../components/PrivacyPolicy.vue"
-import GuardarDocumentos from "../components/Guardardocumentos.vue"
+import SolicitanteModal from "../components/SolicitanteModal.vue";
+import TermsConditions from "../components/TermsConditions.vue";
+import PrivacyPolicy from "../components/PrivacyPolicy.vue";
+import GuardarDocumentos from "../components/Guardardocumentos.vue";
+import Assinaturas from "../components/Assinaturas.vue";
+import MeusPagamentos from "../components/MeusPagamentos.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -49,6 +51,19 @@ const router = createRouter({
       name: 'SolicitanteModal',
       component: SolicitanteModal
     },
+    {
+      path: '/assinaturas',
+      name: 'Assinaturas',
+      component: Assinaturas
+    },
+
+     {
+    path: '/meus-pagamentos',
+    name: 'MeusPagamentos',
+    component: MeusPagamentos,
+    meta: { requerAutenticacao: true } // opcional: para proteger rota
+  },
+
 
     {
       path: '/termsconditions',

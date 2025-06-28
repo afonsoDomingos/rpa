@@ -159,6 +159,7 @@ const usuarioEditando = ref({
 })
 const senhaVisivel = ref(false)
 
+
 // Notificações
 const mensagem = ref('')
 const tipoMensagem = ref('') // 'sucesso' ou 'erro'
@@ -170,13 +171,34 @@ const mostrarMensagem = (msg, tipo = 'sucesso') => {
   }, 4000)
 }
 
+
+
 const buscarUsuarios = async () => {
-  const token = localStorage.getItem('token')
-  const { data } = await api.get('/auth/usuarios', {
-    headers: { Authorization: `Bearer ${token}` }
-  })
-  usuarios.value = data
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      mostrarMensagem('Token não encontrado. Faça login novamente.', 'erro')
+      return
+    }
+
+    const { data } = await api.get('/auth/usuarios', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+
+    // Mapeia cada usuário, adicionando o id baseado no _id do Mongo
+    usuarios.value = data.map(usuario => ({
+      ...usuario,
+      id: usuario.id
+    }))
+
+    console.log('Usuários recebidos e mapeados:', usuarios.value)
+  } catch (err) {
+    console.error('Erro ao buscar usuários:', err.response?.data || err.message)
+    mostrarMensagem('Erro ao buscar usuários: ' + (err.response?.data?.msg || err.message), 'erro')
+  }
 }
+
+
 
 const editarUsuario = (usuario) => {
   editandoId.value = usuario.id
@@ -251,6 +273,7 @@ const excluirUsuario = async (id) => {
     }
   }
 }
+
 
 const usuariosFiltrados = computed(() =>
   usuarios.value.filter(

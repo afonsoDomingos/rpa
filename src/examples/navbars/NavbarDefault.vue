@@ -3,6 +3,8 @@ import { RouterLink } from "vue-router";
 import { ref, watch, onMounted } from "vue";
 import { useWindowsWidth } from "../../assets/js/useWindowsWidth";
 
+
+
 // images
 import ArrDark from "@/assets/img/down-arrow-dark.svg";
 //import downArrow from "@/assets/img/down-arrow.svg";
@@ -181,6 +183,9 @@ watch(
         data-placement="bottom">
         Recupera Aqui
       </RouterLink>
+
+
+
       <RouterLink class="navbar-brand d-block d-md-none" :class="props.transparent || props.dark
         ? 'text-white'
         : 'font-weight-bolder ms-sm-3'
@@ -316,22 +321,50 @@ watch(
           </li>
 
 
-          <li v-if="usuario" class="nav-item dropdown dropdown-hover mx-2">
-            <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" :class="getTextColor()"
-              id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="material-icons opacity-6 me-2 text-md" :class="getTextColor()">person</i>
-              {{ usuario?.nome || 'Usuário' }}
+        <li v-if="usuario" class="nav-item dropdown dropdown-hover mx-2">
+  <a
+    role="button"
+    class="nav-link ps-2 d-flex cursor-pointer align-items-center"
+    :class="getTextColor()"
+    id="dropdownUser"
+    data-bs-toggle="dropdown"
+    aria-expanded="false"
+  >
+    <i class="material-icons opacity-6 me-2 text-md" :class="getTextColor()">person</i>
+    {{ usuario?.nome || 'Usuário' }}
+    <img
+      :src="getArrowColor()"
+      alt="down-arrow"
+      class="arrow ms-2 d-lg-block d-none"
+    />
+  </a>
 
-              <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-2 d-lg-block d-none" />
-            </a>
-            <div class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 border-radius-lg"
-              aria-labelledby="dropdownUser">
-              <button class="dropdown-item border-radius-md text-danger" @click="logout">
-                <span>Sair</span>
-              </button>
+  <div
+    class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada"
+    aria-labelledby="dropdownUser"
+    style="min-width: 180px;"
+  >
+    <button
+      class="dropdown-item border-radius-md"
+      @click="$router.push({ name: 'MeusPagamentos' })"
+      style="cursor: pointer;"
+    >
+      Meus Pagamentos
+    </button>
 
-            </div>
-          </li>
+    <div class="dropdown-divider"></div>
+
+    <button
+      class="dropdown-item border-radius-md text-danger"
+      @click="logout"
+      style="cursor: pointer;"
+    >
+      Sair
+    </button>
+  </div>
+</li>
+
+
 
 
 
@@ -367,14 +400,42 @@ watch(
             </a>
           </li>
         </ul>
+       
+        <a class="btn btn-sm mb-0 ms-2" role="button" @click="$router.push({ name: 'Assinaturas' })"
+          style="background-color: #6f42c1; color: white;">
+          Assinatura
+        </a>
 
-        <a class="btn btn-sm bg-gradient-primary mb-0 ms-2" role="button"
+
+
+
+
+      <!--  <a class="btn btn-sm bg-gradient-primary mb-0 ms-2" role="button"
           @click="$router.push({ name: 'GuardarDocumentos' })">
           Guardar Documentos
-        </a>
+        </a>-->
 
       </div>
     </div>
   </nav>
   <!-- End Navbar -->
 </template>
+
+
+<style scoped>
+
+.borda-destacada {
+  border: 2px solid #66bb6a;
+  border-radius: 12px;
+  padding: 10px 0; /* removi padding grande para não ficar pesado */
+  background-color: #fff;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.borda-destacada:hover {
+  border-color: #800080;
+  box-shadow: 0 8px 20px rgba(128, 0, 128, 0.25);
+  transform: scale(1.02);
+}
+
+</style>
