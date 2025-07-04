@@ -145,12 +145,14 @@ const podePagar = computed(() => {
 });
 
 function selecionarPacote(nome) {
+  console.log('[selecionarPacote] Pacote selecionado:', nome);
   pacoteSelecionado.value = nome;
   formaSelecionada.value = null;
   resetarCampos();
 }
 
 function selecionarForma(forma) {
+  console.log('[selecionarForma] Forma selecionada:', forma);
   formaSelecionada.value = forma;
   mensagem.value = "";
   erroTelefone.value = "";
@@ -176,22 +178,27 @@ function validarTelefone() {
 function formatarCartao() {
   let num = cartao.value.numero.replace(/\D/g, "").slice(0, 16);
   cartao.value.numero = num.replace(/(.{4})/g, "$1 ").trim();
+  console.log('[formatarCartao] Cartão formatado:', cartao.value.numero);
 }
 
 function formatarValidade() {
   let val = cartao.value.validade.replace(/\D/g, "").slice(0, 4);
   cartao.value.validade = val.length > 2 ? val.slice(0, 2) + "/" + val.slice(2) : val;
+  console.log('[formatarValidade] Validade formatada:', cartao.value.validade);
 }
 
 async function buscarUsuario() {
   try {
     const email = localStorage.getItem("email");
+    console.log('[buscarUsuario] Email logado:', email);
     if (!email) return router.push("/");
     const res = await api.get("/auth/usuarios");
+    console.log('[buscarUsuario] Resposta da API:', res.data);
     usuario.value = res.data.find(u => u.email === email);
+    console.log('[buscarUsuario] Usuário encontrado:', usuario.value);
     if (!usuario.value) router.push("/");
   } catch (e) {
-    console.error(e);
+    console.error('[buscarUsuario] Erro:', e);
     router.push("/");
   }
 }
@@ -200,9 +207,10 @@ async function pagar() {
   loading.value = true;
   mensagem.value = "";
   sucesso.value = false;
-
+  console.log('[pagar] Iniciando pagamento...');
   try {
     const token = localStorage.getItem("token");
+    console.log('[pagar] Token:', token);
     if (!token) throw new Error("Não autenticado");
 
     const payload = {
@@ -217,27 +225,33 @@ async function pagar() {
         cvv: cartao.value.cvv,
       } : null,
     };
+    console.log('[pagar] Payload:', payload);
 
     const res = await api.post("/pagamentos", payload, {
       headers: { Authorization: `Bearer ${token}` }
     });
+    console.log('[pagar] Resposta da API:', res.data);
 
     mensagem.value = res.data.mensagem || "Pagamento realizado com sucesso!";
     sucesso.value = true;
   } catch (e) {
+    console.error('[pagar] Erro:', e);
     mensagem.value = e.response?.data?.mensagem || "Erro no pagamento";
   } finally {
     loading.value = false;
+    console.log('[pagar] loading finalizado:', loading.value);
   }
 }
 
 function logout() {
+  console.log('[logout] Efetuando logout do usuário.');
   localStorage.removeItem("email");
   localStorage.removeItem("token");
   router.push("/");
 }
 
 function voltarHome() {
+  console.log('[voltarHome] Redirecionando para home.');
   router.push("/home");
 }
 
@@ -247,9 +261,13 @@ function resetarCampos() {
   erroTelefone.value = "";
   cartao.value = { numero: "", nome: "", validade: "", cvv: "" };
   sucesso.value = false;
+  console.log('[resetarCampos] Campos resetados.');
 }
 
-onMounted(() => buscarUsuario());
+onMounted(() => {
+  console.log('[onMounted] Componente montado. Buscando usuário...');
+  buscarUsuario();
+});
 </script>
 
 <style scoped>
