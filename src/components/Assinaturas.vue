@@ -278,11 +278,9 @@ function selecionarForma(forma) {
   erroTelefone.value = "";
   if (forma === "M-Pesa") {
     numeroTelefoneEmola.value = "";
-    numeroTelefoneMpesa.value = ""; // Limpa também o campo M-Pesa para evitar valores antigos
   }
   if (forma === "Emola") {
     numeroTelefoneMpesa.value = "";
-    numeroTelefoneEmola.value = ""; // Limpa também o campo Emola para evitar valores antigos
   }
   cartao.value = { numero: "", nome: "", validade: "", cvv: "" };
   console.log("[selecionarForma] Estado após seleção:", {
