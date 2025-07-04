@@ -361,16 +361,24 @@ function formatarValidade() {
 async function buscarUsuario() {
   try {
     const emailLogado = localStorage.getItem("email");
+    console.log("[buscarUsuario] emailLogado:", emailLogado);
     if (!emailLogado) {
+      console.warn("[buscarUsuario] Nenhum email logado encontrado. Redirecionando para home.");
       router.push("/");
       return;
     }
 
     const res = await api.get("/auth/usuarios");
+    console.log("[buscarUsuario] Resposta da API /auth/usuarios:", res.data);
     if (!Array.isArray(res.data)) return;
     usuario.value = res.data.find((u) => u.email === emailLogado);
-    if (!usuario.value) router.push("/");
-  } catch {
+    console.log("[buscarUsuario] Usuario encontrado:", usuario.value);
+    if (!usuario.value) {
+      console.warn("[buscarUsuario] Usuário não encontrado na resposta. Redirecionando para home.");
+      router.push("/");
+    }
+  } catch (e) {
+    console.error("[buscarUsuario] Erro ao buscar usuário:", e);
     router.push("/");
   }
 }
@@ -382,6 +390,7 @@ async function pagar() {
 
   try {
     const token = localStorage.getItem("token");
+    console.log("[pagar] Token:", token);
     if (!token) throw new Error("Usuário não autenticado");
 
     const payload = {
@@ -405,12 +414,15 @@ async function pagar() {
       payload.telefone = numeroTelefoneEmola.value;
     }
 
+    console.log("[pagar] Payload enviado:", payload);
+
     const response = await api.post("/pagamentos", payload, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
+    console.log("[pagar] Resposta da API /pagamentos:", response.data);
     sucesso.value = true;
     mensagem.value = response.data.mensagem || "Pagamento realizado com sucesso!";
   } catch (error) {
@@ -420,17 +432,19 @@ async function pagar() {
     } else {
       mensagem.value = "Erro ao processar pagamento. Tente novamente.";
     }
-    console.error("Erro ao pagar:", error);
+    console.error("[pagar] Erro ao pagar:", error);
   } finally {
     loading.value = false;
+    console.log("[pagar] loading finalizado:", loading.value);
   }
 }
 
 function voltarHome() {
-  router.push("/");
+  router.push("/home");
 }
 
 function logout() {
+  console.log("[logout] Efetuando logout do usuário.");
   localStorage.removeItem("token");
   localStorage.removeItem("email");
   router.push("/");
