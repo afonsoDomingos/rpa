@@ -430,6 +430,12 @@ function voltarHome() {
   router.push("/");
 }
 
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("email");
+  router.push("/");
+}
+
 onMounted(() => {
   buscarUsuario();
 });
