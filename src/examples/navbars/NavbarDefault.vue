@@ -16,12 +16,11 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const logout = () => {
-  console.log('[logout] Iniciando logout do usuário:', usuario.value?.email || usuario.value);
   localStorage.removeItem('email'); // Remove o email salvo
   usuario.value = null; // Reseta o estado reativo do usuário
 
   alert('Logout realizado com sucesso!'); // Alerta simples
-  console.log('[logout] Logout realizado, redirecionando para login.');
+
   router.push('/'); // Redireciona para a página de login
 };
 
@@ -35,43 +34,39 @@ const usuario = ref(null);
 const buscarUsuario = async () => {
   try {
     const emailLogado = localStorage.getItem('email');
-    console.log('[buscarUsuario] Email logado encontrado no localStorage:', emailLogado);
     if (!emailLogado) {
-      console.warn('[buscarUsuario] Email não encontrado no localStorage. Redirecionando...');
+      console.warn('Email não encontrado no localStorage. Redirecionando...');
       router.push('/');
       return;
     }
 
     const response = await axios.get('https://apirpa.onrender.com/api/auth/usuarios');
-    console.log('[buscarUsuario] Resposta da API:', response.data);
+    console.log('Resposta da API:', response.data);
 
     if (!Array.isArray(response.data)) {
-      console.error('[buscarUsuario] Dados inválidos da API. Esperado um array de usuários.', response.data);
+      console.error('Dados inválidos da API. Esperado um array de usuários.');
       return;
     }
 
     usuario.value = response.data.find(u => u.email === emailLogado);
-    console.log('[buscarUsuario] Usuário encontrado:', usuario.value);
 
     if (!usuario.value) {
-      console.warn('[buscarUsuario] Usuário não encontrado. Redirecionando para login...');
+      console.warn('Usuário não encontrado. Redirecionando para login...');
       router.push('/');
     }
 
   } catch (error) {
-    console.error('[buscarUsuario] Erro ao buscar o usuário:', error);
+    console.error('Erro ao buscar o usuário:', error);
   }
 };
 
 
 // Hook onMounted para buscar o usuário assim que o componente for montado
 onMounted(() => {
-  console.log('[NavbarDefault] Componente montado. Buscando usuário...');
   buscarUsuario();
 });
 
 const goToCadastrar = () => {
-  console.log('[goToCadastrar] Emitindo evento para mudar para a aba de cadastro.');
   // Emitir o evento para mudar a aba
   eventBus.emit('changeTab', 'cadastrar');
 
@@ -79,10 +74,7 @@ const goToCadastrar = () => {
   setTimeout(() => {
     const element = document.getElementById('cadastrar-tabs-simple'); // Certifique-se de que este ID existe
     if (element) {
-      console.log('[goToCadastrar] Realizando scroll até o elemento de cadastro.');
       element.scrollIntoView({ behavior: 'smooth', block: 'start' }); // Scroll suave até o elemento
-    } else {
-      console.warn('[goToCadastrar] Elemento de cadastro não encontrado para scroll.');
     }
   }, 0);
 };
@@ -194,30 +186,20 @@ watch(
 
 
 
-
-      <RouterLink
-        class="navbar-brand d-block d-md-none"
-        :class="props.transparent || props.dark ? 'text-white' : 'font-weight-bolder ms-sm-3'"
-        to="/"
-        rel="tooltip"
-        title="Designed and Coded by Creative Tim"
-        data-placement="bottom"
-        @click="() => { const nav = document.getElementById('navigation'); if (nav && nav.classList.contains('show')) { window.bootstrap && window.bootstrap.Collapse ? new window.bootstrap.Collapse(nav, {toggle: true}) : nav.classList.remove('show'); } }"
-      >
+      <RouterLink class="navbar-brand d-block d-md-none" :class="props.transparent || props.dark
+        ? 'text-white'
+        : 'font-weight-bolder ms-sm-3'
+        " to="/" rel="tooltip" title="Designed and Coded by Creative Tim" data-placement="bottom">
         Menu
       </RouterLink>
 
-
-      <a
-        @click="() => { goToCadastrar(); const nav = document.getElementById('navigation'); if (nav && nav.classList.contains('show')) { window.bootstrap && window.bootstrap.Collapse ? new window.bootstrap.Collapse(nav, {toggle: true}) : nav.classList.remove('show'); } }"
-        class="btn btn-sm bg-gradient-success mb-0 ms-auto d-lg-none d-block"
-        :class="action.color" role="button"
-      >
+      <a @click="goToCadastrar" class="btn btn-sm bg-gradient-success mb-0 ms-auto d-lg-none d-block"
+        :class="action.color" role="button">
         {{ action.label }}
       </a>
 
       <button class="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse"
-        data-bs-target="#navigation" aria-controls="navigation" aria-label="Toggle navigation">
+        data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon mt-2">
           <span class="navbar-toggler-bar bar1"></span>
           <span class="navbar-toggler-bar bar2"></span>
