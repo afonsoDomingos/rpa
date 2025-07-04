@@ -1,5 +1,35 @@
 <template>
   <div class="container py-5">
+
+    <!-- Dropdown usuário logado -->
+    <li v-if="usuario" class="nav-item dropdown dropdown-hover mx-2 list-unstyled" style="margin-bottom: 30px;">
+      <a
+        role="button"
+        class="nav-link ps-2 d-flex cursor-pointer align-items-center text-success"
+        id="dropdownUser"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        <i class="material-icons opacity-6 me-2 text-success">person</i>
+        {{ usuario.nome || 'Usuário' }}
+      </a>
+
+      <ul
+        class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 border-radius-lg"
+        aria-labelledby="dropdownUser"
+        style="min-width: 140px;"
+      >
+        <li>
+          <button class="dropdown-item border-radius-md text-danger" @click="logout">
+            Sair
+          </button>
+        </li>
+      </ul>
+    </li>
+
+    <!-- Componente lista de pagamentos -->
+<!--<MeusPagamentos />-->
+
     <h2 class="text-center mb-5">Escolha o Seu Pacote de Assinatura</h2>
 
     <div class="row justify-content-center align-items-stretch">
@@ -35,6 +65,7 @@
         <button
           class="btn btn-outline-success w-100 mt-4 borda-destacada"
           @click="selecionarPacote(pacote.nome)"
+          :disabled="loading || sucesso"
         >
           Selecionar {{ pacote.nome }}
         </button>
@@ -42,6 +73,7 @@
     </div>
 
     <div v-if="pacoteSelecionado" class="mt-5 text-center">
+
       <h4 class="mb-3">Formas de Pagamento</h4>
 
       <div class="btn-group mb-4" role="group">
@@ -58,6 +90,7 @@
       </div>
 
       <div class="borda-destacada p-3 mx-auto" style="max-width: 400px; text-align: left;">
+
         <!-- Cartão -->
         <div v-if="formaSelecionada === 'Cartão'">
           <h6 class="mb-3">💳 Dados do Cartão</h6>
@@ -147,6 +180,7 @@
         <div v-else>
           <p class="text-muted">Selecione uma forma de pagamento para continuar.</p>
         </div>
+
       </div>
 
       <div v-if="mensagem" :class="['mt-3', sucesso ? 'text-success' : 'text-danger']" style="min-height: 24px;">
@@ -157,22 +191,29 @@
         <button class="btn btn-primary" @click="voltarHome">Voltar para Home</button>
       </div>
 
-      <div class="mt-4 border rounded p-3" style="max-width: 400px; margin-left:auto; margin-right:auto;">
+      <div
+        class="mt-4 border rounded p-3 mx-auto"
+        style="max-width: 400px;"
+      >
         <h5>Resumo da Assinatura</h5>
         <p><strong>Pacote:</strong> {{ pacoteSelecionado }}</p>
         <p><strong>Preço:</strong> {{ precoPacoteSelecionado }} MZN</p>
         <p><strong>Pagamento:</strong> {{ formaSelecionada || '-' }}</p>
       </div>
+
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import api from "../api";
+import MeusPagamentos from "./MeusPagamentos.vue";
 
 const router = useRouter();
 
+const usuario = ref(null);
 const pacotes = [
   {
     nome: "Trimestral",
@@ -217,8 +258,9 @@ const cartao = ref({
 });
 
 const formasPagamento = ["Cartão", "M-Pesa", "Emola"];
+const hoverIndex = ref(null);
 
-const selecionarPacote = (nome) => {
+function selecionarPacote(nome) {
   pacoteSelecionado.value = nome;
   formaSelecionada.value = null;
   mensagem.value = "";
@@ -227,17 +269,27 @@ const selecionarPacote = (nome) => {
   numeroTelefoneEmola.value = "";
   cartao.value = { numero: "", nome: "", validade: "", cvv: "" };
   sucesso.value = false;
-};
+}
 
-const selecionarForma = (forma) => {
+function selecionarForma(forma) {
+  console.log("[selecionarForma] Forma selecionada:", forma);
   formaSelecionada.value = forma;
   mensagem.value = "";
   erroTelefone.value = "";
-  // Limpar os campos do telefone do outro meio para evitar confusão
-  if (forma === "M-Pesa") numeroTelefoneEmola.value = "";
-  if (forma === "Emola") numeroTelefoneMpesa.value = "";
+  if (forma === "M-Pesa") {
+    numeroTelefoneEmola.value = "";
+  }
+  if (forma === "Emola") {
+    numeroTelefoneMpesa.value = "";
+  }
   cartao.value = { numero: "", nome: "", validade: "", cvv: "" };
-};
+  console.log("[selecionarForma] Estado após seleção:", {
+    formaSelecionada: formaSelecionada.value,
+    numeroTelefoneMpesa: numeroTelefoneMpesa.value,
+    numeroTelefoneEmola: numeroTelefoneEmola.value,
+    cartao: cartao.value
+  });
+}
 
 const precoPacoteSelecionado = computed(() => {
   const pacote = pacotes.find((p) => p.nome === pacoteSelecionado.value);
@@ -317,33 +369,101 @@ function formatarValidade() {
   cartao.value.validade = v;
 }
 
+async function buscarUsuario() {
+  try {
+    const emailLogado = localStorage.getItem("email");
+    console.log("[buscarUsuario] emailLogado:", emailLogado);
+    if (!emailLogado) {
+      console.warn("[buscarUsuario] Nenhum email logado encontrado. Redirecionando para home.");
+      router.push("/");
+      return;
+    }
+
+    const res = await api.get("/auth/usuarios");
+    console.log("[buscarUsuario] Resposta da API /auth/usuarios:", res.data);
+    if (!Array.isArray(res.data)) return;
+    usuario.value = res.data.find((u) => u.email === emailLogado);
+    console.log("[buscarUsuario] Usuario encontrado:", usuario.value);
+    if (!usuario.value) {
+      console.warn("[buscarUsuario] Usuário não encontrado na resposta. Redirecionando para home.");
+      router.push("/");
+    }
+  } catch (e) {
+    console.error("[buscarUsuario] Erro ao buscar usuário:", e);
+    router.push("/");
+  }
+}
+
 async function pagar() {
   mensagem.value = "";
   sucesso.value = false;
   loading.value = true;
 
-  await new Promise((r) => setTimeout(r, 2000));
+  try {
+    const token = localStorage.getItem("token");
+    console.log("[pagar] Token:", token);
+    if (!token) throw new Error("Usuário não autenticado");
 
-  const forma = formaSelecionada.value;
+    const payload = {
+      pacote: pacoteSelecionado.value,
+      formaPagamento: formaSelecionada.value,
+      preco: precoPacoteSelecionado.value,
+      telefone: null,
+      dadosCartao: null,
+    };
 
-  if (
-    (forma === "Cartão" && validarCartao()) ||
-    (forma === "M-Pesa" && validarTelefone("Mpesa")) ||
-    (forma === "Emola" && validarTelefone("Emola"))
-  ) {
+    if (formaSelecionada.value === "Cartão") {
+      payload.dadosCartao = {
+        numero: cartao.value.numero.replace(/\s/g, ""),
+        nomeTitular: cartao.value.nome,
+        validade: cartao.value.validade,
+        cvv: cartao.value.cvv,
+      };
+    } else if (formaSelecionada.value === "M-Pesa") {
+      payload.telefone = numeroTelefoneMpesa.value;
+    } else if (formaSelecionada.value === "Emola") {
+      payload.telefone = numeroTelefoneEmola.value;
+    }
+
+    console.log("[pagar] Payload enviado:", payload);
+
+    const response = await api.post("/pagamentos", payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("[pagar] Resposta da API /pagamentos:", response.data);
     sucesso.value = true;
-    mensagem.value = `Pagamento do pacote ${pacoteSelecionado.value} realizado com sucesso!`;
-  } else {
+    mensagem.value = response.data.mensagem || "Pagamento realizado com sucesso!";
+  } catch (error) {
     sucesso.value = false;
-    mensagem.value = "Erro na validação dos dados. Por favor, verifique e tente novamente.";
+    if (error.response?.data?.mensagem) {
+      mensagem.value = error.response.data.mensagem;
+    } else {
+      mensagem.value = "Erro ao processar pagamento. Tente novamente.";
+    }
+    console.error("[pagar] Erro ao pagar:", error);
+  } finally {
+    loading.value = false;
+    console.log("[pagar] loading finalizado:", loading.value);
   }
-
-  loading.value = false;
 }
 
 function voltarHome() {
+  router.push("/home");
+}
+
+function logout() {
+  console.log("[logout] Efetuando logout do usuário.");
+  localStorage.removeItem("token");
+  localStorage.removeItem("email");
   router.push("/");
 }
+
+onMounted(() => {
+  buscarUsuario();
+});
 </script>
 
 <style scoped>
@@ -379,5 +499,32 @@ function voltarHome() {
   font-weight: 600;
   font-size: 0.85rem;
   user-select: none;
+}
+
+/* Estilo do dropdown usuário */
+.nav-link {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.material-icons {
+  font-size: 20px;
+  color: #198754;
+}
+
+/* Responsividade */
+@media (max-width: 576px) {
+  .container {
+    padding: 15px;
+  }
+
+  .btn-outline-success {
+    font-size: 0.9rem;
+    padding: 5px 15px;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+  }
 }
 </style>
