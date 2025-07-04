@@ -272,12 +272,25 @@ function selecionarPacote(nome) {
 }
 
 function selecionarForma(forma) {
+  console.log("[selecionarForma] Forma selecionada:", forma);
   formaSelecionada.value = forma;
   mensagem.value = "";
   erroTelefone.value = "";
-  if (forma === "M-Pesa") numeroTelefoneEmola.value = "";
-  if (forma === "Emola") numeroTelefoneMpesa.value = "";
+  if (forma === "M-Pesa") {
+    numeroTelefoneEmola.value = "";
+    numeroTelefoneMpesa.value = ""; // Limpa também o campo M-Pesa para evitar valores antigos
+  }
+  if (forma === "Emola") {
+    numeroTelefoneMpesa.value = "";
+    numeroTelefoneEmola.value = ""; // Limpa também o campo Emola para evitar valores antigos
+  }
   cartao.value = { numero: "", nome: "", validade: "", cvv: "" };
+  console.log("[selecionarForma] Estado após seleção:", {
+    formaSelecionada: formaSelecionada.value,
+    numeroTelefoneMpesa: numeroTelefoneMpesa.value,
+    numeroTelefoneEmola: numeroTelefoneEmola.value,
+    cartao: cartao.value
+  });
 }
 
 const precoPacoteSelecionado = computed(() => {
