@@ -194,20 +194,30 @@ watch(
 
 
 
-      <RouterLink class="navbar-brand d-block d-md-none" :class="props.transparent || props.dark
-        ? 'text-white'
-        : 'font-weight-bolder ms-sm-3'
-        " to="/" rel="tooltip" title="Designed and Coded by Creative Tim" data-placement="bottom">
+
+      <RouterLink
+        class="navbar-brand d-block d-md-none"
+        :class="props.transparent || props.dark ? 'text-white' : 'font-weight-bolder ms-sm-3'"
+        to="/"
+        rel="tooltip"
+        title="Designed and Coded by Creative Tim"
+        data-placement="bottom"
+        @click="() => { const nav = document.getElementById('navigation'); if (nav && nav.classList.contains('show')) { window.bootstrap && window.bootstrap.Collapse ? new window.bootstrap.Collapse(nav, {toggle: true}) : nav.classList.remove('show'); } }"
+      >
         Menu
       </RouterLink>
 
-      <a @click="goToCadastrar" class="btn btn-sm bg-gradient-success mb-0 ms-auto d-lg-none d-block"
-        :class="action.color" role="button">
+
+      <a
+        @click="() => { goToCadastrar(); const nav = document.getElementById('navigation'); if (nav && nav.classList.contains('show')) { window.bootstrap && window.bootstrap.Collapse ? new window.bootstrap.Collapse(nav, {toggle: true}) : nav.classList.remove('show'); } }"
+        class="btn btn-sm bg-gradient-success mb-0 ms-auto d-lg-none d-block"
+        :class="action.color" role="button"
+      >
         {{ action.label }}
       </a>
 
       <button class="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse"
-        data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
+        data-bs-target="#navigation" aria-controls="navigation" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon mt-2">
           <span class="navbar-toggler-bar bar1"></span>
           <span class="navbar-toggler-bar bar2"></span>
