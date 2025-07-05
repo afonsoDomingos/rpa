@@ -1,63 +1,80 @@
 <template>
-  <div class="container py-5">
-    <!-- Usuário Logado -->
-    <div v-if="usuario" class="mb-4 text-end">
-      <div class="dropdown">
-        <a class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown">
-          {{ usuario.nome || 'Usuário' }}
-        </a>
-        <ul class="dropdown-menu">
-          <li><button class="dropdown-item text-danger" @click="logout">Sair</button></li>
-        </ul>
+   <div class="container position-sticky z-index-sticky top-0">
+    <div class="row">
+      <div class="col-12">
+        <NavbarDefault :sticky="true" />
       </div>
     </div>
+  </div>
+<br/><br/>
+  <div class="container py-5 d-flex flex-column align-items-center justify-content-center" style="min-height: 80vh; overflow-y: auto;">
 
-    <h2 class="text-center mb-5">Escolha o Seu Pacote</h2>
+    <!-- Título aprimorado em box clean, largura igual aos pacotes -->
+    <div class="titulo-pacotes-box mb-5">
+      <h2 class="titulo-pacotes text-center m-0">
+        Escolha o Seu Pacote Ideal
+      </h2>
+    </div>
 
     <!-- Lista de pacotes -->
-    <div class="row justify-content-center">
+    <div v-if="!pacoteSelecionado" class="row justify-content-center w-100">
       <div
         v-for="pacote in pacotes"
         :key="pacote.nome"
-        class="col-md-5 mx-2 mb-4 p-4 shadow-sm rounded border"
+        class="col-md-5 mx-2 mb-4 p-4 shadow-sm rounded border borda-destacada d-flex flex-column align-items-center"
         :class="{ 'border-success': pacoteSelecionado === pacote.nome }"
       >
-        <div class="text-end" v-if="pacoteSelecionado === pacote.nome">
-          <span class="badge bg-success">Selecionado</span>
-        </div>
-
         <h4 class="text-center">{{ pacote.nome }}</h4>
         <h5 class="text-center text-primary">{{ pacote.preco }} MZN</h5>
         <p class="text-center text-muted">{{ pacote.periodo }}</p>
 
         <ul class="mt-3">
-          <li v-for="(beneficio, idx) in pacote.beneficios" :key="idx">✅ {{ beneficio }}</li>
+          <li v-for="(beneficio, idx) in pacote.beneficios" :key="idx" class="borda-destacada mb-2">✅ {{ beneficio }}</li>
         </ul>
 
-        <button class="btn btn-outline-success mt-4 w-100" @click="selecionarPacote(pacote.nome)" :disabled="loading || sucesso">
-          Selecionar
+        <button
+          class="selecionar-pacote-btn mt-4 w-100"
+          @click="selecionarPacote(pacote.nome)"
+          :disabled="loading || sucesso"
+        >
+          <span class="selecionar-icone me-2">&#10003;</span>
+          <span>Selecionar</span>
         </button>
       </div>
     </div>
 
     <!-- Pagamento -->
     <div v-if="pacoteSelecionado" class="mt-5">
+      <div class="d-flex justify-content-center mb-4">
+        <button class="btn voltar-pacotes-btn px-4 py-2 fw-bold" @click="pacoteSelecionado = null; formaSelecionada = null; mensagem = ''; erroTelefone = ''; cartao = { numero: '', nome: '', validade: '', cvv: '' }; sucesso = false; telefone = ''">
+          <span style="font-size:1.3em; margin-right:8px; vertical-align:middle;">&#8592;</span> Voltar aos Pacotes
+        </button>
+      </div>
       <h4 class="text-center mb-3">Formas de Pagamento</h4>
 
-      <div class="text-center mb-3">
+      <div class="payment-options d-flex flex-wrap justify-content-center gap-3 mb-4">
         <button
           v-for="forma in formasPagamento"
           :key="forma"
-          class="btn mx-1"
-          :class="formaSelecionada === forma ? 'btn-primary' : 'btn-outline-primary'"
+          class="payment-btn btn"
+          :class="formaSelecionada === forma ? 'active' : ''"
           @click="selecionarForma(forma)"
           :disabled="loading || sucesso"
         >
+          <span v-if="forma === 'Cartão'">
+            <i class="bi bi-credit-card-2-front-fill me-2"></i>
+          </span>
+          <span v-else-if="forma === 'M-Pesa'">
+            <img src="@/assets/img/mpesa.png" alt="M-Pesa" style="height: 20px; margin-right: 8px; vertical-align: middle;" />
+          </span>
+          <span v-else-if="forma === 'Emola'">
+            <img src="@/assets/img/emola.png" alt="Emola" style="height: 20px; margin-right: 8px; vertical-align: middle;" />
+          </span>
           {{ forma }}
         </button>
       </div>
 
-      <div class="card mx-auto p-3" style="max-width: 400px;">
+      <div class="card mx-auto p-3 borda-destacada" style="max-width: 400px;">
         <div v-if="formaSelecionada === 'Cartão'">
           <input v-model="cartao.numero" class="form-control mb-2" placeholder="Número do Cartão" @input="formatarCartao" maxlength="19" />
           <input v-model="cartao.nome" class="form-control mb-2" placeholder="Nome no Cartão" />
@@ -89,7 +106,7 @@
       </div>
 
       <!-- Resumo -->
-      <div class="card mx-auto p-3 mt-4" style="max-width: 400px;">
+      <div class="card mx-auto p-3 mt-4 borda-destacada" style="max-width: 400px;">
         <h5>Resumo da Assinatura</h5>
         <p><strong>Pacote:</strong> {{ pacoteSelecionado }}</p>
         <p><strong>Preço:</strong> {{ precoSelecionado }} MZN</p>
@@ -97,12 +114,19 @@
       </div>
     </div>
   </div>
+  <!-- Componente para exibir o rodapé padrão -->
+  <FooterDefault />
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import api from "../api";
+
+import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
+import FooterDefault from "../examples/footers/FooterDefault.vue";
+
+
 
 const router = useRouter();
 
@@ -270,9 +294,101 @@ onMounted(() => {
 });
 </script>
 
+
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap');
+
+.titulo-pacotes-box {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 12px rgba(60,60,60,0.07);
+  padding: 1.1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+  border: 2px solid #66bb6a;
+  max-width: 420px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.titulo-pacotes {
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #198754;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 8px rgba(102,187,106,0.07);
+  line-height: 1.1;
+  margin: 0;
+}
+@media (max-width: 576px) {
+  .titulo-pacotes-box {
+    padding: 0.7rem 0.7rem;
+    max-width: 98vw;
+    margin-bottom: 4.5rem;
+  }
+  .titulo-pacotes {
+    font-size: 1.1rem;
+  }
+}
+.payment-options {
+  gap: 1rem;
+}
+/* Cores padrão herdadas de .borda-destacada */
+/* Botão de seleção de forma de pagamento - visual padrão limpo */
+.payment-btn {
+  min-width: 120px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  border-radius: 2rem;
+  border: 1.5px solid #66bb6a;
+  background: #fff;
+  color: #198754;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(102, 187, 106, 0.08);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.3s, background 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  letter-spacing: 0.5px;
+}
+.payment-btn.active, .payment-btn:hover, .payment-btn:focus {
+  background: #fff;
+  color: #800080;
+  border-color: #800080;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transform: scale(1.03);
+  cursor: pointer;
+}
+@media (max-width: 576px) {
+  .payment-btn {
+    min-width: 90px;
+    font-size: 0.95rem;
+    padding: 0.5rem 0.7rem;
+  }
+}
 .container {
   max-width: 960px;
+}
+
+.container.py-5 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.row.justify-content-center {
+  width: 100%;
+}
+
+.col-md-5 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .border-success {
@@ -283,6 +399,69 @@ onMounted(() => {
   min-width: 120px;
 }
 
+/* Botão Voltar aos Pacotes: visual limpo, destaque só no box-shadow */
+.voltar-pacotes-btn {
+  background: #fff;
+  color: #198754 !important;
+  border: 1.5px solid #66bb6a;
+  border-radius: 2rem;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(102, 187, 106, 0.10), 0 4px 16px rgba(128, 0, 128, 0.10);
+  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.voltar-pacotes-btn:hover, .voltar-pacotes-btn:focus {
+  background: #fff;
+  color: #800080 !important;
+  border-color: #800080;
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(128, 0, 128, 0.18), 0 2px 8px rgba(102, 187, 106, 0.10);
+}
+/* Botão Selecionar Pacote - visual padrão limpo */
+.selecionar-pacote-btn {
+  background: #fff;
+  color: #198754 !important;
+  border: 1.5px solid #66bb6a;
+  border-radius: 2rem;
+  font-size: 1.08rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(102, 187, 106, 0.10);
+  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s, color 0.2s, background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  gap: 0.5em;
+  position: relative;
+  overflow: hidden;
+  padding: 0.95rem 2.2rem;
+}
+.selecionar-pacote-btn .selecionar-icone {
+  font-size: 1.15em;
+  color: #198754;
+  background: rgba(102,187,106,0.10);
+  border-radius: 50%;
+  margin-right: 6px;
+  box-shadow: none;
+  transition: color 0.2s, background 0.2s;
+  padding: 0.1em 0.3em;
+}
+.selecionar-pacote-btn:hover, .selecionar-pacote-btn:focus {
+  background: #fff;
+  color: #800080 !important;
+  border-color: #800080;
+  transform: scale(1.045);
+  box-shadow: 0 8px 24px rgba(128, 0, 128, 0.13), 0 2px 8px rgba(102, 187, 106, 0.10);
+  cursor: pointer;
+}
+.selecionar-pacote-btn:hover .selecionar-icone,
+.selecionar-pacote-btn:focus .selecionar-icone {
+  color: #800080;
+  background: rgba(128,0,128,0.10);
+}
+/* Borda destacada padrão */
 .borda-destacada {
   border: 1px solid #66bb6a;
   border-radius: 5px;
@@ -290,6 +469,7 @@ onMounted(() => {
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.3s ease;
   background-color: #fff;
+  /* box-shadow removido para visual mais limpo */
 }
 
 .borda-destacada:hover {
@@ -314,21 +494,5 @@ onMounted(() => {
 .material-icons {
   font-size: 20px;
   color: #198754;
-}
-
-/* Responsividade */
-@media (max-width: 576px) {
-  .container {
-    padding: 15px;
-  }
-
-  .btn-outline-success {
-    font-size: 0.9rem;
-    padding: 5px 15px;
-  }
-
-  h2 {
-    font-size: 1.6rem;
-  }
 }
 </style>
