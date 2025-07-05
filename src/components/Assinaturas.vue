@@ -50,7 +50,7 @@
           <span style="font-size:1.3em; margin-right:8px; vertical-align:middle;">&#8592;</span> Voltar aos Pacotes
         </button>
       </div>
-      <h4 class="text-center mb-3">Formas de Pagamento.</h4>
+      <h4 class="text-center mb-3">Formas de Pagamento</h4>
 
       <div class="payment-options d-flex flex-wrap justify-content-center gap-3 mb-4">
         <button
@@ -65,10 +65,10 @@
             <i class="bi bi-credit-card-2-front-fill me-2"></i>
           </span>
           <span v-else-if='forma === "M-Pesa"'>
-            <img src="@/assets/img/mpesa.png" alt="M-Pesa" style="height: 20px; margin-right: 8px; vertical-align: middle;" />
+            <img src="@/assets/img/Mpesa.png" alt="M-Pesa" style="height: 20px; margin-right: 8px; vertical-align: middle;" />
           </span>
           <span v-else-if='forma === "Emola"'>
-            <img src="@/assets/img/emola.png" alt="Emola" style="height: 20px; margin-right: 8px; vertical-align: middle;" />
+            <img src="@/assets/img/Emola.png" alt="Emola" style="height: 20px; margin-right: 8px; vertical-align: middle;" />
           </span>
           {{ forma }}
         </button>
