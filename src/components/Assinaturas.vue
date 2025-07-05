@@ -12,7 +12,7 @@
     <!-- Título aprimorado em box clean, largura igual aos pacotes -->
     <div class="titulo-pacotes-box mb-5">
       <h2 class="titulo-pacotes text-center m-0">
-        Escolha o Seu Pacote Ideal!
+        Escolha o Seu Pacote Ideal
       </h2>
     </div>
 
