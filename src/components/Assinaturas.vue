@@ -50,7 +50,7 @@
           <span style="font-size:1.3em; margin-right:8px; vertical-align:middle;">&#8592;</span> Voltar aos Pacotes
         </button>
       </div>
-      <h4 class="text-center mb-3">Formas de Pagamento</h4>
+      <h4 class="text-center mb-3">Formas de Pagamento.</h4>
 
       <div class="payment-options d-flex flex-wrap justify-content-center gap-3 mb-4">
         <button
