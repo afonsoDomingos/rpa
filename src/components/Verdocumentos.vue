@@ -153,24 +153,37 @@ const cadastrarDocumento = async () => {
   mensagemErro.value = '';
   mensagemSucesso.value = '';
 
-
   try {
+    // Monta o objeto do novo documento
     const novoDocumento = {
-      nome_completo: nome_completo.value,
-      tipo_documento: tipo_documento.value,
-      numero_documento: numero_documento.value,
-      provincia: provincia.value,
-      data_perda: data_perda.value,
-      origem: origem.value,
-      contacto: contacto.value
+      nome_completo: nome_completo.value.trim(),
+      tipo_documento: tipo_documento.value.trim(),
+      numero_documento: numero_documento.value.trim(),
+      provincia: provincia.value.trim(),
+      data_perda: data_perda.value,    // data no formato ISO (ex: 2023-07-07)
+      origem: origem.value.trim(),      // deve ser 'proprietario' ou 'reportado'
+      contacto: contacto.value.trim()
     };
 
-    const response = await api.post('/documentos', novoDocumento);
+    // Pega o token JWT do localStorage para autenticação
+    const token = localStorage.getItem('token');
+    if (!token) {
+      mensagemErro.value = 'Usuário não autenticado.';
+      return;
+    }
+
+    // Envia o POST para a rota /documentos com o token no header Authorization
+    const response = await api.post('/documentos', novoDocumento, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
     console.log('Documento cadastrado com sucesso:', response.data);
 
     mensagemSucesso.value = `Documento cadastrado com sucesso: Nome: ${response.data.nome_completo}, Tipo: ${response.data.tipo_documento}, Número: ${response.data.numero_documento}, Província: ${response.data.provincia}, Data: ${response.data.data_perda}`;
 
-    // Limpar os campos do formulário
+    // Limpa os campos do formulário
     nome_completo.value = '';
     tipo_documento.value = '';
     numero_documento.value = '';
@@ -185,6 +198,7 @@ const cadastrarDocumento = async () => {
     mensagemErro.value = error.response?.data?.message || 'Erro ao cadastrar. Verifique os dados e tente novamente.';
   }
 };
+
 
 // Filtro de busca de documentos
 

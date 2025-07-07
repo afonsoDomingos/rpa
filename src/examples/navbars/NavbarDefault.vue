@@ -352,6 +352,14 @@ watch(
       Meus Pagamentos
     </button>
 
+    <button
+      class="dropdown-item border-radius-md"
+      @click="$router.push({ name: 'MeusDocumentos' })"
+      style="cursor: pointer;"
+    >
+      Meus Documentos
+    </button>
+
     <div class="dropdown-divider"></div>
 
     <button

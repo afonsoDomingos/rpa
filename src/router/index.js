@@ -30,9 +30,18 @@ import PrivacyPolicy from "../components/PrivacyPolicy.vue";
 import GuardarDocumentos from "../components/Guardardocumentos.vue";
 import Assinaturas from "../components/Assinaturas.vue";
 import MeusPagamentos from "../components/MeusPagamentos.vue";
+import MeusDocumentos from "../components/MeusDocumentos.vue";
+    
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+
+    {
+      path: '/meus-documentos',
+      name: 'MeusDocumentos',
+      component: MeusDocumentos,
+      meta: { requerAutenticacao: true }
+    },
 
     {
       path: "/",
@@ -57,12 +66,20 @@ const router = createRouter({
       component: Assinaturas
     },
 
-     {
-    path: '/meus-pagamentos',
-    name: 'MeusPagamentos',
-    component: MeusPagamentos,
-    meta: { requerAutenticacao: true } // opcional: para proteger rota
-  },
+
+    {
+      path: '/meus-pagamentos',
+      name: 'MeusPagamentos',
+      component: MeusPagamentos,
+      meta: { requerAutenticacao: true }
+    },
+
+    {
+      path: '/meus-documentos',
+      name: 'MeusDocumentos',
+      component: MeusDocumentos,
+      meta: { requerAutenticacao: true }
+    },
 
 
     {
