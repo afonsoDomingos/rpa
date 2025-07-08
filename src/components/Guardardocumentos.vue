@@ -334,10 +334,9 @@ const documentos = ref([])
 const mensagem = ref('')
 const mensagemTipo = ref('')
 
-
 // Formulário
 const form = ref({
-  id: null, // id para edição
+  id: null,
   tipoDocumento: '',
   nome: '',
   numeroDocumento: '',
@@ -356,86 +355,8 @@ const form = ref({
   codigoVirtual: ''
 })
 
-
 const modalAberto = ref(false)
-
-
-
-
-const formatarLabel = (campo) => {
-  return campo
-    .replace(/([A-Z])/g, ' $1')         // adiciona espaço antes das maiúsculas
-    .replace(/^./, (str) => str.toUpperCase())  // capitaliza primeira letra
-    .replace(/numero/g, 'Número')
-    .replace(/data/g, 'Data')
-    .replace(/seguranca/g, 'Segurança')
-    .replace(/cartao/g, 'Cartão')
-    .replace(/virtual/g, 'Virtual')
-    .replace(/conta/g, 'Conta')
-    .replace(/zona/g, 'Zona')
-    .trim();
-};
-
-// Abre o modal e copia os dados do documento para o form (clone)
-//function editarDocumento(doc) {
- // Object.assign(form, {}) // limpa
- // Object.assign(form, doc)
- // modalAberto.value = true
-//}
-
-//const editarDocumento = (doc) => {
-//  form.value = { ...doc }; // apenas campos existentes
- // modalAberto.value = true;
-//}
-
-//const editarDocumento = (doc) => {
-  // Limpa o formulário e só adiciona os campos realmente existentes
-  //form.value = {};
-  //Object.keys(doc).forEach((chave) => {
-  // / if (doc[chave] !== undefined && doc[chave] !== null && doc[chave] !== '') {
-   //   form.value[chave] = doc[chave];
-   // }
- // });
-  //modalAberto.value = true;
-//};
-
-const camposIgnorados = ['id', '_id', 'createdAt', 'updatedAt', '__v'];
-
-
-const editarDocumento = (doc) => {
-  form.value = {};
-  Object.keys(doc).forEach((chave) => {
-    const valor = doc[chave];
-    if (
-      !camposIgnorados.includes(chave) &&
-      valor !== undefined &&
-      valor !== null &&
-      valor !== ''
-    ) {
-      form.value[chave] = valor;
-    }
-  });
-  modalAberto.value = true;
-};
-
-
-
-// Fecha o modal
-function fecharModal() {
-  modalAberto.value = false
-}
-
-// Salva a edição: atualiza o documento no array e fecha o modal
-function salvarEdicao() {
-  const index = documentos.findIndex(d => d.id === form.id)
-  if (index !== -1) {
-    // Atualiza todos os campos (clonados do form)
-    Object.assign(documentos[index], form)
-  }
-  fecharModal()
-}
-
-
+const camposIgnorados = ['_id', 'createdAt', 'updatedAt', '__v']
 
 // Lista de tipos de documento
 const tiposDocumento = [
@@ -453,68 +374,111 @@ const tiposDocumento = [
   'Cartões Virtuais'
 ]
 
-// Limpa o formulário
-const limparFormulario = () => {
-  Object.keys(form.value).forEach(key => (form.value[key] = ''))
-  form.value.id = null
+const formatarLabel = (campo) => {
+  return campo
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, (str) => str.toUpperCase())
+    .replace(/numero/g, 'Número')
+    .replace(/data/g, 'Data')
+    .replace(/seguranca/g, 'Segurança')
+    .replace(/cartao/g, 'Cartão')
+    .replace(/virtual/g, 'Virtual')
+    .replace(/conta/g, 'Conta')
+    .replace(/zona/g, 'Zona')
+    .trim()
 }
 
-// Busca documentos
+// Buscar documentos do backend
 const fetchDocumentos = async () => {
   try {
     const res = await api.get('/documentosguardados')
     documentos.value = res.data
-  } catch {
-    mensagem.value = 'Erro ao carregar documentos.'
-    mensagemTipo.value = 'alert-danger'
+  } catch (err) {
+    mostrarMensagem('Erro ao carregar documentos.', 'alert-danger')
   }
 }
 
-// Salvar documento: POST se for novo, PUT se for edição
-function salvarDocumento() {
+// Salvar novo documento ou atualizar existente
+const salvarDocumento = async () => {
   if (!form.value.tipoDocumento) {
-    mensagem.value = 'Selecione o tipo de documento.'
-    mensagemTipo.value = 'alert-danger'
+    mostrarMensagem('Selecione o tipo de documento.', 'alert-danger')
     return
   }
-  
-  if (form.value.id) {
-    // Atualizar documento existente
-    const index = documentos.value.findIndex(doc => doc.id === form.value.id)
-    if (index !== -1) {
-      documentos.value[index] = { ...form.value }
-      mensagem.value = 'Documento atualizado com sucesso.'
-      mensagemTipo.value = 'alert-success'
+
+  try {
+    if (form.value.id) {
+      const { id, ...dadosAtualizados } = form.value
+      await api.put(`/documentosguardados/${id}`, dadosAtualizados)
+      const index = documentos.value.findIndex(doc => doc.id === id)
+      if (index !== -1) documentos.value[index] = { ...form.value }
+      mostrarMensagem('Documento atualizado com sucesso.', 'alert-success')
+    } else {
+      const res = await api.post('/documentosguardados', form.value)
+      documentos.value.push(res.data)
+      mostrarMensagem('Documento guardado com sucesso.', 'alert-success')
     }
-  } else {
-    // Criar novo documento
-    form.value.id = Date.now() // id simples baseado em timestamp
-    documentos.value.push({ ...form.value })
-    mensagem.value = 'Documento guardado com sucesso.'
-    mensagemTipo.value = 'alert-success'
-  }
-  
-  limparFormulario()
-}
-
-
-
-function removerDocumento(id) {
-  const index = documentos.value.findIndex(doc => doc.id === id)
-  if (index !== -1) {
-    documentos.value.splice(index, 1)
-    mensagem.value = 'Documento removido com sucesso.'
-    mensagemTipo.value = 'alert-success'
+    limparFormulario()
+  } catch (err) {
+    mostrarMensagem('Erro ao guardar documento.', 'alert-danger')
   }
 }
 
+// Exibir mensagem com tempo
+const mostrarMensagem = (msg, tipo) => {
+  mensagem.value = msg
+  mensagemTipo.value = tipo
+  setTimeout(() => {
+    mensagem.value = ''
+    mensagemTipo.value = ''
+  }, 3000)
+}
 
+// Remover documento do backend
+const removerDocumento = async (id) => {
+  try {
+    await api.delete(`/documentosguardados/${id}`)
+    documentos.value = documentos.value.filter(doc => doc.id !== id)
+    mostrarMensagem('Documento removido com sucesso.', 'alert-success')
+  } catch (err) {
+    mostrarMensagem('Erro ao remover documento.', 'alert-danger')
+  }
+}
 
-// Carregar documentos ao montar o componente
+// Abrir modal de edição
+const editarDocumento = (doc) => {
+  form.value = {}
+  Object.keys(doc).forEach((chave) => {
+    const valor = doc[chave]
+    if (!camposIgnorados.includes(chave)) {
+      form.value[chave] = valor
+    }
+  })
+  modalAberto.value = true
+}
+
+// Fechar modal
+const fecharModal = () => {
+  modalAberto.value = false
+}
+
+// Salvar edição (mesma função do botão principal)
+const salvarEdicao = () => {
+  salvarDocumento()
+  fecharModal()
+}
+
+// Limpar formulário
+const limparFormulario = () => {
+  Object.keys(form.value).forEach(key => form.value[key] = '')
+  form.value.id = null
+}
+
+// Carregar documentos ao iniciar
 onMounted(() => {
   fetchDocumentos()
 })
 </script>
+
 
 
 <style scoped>

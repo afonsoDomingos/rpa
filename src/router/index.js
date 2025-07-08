@@ -216,7 +216,7 @@ const router = createRouter({
     },
 
     {
-      path: '/GuardarDocumentos',
+      path: '/guardardocumentos',
       name: 'GuardarDocumentos',
       component: GuardarDocumentos,
     }
