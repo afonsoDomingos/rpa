@@ -4,6 +4,13 @@ import { ref, onMounted, onUnmounted, watch } from "vue"; // Importa funções d
 import MaterialSwitch from "@/components/MaterialSwitch.vue"; // Componente para um switch material
 import eventBus from "@/eventBus";
 
+
+//import { Modal } from 'bootstrap';
+
+
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
 //Vue Material Kit 2 components
 import MaterialButton from "@/components/MaterialButton.vue";
 
@@ -52,6 +59,8 @@ const documentosDisponiveis = ref([]);
 const documentosReportados = ref([]);
 const documentosProprietarios = ref([]);
 const documentosEncontrados = ref([]);
+const documentoSelecionado = ref(null);
+
 
 
 
@@ -278,7 +287,36 @@ const reportarStatus = () => {
 
 
 
-///Minha Funcao de solicitane
+
+const verificarAssinaturaAntesDeSolicitar = async (documento) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await api.get('/pagamentos/assinatura/ativa', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (response.data.ativa) {
+      // Armazena o documento selecionado (opcional, se quiser mostrar no modal)
+      documentoSelecionado.value = documento;
+
+      // Mostra o modal programaticamente
+      const modalElement = document.getElementById("exampleModal");
+      if (modalElement) {
+        const bootstrapModal = new Modal(modalElement);
+        bootstrapModal.show();
+      }
+    } else {
+      alert("Você precisa de uma assinatura ativa para solicitar documentos.");
+      router.push('/assinaturas');
+    }
+  } catch (error) {
+    console.error("Erro ao verificar assinatura:", error);
+    alert("Erro ao verificar assinatura. Tente novamente.");
+  }
+};
+
 
 </script>
 
@@ -416,10 +454,13 @@ const reportarStatus = () => {
                     <td className="btn-zoom">
 
                       <!-- Button trigger modal -->
-                      <MaterialButton variant="gradient" color="success" data-bs-toggle="modal"
-                        data-bs-target="#exampleModal">
-                        Solicitar
-                      </MaterialButton>
+                      <MaterialButton
+  variant="gradient"
+  color="success"
+  @click="verificarAssinaturaAntesDeSolicitar(doc)"
+>
+  Solicitar
+</MaterialButton>
 
                     </td>
 

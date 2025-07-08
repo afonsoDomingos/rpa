@@ -17,29 +17,34 @@
     </div>
 
     <!-- Lista de pacotes -->
-    <div v-if="!pacoteSelecionado" class="row justify-content-center w-100">
+    <div v-if="!pacoteSelecionado" class="row justify-content-center w-100 align-items-stretch">
       <div
         v-for="pacote in pacotes"
         :key="pacote.nome"
-        class="col-md-5 mx-2 mb-4 p-4 shadow-sm rounded border borda-destacada d-flex flex-column align-items-center"
-        :class="{ 'border-success': pacoteSelecionado === pacote.nome }"
+        class="col-12 col-md-5 mx-2 mb-4 d-flex align-items-stretch"
       >
-        <h4 class="text-center">{{ pacote.nome }}</h4>
-        <h5 class="text-center text-primary">{{ pacote.preco }} MZN</h5>
-        <p class="text-center text-muted">{{ pacote.periodo }}</p>
-
-        <ul class="mt-3">
-          <li v-for="(beneficio, idx) in pacote.beneficios" :key="idx" class="borda-destacada mb-2">✅ {{ beneficio }}</li>
-        </ul>
-
-        <button
-          class="selecionar-pacote-btn mt-4 w-100"
-          @click="selecionarPacote(pacote.nome)"
-          :disabled="loading || sucesso"
+        <div class="p-4 shadow-sm rounded border borda-destacada d-flex flex-column align-items-center w-100 pacote-card"
+          :class="{ 'border-success': pacoteSelecionado === pacote.nome }"
         >
-          <span class="selecionar-icone me-2">&#10003;</span>
-          <span>Selecionar</span>
-        </button>
+          <h4 class="text-center">{{ pacote.nome }}</h4>
+          <h5 class="text-center text-primary">{{ pacote.preco }} MZN</h5>
+          <p class="text-center text-muted">{{ pacote.periodo }}</p>
+
+          <ul class="mt-3 w-100">
+            <li v-for="(beneficio, idx) in pacote.beneficios" :key="idx" class="borda-destacada mb-2 text-center">✅ {{ beneficio }}</li>
+          </ul>
+
+          <div class="d-flex justify-content-center w-100 mt-auto">
+            <button
+              class="selecionar-pacote-btn w-100"
+              @click="selecionarPacote(pacote.nome)"
+              :disabled="loading || sucesso"
+            >
+              <span class="selecionar-icone me-2">&#10003;</span>
+              <span>Selecionar</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -143,16 +148,28 @@ const cartao = ref({ numero: "", nome: "", validade: "", cvv: "" });
 
 const pacotes = [
   {
-    nome: "Trimestral",
-    preco: 200,
-    periodo: "a cada 3 meses",
-    beneficios: ["Acesso ilimitado", "Notificações", "Suporte prioritário"],
+    nome: "Mensal",
+    preco: 150,
+    periodo: "a cada 1 mês",
+    beneficios: [
+      "Solicitação Ilimitada",
+      "Notificações",
+      "Suporte Prioritário",
+      "Guardar Documento",
+      "Geração de 3 CVs"
+    ],
   },
   {
     nome: "Anual",
-    preco: 600,
+    preco: 650,
     periodo: "a cada 12 meses",
-    beneficios: ["Todos do Trimestral", "Desconto 20%", "CV automático"],
+    beneficios: [
+      "Tudo do Mensal",
+      "Geração de CV Ilimitada",
+      "Suporte VIP",
+      "Consultoria personalizada",
+      "Acesso  a novos recursos"
+    ],
   },
 ];
 
@@ -495,4 +512,24 @@ onMounted(() => {
   font-size: 20px;
   color: #198754;
 }
+
+/* Centralização e alinhamento dos cards de pacotes */
+.pacote-card {
+  min-height: 410px;
+  max-width: 370px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+@media (max-width: 576px) {
+  .pacote-card {
+    min-height: 350px;
+    max-width: 98vw;
+    padding: 1.2rem 0.5rem;
+  }
+}
 </style>
+
