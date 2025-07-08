@@ -1,7 +1,15 @@
 <template>
-  <div class="container py-4 my-4 bg-white shadow-sm rounded borda-destacada">
+  <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
+    <div class="row gx-0">
+      <div class="col-12">
+        <NavbarDefault :sticky="true" />
+      </div>
+    </div>
+  </div>
+  <br/><br/><br/>
+  <div class="d-block d-md-none" style="height: 16px;"></div>
+  <div class="container-fluid pag-container-fluid py-4 my-4 bg-white shadow-sm rounded borda-destacada pag-container-responsive">
     <h2 class="mb-4 text-center text-success fw-bold">Meus Pagamentos</h2>
-
     <!-- Usuário logado - dropdown -->
     <li v-if="usuario" class="nav-item dropdown dropdown-hover mx-auto mb-4" style="list-style: none; max-width: 300px;">
       <a
@@ -30,38 +38,36 @@
     </li>
 
     <!-- Resumo financeiro -->
-    <div class="mb-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
-      <div><strong>Total pago:</strong> MZN {{ totalPago.toFixed(2) }}</div>
-      <div><strong>Último pagamento:</strong> {{ ultimoPagamento ? formatarData(ultimoPagamento.data) + " (" + ultimoPagamento.preco.toFixed(2) + " MZN)" : "-" }}</div>
-      <div><strong>Total de pagamentos:</strong> {{ pagamentos.length }}</div>
-      <button @click="exportarCSV" class="btn btn-outline-success btn-sm">
-        Exportar CSV
-      </button>
+    <div class="mb-4 resumo-financeiro-row">
+      <div class="resumo-item"><strong>Total pago:</strong> MZN {{ totalPago.toFixed(2) }}</div>
+      <div class="resumo-item"><strong>Último pagamento:</strong> {{ ultimoPagamento ? formatarData(ultimoPagamento.data) + " (" + ultimoPagamento.preco.toFixed(2) + " MZN)" : "-" }}</div>
+      <div class="resumo-item"><strong>Total de pagamentos:</strong> {{ pagamentos.length }}</div>
+      <div class="resumo-item"><button @click="exportarCSV" class="btn btn-outline-success btn-sm w-100-mobile">Exportar CSV</button></div>
     </div>
 
     <!-- Filtros -->
-    <div class="mb-4 d-flex flex-wrap gap-3 align-items-center">
-      <select v-model="filtros.status" class="form-select form-select-sm" style="max-width: 150px;">
+    <div class="mb-4 filtros-row filtros-compact">
+      <select v-model="filtros.status" class="form-select form-select-sm filtro-item filtro-compact">
         <option value="">Todos os status</option>
         <option value="pago">Pago</option>
         <option value="pendente">Pendente</option>
         <option value="cancelado">Cancelado</option>
       </select>
 
-      <select v-model="filtros.pacote" class="form-select form-select-sm" style="max-width: 200px;">
+      <select v-model="filtros.pacote" class="form-select form-select-sm filtro-item filtro-compact">
         <option value="">Todos os pacotes</option>
         <option v-for="p in pacotesUnicos" :key="p" :value="p">{{ p }}</option>
       </select>
 
-      <select v-model="filtros.formaPagamento" class="form-select form-select-sm" style="max-width: 180px;">
+      <select v-model="filtros.formaPagamento" class="form-select form-select-sm filtro-item filtro-compact">
         <option value="">Todas as formas</option>
         <option v-for="f in formasUnicas" :key="f" :value="f">{{ f }}</option>
       </select>
 
-      <input type="date" v-model="filtros.dataInicio" class="form-control form-control-sm" style="max-width: 150px;" placeholder="Data início" />
-      <input type="date" v-model="filtros.dataFim" class="form-control form-control-sm" style="max-width: 150px;" placeholder="Data fim" />
-      
-      <button class="btn btn-secondary btn-sm" @click="limparFiltros">Limpar filtros</button>
+      <button class="btn btn-outline-secondary btn-sm filtro-item filtro-compact w-100-mobile btn-limpar-filtros" @click="limparFiltros">
+        Limpar filtros
+      </button>
+
     </div>
 
     <!-- Loading / Erro -->
@@ -247,9 +253,13 @@
       </div>
     </div>
   </div>
+  <!-- Componente para exibir o rodapé padrão -->
+  <FooterDefault />
 </template>
 
 <script setup>
+import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
+import FooterDefault from "../examples/footers/FooterDefault.vue";
 import { ref, computed, onMounted } from "vue";
 import api from "../api";
 import { useRouter } from "vue-router";
@@ -267,9 +277,7 @@ const hoverId = ref(null);
 const filtros = ref({
   status: "",
   pacote: "",
-  formaPagamento: "",
-  dataInicio: "",
-  dataFim: "",
+  formaPagamento: ""
 });
 
 // Paginação
@@ -339,11 +347,6 @@ const pagamentosFiltrados = computed(() => {
     if (filtros.value.pacote && p.pacote !== filtros.value.pacote) return false;
     if (filtros.value.formaPagamento && p.formaPagamento !== filtros.value.formaPagamento)
       return false;
-    if (filtros.value.dataInicio && new Date(p.data) < new Date(filtros.value.dataInicio))
-      return false;
-    if (filtros.value.dataFim && new Date(p.data) > new Date(filtros.value.dataFim))
-      return false;
-
     return true;
   });
 });
@@ -369,9 +372,7 @@ function limparFiltros() {
   filtros.value = {
     status: "",
     pacote: "",
-    formaPagamento: "",
-    dataInicio: "",
-    dataFim: "",
+    formaPagamento: ""
   };
   mudarPagina(1);
 }
@@ -445,10 +446,43 @@ function getTextColor() {
 }
 </script>
 
+
 <style scoped>
+
+
 .container {
   max-width: 900px;
   background-color: #f9fff9;
+}
+/* Por padrão, ocupa 100% em telas pequenas, 80% centralizado em telas grandes */
+.pag-container-fluid {
+  width: 100%;
+  max-width: 100vw;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+@media (min-width: 992px) {
+  .pag-container-fluid {
+    width: 95% !important;
+    max-width: 95vw !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    border-radius: 18px;
+  }
+}
+@media (max-width: 991px) {
+  .pag-container-fluid {
+    width: 85% !important;
+    max-width: 85vw !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+.pag-container-responsive {
+  padding-left: 32px;
+  padding-right: 32px;
 }
 
 /* Borda destacada com transição e hover suave */
@@ -502,19 +536,124 @@ h2 {
   color: #2e7d32; /* verde escuro */
 }
 
-/* Responsividade: padding e margem */
-@media (max-width: 576px) {
-  .container {
-    padding: 15px;
-  }
 
+
+
+/* Responsividade aprimorada para alinhar por linha em telas menores */
+.resumo-financeiro-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.resumo-item {
+  min-width: 160px;
+  margin-bottom: 0;
+}
+.filtros-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.filtro-item {
+  min-width: 120px;
+  margin-bottom: 0;
+}
+.w-100-mobile {
+  width: auto;
+}
+
+/* Filtros compactos e elegantes em telas grandes */
+@media (min-width: 992px) {
+  .filtros-row {
+    justify-content: flex-end;
+    background: #f6f6fa;
+    border-radius: 32px;
+    padding: 10px 24px 10px 18px;
+    box-shadow: 0 2px 8px rgba(102, 187, 106, 0.07);
+    max-width: 820px;
+    margin-left: auto;
+    margin-right: auto;
+    min-height: 0;
+  }
+  .filtro-compact {
+    min-width: 100px;
+    max-width: 160px;
+    margin-bottom: 0;
+    border-radius: 18px !important;
+    background: #fff !important;
+    border: 1px solid #d0e6d0 !important;
+    font-size: 0.97rem;
+    box-shadow: 0 1px 2px rgba(102, 187, 106, 0.04);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    height: 36px;
+    padding: 4px 10px;
+  }
+  .filtro-compact:focus {
+    border-color: #66bb6a !important;
+    box-shadow: 0 0 0 2px #c8e6c9;
+  }
+  .filtros-row select.filtro-compact,
+  .filtros-row input.filtro-compact {
+    margin-right: 6px;
+    margin-left: 0;
+    margin-bottom: 0;
+  }
+  .filtros-row button.filtro-compact {
+    margin-left: 8px;
+    margin-right: 0;
+    min-width: 110px;
+    border-radius: 18px;
+    font-size: 0.97rem;
+    padding: 6px 16px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 768px) {
+  .resumo-financeiro-row, .filtros-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .resumo-item, .filtro-item {
+    width: 100% !important;
+    min-width: 0;
+    margin-bottom: 0;
+  }
+  .w-100-mobile {
+    width: 100% !important;
+  }
+}
+
+/* Responsividade: padding e margem */
+@media (max-width: 768px) {
+  .pag-container-responsive {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+  .container {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+  .borda-destacada {
+    padding: 12px !important;
+  }
+  .table-responsive {
+    font-size: 0.97rem;
+  }
   .btn-outline-success {
     font-size: 0.9rem;
     padding: 5px 15px;
   }
-
   h2 {
-    font-size: 1.6rem;
+    font-size: 1.3rem;
+  }
+  .dropdown-menu {
+    min-width: 160px;
+    font-size: 0.97rem;
   }
 }
 </style>

@@ -179,9 +179,8 @@ watch(
         (props.transparent && textDark.value) || !props.transparent
           ? 'text-dark font-weight-bolder ms-sm-3'
           : 'text-white font-weight-bolder ms-sm-3'
-      ]" :to="{ name: 'presentation' }" rel="tooltip" title="Designed and Coded by Creative Tim"
-        data-placement="bottom">
-        Recupera Aqui
+      ]" :to="{ name: 'presentation' }" rel="tooltip" title="Página inicial" data-placement="bottom">
+        <img src="@/assets/img/rPa.png" alt="Logo Rpa" style="height:38px;width:auto;object-fit:contain;vertical-align:middle;" />
       </RouterLink>
 
 
