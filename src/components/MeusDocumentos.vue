@@ -1,70 +1,85 @@
 <template>
-    <br/><br/>
   <div>
-    <NavbarDefault :sticky="true" />
+   <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
+    <div class="row gx-0">
+      <div class="col-12">
+        <NavbarDefault :sticky="true" />
+      </div>
+    </div>
+  </div>
+
+    <br/> <br/> <br/>
     <div class="container py-5" style="min-height: 80vh; overflow-y: auto;">
 
-      <!-- Título Geral -->
-      <div class="titulo-pacotes-box mb-5 mx-auto" style="max-width: 480px;">
+      <!-- Cabeçalho -->
+      <div class="titulo-pacotes-box mb-5 mx-auto">
         <h2 class="titulo-pacotes text-center m-0">
+          <i class="bi bi-folder2-open me-2"></i>
           Meus Documentos
         </h2>
       </div>
 
-      <div class="row justify-content-center">
+      <!-- Grid de Categorias -->
+      <div class="row g-4 justify-content-center">
 
         <!-- Documentos Solicitados -->
-        <div class="col-lg-4 col-md-6 mb-4 p-3 shadow-sm rounded border borda-destacada">
-          <h4 class="text-center mb-3">Solicitados</h4>
-          <div v-if="loadingSolicitados" class="text-center my-3">Carregando...</div>
-          <div v-else-if="documentosSolicitados.length === 0" class="text-center text-muted my-3">
-            Nenhum documento solicitado.
+        <div class="col-lg-4 col-md-6">
+          <div class="card h-100 p-3 shadow-sm borda-destacada">
+            <h5 class="text-center text-primary fw-bold mb-3">📥 Solicitados</h5>
+            <div v-if="loadingSolicitados" class="text-center my-3 text-muted">Carregando...</div>
+            <div v-else-if="documentosSolicitados.length === 0" class="text-center text-muted my-3">
+              Nenhum documento solicitado.
+            </div>
+            <ul v-else class="list-group list-group-flush">
+              <li v-for="doc in documentosSolicitados" :key="doc._id" class="list-group-item">
+                <div><strong>Nome:</strong> {{ doc.nome_completo }}</div>
+                <div><strong>Tipo:</strong> {{ doc.tipo_documento }}</div>
+                <div><strong>Número:</strong> {{ doc.numero_documento }}</div>
+                <div><strong>Status:</strong> <span :class="statusClass(doc.status)">{{ doc.status }}</span></div>
+              </li>
+            </ul>
           </div>
-          <ul v-else class="list-group">
-            <li v-for="doc in documentosSolicitados" :key="doc._id" class="list-group-item">
-              <div><strong>Nome:</strong> {{ doc.nome_completo }}</div>
-              <div><strong>Tipo:</strong> {{ doc.tipo_documento }}</div>
-              <div><strong>Número:</strong> {{ doc.numero_documento }}</div>
-              <div><strong>Status:</strong> <span :class="statusClass(doc.status)">{{ doc.status }}</span></div>
-            </li>
-          </ul>
         </div>
 
         <!-- Documentos Guardados -->
-        <div class="col-lg-4 col-md-6 mb-4 p-3 shadow-sm rounded border borda-destacada">
-          <h4 class="text-center mb-3">Guardados</h4>
-          <div v-if="loadingGuardados" class="text-center my-3">Carregando...</div>
-          <div v-else-if="documentosGuardados.length === 0" class="text-center text-muted my-3">
-            Nenhum documento guardado.
+        <div class="col-lg-4 col-md-6">
+          <div class="card h-100 p-3 shadow-sm borda-destacada">
+            <h5 class="text-center text-success fw-bold mb-3">📁 Guardados</h5>
+            <div v-if="loadingGuardados" class="text-center my-3 text-muted">Carregando...</div>
+            <div v-else-if="documentosGuardados.length === 0" class="text-center text-muted my-3">
+              Nenhum documento guardado.
+            </div>
+            <ul v-else class="list-group list-group-flush">
+              <li v-for="doc in documentosGuardados" :key="doc._id" class="list-group-item">
+                <div><strong>Nome:</strong> {{ doc.nome }}</div>
+                <div><strong>Tipo:</strong> {{ doc.tipoDocumento }}</div>
+                <div><strong>Número:</strong> {{ doc.numeroDocumento }}</div>
+                <div><strong>Data:</strong> {{ formatarData(doc.createdAt) }}</div>
+                <div v-for="info in detalhesAdicionais(doc)" :key="info">{{ info }}</div>
+              </li>
+            </ul>
           </div>
-          <ul v-else class="list-group">
-            <li v-for="doc in documentosGuardados" :key="doc._id" class="list-group-item">
-              <div><strong>Nome:</strong> {{ doc.nome }}</div>
-              <div><strong>Tipo:</strong> {{ doc.tipoDocumento }}</div>
-              <div><strong>Número:</strong> {{ doc.numeroDocumento }}</div>
-              <div><strong>Data:</strong> {{ formatarData(doc.createdAt) }}</div>
-              <div v-for="info in detalhesAdicionais(doc)" :key="info">{{ info }}</div>
-            </li>
-          </ul>
         </div>
 
         <!-- Documentos Cadastrados -->
-        <div class="col-lg-4 col-md-12 mb-4 p-3 shadow-sm rounded border borda-destacada">
-          <h4 class="text-center mb-3">Cadastrados</h4>
-          <div v-if="loadingCadastrados" class="text-center my-3">Carregando...</div>
-          <div v-else-if="documentosCadastrados.length === 0" class="text-center text-muted my-3">
-            Nenhum documento cadastrado.
+        <div class="col-lg-4 col-md-12">
+          <div class="card h-100 p-3 shadow-sm borda-destacada">
+            <h5 class="text-center text-dark fw-bold mb-3">📝 Cadastrados</h5>
+            <div v-if="loadingCadastrados" class="text-center my-3 text-muted">Carregando...</div>
+            <div v-else-if="documentosCadastrados.length === 0" class="text-center text-muted my-3">
+              Nenhum documento cadastrado.
+            </div>
+            <ul v-else class="list-group list-group-flush">
+              <li v-for="doc in documentosCadastrados" :key="doc._id" class="list-group-item">
+                <div><strong>Nome:</strong> {{ doc.nome_completo }}</div>
+                <div><strong>Tipo:</strong> {{ doc.tipo_documento }}</div>
+                <div><strong>Número:</strong> {{ doc.numero_documento }}</div>
+                <div><strong>Província:</strong> {{ doc.provincia }}</div>
+                <div><strong>Data de Perda:</strong> {{ formatarData(doc.data_perda) }}</div>
+                <div><strong>Origem:</strong> {{ doc.origem }}</div>
+              </li>
+            </ul>
           </div>
-          <ul v-else class="list-group">
-            <li v-for="doc in documentosCadastrados" :key="doc._id" class="list-group-item">
-              <div><strong>Nome:</strong> {{ doc.nome_completo }}</div>
-              <div><strong>Tipo:</strong> {{ doc.tipo_documento }}</div>
-              <div><strong>Número:</strong> {{ doc.numero_documento }}</div>
-              <div><strong>Província:</strong> {{ doc.provincia }}</div>
-              <div><strong>Data de Perda:</strong> {{ formatarData(doc.data_perda) }}</div>
-              <div><strong>Origem:</strong> {{ doc.origem }}</div>
-            </li>
-          </ul>
         </div>
 
       </div>
@@ -88,9 +103,9 @@ const loadingGuardados = ref(true);
 const loadingCadastrados = ref(true);
 
 function statusClass(status) {
-  if (status === 'Pendente') return 'text-warning';
-  if (status === 'Entregue' || status === 'Recuperado') return 'text-success';
-  return 'text-secondary';
+  if (status === 'Pendente') return 'text-warning fw-bold';
+  if (status === 'Entregue' || status === 'Recuperado') return 'text-success fw-bold';
+  return 'text-secondary fw-bold';
 }
 
 function formatarData(dataISO) {
@@ -121,7 +136,6 @@ async function fetchDocumentos() {
   const token = localStorage.getItem('token');
   const headers = { Authorization: `Bearer ${token}` };
 
-  // Solicitados
   try {
     loadingSolicitados.value = true;
     const res = await api.get('/minhas-solicitacoes', { headers });
@@ -132,7 +146,6 @@ async function fetchDocumentos() {
     loadingSolicitados.value = false;
   }
 
-  // Guardados
   try {
     loadingGuardados.value = true;
     const res = await api.get('/documentosguardados/meus-documentos', { headers });
@@ -143,7 +156,6 @@ async function fetchDocumentos() {
     loadingGuardados.value = false;
   }
 
-  // Cadastrados (rota corrigida conforme opção 2)
   try {
     loadingCadastrados.value = true;
     const res = await api.get('/documentos/documentos/meus', { headers });
@@ -160,39 +172,32 @@ onMounted(fetchDocumentos);
 
 <style scoped>
 .titulo-pacotes-box {
-  background: #fff;
-  border-radius: 1.2rem;
-  box-shadow: 0 2px 12px rgba(60,60,60,0.07);
-  padding: 1.1rem 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid #66bb6a;
+  background: #f8f9fa;
+  border-radius: 1.5rem;
+  box-shadow: 0 2px 12px rgba(60, 60, 60, 0.07);
+  padding: 1.3rem 1.7rem;
+  border: 2px solid #198754;
+  max-width: 520px;
 }
 .titulo-pacotes {
-  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
-  font-size: 1.7rem;
-  font-weight: 800;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
   color: #198754;
   letter-spacing: 0.5px;
-  text-shadow: 0 2px 8px rgba(102,187,106,0.07);
-  margin: 0;
 }
 .borda-destacada {
-  border: 1px solid #66bb6a;
-  border-radius: 5px;
-  background-color: #fff;
+  border: 1px solid #198754;
+  border-radius: 1rem;
+  background-color: #ffffff;
 }
 .text-success {
   color: #198754;
-  font-weight: 600;
 }
 .text-warning {
   color: #ffc107;
-  font-weight: 600;
 }
 .text-secondary {
   color: #6c757d;
-  font-weight: 600;
 }
 </style>

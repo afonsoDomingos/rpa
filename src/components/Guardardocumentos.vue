@@ -486,49 +486,84 @@ onMounted(() => {
   max-width: 800px;
 }
 
+.card {
+  animation: fadeIn 0.4s ease-in-out;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+}
+
+h4 {
+  font-weight: bold;
+  color: #343a40;
+}
+
 .borda-destacada {
   border: 1px solid #66bb6a;
-  border-radius: 5px;
+  border-radius: 8px;
   padding: 10px;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: #fefefe;
 }
 
 .borda-destacada:focus {
-  border-color: #800080;
-  box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
+  border-color: #6f42c1;
+  box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
 }
 
-
-
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
+.alert {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 15px;
 }
+
+.btn {
+  font-weight: 500;
+}
+
+.btn-outline-danger,
+.btn-outline-primary {
+  border-radius: 10px;
+}
+
 .modal-content {
   background: white;
   padding: 1.5rem;
-  border-radius: 8px;
+  border-radius: 12px;
   min-width: 320px;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease-out;
 }
-.modal-content form label {
-  display: block;
-  margin-bottom: 0.5rem;
-}
+
 .modal-content form input {
   width: 100%;
   margin-top: 0.2rem;
   margin-bottom: 1rem;
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 </style>
