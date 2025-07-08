@@ -5,7 +5,7 @@ import MaterialSwitch from "@/components/MaterialSwitch.vue"; // Componente para
 import eventBus from "@/eventBus";
 
 
-//import { Modal } from 'bootstrap';
+import { Modal } from 'bootstrap';
 
 
 import { useRouter } from 'vue-router';
