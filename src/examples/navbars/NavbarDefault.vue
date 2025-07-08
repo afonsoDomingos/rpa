@@ -359,6 +359,13 @@ watch(
       Meus Documentos
     </button>
 
+     <button
+      class="dropdown-item border-radius-md"
+      @click="$router.push({ name: 'GuardarDocumentos' })"
+      style="cursor: pointer;"
+    >
+      Guardar Documentos
+    </button>
     <div class="dropdown-divider"></div>
 
     <button

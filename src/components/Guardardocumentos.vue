@@ -1,4 +1,12 @@
 <template>
+  <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
+    <div class="row gx-0">
+      <div class="col-12">
+        <NavbarDefault :sticky="true" />
+      </div>
+    </div>
+  </div>
+  <br/><br/><br/>
   <div class="container py-4">
 
  <div class="card shadow rounded-4 p-4">
@@ -322,12 +330,17 @@
 </div>
 
 
-  </div>
+  </div><!-- Componente para exibir o rodapé padrão -->
+  <FooterDefault />
+
 </template>
 
 <script setup>
+import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
+import FooterDefault from "../examples/footers/FooterDefault.vue";
 import { ref, onMounted } from 'vue'
 import api from '../api'
+
 
 // Reactive state
 const documentos = ref([])
