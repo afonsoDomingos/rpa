@@ -103,19 +103,18 @@ function toggle() {
 
 function send() {
   if (!input.value.trim()) return;
+
   const userMsg = input.value.trim();
   messages.value.push({ from: 'user', text: userMsg });
+
   const opt = parseInt(userMsg);
   if (!isNaN(opt) && predefinidas.some(p => p.id === opt)) {
     const msg = predefinidas.find(p => p.id === opt);
-    setTimeout(() => {
-      messages.value.push({ from: 'bot', text: msg.resposta });
-    }, 500);
+    typeWriter(msg.resposta);
   } else {
-    setTimeout(() => {
-      messages.value.push({ from: 'bot', text: 'Recebi: ' + userMsg });
-    }, 700);
+    typeWriter('Recebi: ' + userMsg);
   }
+
   input.value = "";
 }
 
@@ -123,25 +122,48 @@ function responderFaq(id) {
   const pergunta = predefinidas.find(p => p.id === id);
   if (pergunta) {
     messages.value.push({ from: 'user', text: pergunta.pergunta });
-    setTimeout(() => {
-      messages.value.push({ from: 'bot', text: pergunta.resposta });
-    }, 500);
+    typeWriter(pergunta.resposta);
   }
   faqOpen.value = false;
+}
+
+// Efeito digitação gradual
+function typeWriter(text, callback) {
+  let i = 0;
+  const speed = 20; // velocidade da digitação
+  let current = "";
+
+  function type() {
+    if (i < text.length) {
+      current += text[i++];
+      if (messages.value.length === 0 || messages.value[messages.value.length - 1].from !== 'bot') {
+        messages.value.push({ from: 'bot', text: current });
+      } else {
+        messages.value[messages.value.length - 1].text = current;
+      }
+      scrollToBottom();
+      setTimeout(type, speed);
+    } else if (callback) {
+      callback();
+    }
+  }
+
+  type();
 }
 
 function handleScroll() {
   const el = chatMessagesRef.value;
   if (!el) return;
-  // Mostra o botão se não está no fim
   showScrollBtn.value = el.scrollTop + el.clientHeight < el.scrollHeight - 10;
 }
 
 function scrollToBottom() {
   const el = chatMessagesRef.value;
   if (el) {
-    el.scrollTop = el.scrollHeight;
-    showScrollBtn.value = false;
+    nextTick(() => {
+      el.scrollTop = el.scrollHeight;
+      showScrollBtn.value = false;
+    });
   }
 }
 
