@@ -3,7 +3,15 @@ import { RouterLink } from "vue-router";
 import { ref, watch, onMounted } from "vue";
 import { useWindowsWidth } from "../../assets/js/useWindowsWidth";
 
+const dropdownMenu = ref(null);
 
+// Função para fechar o dropdown
+function fecharDropdown() {
+  const dropdown = bootstrap.Dropdown.getInstance(dropdownMenu.value?.parentElement);
+  if (dropdown) {
+    dropdown.hide();
+  }
+}
 
 // images
 import ArrDark from "@/assets/img/down-arrow-dark.svg";
@@ -269,13 +277,13 @@ watch(
 
 
           <li class="nav-item dropdown dropdown-hover mx-2">
-            <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" :class="getTextColor()"
+            <!--<a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" :class="getTextColor()"
               id="dropdownMenuDocs" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="material-icons opacity-6 me-2 text-md" :class="getTextColor()">article</i>
               Rpa Comunidade
               <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-2 d-lg-block d-none" />
               <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-1 d-lg-none d-block ms-auto" />
-            </a>
+            </a>-->
             <div
               class="dropdown-menu dropdown-menu-end dropdown-menu-animation dropdown-md mt-0 mt-lg-3 p-3 border-radius-lg"
               aria-labelledby="dropdownMenuDocs">
@@ -338,44 +346,51 @@ watch(
     />
   </a>
 
-  <div
-    class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada"
-    aria-labelledby="dropdownUser"
-    style="min-width: 180px;"
+ <div
+ ref="dropdownMenu"
+  class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada"
+  aria-labelledby="dropdownUser"
+  style="min-width: 180px;"
+>
+  <button
+    class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+    @click="$router.push({ name: 'MeusPagamentos' })"
+    style="cursor: pointer;"
   >
-    <button
-      class="dropdown-item border-radius-md"
-      @click="$router.push({ name: 'MeusPagamentos' })"
-      style="cursor: pointer;"
-    >
-      Meus Pagamentos
-    </button>
+    <i class="bi bi-credit-card text-primary"></i>
+    Meus Pagamentos
+  </button>
 
-    <button
-      class="dropdown-item border-radius-md"
-      @click="$router.push({ name: 'MeusDocumentos' })"
-      style="cursor: pointer;"
-    >
-      Meus Documentos
-    </button>
+  <button
+    class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+    @click="$router.push({ name: 'MeusDocumentos' })"
+    style="cursor: pointer;"
+  >
+    <i class="bi bi-folder2-open text-info"></i>
+    Meus Documentos
+  </button>
 
-     <button
-      class="dropdown-item border-radius-md"
-      @click="$router.push({ name: 'GuardarDocumentos' })"
-      style="cursor: pointer;"
-    >
-      Guardar Documentos
-    </button>
-    <div class="dropdown-divider"></div>
+  <button
+    class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+    @click="$router.push({ name: 'GuardarDocumentos' })"
+    style="cursor: pointer;"
+  >
+    <i class="bi bi-folder-plus text-success"></i>
+    Guardar Documentos
+  </button>
 
-    <button
-      class="dropdown-item border-radius-md text-danger"
-      @click="logout"
-      style="cursor: pointer;"
-    >
-      Sair
-    </button>
-  </div>
+  <div class="dropdown-divider"></div>
+
+  <button
+    class="dropdown-item border-radius-md d-flex align-items-center gap-2 text-danger"
+    @click="logout"
+    style="cursor: pointer;"
+  >
+    <i class="bi bi-box-arrow-right"></i>
+    Sair
+  </button>
+</div>
+
 </li>
 
 
