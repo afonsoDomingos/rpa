@@ -51,6 +51,18 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
 });
+
+
+
+
+
+const props = defineProps({
+  size: {
+    type: [Number, String],
+    default: 6, // valor original
+  },
+});
+
 </script>
 <template>
   <div style="min-height: 100vh; max-width: 100vw; overflow-x: hidden; overflow-y: auto; position: relative;">
@@ -70,7 +82,8 @@ onUnmounted(() => {
       <router-view />
       <CustomCursor />
       <ChatAssistente v-if="!showScrollTop" />
-      <SocialIcons />
+     <SocialIcons :size="14" />
+
       
       <button
         v-show="showScrollTop"
