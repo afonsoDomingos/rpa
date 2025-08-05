@@ -72,6 +72,7 @@
 
 
 <script setup>
+import axios from 'axios';
 import { ref, nextTick, onUpdated } from 'vue';
 
 const open = ref(false);
@@ -101,22 +102,30 @@ function toggle() {
   open.value = !open.value;
 }
 
-function send() {
+const API_URL = import.meta.env.VUE_APP_API_URL;
+
+async function send() {
   if (!input.value.trim()) return;
 
   const userMsg = input.value.trim();
   messages.value.push({ from: 'user', text: userMsg });
 
-  const opt = parseInt(userMsg);
-  if (!isNaN(opt) && predefinidas.some(p => p.id === opt)) {
-    const msg = predefinidas.find(p => p.id === opt);
-    typeWriter(msg.resposta);
-  } else {
-    typeWriter('Recebi: ' + userMsg);
-  }
-
   input.value = "";
+
+  try {
+    const response = await axios.post(`${API_URL}/api/chatbot`, {
+      message: userMsg,
+    });
+
+    const respostaIA = response.data.reply;
+    typeWriter(respostaIA);
+  } catch (err) {
+    console.error(err);
+    typeWriter("Desculpe, não consegui responder agora. Tente mais tarde.");
+  }
 }
+
+
 
 function responderFaq(id) {
   const pergunta = predefinidas.find(p => p.id === id);
