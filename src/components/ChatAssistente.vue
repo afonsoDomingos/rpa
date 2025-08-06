@@ -102,7 +102,9 @@ function toggle() {
   open.value = !open.value;
 }
 
-const API_URL = import.meta.env.VUE_APP_API_URL;
+//const API_URL = import.meta.env.VUE_APP_API_URL;
+const API_URL = "https://apirpa.onrender.com";
+
 
 async function send() {
   if (!input.value.trim()) return;
