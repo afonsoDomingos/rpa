@@ -74,32 +74,63 @@
       </div>
     </div>
 
-    <form class="chat-footer" @submit.prevent="send">
-      <input v-model="input" type="text" placeholder="Digite ou fale sua mensagem..." autocomplete="off" />
-      
-      <!-- Botão de microfone -->
-      <button 
-        type="button" 
-        class="mic-btn" 
-        :class="{ 'recording': isRecording, 'disabled': !micSupported }"
-        @click="toggleRecording"
-        :disabled="!micSupported || isProcessingAudio || isRecording"
-        :title="micSupported ? (isRecording ? 'Escutando...' : 'Clique para falar') : 'Microfone não suportado'"
-      >
-        <svg v-if="!isRecording" width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4Z" fill="currentColor"/>
-          <path d="M19 11v1a7 7 0 0 1-14 0v-1M12 19v4M8 23h8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="3" fill="currentColor">
-            <animate attributeName="r" values="3;6;3" dur="1s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
-          </circle>
-        </svg>
-      </button>
 
-      <button type="submit">Enviar</button>
-    </form>
+
+<form class="chat-footer" @submit.prevent="send">
+  <input
+    v-model="input"
+    type="text"
+    placeholder="Digite ou fale sua mensagem..."
+    autocomplete="off"
+  />
+
+  <!-- Botão de microfone -->
+  <button 
+    type="button" 
+    class="mic-btn"
+    :class="{ 'recording': isRecording, 'disabled': !micSupported }"
+    @click="toggleRecording"
+    :disabled="!micSupported || isProcessingAudio || isRecording"
+    :title="micSupported ? (isRecording ? 'Escutando...' : 'Clique para falar') : 'Microfone não suportado'"
+    style="
+      padding: 1.5px 4px; 
+      font-size: 9px; 
+      border-radius: 12px; 
+      border: none;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      background: transparent;
+    "
+  >
+    <svg v-if="!isRecording" width="10" height="10" viewBox="0 0 24 24" fill="none" >
+      <path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4Z" fill="#333"/>
+      <path d="M19 11v1a7 7 0 0 1-14 0v-1M12 19v4M8 23h8" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <svg v-else width="10" height="10" viewBox="0 0 24 24" fill="none" >
+      <circle cx="12" cy="12" r="3" fill="#333">
+        <animate attributeName="r" values="3;6;3" dur="1s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+  </button>
+
+  <button 
+    type="submit"
+    style="
+      padding: 1.5px 6px; 
+      font-size: 9px; 
+      border-radius: 12px; 
+      border: none;
+      background: transparent;
+      color: #333;
+    "
+  >
+    Enviar
+  </button>
+</form>
+
+
   </div>
 
   <button v-show="!open" class="chat-fab" @click="toggle" aria-label="Falar com Assistente">
