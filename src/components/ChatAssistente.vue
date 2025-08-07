@@ -15,9 +15,7 @@
       <button class="close-btn" @click.stop="toggle">×</button>
     </div>
 
-<div class="text-center">
-  <div class="chat-desc d-inline-block">Assistente Virtual</div>
-</div>
+    <div class="chat-desc"> Assistente Virtual</div>
 
     <div class="chat-body">
       <!-- Menu suspenso de perguntas -->
@@ -37,6 +35,24 @@
           </div>
         </transition>
       </div>
+
+      <!-- Status de gravação -->
+      <div v-if="isRecording" class="recording-status">
+        <div class="recording-indicator">
+          <div class="recording-dot"></div>
+          <span>Escutando... {{ recordingTime }}s</span>
+        </div>
+        <span class="recording-tip">Fale agora</span>
+      </div>
+
+      <!-- Status de processamento -->
+      <div v-if="isProcessingAudio" class="processing-status">
+        <div class="processing-indicator">
+          <div class="spinner"></div>
+          <span>Processando áudio...</span>
+        </div>
+      </div>
+
       <div class="chat-messages" ref="chatMessagesRef" @scroll="handleScroll">
         <div v-for="(msg, i) in messages" :key="'msg-' + i" :class="['msg', msg.from]">
           <span v-if="msg.from === 'bot'" class="msg-bot-avatar">
@@ -59,7 +75,29 @@
     </div>
 
     <form class="chat-footer" @submit.prevent="send">
-      <input v-model="input" type="text" placeholder="Digite sua mensagem..." autocomplete="off" />
+      <input v-model="input" type="text" placeholder="Digite ou fale sua mensagem..." autocomplete="off" />
+      
+      <!-- Botão de microfone -->
+      <button 
+        type="button" 
+        class="mic-btn" 
+        :class="{ 'recording': isRecording, 'disabled': !micSupported }"
+        @click="toggleRecording"
+        :disabled="!micSupported || isProcessingAudio || isRecording"
+        :title="micSupported ? (isRecording ? 'Escutando...' : 'Clique para falar') : 'Microfone não suportado'"
+      >
+        <svg v-if="!isRecording" width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4Z" fill="currentColor"/>
+          <path d="M19 11v1a7 7 0 0 1-14 0v-1M12 19v4M8 23h8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="3" fill="currentColor">
+            <animate attributeName="r" values="3;6;3" dur="1s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+      </button>
+
       <button type="submit">Enviar</button>
     </form>
   </div>
@@ -75,13 +113,22 @@
 <script setup>
 import axios from 'axios';
 import api from "../api"; // Sua instância da API existente
-import { ref, nextTick, onUpdated } from 'vue';
+import { ref, nextTick, onUpdated, onMounted, onUnmounted } from 'vue';
 
 const open = ref(false);
 const input = ref("");
 const faqOpen = ref(false);
 const chatMessagesRef = ref(null);
 const showScrollBtn = ref(false);
+
+// Estados para o microfone
+const isRecording = ref(false);
+const isProcessingAudio = ref(false);
+const micSupported = ref(false);
+const recordingTime = ref(0);
+let mediaRecorder = null;
+let audioChunks = [];
+let recordingTimer = null;
 
 // Estados para o fluxo de busca de documentos
 const buscandoDocumento = ref(false);
@@ -108,27 +155,185 @@ const predefinidas = [
 ];
 
 const messages = ref([
-  { from: 'bot', text: 'Olá! Como posso ajudar você?<br>💡 <strong>Dica:</strong> Se perdeu algum documento, só me dizer que eu ajudo a procurar automaticamente!<br><br>Selecione uma pergunta abaixo ou digite sua dúvida.' }
+  { from: 'bot', text: 'Olá! Como posso ajudar você?<br>💡 <strong>Dica:</strong> Se perdeu algum documento, só me dizer que eu ajudo a procurar automaticamente!<br><br>🎤 <strong>Novo:</strong> Agora você pode falar comigo usando o microfone!<br><br>Selecione uma pergunta abaixo ou digite/fale sua dúvida.' }
 ]);
 
-// Lista de tipos de documentos (mesma da sua aplicação)
+// Lista de tipos de documentos
 const tipo_documentos = [
   "Bilhete de Identidade", "Passaporte", "Cartão de Eleitor",
   "Cartão de Estudante", "Carta de Condução", "Seguro do Veículo",
   "Livrete", "Cartão de Identidade Militar"
 ];
 
-// Lista de províncias (mesma da sua aplicação)
+// Lista de províncias
 const provincias = [
   "Maputo", "Maputo Cidade", "Gaza", "Inhambane", "Sofala",
   "Manica", "Tete", "Zambézia", "Nampula", "Niassa", "Cabo Delgado"
 ];
 
+const API_URL = "https://apirpa.onrender.com";
+
+// Inicialização do microfone
+onMounted(async () => {
+  await checkMicrophoneSupport();
+});
+
+onUnmounted(() => {
+  if (recordingTimer) {
+    clearInterval(recordingTimer);
+  }
+});
+
+// Verificar suporte ao Web Speech API
+async function checkMicrophoneSupport() {
+  try {
+    // Verificar se Web Speech API está disponível
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      micSupported.value = false;
+      return;
+    }
+
+    micSupported.value = true;
+  } catch (error) {
+    console.warn('Web Speech API não disponível:', error);
+    micSupported.value = false;
+  }
+}
+
+// Alternar gravação (usar diretamente Web Speech API)
+async function toggleRecording() {
+  if (isRecording.value) {
+    // Se estiver gravando, não podemos parar manualmente o Web Speech API
+    // A API para automaticamente após alguns segundos de silêncio
+    return;
+  } else {
+    await startRecording();
+  }
+}
+
+// Iniciar gravação usando Web Speech API diretamente
+async function startRecording() {
+  try {
+    isRecording.value = true;
+    isProcessingAudio.value = false;
+    recordingTime.value = 0;
+
+    // Timer para mostrar tempo
+    recordingTimer = setInterval(() => {
+      recordingTime.value++;
+      
+      // Parar automaticamente após 10 segundos (limite da Web Speech API)
+      if (recordingTime.value >= 10) {
+        clearInterval(recordingTimer);
+        recordingTimer = null;
+      }
+    }, 1000);
+
+    // Usar Web Speech API diretamente
+    const transcription = await speechToText();
+    
+    // Processar resultado
+    if (transcription && transcription.trim()) {
+      input.value = transcription;
+      messages.value.push({ from: 'user', text: `🎤 ${transcription}` });
+      await processMessage(transcription);
+    } else {
+      typeWriter('❌ Não consegui entender o áudio. Tente falar mais claramente.');
+    }
+    
+  } catch (error) {
+    console.error('Erro no reconhecimento de voz:', error);
+    typeWriter(`❌ ${error.message}`);
+  } finally {
+    // Resetar estados
+    isRecording.value = false;
+    isProcessingAudio.value = false;
+    input.value = '';
+    
+    if (recordingTimer) {
+      clearInterval(recordingTimer);
+      recordingTimer = null;
+    }
+  }
+}
+
+// Remover função de parar gravação (não necessária com Web Speech API)
+// A Web Speech API para automaticamente após detectar silêncio
+
+// Remover função processAudioFile (não necessária com Web Speech API)
+// O processamento é feito diretamente na função speechToText
+
+// Converter fala em texto usando apenas Web Speech API
+async function speechToText() {
+  return new Promise((resolve, reject) => {
+    // Verificar se Web Speech API está disponível
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      reject(new Error('Reconhecimento de fala não suportado neste navegador'));
+      return;
+    }
+    
+    const recognition = new SpeechRecognition();
+    
+    // Configurações do reconhecimento
+    recognition.lang = 'pt-PT'; // Português
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    
+    // Quando obter resultado
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      resolve(transcript);
+    };
+    
+    // Em caso de erro
+    recognition.onerror = (event) => {
+      let errorMessage = 'Erro no reconhecimento de voz';
+      
+      switch(event.error) {
+        case 'no-speech':
+          errorMessage = 'Nenhuma fala detectada. Tente falar mais alto.';
+          break;
+        case 'audio-capture':
+          errorMessage = 'Microfone não disponível.';
+          break;
+        case 'not-allowed':
+          errorMessage = 'Permissão negada. Permita o acesso ao microfone.';
+          break;
+        case 'network':
+          errorMessage = 'Erro de rede. Verifique sua conexão.';
+          break;
+      }
+      
+      reject(new Error(errorMessage));
+    };
+    
+    // Quando terminar (sem resultado)
+    recognition.onend = () => {
+      // Se chegou até aqui sem onresult, significa que não captou nada
+    };
+    
+    // Iniciar reconhecimento
+    try {
+      recognition.start();
+    } catch (error) {
+      reject(new Error('Erro ao iniciar reconhecimento de voz'));
+    }
+  });
+}
+
+// Usar reconhecimento de fala do navegador
+async function useBrowserSpeechRecognition() {
+  return await speechToText();
+}
+
 function toggle() {
   open.value = !open.value;
 }
-
-const API_URL = "https://apirpa.onrender.com";
 
 // Função para detectar se o usuário quer buscar documento perdido
 function detectarBuscaDocumento(mensagem) {
@@ -141,6 +346,35 @@ function detectarBuscaDocumento(mensagem) {
   
   const mensagemLower = mensagem.toLowerCase();
   return palavrasChave.some(palavra => mensagemLower.includes(palavra));
+}
+
+// Processar mensagem (texto ou voz)
+async function processMessage(userMsg) {
+  // Verificar se está em fluxo de busca de documento
+  if (buscandoDocumento.value) {
+    await processarFluxoDocumento(userMsg);
+    return;
+  }
+
+  // Detectar se o usuário quer buscar documento perdido
+  if (detectarBuscaDocumento(userMsg)) {
+    buscandoDocumento.value = true;
+    await processarFluxoDocumento(userMsg);
+    return;
+  }
+
+  // Fluxo normal do chatbot
+  try {
+    const response = await axios.post(`${API_URL}/api/chatbot`, {
+      message: userMsg,
+    });
+
+    const respostaIA = response.data.reply;
+    typeWriter(respostaIA);
+  } catch (err) {
+    console.error(err);
+    typeWriter("Desculpe, não consegui responder agora. Tente mais tarde.");
+  }
 }
 
 // Função para processar o fluxo de coleta de dados do documento
@@ -260,7 +494,7 @@ async function realizarBuscaDocumento() {
   typeWriter('🔍 Buscando seu documento na nossa base de dados...<br><br>⏳ <em>Por favor aguarde...</em>');
   
   try {
-    // Montar parâmetros para a busca (usando a mesma lógica da sua aplicação)
+    // Montar parâmetros para a busca
     let params = {};
     
     if (dadosDocumento.value.nome_completo) {
@@ -276,7 +510,7 @@ async function realizarBuscaDocumento() {
       params.provincia = dadosDocumento.value.provincia;
     }
     
-    // Fazer a consulta na sua API existente
+    // Fazer a consulta na API existente
     const response = await api.get('/documentos', { params });
     const documentosEncontrados = response.data;
     
@@ -337,34 +571,8 @@ async function send() {
   const userMsg = input.value.trim();
   messages.value.push({ from: 'user', text: userMsg });
 
-  const inputBackup = input.value;
   input.value = "";
-
-  // Verificar se está em fluxo de busca de documento
-  if (buscandoDocumento.value) {
-    await processarFluxoDocumento(userMsg);
-    return;
-  }
-
-  // Detectar se o usuário quer buscar documento perdido
-  if (detectarBuscaDocumento(userMsg)) {
-    buscandoDocumento.value = true;
-    await processarFluxoDocumento(userMsg);
-    return;
-  }
-
-  // Fluxo normal do chatbot
-  try {
-    const response = await axios.post(`${API_URL}/api/chatbot`, {
-      message: userMsg,
-    });
-
-    const respostaIA = response.data.reply;
-    typeWriter(respostaIA);
-  } catch (err) {
-    console.error(err);
-    typeWriter("Desculpe, não consegui responder agora. Tente mais tarde.");
-  }
+  await processMessage(userMsg);
 }
 
 function responderFaq(id) {
@@ -452,6 +660,114 @@ onUpdated(() => {
   outline: none;
 }
 
+/* Estilos para gravação */
+.recording-status {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.recording-indicator {
+  display: flex;
+  align-items: center;
+  color: #d63031;
+  font-weight: 600;
+}
+
+.recording-dot {
+  width: 8px;
+  height: 8px;
+  background: #d63031;
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: recording-pulse 1s infinite;
+}
+
+.recording-tip {
+  color: #856404;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+@keyframes recording-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.processing-status {
+  background: #e3f2fd;
+  border: 1px solid #90caf9;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.processing-indicator {
+  display: flex;
+  align-items: center;
+  color: #1976d2;
+  font-weight: 600;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e3f2fd;
+  border-top: 2px solid #1976d2;
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Botão de microfone */
+.mic-btn {
+  background: #800080;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-right: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  min-width: 40px;
+  height: 40px;
+}
+
+.mic-btn:hover:not(.disabled) {
+  background: #198754;
+  transform: scale(1.05);
+}
+
+.mic-btn.recording {
+  background: #d63031;
+  animation: recording-pulse 1s infinite;
+}
+
+.mic-btn.recording:hover {
+  background: #a71e1e;
+}
+
+.mic-btn.disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 
 /* FAQ menu styles */
 .faq-menu {
@@ -489,6 +805,7 @@ onUpdated(() => {
   background: #e6e6fa;
   color: #198754;
 }
+
 /* Posição original: canto inferior direito */
 .chat-assistente-fixed {
   position: fixed;
@@ -522,12 +839,22 @@ onUpdated(() => {
   font-size: 1.3rem;
   cursor: pointer;
 }
+.chat-desc {
+  background: #f8f8fa;
+  color: #666;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #eee;
+}
 .chat-body {
   flex: 1;
   padding: 12px 10px;
   background: #f8f8fa;
   overflow-y: auto;
-  max-height: 260px;
+  max-height: 280px;
+}
+.chat-messages {
+  position: relative;
 }
 .msg {
   margin-bottom: 8px;
@@ -573,55 +900,61 @@ onUpdated(() => {
   border-top: 1px solid #eee;
   background: #fff;
   padding: 8px 10px;
+  align-items: center;
 }
 .chat-footer input {
   flex: 1;
   border: none;
   border-radius: 8px;
-  padding: 7px 10px;
+  padding: 10px 12px;
   font-size: 1rem;
   outline: none;
   background: #f3f3f7;
   margin-right: 8px;
+  height: 40px;
+  box-sizing: border-box;
 }
-.chat-footer button {
+.chat-footer button[type="submit"] {
   background: #800080;
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 7px 16px;
+  padding: 10px 16px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
+  height: 40px;
 }
-.chat-footer button:hover {
+.chat-footer button[type="submit"]:hover {
   background: #198754;
 }
-/* Botão do chat no canto inferior direito, mesmo tamanho dos SocialIcons */
+
+/* Botão do chat no canto inferior direito */
 .chat-fab {
   position: fixed;
   bottom: 18px;
   right: 18px;
-  width: 32px;
-  height: 32px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background: linear-gradient(135deg, #800080 60%, #198754 100%);
   color: #fff;
   border: none;
-  box-shadow: 0 2px 8px rgba(60,60,60,0.10);
+  box-shadow: 0 4px 16px rgba(60,60,60,0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 10001;
-  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+  transition: all 0.2s;
 }
 .chat-fab:hover {
   background: linear-gradient(135deg, #198754 60%, #800080 100%);
-  box-shadow: 0 4px 16px rgba(128,0,128,0.18);
-  transform: scale(1.13) rotate(-10deg);
+  box-shadow: 0 6px 20px rgba(128,0,128,0.25);
+  transform: scale(1.1) rotate(-10deg);
 }
+
 @media (max-width: 600px) {
   .chat-assistente-fixed {
     width: 98vw;
@@ -631,6 +964,8 @@ onUpdated(() => {
   .chat-fab {
     right: 12px;
     bottom: 70px;
+    width: 56px;
+    height: 56px;
   }
 }
 
