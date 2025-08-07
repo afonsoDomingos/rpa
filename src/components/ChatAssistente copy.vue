@@ -11,11 +11,13 @@
           <rect x="13" y="16" width="6" height="2" rx="1" fill="#fff"/>
         </svg>
       </span>
-      <span class="chat-title">Assistente Virtual</span>
+      <span class="chat-title">Rpa.Ai</span>
       <button class="close-btn" @click.stop="toggle">×</button>
     </div>
 
-    <div class="chat-desc">Sou seu assistente virtual, posso ajudar?</div>
+<div class="text-center">
+  <div class="chat-desc d-inline-block">Assistente Virtual</div>
+</div>
 
     <div class="chat-body">
       <!-- Menu suspenso de perguntas -->
@@ -70,9 +72,9 @@
   </button>
 </template>
 
-
 <script setup>
 import axios from 'axios';
+import api from "../api"; // Sua instância da API existente
 import { ref, nextTick, onUpdated } from 'vue';
 
 const open = ref(false);
@@ -81,30 +83,253 @@ const faqOpen = ref(false);
 const chatMessagesRef = ref(null);
 const showScrollBtn = ref(false);
 
+// Estados para o fluxo de busca de documentos
+const buscandoDocumento = ref(false);
+const dadosDocumento = ref({
+  nome_completo: '',
+  tipo_documento: '',
+  numero_documento: '',
+  provincia: '',
+  etapa: 'inicial' // inicial, coletando_nome, coletando_tipo, coletando_numero, coletando_provincia, finalizando
+});
+
 const predefinidas = [
   { id: 1, pergunta: '🔐 1. Como criar uma conta?', resposta: 'Para criar uma conta, preencha seu nome, e-mail e senha.<br>Depois é só fazer login e começar a usar a plataforma normalmente.<br><a href="/" style="color:#800080;text-decoration:underline;">Clique aqui para fazer login</a>.' },
   { id: 2, pergunta: '🔑 2. Como fazer login?', resposta: 'Informe seu e-mail e senha cadastrados.<br>Você será direcionado(a) para a tela principal da plataforma.<br><a href="/" style="color:#800080;text-decoration:underline;">Ir para login</a>.' },
-  { id: 3, pergunta: '🔍 3. Como procurar um documento?', resposta: 'Vá até a aba “Procurar”, escolha o filtro desejado.<br>Clique em “Buscar” e veja se há algum resultado disponível.' },
-  { id: 4, pergunta: '📥 4. Como solicitar um documento?', resposta: 'Se o documento for encontrado, clique em “Solicitar”.<br>Será necessário ter uma assinatura ativa (Mensal ou Anual) para prosseguir.<br><a href="/assinaturas" style="color:#800080;text-decoration:underline;">Clique aqui para ver planos de assinatura</a> (opcional).' },
+  { id: 3, pergunta: '🔍 3. Como procurar um documento?', resposta: 'Vá até a aba "Procurar", escolha o filtro desejado.<br>Clique em "Buscar" e veja se há algum resultado disponível.' },
+  { id: 4, pergunta: '📥 4. Como solicitar um documento?', resposta: 'Se o documento for encontrado, clique em "Solicitar".<br>Será necessário ter uma assinatura ativa (Mensal ou Anual) para prosseguir.<br><a href="/assinaturas" style="color:#800080;text-decoration:underline;">Clique aqui para ver planos de assinatura</a> (opcional).' },
   { id: 5, pergunta: '💳 5. Como fazer uma assinatura?', resposta: 'Escolha um dos planos disponíveis:\n– 📅 Mensal: 150 MZN\n– 📆 Anual: 650 MZN\nApós o pagamento, sua assinatura será ativada imediatamente.' },
-  { id: 6, pergunta: '📢 6. Como reportar um documento?', resposta: 'Se não encontrar o documento, vá à aba “Reportar”.\nPreencha os dados do documento perdido e envie.\nVocê será notificado se alguém encontrá-lo.' },
-  { id: 7, pergunta: '📁 7. Como guardar um documento?', resposta: 'Acesse “Guardar Documento”, preencha os dados e clique em salvar.\nO documento ficará disponível na sua conta, com opção de gerar PDF.' },
-  { id: 8, pergunta: '📄 8. Como gerar um PDF?', resposta: 'Após guardar um documento, clique em “Gerar PDF”.\nUm arquivo será criado automaticamente com os dados preenchidos.' },
-  { id: 9, pergunta: '🔁 9. Como renovar a assinatura?', resposta: 'Quando sua assinatura expirar, clique em “Renovar” no painel.\nEscolha o plano desejado e continue acessando todos os recursos.' },
-  { id: 10, pergunta: '❓ 10. Como posso receber ajuda?', resposta: 'Você pode digitar perguntas como:\n“Assinar”, “Reportar documento”, “PDF”, “Renovar” ou “Guardar”.\nOu clique no botão “Ajuda” para ver todas as opções.' }
+  { id: 6, pergunta: '📢 6. Como reportar um documento?', resposta: 'Se não encontrar o documento, vá à aba "Reportar".\nPreencha os dados do documento perdido e envie.\nVocê será notificado se alguém encontrá-lo.' },
+  { id: 7, pergunta: '📁 7. Como guardar um documento?', resposta: 'Acesse "Guardar Documento", preencha os dados e clique em salvar.\nO documento ficará disponível na sua conta, com opção de gerar PDF.' },
+  { id: 8, pergunta: '📄 8. Como gerar um PDF?', resposta: 'Após guardar um documento, clique em "Gerar PDF".\nUm arquivo será criado automaticamente com os dados preenchidos.' },
+  { id: 9, pergunta: '🔁 9. Como renovar a assinatura?', resposta: 'Quando sua assinatura expirar, clique em "Renovar" no painel.\nEscolha o plano desejado e continue acessando todos os recursos.' },
+  { id: 10, pergunta: '❓ 10. Como posso receber ajuda?', resposta: 'Você pode digitar perguntas como:\n"Assinar", "Reportar documento", "PDF", "Renovar" ou "Guardar".\nOu clique no botão "Ajuda" para ver todas as opções.' },
+  { id: 11, pergunta: '🔎 11. Perdi meu documento', resposta: 'Vou te ajudar a procurar seu documento! Primeiro preciso de algumas informações.' }
 ];
 
 const messages = ref([
-  { from: 'bot', text: 'Olá! Como posso ajudar você?\nSelecione uma pergunta abaixo ou digite sua dúvida.' }
+  { from: 'bot', text: 'Olá! Como posso ajudar você?<br>💡 <strong>Dica:</strong> Se perdeu algum documento, só me dizer que eu ajudo a procurar automaticamente!<br><br>Selecione uma pergunta abaixo ou digite sua dúvida.' }
 ]);
+
+// Lista de tipos de documentos (mesma da sua aplicação)
+const tipo_documentos = [
+  "Bilhete de Identidade", "Passaporte", "Cartão de Eleitor",
+  "Cartão de Estudante", "Carta de Condução", "Seguro do Veículo",
+  "Livrete", "Cartão de Identidade Militar"
+];
+
+// Lista de províncias (mesma da sua aplicação)
+const provincias = [
+  "Maputo", "Maputo Cidade", "Gaza", "Inhambane", "Sofala",
+  "Manica", "Tete", "Zambézia", "Nampula", "Niassa", "Cabo Delgado"
+];
 
 function toggle() {
   open.value = !open.value;
 }
 
-//const API_URL = import.meta.env.VUE_APP_API_URL;
 const API_URL = "https://apirpa.onrender.com";
 
+// Função para detectar se o usuário quer buscar documento perdido
+function detectarBuscaDocumento(mensagem) {
+  const palavrasChave = [
+    'perdi', 'perdeu', 'perder', 'documento perdido', 'documento',
+    'bi perdido', 'passaporte perdido', 'carta perdida', 'perda',
+    'encontrar documento', 'procurar documento', 'buscar documento',
+    'bilhete de identidade', 'passaporte', 'carta de condução'
+  ];
+  
+  const mensagemLower = mensagem.toLowerCase();
+  return palavrasChave.some(palavra => mensagemLower.includes(palavra));
+}
+
+// Função para processar o fluxo de coleta de dados do documento
+async function processarFluxoDocumento(mensagem) {
+  const etapa = dadosDocumento.value.etapa;
+  
+  switch (etapa) {
+    case 'inicial':
+      dadosDocumento.value.etapa = 'coletando_nome';
+      typeWriter('📋 Entendi! Vou te ajudar a procurar seu documento.<br><br>Primeiro, me diga: <strong>qual é o nome completo que está no documento?</strong>');
+      break;
+      
+    case 'coletando_nome':
+      if (mensagem.trim().length < 3) {
+        typeWriter('❌ Por favor, digite um nome válido com pelo menos 3 caracteres.');
+        return;
+      }
+      dadosDocumento.value.nome_completo = mensagem.trim();
+      dadosDocumento.value.etapa = 'coletando_tipo';
+      
+      let opcoesDocumentos = '<strong>Que tipo de documento você perdeu?</strong><br><br>';
+      tipo_documentos.forEach((tipo, index) => {
+        opcoesDocumentos += `${index + 1}. ${tipo}<br>`;
+      });
+      opcoesDocumentos += '<br>💬 Digite o <strong>número</strong> ou o <strong>nome completo</strong> do documento:';
+      
+      typeWriter(opcoesDocumentos);
+      break;
+      
+    case 'coletando_tipo':
+      let tipoSelecionado = '';
+      
+      // Verificar se é um número
+      if (/^\d+$/.test(mensagem.trim())) {
+        const index = parseInt(mensagem.trim()) - 1;
+        if (index >= 0 && index < tipo_documentos.length) {
+          tipoSelecionado = tipo_documentos[index];
+        }
+      } else {
+        // Procurar por nome (busca flexível)
+        const tipoEncontrado = tipo_documentos.find(tipo => 
+          tipo.toLowerCase().includes(mensagem.trim().toLowerCase()) ||
+          mensagem.trim().toLowerCase().includes(tipo.toLowerCase())
+        );
+        if (tipoEncontrado) {
+          tipoSelecionado = tipoEncontrado;
+        }
+      }
+      
+      if (!tipoSelecionado) {
+        typeWriter('❌ Tipo de documento não reconhecido. Por favor, escolha um número de 1 a ' + tipo_documentos.length + ' ou digite o nome exato.');
+        return;
+      }
+      
+      dadosDocumento.value.tipo_documento = tipoSelecionado;
+      dadosDocumento.value.etapa = 'coletando_numero';
+      
+      typeWriter(`✅ Documento: <strong>${tipoSelecionado}</strong><br><br>📋 Se souber, me diga o <strong>número do documento</strong>.<br><br>💡 <em>Se não lembrar, pode digitar "não sei" ou "pular"</em>`);
+      break;
+      
+    case 'coletando_numero':
+      const mensagemNumero = mensagem.trim().toLowerCase();
+      
+      if (mensagemNumero === 'não sei' || mensagemNumero === 'nao sei' || mensagemNumero === 'pular') {
+        dadosDocumento.value.numero_documento = '';
+      } else {
+        dadosDocumento.value.numero_documento = mensagem.trim();
+      }
+      
+      dadosDocumento.value.etapa = 'coletando_provincia';
+      
+      let opcoesProvincias = '<strong>Em que província você perdeu o documento?</strong><br><br>';
+      provincias.forEach((provincia, index) => {
+        opcoesProvincias += `${index + 1}. ${provincia}<br>`;
+      });
+      opcoesProvincias += '<br>💬 Digite o <strong>número</strong> ou o <strong>nome da província</strong>:';
+      
+      typeWriter(opcoesProvincias);
+      break;
+      
+    case 'coletando_provincia':
+      let provinciaSelecionada = '';
+      
+      // Verificar se é um número
+      if (/^\d+$/.test(mensagem.trim())) {
+        const index = parseInt(mensagem.trim()) - 1;
+        if (index >= 0 && index < provincias.length) {
+          provinciaSelecionada = provincias[index];
+        }
+      } else {
+        // Procurar por nome
+        const provinciaEncontrada = provincias.find(provincia => 
+          provincia.toLowerCase().includes(mensagem.trim().toLowerCase()) ||
+          mensagem.trim().toLowerCase().includes(provincia.toLowerCase())
+        );
+        if (provinciaEncontrada) {
+          provinciaSelecionada = provinciaEncontrada;
+        }
+      }
+      
+      if (!provinciaSelecionada) {
+        typeWriter('❌ Província não reconhecida. Por favor, escolha um número de 1 a ' + provincias.length + ' ou digite o nome exato.');
+        return;
+      }
+      
+      dadosDocumento.value.provincia = provinciaSelecionada;
+      dadosDocumento.value.etapa = 'finalizando';
+      
+      // Realizar a busca
+      await realizarBuscaDocumento();
+      break;
+  }
+}
+
+// Função para buscar o documento na base de dados
+async function realizarBuscaDocumento() {
+  typeWriter('🔍 Buscando seu documento na nossa base de dados...<br><br>⏳ <em>Por favor aguarde...</em>');
+  
+  try {
+    // Montar parâmetros para a busca (usando a mesma lógica da sua aplicação)
+    let params = {};
+    
+    if (dadosDocumento.value.nome_completo) {
+      params.nome_completo = dadosDocumento.value.nome_completo;
+    }
+    if (dadosDocumento.value.tipo_documento) {
+      params.tipo_documento = dadosDocumento.value.tipo_documento;
+    }
+    if (dadosDocumento.value.numero_documento) {
+      params.numero_documento = dadosDocumento.value.numero_documento;
+    }
+    if (dadosDocumento.value.provincia) {
+      params.provincia = dadosDocumento.value.provincia;
+    }
+    
+    // Fazer a consulta na sua API existente
+    const response = await api.get('/documentos', { params });
+    const documentosEncontrados = response.data;
+    
+    // Exibir resultados
+    await exibirResultadosBusca(documentosEncontrados);
+    
+  } catch (error) {
+    console.error('Erro ao buscar documentos:', error);
+    typeWriter('❌ Ocorreu um erro ao buscar o documento. Tente novamente mais tarde ou use a busca manual na aba "Procurar".');
+    resetarFluxoDocumento();
+  }
+}
+
+// Função para exibir os resultados da busca
+async function exibirResultadosBusca(documentos) {
+  if (documentos.length === 0) {
+    const nomeUsuario = dadosDocumento.value.nome_completo.split(' ')[0];
+    
+    typeWriter(`❌ <strong>Documento não encontrado</strong><br><br>Olá ${nomeUsuario}, infelizmente não encontrei seu documento na nossa base de dados.<br><br>🤔 <strong>Mas não desanime!</strong><br><br>📋 <strong>O que você pode fazer:</strong><br>1️⃣ Cadastre seu documento na aba <strong>"Reportar"</strong><br>2️⃣ Assim, se alguém encontrá-lo, você será notificado!<br><br>💡 <em>Muitas pessoas encontram seus documentos alguns dias depois de cadastrá-los na plataforma.</em><br><br>Quer que eu te redirecione para o cadastro?`);
+  } else {
+    let resultadoTexto = `🎉 <strong>Ótimas notícias!</strong><br><br>Encontrei <strong>${documentos.length} documento(s)</strong> que pode(m) ser o seu:<br><br>`;
+    
+    documentos.forEach((doc, index) => {
+      resultadoTexto += `📄 <strong>Resultado ${index + 1}:</strong><br>`;
+      resultadoTexto += `👤 Nome: ${doc.nome_completo}<br>`;
+      resultadoTexto += `📋 Tipo: ${doc.tipo_documento}<br>`;
+      resultadoTexto += `📍 Província: ${doc.provincia}<br>`;
+      if (doc.numero_documento) {
+        resultadoTexto += `🔢 Número: ${doc.numero_documento}<br>`;
+      }
+      resultadoTexto += `📅 Data: ${doc.data_perda}<br>`;
+      resultadoTexto += `<br>`;
+    });
+    
+    resultadoTexto += `✅ <strong>Próximo passo:</strong><br>Vá até a aba <strong>"Procurar"</strong> para solicitar o documento oficialmente.<br><br>💡 <em>Você precisará de uma assinatura ativa para solicitar.</em><br><br><a href="/assinaturas" style="color:#800080;text-decoration:underline;">Ver planos de assinatura</a>`;
+    
+    typeWriter(resultadoTexto);
+  }
+  
+  resetarFluxoDocumento();
+}
+
+// Função para resetar o fluxo de busca de documento
+function resetarFluxoDocumento() {
+  buscandoDocumento.value = false;
+  dadosDocumento.value = {
+    nome_completo: '',
+    tipo_documento: '',
+    numero_documento: '',
+    provincia: '',
+    etapa: 'inicial'
+  };
+}
 
 async function send() {
   if (!input.value.trim()) return;
@@ -112,8 +337,23 @@ async function send() {
   const userMsg = input.value.trim();
   messages.value.push({ from: 'user', text: userMsg });
 
+  const inputBackup = input.value;
   input.value = "";
 
+  // Verificar se está em fluxo de busca de documento
+  if (buscandoDocumento.value) {
+    await processarFluxoDocumento(userMsg);
+    return;
+  }
+
+  // Detectar se o usuário quer buscar documento perdido
+  if (detectarBuscaDocumento(userMsg)) {
+    buscandoDocumento.value = true;
+    await processarFluxoDocumento(userMsg);
+    return;
+  }
+
+  // Fluxo normal do chatbot
   try {
     const response = await axios.post(`${API_URL}/api/chatbot`, {
       message: userMsg,
@@ -127,13 +367,18 @@ async function send() {
   }
 }
 
-
-
 function responderFaq(id) {
   const pergunta = predefinidas.find(p => p.id === id);
   if (pergunta) {
     messages.value.push({ from: 'user', text: pergunta.pergunta });
-    typeWriter(pergunta.resposta);
+    
+    // Se for a pergunta sobre documento perdido, iniciar fluxo
+    if (id === 11) {
+      buscandoDocumento.value = true;
+      processarFluxoDocumento('perdi meu documento');
+    } else {
+      typeWriter(pergunta.resposta);
+    }
   }
   faqOpen.value = false;
 }
@@ -141,7 +386,7 @@ function responderFaq(id) {
 // Efeito digitação gradual
 function typeWriter(text, callback) {
   let i = 0;
-  const speed = 20; // velocidade da digitação
+  const speed = 20;
   let current = "";
 
   function type() {
@@ -187,7 +432,6 @@ onUpdated(() => {
   });
 });
 </script>
-
 
 <style scoped> 
 .faq-select-box {

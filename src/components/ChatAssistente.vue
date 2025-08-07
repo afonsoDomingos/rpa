@@ -11,11 +11,13 @@
           <rect x="13" y="16" width="6" height="2" rx="1" fill="#fff"/>
         </svg>
       </span>
-      <span class="chat-title">Assistente Virtual</span>
+      <span class="chat-title">Rpa.Ai</span>
       <button class="close-btn" @click.stop="toggle">×</button>
     </div>
 
-    <div class="chat-desc">Sou seu assistente virtual, posso ajudar?</div>
+<div class="text-center">
+  <div class="chat-desc d-inline-block">Assistente Virtual</div>
+</div>
 
     <div class="chat-body">
       <!-- Menu suspenso de perguntas -->
