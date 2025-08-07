@@ -72,6 +72,7 @@
 
 
 <script setup>
+import axios from 'axios';
 import { ref, nextTick, onUpdated } from 'vue';
 
 const open = ref(false);
@@ -101,47 +102,79 @@ function toggle() {
   open.value = !open.value;
 }
 
-function send() {
+//const API_URL = import.meta.env.VUE_APP_API_URL;
+const API_URL = "https://apirpa.onrender.com";
+
+
+async function send() {
   if (!input.value.trim()) return;
+
   const userMsg = input.value.trim();
   messages.value.push({ from: 'user', text: userMsg });
-  const opt = parseInt(userMsg);
-  if (!isNaN(opt) && predefinidas.some(p => p.id === opt)) {
-    const msg = predefinidas.find(p => p.id === opt);
-    setTimeout(() => {
-      messages.value.push({ from: 'bot', text: msg.resposta });
-    }, 500);
-  } else {
-    setTimeout(() => {
-      messages.value.push({ from: 'bot', text: 'Recebi: ' + userMsg });
-    }, 700);
-  }
+
   input.value = "";
+
+  try {
+    const response = await axios.post(`${API_URL}/api/chatbot`, {
+      message: userMsg,
+    });
+
+    const respostaIA = response.data.reply;
+    typeWriter(respostaIA);
+  } catch (err) {
+    console.error(err);
+    typeWriter("Desculpe, não consegui responder agora. Tente mais tarde.");
+  }
 }
+
+
 
 function responderFaq(id) {
   const pergunta = predefinidas.find(p => p.id === id);
   if (pergunta) {
     messages.value.push({ from: 'user', text: pergunta.pergunta });
-    setTimeout(() => {
-      messages.value.push({ from: 'bot', text: pergunta.resposta });
-    }, 500);
+    typeWriter(pergunta.resposta);
   }
   faqOpen.value = false;
+}
+
+// Efeito digitação gradual
+function typeWriter(text, callback) {
+  let i = 0;
+  const speed = 20; // velocidade da digitação
+  let current = "";
+
+  function type() {
+    if (i < text.length) {
+      current += text[i++];
+      if (messages.value.length === 0 || messages.value[messages.value.length - 1].from !== 'bot') {
+        messages.value.push({ from: 'bot', text: current });
+      } else {
+        messages.value[messages.value.length - 1].text = current;
+      }
+      scrollToBottom();
+      setTimeout(type, speed);
+    } else if (callback) {
+      callback();
+    }
+  }
+
+  type();
 }
 
 function handleScroll() {
   const el = chatMessagesRef.value;
   if (!el) return;
-  // Mostra o botão se não está no fim
   showScrollBtn.value = el.scrollTop + el.clientHeight < el.scrollHeight - 10;
 }
 
 function scrollToBottom() {
   const el = chatMessagesRef.value;
   if (el) {
-    el.scrollTop = el.scrollHeight;
-    showScrollBtn.value = false;
+    nextTick(() => {
+      el.scrollTop = el.scrollHeight;
+      showScrollBtn.value = false;
+    });
   }
 }
 
