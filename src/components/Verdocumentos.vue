@@ -1013,6 +1013,31 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
 
 
 <style scoped>
+.gradient-background {
+  background: linear-gradient(
+    180deg,
+    #fccfcf 15%, 
+    #fbe1e5 25%, 
+    #c6d2fc 35%, 
+    #f8f9fa 45%, 
+    #ffffff 90%
+  );
+  background-size: 100% 200%;  /* Dobra a altura para animar o gradiente */
+  animation: gradientMove 6s ease infinite;
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: top;
+  }
+  50% {
+    background-position: bottom;
+  }
+  100% {
+    background-position: top;
+  }
+}
+
 .nav-link {
   transition: background-color 0.3s ease, color 0.3s ease;
   /* Transição suave */
@@ -1390,5 +1415,14 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
   border-color: #800080;
   /* Roxo */
   box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
+}
+
+
+
+.blur {
+  box-shadow: inset 0px 0px 2px rgba(254, 254, 254, 0.8196078431);
+  -webkit-backdrop-filter: saturate(200%) blur(30px);
+  backdrop-filter: saturate(200%) blur(30px);
+  background-color: rgba(243, 0, 0, 0.8) !important;
 }
 </style>

@@ -189,7 +189,7 @@ const solicitarDocumento = async () => {
     </div>
   </Header>
 
-  <div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n6">
+  <div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n6 gradient-background">
     <!-- Componente para Exibir Documentos -->
     <Verdocumentos />
    <!-- <Guardardocumentos />-->
@@ -334,6 +334,29 @@ const solicitarDocumento = async () => {
   <DefaultFooter />
 </template>
 <style scoped>
+.gradient-background {
+  background: linear-gradient(
+    180deg,
+    #f4dffd 15%, 
+    #f4dee1 25%, 
+    #fcfcc6 35%, 
+    #f8f9fa 45%, 
+    #ffffff 90%
+  );
+  background-size: 100% 200%;  /* Dobra a altura para animar o gradiente */
+  animation: gradientMove 13s ease infinite;
+}
+@keyframes gradientMove {
+  0% {
+    background-position: top;
+  }
+  70% {
+    background-position: bottom;
+  }
+  100% {
+    background-position: top;
+  }
+}
 /* Estilos gerais para outros dispositivos */
 .page-header {
   background-size: cover;
