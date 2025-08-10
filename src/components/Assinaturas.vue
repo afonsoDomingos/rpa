@@ -1,29 +1,32 @@
 <template>
-   <div class="container position-sticky z-index-sticky top-0">
+  <div class="container position-sticky z-index-sticky top-0">
     <div class="row">
       <div class="col-12">
         <NavbarDefault :sticky="true" />
       </div>
     </div>
   </div>
-<br/><br/>
-  <div class="container py-5 d-flex flex-column align-items-center justify-content-center" style="min-height: 80vh; overflow-y: auto;">
-
-    <!-- Título aprimorado em box clean, largura igual aos pacotes -->
+  <br /><br />
+  <div
+    class="container py-5 d-flex flex-column align-items-center justify-content-center"
+    style="min-height: 80vh; overflow-y: auto;"
+  >
     <div class="titulo-pacotes-box mb-5">
-      <h2 class="titulo-pacotes text-center m-0">
-        Escolha o Seu Pacote Ideal
-      </h2>
+      <h2 class="titulo-pacotes text-center m-0">Escolha o Seu Pacote Ideal</h2>
     </div>
 
     <!-- Lista de pacotes -->
-    <div v-if="!pacoteSelecionado" class="row justify-content-center w-100 align-items-stretch">
+    <div
+      v-if="!pacoteSelecionado"
+      class="row justify-content-center w-100 align-items-stretch"
+    >
       <div
         v-for="pacote in pacotes"
         :key="pacote.nome"
         class="col-12 col-md-5 mx-2 mb-4 d-flex align-items-stretch"
       >
-        <div class="p-4 shadow-sm rounded border borda-destacada d-flex flex-column align-items-center w-100 pacote-card"
+        <div
+          class="p-4 shadow-sm rounded border borda-destacada d-flex flex-column align-items-center w-100 pacote-card"
           :class="{ 'border-success': pacoteSelecionado === pacote.nome }"
         >
           <h4 class="text-center">{{ pacote.nome }}</h4>
@@ -31,7 +34,13 @@
           <p class="text-center text-muted">{{ pacote.periodo }}</p>
 
           <ul class="mt-3 w-100">
-            <li v-for="(beneficio, idx) in pacote.beneficios" :key="idx" class="borda-destacada mb-2 text-center">✅ {{ beneficio }}</li>
+            <li
+              v-for="(beneficio, idx) in pacote.beneficios"
+              :key="idx"
+              class="borda-destacada mb-2 text-center"
+            >
+              ✅ {{ beneficio }}
+            </li>
           </ul>
 
           <div class="d-flex justify-content-center w-100 mt-auto">
@@ -51,54 +60,97 @@
     <!-- Pagamento -->
     <div v-if="pacoteSelecionado" class="mt-5">
       <div class="d-flex justify-content-center mb-4">
-        <button class="btn voltar-pacotes-btn px-4 py-2 fw-bold" @click="pacoteSelecionado = null; formaSelecionada = null; mensagem = ''; erroTelefone = ''; cartao = { numero: '', nome: '', validade: '', cvv: '' }; sucesso = false; telefone = ''">
-          <span style="font-size:1.3em; margin-right:8px; vertical-align:middle;">&#8592;</span> Voltar aos Pacotes
+        <button
+          class="btn voltar-pacotes-btn px-4 py-2 fw-bold"
+          @click="voltarPacotes"
+        >
+          <span
+            style="font-size:1.3em; margin-right:8px; vertical-align:middle;"
+            >&#8592;</span
+          >
+          Voltar aos Pacotes
         </button>
       </div>
+
       <h4 class="text-center mb-3">Formas de Pagamento</h4>
 
-      <div class="payment-options d-flex flex-wrap justify-content-center gap-3 mb-4">
+      <div
+        class="payment-options d-flex flex-wrap justify-content-center gap-3 mb-4"
+      >
         <button
           v-for="forma in formasPagamento"
-          :key="forma"
+          :key="forma.value"
           class="payment-btn btn"
-          :class="formaSelecionada === forma ? 'active' : ''"
-          @click="selecionarForma(forma)"
+          :class="formaSelecionada === forma.value ? 'active' : ''"
+          @click="selecionarForma(forma.value)"
           :disabled="loading || sucesso"
         >
-          <span v-if='forma === "Cartão"'>
+          <span v-if="forma.value === 'cartao'">
             <i class="bi bi-credit-card-2-front-fill me-2"></i>
           </span>
-          <span v-else-if='forma === "M-Pesa"'>
-            <img src="@/assets/img/Mpesa.png" alt="M-Pesa" style="height: 20px; margin-right: 8px; vertical-align: middle;" />
+          <span v-else-if="forma.value === 'mpesa'">
+            <img
+              src="@/assets/img/Mpesa.png"
+              alt="M-Pesa"
+              style="height: 20px; margin-right: 8px; vertical-align: middle;"
+            />
           </span>
-          <span v-else-if='forma === "Emola"'>
-            <img src="@/assets/img/Emola.png" alt="Emola" style="height: 20px; margin-right: 8px; vertical-align: middle;" />
+          <span v-else-if="forma.value === 'emola'">
+            <img
+              src="@/assets/img/Emola.png"
+              alt="Emola"
+              style="height: 20px; margin-right: 8px; vertical-align: middle;"
+            />
           </span>
-          {{ forma }}
+          {{ forma.label }}
         </button>
       </div>
 
       <div class="card mx-auto p-3 borda-destacada" style="max-width: 400px;">
-        <div v-if="formaSelecionada === 'Cartão'">
-          <input v-model="cartao.numero" class="form-control mb-2" placeholder="Número do Cartão" @input="formatarCartao" maxlength="19" />
-          <input v-model="cartao.nome" class="form-control mb-2" placeholder="Nome no Cartão" />
+        <div v-if="formaSelecionada === 'cartao'">
+          <input
+            v-model="cartao.numero"
+            class="form-control mb-2"
+            placeholder="Número do Cartão"
+            @input="formatarCartao"
+            maxlength="19"
+          />
+          <input
+            v-model="cartao.nome"
+            class="form-control mb-2"
+            placeholder="Nome no Cartão"
+          />
           <div class="d-flex gap-2 mb-2">
-            <input v-model="cartao.validade" class="form-control" placeholder="MM/AA" @input="formatarValidade" maxlength="5" />
-            <input v-model="cartao.cvv" class="form-control" placeholder="CVV" maxlength="4" />
+            <input
+              v-model="cartao.validade"
+              class="form-control"
+              placeholder="MM/AA"
+              @input="formatarValidade"
+              maxlength="5"
+            />
+            <input
+              v-model="cartao.cvv"
+              class="form-control"
+              placeholder="CVV"
+              maxlength="4"
+            />
           </div>
         </div>
 
-        <div v-else-if="formaSelecionada === 'M-Pesa' || formaSelecionada === 'Emola'">
+        <div v-else-if="formaSelecionada === 'mpesa' || formaSelecionada === 'emola'">
           <input
             v-model="telefone"
             class="form-control mb-2"
-            :placeholder="`Número de telefone (${formaSelecionada})`"
+            :placeholder="`Número de telefone (${formaSelecionada.toUpperCase()})`"
           />
           <small v-if="erroTelefone" class="text-danger">{{ erroTelefone }}</small>
         </div>
 
-        <button class="btn btn-success mt-3 w-100" @click="pagar" :disabled="loading || sucesso || !podePagar">
+        <button
+          class="btn btn-success mt-3 w-100"
+          @click="pagar"
+          :disabled="loading || sucesso || !podePagar"
+        >
           <span v-if="loading">Processando...</span>
           <span v-else>Pagar {{ precoSelecionado }} MZN</span>
         </button>
@@ -107,19 +159,24 @@
       <!-- Mensagem -->
       <div class="text-center mt-3">
         <p :class="sucesso ? 'text-success' : 'text-danger'">{{ mensagem }}</p>
-        <button v-if="sucesso" class="btn btn-primary mt-2" @click="voltarHome">Voltar à Home</button>
+        <button v-if="sucesso" class="btn btn-primary mt-2" @click="voltarHome">
+          Voltar à Home
+        </button>
       </div>
 
       <!-- Resumo -->
-      <div class="card mx-auto p-3 mt-4 borda-destacada" style="max-width: 400px;">
+      <div
+        class="card mx-auto p-3 mt-4 borda-destacada"
+        style="max-width: 400px"
+      >
         <h5>Resumo da Assinatura</h5>
         <p><strong>Pacote:</strong> {{ pacoteSelecionado }}</p>
         <p><strong>Preço:</strong> {{ precoSelecionado }} MZN</p>
-        <p><strong>Pagamento:</strong> {{ formaSelecionada || '-' }}</p>
+        <p><strong>Pagamento:</strong> {{ formaSelecionada || "-" }}</p>
       </div>
     </div>
   </div>
-  <!-- Componente para exibir o rodapé padrão -->
+
   <FooterDefault />
 </template>
 
@@ -130,8 +187,6 @@ import api from "../api";
 
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../examples/footers/FooterDefault.vue";
-
-
 
 const router = useRouter();
 
@@ -148,6 +203,7 @@ const cartao = ref({ numero: "", nome: "", validade: "", cvv: "" });
 
 const pacotes = [
   {
+    id: "mensal",
     nome: "Mensal",
     preco: 150,
     periodo: "a cada 1 mês",
@@ -156,10 +212,11 @@ const pacotes = [
       "Notificações",
       "Suporte Prioritário",
       "Guardar Documento",
-      "Geração de 3 CVs"
+      "Geração de 3 CVs",
     ],
   },
   {
+    id: "anual",
     nome: "Anual",
     preco: 650,
     periodo: "a cada 12 meses",
@@ -168,33 +225,38 @@ const pacotes = [
       "Geração de CV Ilimitada",
       "Suporte VIP",
       "Consultoria personalizada",
-      "Acesso  a novos recursos"
+      "Acesso  a novos recursos",
     ],
   },
 ];
 
-const formasPagamento = ["Cartão", "M-Pesa", "Emola"];
+// Agora formasPagamento é array de objetos { label, value }
+const formasPagamento = [
+  { label: "Cartão", value: "cartao" },
+  { label: "M-Pesa", value: "mpesa" },
+  { label: "Emola", value: "emola" },
+];
 
 const precoSelecionado = computed(() => {
   return pacotes.find((p) => p.nome === pacoteSelecionado.value)?.preco || 0;
 });
 
 const podePagar = computed(() => {
-  if (formaSelecionada.value === "Cartão") return validarCartao();
-  if (["M-Pesa", "Emola"].includes(formaSelecionada.value)) return validarTelefone();
+  if (formaSelecionada.value === "cartao") return validarCartao();
+  if (["mpesa", "emola"].includes(formaSelecionada.value)) return validarTelefone();
   return false;
 });
 
 function selecionarPacote(nome) {
-  console.log('[selecionarPacote] Pacote selecionado:', nome);
+  console.log("[selecionarPacote] Pacote selecionado:", nome);
   pacoteSelecionado.value = nome;
   formaSelecionada.value = null;
   resetarCampos();
 }
 
-function selecionarForma(forma) {
-  console.log('[selecionarForma] Forma selecionada:', forma);
-  formaSelecionada.value = forma;
+function selecionarForma(formaValue) {
+  console.log("[selecionarForma] Forma selecionada:", formaValue);
+  formaSelecionada.value = formaValue;
   mensagem.value = "";
   erroTelefone.value = "";
   telefone.value = "";
@@ -203,7 +265,12 @@ function selecionarForma(forma) {
 
 function validarCartao() {
   const c = cartao.value;
-  return c.numero.replace(/\s/g, "").length >= 13 && c.nome.length > 2 && /^\d{2}\/\d{2}$/.test(c.validade) && c.cvv.length >= 3;
+  return (
+    c.numero.replace(/\s/g, "").length >= 13 &&
+    c.nome.length > 2 &&
+    /^\d{2}\/\d{2}$/.test(c.validade) &&
+    c.cvv.length >= 3
+  );
 }
 
 function validarTelefone() {
@@ -219,27 +286,27 @@ function validarTelefone() {
 function formatarCartao() {
   let num = cartao.value.numero.replace(/\D/g, "").slice(0, 16);
   cartao.value.numero = num.replace(/(.{4})/g, "$1 ").trim();
-  console.log('[formatarCartao] Cartão formatado:', cartao.value.numero);
+  console.log("[formatarCartao] Cartão formatado:", cartao.value.numero);
 }
 
 function formatarValidade() {
   let val = cartao.value.validade.replace(/\D/g, "").slice(0, 4);
   cartao.value.validade = val.length > 2 ? val.slice(0, 2) + "/" + val.slice(2) : val;
-  console.log('[formatarValidade] Validade formatada:', cartao.value.validade);
+  console.log("[formatarValidade] Validade formatada:", cartao.value.validade);
 }
 
 async function buscarUsuario() {
   try {
     const email = localStorage.getItem("email");
-    console.log('[buscarUsuario] Email logado:', email);
+    console.log("[buscarUsuario] Email logado:", email);
     if (!email) return router.push("/");
     const res = await api.get("/auth/usuarios");
-    console.log('[buscarUsuario] Resposta da API:', res.data);
-    usuario.value = res.data.find(u => u.email === email);
-    console.log('[buscarUsuario] Usuário encontrado:', usuario.value);
+    console.log("[buscarUsuario] Resposta da API:", res.data);
+    usuario.value = res.data.find((u) => u.email === email);
+    console.log("[buscarUsuario] Usuário encontrado:", usuario.value);
     if (!usuario.value) router.push("/");
   } catch (e) {
-    console.error('[buscarUsuario] Erro:', e);
+    console.error("[buscarUsuario] Erro:", e);
     router.push("/");
   }
 }
@@ -248,52 +315,69 @@ async function pagar() {
   loading.value = true;
   mensagem.value = "";
   sucesso.value = false;
-  console.log('[pagar] Iniciando pagamento...');
+  console.log("[pagar] Iniciando pagamento...");
   try {
     const token = localStorage.getItem("token");
-    console.log('[pagar] Token:', token);
+    console.log("[pagar] Token:", token);
     if (!token) throw new Error("Não autenticado");
 
     const payload = {
       pacote: pacoteSelecionado.value,
-      formaPagamento: formaSelecionada.value,
-      preco: precoSelecionado.value,
-      telefone: ["M-Pesa", "Emola"].includes(formaSelecionada.value) ? telefone.value : null,
-      dadosCartao: formaSelecionada.value === "Cartão" ? {
-        numero: cartao.value.numero.replace(/\s/g, ""),
-        nomeTitular: cartao.value.nome,
-        validade: cartao.value.validade,
-        cvv: cartao.value.cvv,
-      } : null,
+      method: formaSelecionada.value, // Envia valor esperado pelo backend
+      amount: precoSelecionado.value,
+      phone: ["mpesa", "emola"].includes(formaSelecionada.value)
+        ? telefone.value
+        : null,
+      type: "c2b", // Ajuste aqui se precisar enviar "b2c"
+      dadosCartao:
+        formaSelecionada.value === "cartao"
+          ? {
+              numero: cartao.value.numero.replace(/\s/g, ""),
+              nomeTitular: cartao.value.nome,
+              validade: cartao.value.validade,
+              cvv: cartao.value.cvv,
+            }
+          : null,
     };
-    console.log('[pagar] Payload:', payload);
+    console.log("[pagar] Payload:", payload);
 
-    const res = await api.post("/pagamentos", payload, {
-      headers: { Authorization: `Bearer ${token}` }
+    const res = await api.post("/pagamentos/processar", payload, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-    console.log('[pagar] Resposta da API:', res.data);
+    console.log("[pagar] Resposta da API:", res.data);
 
-    mensagem.value = res.data.mensagem || "Pagamento realizado com sucesso!";
+    mensagem.value = res.data.message || "Pagamento realizado com sucesso!";
     sucesso.value = true;
   } catch (e) {
-    console.error('[pagar] Erro:', e);
-    mensagem.value = e.response?.data?.mensagem || "Erro no pagamento";
+    console.error("[pagar] Erro:", e);
+    mensagem.value = e.response?.data?.message || "Erro no pagamento";
   } finally {
     loading.value = false;
-    console.log('[pagar] loading finalizado:', loading.value);
+    console.log("[pagar] loading finalizado:", loading.value);
   }
 }
 
 function logout() {
-  console.log('[logout] Efetuando logout do usuário.');
+  console.log("[logout] Efetuando logout do usuário.");
   localStorage.removeItem("email");
   localStorage.removeItem("token");
   router.push("/");
 }
 
 function voltarHome() {
-  console.log('[voltarHome] Redirecionando para home.');
+  console.log("[voltarHome] Redirecionando para home.");
   router.push("/home");
+}
+
+function voltarPacotes() {
+  pacoteSelecionado.value = null;
+  formaSelecionada.value = null;
+  mensagem.value = "";
+  erroTelefone.value = "";
+  cartao.value = { numero: "", nome: "", validade: "", cvv: "" };
+  sucesso.value = false;
+  telefone.value = "";
+  console.log("[voltarPacotes] Campos resetados e voltando à seleção de pacotes.");
 }
 
 function resetarCampos() {
@@ -302,11 +386,11 @@ function resetarCampos() {
   erroTelefone.value = "";
   cartao.value = { numero: "", nome: "", validade: "", cvv: "" };
   sucesso.value = false;
-  console.log('[resetarCampos] Campos resetados.');
+  console.log("[re+setarCampos] Campos resetados.");
 }
 
 onMounted(() => {
-  console.log('[onMounted] Componente montado. Buscando usuário...');
+  console.log("[onMounted] Componente montado. Buscando usuário...");
   buscarUsuario();
 });
 </script>
