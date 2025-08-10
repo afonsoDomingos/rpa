@@ -95,9 +95,9 @@
         </td>
         <td>{{ pag.formaPagamento }}</td>
         <td>{{ Number(pag.valor).toFixed(2) }}</td>
-        <td>{{ formatarData(pag.data) }}</td>
-        <td :class="pag.status === 'pago' ? diasParaExpirarInfo(pag.data, pag.pacote).classe : 'text-muted'">
-          {{ pag.status === 'pago' ? diasParaExpirarInfo(pag.data, pag.pacote).texto : '-' }}
+        <td>{{ formatarData(pag.dataPagamento) }}</td>
+        <td :class="pag.status === 'pago' ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).classe : 'text-muted'">
+          {{ pag.status === 'pago' ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).texto : '-' }}
         </td>
         <td>
           <button @click="abrirDetalhes(pag)" class="btn btn-outline-primary btn-sm">Ver</button>
@@ -121,8 +121,8 @@
       <p class="card-text mb-1"><strong>Forma:</strong> {{ pag.formaPagamento }}</p>
       <p class="card-text mb-1"><strong>Preço:</strong> MZN {{ Number(pag.valor).toFixed(2) }}</p>
       <p class="card-text mb-1"><strong>Data:</strong> {{ formatarData(pag.data) }}</p>
-      <p class="card-text mb-1" :class="pag.status === 'pago' ? diasParaExpirarInfo(pag.data, pag.pacote).classe : 'text-muted'">
-        <strong>Validade:</strong> {{ pag.status === 'pago' ? diasParaExpirarInfo(pag.data, pag.pacote).texto : '-' }}
+      <p class="card-text mb-1" :class="pag.status === 'pago' ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).classe : 'text-muted'">
+        <strong>Validade:</strong> {{ pag.status === 'pago' ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).texto : '-' }}
       </p>
     </div>
   </div>
@@ -169,9 +169,9 @@
           </li>
           <li class="list-group-item"><strong>Forma:</strong> {{ pagamentoSelecionado.formaPagamento }}</li>
           <li class="list-group-item"><strong>Preço:</strong> MZN {{ Number(pagamentoSelecionado.valor).toFixed(2) }}</li>
-          <li class="list-group-item"><strong>Data:</strong> {{ formatarData(pagamentoSelecionado.data) }}</li>
-          <li class="list-group-item" :class="pagamentoSelecionado.status === 'pago' ? diasParaExpirarInfo(pagamentoSelecionado.data, pagamentoSelecionado.pacote).classe : 'text-muted'">
-            <strong>Validade:</strong> {{ pagamentoSelecionado.status === 'pago' ? diasParaExpirarInfo(pagamentoSelecionado.data, pagamentoSelecionado.pacote).texto : '-' }}
+          <li class="list-group-item"><strong>Data:</strong> {{ formatarData(pagamentoSelecionado.dataPagamento) }}</li>
+          <li class="list-group-item" :class="pagamentoSelecionado.status === 'pago' ? diasParaExpirarInfo(pagamentoSelecionado.dataPagamento, pagamentoSelecionado.pacote).classe : 'text-muted'">
+            <strong>Validade:</strong> {{ pagamentoSelecionado.status === 'pago' ? diasParaExpirarInfo(pagamentoSelecionado.dataPagamento, pagamentoSelecionado.pacote).texto : '-' }}
           </li>
           <li class="list-group-item"><strong>Referência:</strong> {{ pagamentoSelecionado.referencia || "-" }}</li>
           <li class="list-group-item"><strong>Descrição:</strong> {{ pagamentoSelecionado.descricao || "Nenhuma" }}</li>
@@ -209,7 +209,7 @@ const alertaRenovacao = computed(() => {
   if (!ultimoPagamento.value) {
     return { mostrar: false, texto: "", tipo: "" };
   }
-  const info = diasParaExpirarInfo(ultimoPagamento.value.data, ultimoPagamento.value.pacote);
+  const info = diasParaExpirarInfo(ultimoPagamento.value.dataPagamento, ultimoPagamento.value.pacote);
   // info.texto pode ser "Expirado", "Expira hoje", ou "Faltam X dias"
   if (info.texto === "Expirado") {
     return { mostrar: true, texto: "Sua assinatura expirou. Renove para continuar usando o serviço.", tipo: "danger" };
