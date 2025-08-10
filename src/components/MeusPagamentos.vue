@@ -29,7 +29,7 @@
     <!-- Resumo financeiro -->
     <div class="mb-4 resumo-financeiro-row">
       <div class="resumo-item"><strong>Total pago:</strong> MZN {{ totalPago.toFixed(2) }}</div>
-      <div class="resumo-item"><strong>Último pagamento:</strong> {{ ultimoPagamento ? formatarData(ultimoPagamento.data) + " (" + ultimoPagamento.preco.toFixed(2) + " MZN)" : "-" }}</div>
+      <div class="resumo-item"><strong>Último pagamento:</strong> {{ ultimoPagamento ? formatarData(ultimoPagamento.data) + " (" + ultimoPagamento.valor.toFixed(2) + " MZN)" : "-" }}</div>
       <div class="resumo-item"><strong>Total de pagamentos:</strong> {{ pagamentos.length }}</div>
       <div class="resumo-item"><button @click="exportarCSV" class="btn btn-outline-success btn-sm w-100-mobile">Exportar CSV</button></div>
     </div>
@@ -94,7 +94,7 @@
           }">{{ pag.status }}</span>
         </td>
         <td>{{ pag.formaPagamento }}</td>
-        <td>{{ Number(pag.preco).toFixed(2) }}</td>
+        <td>{{ Number(pag.valor).toFixed(2) }}</td>
         <td>{{ formatarData(pag.data) }}</td>
         <td :class="pag.status === 'pago' ? diasParaExpirarInfo(pag.data, pag.pacote).classe : 'text-muted'">
           {{ pag.status === 'pago' ? diasParaExpirarInfo(pag.data, pag.pacote).texto : '-' }}
@@ -119,7 +119,7 @@
         }">{{ pag.status }}</span>
       </p>
       <p class="card-text mb-1"><strong>Forma:</strong> {{ pag.formaPagamento }}</p>
-      <p class="card-text mb-1"><strong>Preço:</strong> MZN {{ Number(pag.preco).toFixed(2) }}</p>
+      <p class="card-text mb-1"><strong>Preço:</strong> MZN {{ Number(pag.valor).toFixed(2) }}</p>
       <p class="card-text mb-1"><strong>Data:</strong> {{ formatarData(pag.data) }}</p>
       <p class="card-text mb-1" :class="pag.status === 'pago' ? diasParaExpirarInfo(pag.data, pag.pacote).classe : 'text-muted'">
         <strong>Validade:</strong> {{ pag.status === 'pago' ? diasParaExpirarInfo(pag.data, pag.pacote).texto : '-' }}
@@ -168,7 +168,7 @@
             }">{{ pagamentoSelecionado.status }}</span>
           </li>
           <li class="list-group-item"><strong>Forma:</strong> {{ pagamentoSelecionado.formaPagamento }}</li>
-          <li class="list-group-item"><strong>Preço:</strong> MZN {{ Number(pagamentoSelecionado.preco).toFixed(2) }}</li>
+          <li class="list-group-item"><strong>Preço:</strong> MZN {{ Number(pagamentoSelecionado.valor).toFixed(2) }}</li>
           <li class="list-group-item"><strong>Data:</strong> {{ formatarData(pagamentoSelecionado.data) }}</li>
           <li class="list-group-item" :class="pagamentoSelecionado.status === 'pago' ? diasParaExpirarInfo(pagamentoSelecionado.data, pagamentoSelecionado.pacote).classe : 'text-muted'">
             <strong>Validade:</strong> {{ pagamentoSelecionado.status === 'pago' ? diasParaExpirarInfo(pagamentoSelecionado.data, pagamentoSelecionado.pacote).texto : '-' }}
@@ -275,7 +275,7 @@ const pagamentosFiltrados = computed(() =>
 
 const paginas = computed(() => Math.ceil(pagamentosFiltrados.value.length / itensPorPagina));
 const paginaAtual = computed(() => pagamentosFiltrados.value.slice((paginaAtualIndex.value - 1) * itensPorPagina, paginaAtualIndex.value * itensPorPagina));
-const totalPago = computed(() => pagamentosFiltrados.value.filter(p => p.status === "pago").reduce((a, b) => a + Number(b.preco), 0));
+const totalPago = computed(() => pagamentosFiltrados.value.filter(p => p.status === "pago").reduce((a, b) => a + Number(b.valor), 0));
 const ultimoPagamento = computed(() => [...pagamentosFiltrados.value.filter(p => p.status === "pago")].sort((a, b) => new Date(b.data) - new Date(a.data))[0] || null);
 
 function mudarPagina(p) {
@@ -309,7 +309,7 @@ function exportarCSV() {
       p.pacote,
       p.status,
       p.formaPagamento,
-      Number(p.preco).toFixed(2),
+      Number(p.valor).toFixed(2),
       formatarData(p.data),
       p.status === 'pago' ? validade : '-',
       p.referencia || "",
