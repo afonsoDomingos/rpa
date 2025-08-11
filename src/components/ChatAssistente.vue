@@ -174,7 +174,7 @@ const dadosDocumento = ref({
 const predefinidas = [
   { id: 1, pergunta: '🔐 1. Como criar uma conta?', resposta: 'Para criar uma conta, preencha seu nome, e-mail e senha.<br>Depois é só fazer login e começar a usar a plataforma normalmente.<br><a href="/" style="color:#800080;text-decoration:underline;">Clique aqui para fazer login</a>.' },
   { id: 2, pergunta: '🔑 2. Como fazer login?', resposta: 'Informe seu e-mail e senha cadastrados.<br>Você será direcionado(a) para a tela principal da plataforma.<br><a href="/" style="color:#800080;text-decoration:underline;">Ir para login</a>.' },
-  { id: 3, pergunta: '🔍 3. Como procurar um documento?', resposta: 'Vá até a aba "Procurar", escolha o filtro desejado.<br>Clique em "Buscar" e veja se há algum resultado disponível.' },
+  { id: 3, pergunta: '🔍 3. Como procurar um documento?', resposta: 'Vá até a aba "Procurar", escolha o filtro desejado.<br>Clique em "Buscar" e veja se há algum resultado disponível, 🔍 Ou digite "quero procurar meu documento" no chat para iniciar a busca de forma automatica.' },
   { id: 4, pergunta: '📥 4. Como solicitar um documento?', resposta: 'Se o documento for encontrado, clique em "Solicitar".<br>Será necessário ter uma assinatura ativa (Mensal ou Anual) para prosseguir.<br><a href="/assinaturas" style="color:#800080;text-decoration:underline;">Clique aqui para ver planos de assinatura</a> (opcional).' },
   { id: 5, pergunta: '💳 5. Como fazer uma assinatura?', resposta: 'Escolha um dos planos disponíveis:\n– 📅 Mensal: 150 MZN\n– 📆 Anual: 650 MZN\nApós o pagamento, sua assinatura será ativada imediatamente.' },
   { id: 6, pergunta: '📢 6. Como reportar um documento?', resposta: 'Se não encontrar o documento, vá à aba "Reportar".\nPreencha os dados do documento perdido e envie.\nVocê será notificado se alguém encontrá-lo.' },
@@ -372,7 +372,7 @@ function detectarBuscaDocumento(mensagem) {
   const palavrasChave = [
    'quero procurar meu documento','como ver se meu documento esta disponivel?','perdi meu bi','procura meu documento', 'perdi meu documento', 'Podes me ajudar a procurar meu documento?', 'como pesquisar meu documento?'
   ];
-  
+
   const mensagemLower = mensagem.toLowerCase();
   return palavrasChave.some(palavra => mensagemLower.includes(palavra));
 }
