@@ -370,10 +370,9 @@ function toggle() {
 // Função para detectar se o usuário quer buscar documento perdido
 function detectarBuscaDocumento(mensagem) {
   const palavrasChave = [
-    'perdi', 'perdeu', 'perder', 'documento perdido', 'documento',
+    'ola perdi', 'perdeu', 'perder', 'documento perdido', 'como recuperar?',
     'bi perdido', 'passaporte perdido', 'carta perdida', 'perda',
-    'encontrar documento', 'procurar documento', 'buscar documento',
-    'bilhete de identidade', 'passaporte', 'carta de condução'
+    'encontrar documento', 'procurar documento', 'buscar documento'
   ];
   
   const mensagemLower = mensagem.toLowerCase();
@@ -551,7 +550,7 @@ async function realizarBuscaDocumento() {
     
   } catch (error) {
     console.error('Erro ao buscar documentos:', error);
-    typeWriter('❌ Ocorreu um erro ao buscar o documento. Tente novamente mais tarde ou use a busca manual na aba "Procurar".');
+    typeWriter('Ola! não encontramos o documento que esta a procura na nossa base de dados. Tente novamente mais tarde ou use a busca manual na aba "Procurar".');
     resetarFluxoDocumento();
   }
 }

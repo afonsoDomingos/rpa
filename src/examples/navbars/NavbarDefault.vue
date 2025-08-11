@@ -467,4 +467,9 @@ watch(
   transform: scale(1.02);
 }
 
+
+
+/*efeitos*/
+
+
 </style>
