@@ -186,7 +186,7 @@ const predefinidas = [
 ];
 
 const messages = ref([
-  { from: 'bot', text: 'Olá! Como posso ajudar você?<br>💡 <strong>Dica:</strong> Se perdeu algum documento, só me dizer que eu ajudo a procurar automaticamente!<br><br>🎤 <strong>Novo:</strong> Agora você pode falar comigo usando o microfone!<br><br>Selecione uma pergunta abaixo ou digite/fale sua dúvida.' }
+  { from: 'bot', text: 'Olá! Como posso ajudar?<br>💡 <strong>Dica:</strong> Se perdeu algum documento, só me dizer que eu ajudo a procurar automaticamente!<br><br>🎤 <strong>Novo:</strong> Agora você pode falar comigo usando o microfone!<br><br>Selecione uma pergunta abaixo ou digite/fale sua dúvida.' }
 ]);
 
 // Lista de tipos de documentos
@@ -370,9 +370,7 @@ function toggle() {
 // Função para detectar se o usuário quer buscar documento perdido
 function detectarBuscaDocumento(mensagem) {
   const palavrasChave = [
-    'ola perdi', 'perdeu', 'perder', 'documento perdido', 'como recuperar?',
-    'bi perdido', 'passaporte perdido', 'carta perdida', 'perda',
-    'encontrar documento', 'procurar documento', 'buscar documento'
+   'quero procurar meu documento?','perdi meu bi','procura meu documento', 'perdi meu documento', 'Podes me ajudar a procurar meu documento?', 'como buscar meu documento?'
   ];
   
   const mensagemLower = mensagem.toLowerCase();
