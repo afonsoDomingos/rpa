@@ -370,7 +370,7 @@ function toggle() {
 // Função para detectar se o usuário quer buscar documento perdido
 function detectarBuscaDocumento(mensagem) {
   const palavrasChave = [
-   'quero procurar meu documento?','perdi meu bi','procura meu documento', 'perdi meu documento', 'Podes me ajudar a procurar meu documento?', 'como buscar meu documento?'
+   'quero procurar meu documento','como ver se meu documento esta disponivel?','perdi meu bi','procura meu documento', 'perdi meu documento', 'Podes me ajudar a procurar meu documento?', 'como pesquisar meu documento?'
   ];
   
   const mensagemLower = mensagem.toLowerCase();
