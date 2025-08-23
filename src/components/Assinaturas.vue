@@ -218,7 +218,7 @@ const pacotes = [
   {
     id: "anual",
     nome: "Anual",
-    preco: 650,
+    preco: 1500,
     periodo: "a cada 12 meses",
     beneficios: [
       "Tudo do Mensal",
