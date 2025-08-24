@@ -1,19 +1,4 @@
 <template>
-  <div>
-    <!-- Navbar fixo -->
-    <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
-      <div class="row gx-0">
-        <div class="col-12">
-          <NavbarDefault :sticky="true" />
-        </div>
-      </div>
-    </div>
-
-    <br/><br/><br/>
-
-    <!-- Conteúdo principal -->
-    <div class="container-fluid pag-container-fluid py-4 my-4 bg-white shadow-sm rounded borda-destacada pag-container-responsive">
-      
   <div class="min-vh-100 bg-light py-5">
     <div class="container">
       <!-- Header -->
@@ -144,20 +129,79 @@
 
     </div>
   </div>
-    </div>
-
-    <!-- Rodapé -->
-    <FooterDefault />
-  </div>
 </template>
 
+<style scoped>
+.text-green { color: #66bb6a; }
+.text-purple { color: #800080; }
+
+.btn-green, .btn-purple {
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 16px;
+  transition: 0.3s;
+}
+.btn-green { background-color: #66bb6a; color: #fff; }
+.btn-green:hover { background-color: #57a65b; }
+.btn-purple { background-color: #800080; color: #fff; }
+.btn-purple:hover { background-color: #660066; }
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.case-card { border-radius: 1rem; overflow: hidden; transition: transform 0.2s; display: flex; flex-direction: column; }
+.case-card:hover { transform: translateY(-6px); }
+
+.custom-input {
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid #ccc;
+}
+.custom-input:focus {
+  border-color: #800080;
+  box-shadow: 0 0 0 0.2rem rgba(128, 0, 128, 0.2);
+}
+
+.image-preview {
+  width: 220px;
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px dashed #800080;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.image-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+.car-image-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.car-image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+.car-placeholder { font-size: 48px; color: #aaa; }
+
+.description {
+  max-height: 60px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .display-4 { font-size: 2rem; }
+  .form-floating label { font-size: 0.9rem; }
+}
+</style>
+
 <script setup>
-import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
-import FooterDefault from "../examples/footers/FooterDefault.vue";
-
-
-
-
 import { ref, reactive, computed } from 'vue'
 
 const stats = reactive({
@@ -276,76 +320,4 @@ const handleImageUpload = e => {
     reportForm.fotoPreview = URL.createObjectURL(file)
   }
 }
-
 </script>
-
-
-<style scoped>
-.text-green { color: #66bb6a; }
-.text-purple { color: #800080; }
-
-.btn-green, .btn-purple {
-  border-radius: 12px;
-  padding: 12px;
-  font-size: 16px;
-  transition: 0.3s;
-}
-.btn-green { background-color: #66bb6a; color: #fff; }
-.btn-green:hover { background-color: #57a65b; }
-.btn-purple { background-color: #800080; color: #fff; }
-.btn-purple:hover { background-color: #660066; }
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-.case-card { border-radius: 1rem; overflow: hidden; transition: transform 0.2s; display: flex; flex-direction: column; }
-.case-card:hover { transform: translateY(-6px); }
-
-.custom-input {
-  border-radius: 12px;
-  padding: 14px;
-  border: 1px solid #ccc;
-}
-.custom-input:focus {
-  border-color: #800080;
-  box-shadow: 0 0 0 0.2rem rgba(128, 0, 128, 0.2);
-}
-
-.image-preview {
-  width: 220px;
-  aspect-ratio: 1 / 1;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 2px dashed #800080;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.image-preview img { width: 100%; height: 100%; object-fit: cover; }
-
-.car-image-wrapper {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-  background: #f5f5f5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.car-image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-.car-placeholder { font-size: 48px; color: #aaa; }
-
-.description {
-  max-height: 60px;
-  overflow-y: auto;
-  margin-bottom: 8px;
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-  .display-4 { font-size: 2rem; }
-  .form-floating label { font-size: 0.9rem; }
-}
-</style>
