@@ -31,6 +31,7 @@ import GuardarDocumentos from "../components/Guardardocumentos.vue";
 import Assinaturas from "../components/Assinaturas.vue";
 import MeusPagamentos from "../components/MeusPagamentos.vue";
 import MeusDocumentos from "../components/MeusDocumentos.vue";
+import Viaturas from "../components/viaturas.vue";
     
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -41,6 +42,12 @@ const router = createRouter({
       name: 'MeusDocumentos',
       component: MeusDocumentos,
       meta: { requerAutenticacao: true }
+    },
+
+     {
+      path: '/viaturas',
+      name: 'viaturas',
+      component: Viaturas,
     },
 
     {
