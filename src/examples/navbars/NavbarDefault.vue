@@ -98,7 +98,7 @@ const props = defineProps({
     default: () => ({
       route: "https://docs.google.com/forms/d/e/1FAIpQLSdLO0mga6ygr6oVlCHQ6Hgt48baiZuQlXTzPRYynhXv0etD3g/viewform",
       color: "bg-gradient-success",
-      label: "Reportar"
+      label: "DOCUMENTOS"
     })
   },
   transparent: {
@@ -429,12 +429,16 @@ watch(
             </a>
           </li>
         </ul>
-       
+         <a class="btn btn-sm mb-0 ms-2" role="button" @click="$router.push({ name: 'Viaturas' })"
+   style="background-color: #ff9800; color: white;">
+   Viaturas
+</a>
         <a class="btn btn-sm mb-0 ms-2" role="button" @click="$router.push({ name: 'Assinaturas' })"
           style="background-color: #6f42c1; color: white;">
           Assinatura
         </a>
 
+      
 
 
 

@@ -46,7 +46,7 @@ const router = createRouter({
 
      {
       path: '/viaturas',
-      name: 'viaturas',
+      name: 'Viaturas',
       component: Viaturas,
     },
 
