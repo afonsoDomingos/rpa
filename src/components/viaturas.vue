@@ -20,6 +20,10 @@
       <div class="text-center mb-5">
         <h1 class="display-4 fw-bold text-purple">Recuperação de Viaturas</h1>
         <p class="lead text-muted">Sistema especializado para recuperação de veículos roubados ou furtados</p>
+         <!-- AVISO DE DESENVOLVIMENTO -->
+        <div class="alert alert-warning mt-4 fw-bold" role="alert">
+          🚧 Esta página ainda está em desenvolvimento. Algumas funcionalidades podem não estar disponíveis.
+        </div>
       </div>
 
       <!-- Stats Cards -->
