@@ -2,12 +2,13 @@
   <div v-if="documentos.length > 0" 
        class="floating-box animate-fade-in shadow-sm rounded p-2">
     <h6 class="fw-bold text-purple small-title">
-      📄 Documentos Encontrados 
+      📄Encontrados 
       <span class="count">{{ displayCount }}</span>
     </h6>
     <p class="mb-1 small-text"><strong>Nome:</strong> {{ documentos[indexAtual].nome_completo }}</p>
     <p class="mb-1 small-text"><strong>Tipo:</strong> {{ documentos[indexAtual].tipo_documento }}</p>
-    <p class="mb-0 small-text"><strong>Província:</strong> {{ documentos[indexAtual].provincia }}</p>
+    <!--<p class="mb-0 small-text"><strong>Província:</strong> {{ documentos[indexAtual].provincia }}</p>-->
+    
   </div>
 </template>
 
