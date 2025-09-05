@@ -1,4 +1,4 @@
-<template>
+<template> 
   <div class="doacao-container">
     <div class="doacao-header">
       <h3>Apoie o Projeto RPA!</h3>
@@ -84,6 +84,7 @@ function copiar(valor) {
 
 <style scoped>
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
 
 .doacao-container {
   background: #fff;
@@ -97,6 +98,7 @@ function copiar(valor) {
   transition: box-shadow 0.2s;
 }
 
+/* Header com fundo roxo */
 .doacao-header {
   display: flex;
   flex-direction: column;
@@ -105,11 +107,34 @@ function copiar(valor) {
 }
 
 .doacao-header h3 {
-  font-size: 1.25rem;
+  background: linear-gradient(135deg, #800080, #9b30ff);
+  color: #fff;
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  font-size: 1.4rem;
+  font-family: 'Poppins', sans-serif;
   font-weight: 700;
-  color: #222;
   margin: 0;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 12px #80008055;
+  transition: transform 0.25s, box-shadow 0.25s;
+  animation: brilho 3s infinite ease-in-out;
+}
+
+/* Efeito hover */
+.doacao-header h3:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 18px #80008077;
+}
+
+/* Animação de brilho pulsante */
+@keyframes brilho {
+  0%, 100% {
+    box-shadow: 0 4px 12px #80008055;
+  }
+  50% {
+    box-shadow: 0 6px 20px #9b30ff88;
+  }
 }
 
 .doacao-desc {
@@ -146,15 +171,9 @@ function copiar(valor) {
   gap: 6px;
 }
 
-.icon-paypal svg {
-  vertical-align: middle;
-}
-.icon-mpesa svg {
-  vertical-align: middle;
-}
-.icon-emola svg {
-  vertical-align: middle;
-}
+.icon-paypal svg,
+.icon-mpesa svg,
+.icon-emola svg,
 .icon-bim svg {
   vertical-align: middle;
 }
@@ -220,7 +239,7 @@ function copiar(valor) {
     font-size: 0.97rem;
   }
   .doacao-header h3 {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
   }
   .doacao-item {
     flex-direction: column;
