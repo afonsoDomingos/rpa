@@ -219,7 +219,7 @@ const solicitarDocumento = async () => {
         title="Fechar"
       >&times;</button>
       <div class="modal-instruction mb-2 text-muted" style="font-size:0.98rem;">
-        Clique fora da janela ou pressione <b>ESC</b> para fechar.
+        Clique fora da janela ou pressione <b>ESC</b>.
       </div>
       <DoacaoProjeto />
     </div>
