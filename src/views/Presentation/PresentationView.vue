@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 
 //example components
 import NavbarDefault from "../../examples/navbars/NavbarDefault.vue";
@@ -24,6 +24,9 @@ import BuiltByDevelopers from "./Components/BuiltByDevelopers.vue";
 import PresentationTestimonials from "./Sections/PresentationTestimonials.vue";
 import PresentationInformation from "./Sections/PresentationInformation.vue";
 
+
+import DoacaoProjeto from "../../components/DoacaoProjeto.vue";
+
 //images
 import vueMkHeader from "@/assets/img/banner.jpg";
 
@@ -38,6 +41,20 @@ import logoSketch from "@/assets/img/logos/sketch.jpg";
 
 
 
+
+const showDoacao = ref(false);
+
+
+function handleEsc(event) {
+  if (event.key === "Escape") showDoacao.value = false;
+}
+
+onMounted(() => {
+  window.addEventListener("keydown", handleEsc);
+});
+onUnmounted(() => {
+  window.removeEventListener("keydown", handleEsc);
+});
 
 
 //hooks
@@ -56,7 +73,7 @@ onUnmounted(() => {
 
 
 import api from "../../api";
-import { ref } from "vue"; // Importando ref para reatividade
+
 
 // Definição de campos reativos
 const nome_completo = ref('');
@@ -171,6 +188,43 @@ const solicitarDocumento = async () => {
       </div>
     </div>
   </div>
+
+<!-- Botão flutuante de doação com ícone e tooltip -->
+<button
+  class="btn-doacao-flutuante"
+  @click="showDoacao = true"
+  :aria-pressed="showDoacao"
+  aria-label="Apoie o Projeto"
+  title="Apoie o Projeto"
+>
+
+  <span class="icon-heart">🤍</span>
+</button>
+
+<!-- Modal de doação -->
+<transition name="fade">
+  <div
+    v-if="showDoacao"
+    class="doacao-modal-bg"
+    @click.self="showDoacao = false"
+    tabindex="-1"
+    aria-modal="true"
+    role="dialog"
+  >
+    <div class="doacao-modal-content" ref="modalContent" tabindex="0">
+      <button
+        class="btn-fechar"
+        @click="showDoacao = false"
+        aria-label="Fechar janela de doação"
+        title="Fechar"
+      >&times;</button>
+      <div class="modal-instruction mb-2 text-muted" style="font-size:0.98rem;">
+        Clique fora da janela ou pressione <b>ESC</b> para fechar.
+      </div>
+      <DoacaoProjeto />
+    </div>
+  </div>
+</transition>
 
   <Header>
     <div class="page-header min-vh-75" :style="`background-image: url(${vueMkHeader})`" loading="lazy">
@@ -485,5 +539,95 @@ const solicitarDocumento = async () => {
   border-color: #800080;
   /* Roxo */
   box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
+}
+
+
+
+
+.btn-doacao-flutuante {
+  position: fixed;
+  top: 48px;
+  right: 18px;
+  z-index: 1050;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 12px #0002;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+  padding: 10;
+}
+.btn-doacao-flutuante:hover {
+  background: #fff;
+  color: #111;
+  border: 1px solid #111;
+  transform: scale(1.13);
+}
+.icon-heart {
+  font-size: 1.2rem;
+  line-height: 1;
+  /* cor do coração segue a cor do botão */
+}
+.btn-doacao-flutuante:hover {
+  background: linear-gradient(135deg, #198754 60%, #800080 100%);
+  transform: scale(1.07);
+}
+
+.doacao-modal-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 20000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.doacao-modal-content {
+  background: #fff;
+  border-radius: 18px;
+  padding: 2.2rem 1.5rem 1.5rem 1.5rem;
+  min-width: 320px;
+  max-width: 95vw;
+  box-shadow: 0 6px 32px #80008022;
+  position: relative;
+  animation: modalPop .25s;
+}
+@keyframes modalPop {
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.btn-fechar {
+  position: absolute;
+  top: 10px; right: 16px;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #800080;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.25s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
+
+@media (max-width: 600px) {
+  .btn-doacao-flutuante {
+    top: auto !important;
+    bottom: 78px !important;
+    right: 18px !important;
+    left: auto !important;
+  }
 }
 </style>
