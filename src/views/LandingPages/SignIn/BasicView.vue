@@ -15,6 +15,13 @@ const newEmail = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 
+
+// Adicione estes estados para controle de visualização das senhas
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
+const showLoginPassword = ref(false);
+
+
 const router = useRouter();
 
 const setBodyClass = (className) => {
@@ -142,12 +149,28 @@ const register = async () => {
 
             <label class="label-input">
               <i class="fas fa-lock icon-modify"></i>
-              <input v-model="newPassword" type="password" placeholder="Senha" required />
+              <input
+                :type="showPassword ? 'text' : 'password'"
+                v-model="newPassword"
+                placeholder="Senha"
+                required
+              />
+              <span class="toggle-password" @click="showPassword = !showPassword" style="cursor:pointer; margin-left:8px;">
+                <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </span>
             </label>
 
             <label class="label-input">
               <i class="fas fa-lock icon-modify"></i>
-              <input v-model="confirmPassword" type="password" placeholder="Confirmar Senha" required />
+              <input
+                :type="showConfirmPassword ? 'text' : 'password'"
+                v-model="confirmPassword"
+                placeholder="Confirmar Senha"
+                required
+              />
+              <span class="toggle-password" @click="showConfirmPassword = !showConfirmPassword" style="cursor:pointer; margin-left:8px;">
+                <i :class="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </span>
             </label>
 
             <div class="text-center">
@@ -194,7 +217,15 @@ const register = async () => {
 
             <label class="label-input">
               <i class="fas fa-lock icon-modify"></i>
-              <input v-model="password" type="password" placeholder="Senha" required />
+              <input
+                :type="showLoginPassword ? 'text' : 'password'"
+                v-model="password"
+                placeholder="Senha"
+                required
+              />
+              <span class="toggle-password" @click="showLoginPassword = !showLoginPassword" style="cursor:pointer; margin-left:8px;">
+                <i :class="showLoginPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </span>
             </label>
 
             <MaterialSwitch class="d-flex align-items-center mb-3" id="rememberMe" labelClass="mb-0 ms-3">
@@ -732,5 +763,12 @@ input:-webkit-autofill {
   .btn {
     width: 100%;
   }
+}
+
+.toggle-password {
+  color: #800080;
+  font-size: 18px;
+  margin-left: 4px;
+  user-select: none;
 }
 </style>
