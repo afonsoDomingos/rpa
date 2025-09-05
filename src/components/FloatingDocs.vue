@@ -1,14 +1,12 @@
 <template>
   <div v-if="documentos.length > 0" 
-       class="floating-box animate-fade-in shadow-sm rounded p-2">
+       class="floating-box animate-fade-in shadow-sm rounded p-1">
     <h6 class="fw-bold text-purple small-title">
       📄Encontrados 
       <span class="count">{{ displayCount }}</span>
     </h6>
-    <p class="mb-1 small-text"><strong>Nome:</strong> {{ documentos[indexAtual].nome_completo }}</p>
-    <p class="mb-1 small-text"><strong>Tipo:</strong> {{ documentos[indexAtual].tipo_documento }}</p>
-    <!--<p class="mb-0 small-text"><strong>Província:</strong> {{ documentos[indexAtual].provincia }}</p>-->
-    
+    <p class="mb-1 tiny-text"><strong>Nome:</strong> {{ documentos[indexAtual].nome_completo }}</p>
+    <p class="mb-1 tiny-text"><strong>Tipo:</strong> {{ documentos[indexAtual].tipo_documento }}</p>
   </div>
 </template>
 
@@ -19,8 +17,6 @@ import api from "../api";
 const documentos = ref([]);
 const indexAtual = ref(0);
 let intervalo = null;
-
-// efeito de contagem
 const displayCount = ref(0);
 let countInterval = null;
 
@@ -39,20 +35,15 @@ const startCounting = () => {
 
   countInterval = setInterval(() => {
     if (documentos.value.length > 0) {
-      if (displayCount.value < documentos.value.length) {
-        displayCount.value++;
-      } else {
-        displayCount.value = 0; // reinicia a contagem (efeito infinito)
-      }
+      displayCount.value = (displayCount.value + 1) % (documentos.value.length + 1);
     }
-  }, 400); // velocidade da contagem
+  }, 400);
 };
 
 onMounted(async () => {
   await buscarDocumentos();
   startCounting();
 
-  // Rotação automática a cada 5s
   intervalo = setInterval(() => {
     if (documentos.value.length > 0) {
       indexAtual.value = (indexAtual.value + 1) % documentos.value.length;
@@ -75,50 +66,50 @@ onUnmounted(() => {
   position: fixed;
   top: 15px;  
   left: 15px; 
-  width: 220px;
+  width: 180px; /* menor largura */
   background: rgba(255, 255, 255, 0.75); 
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   z-index: 9999;
+  padding: 6px; /* menos padding */
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .floating-box:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .small-title {
-  font-size: 13px;
-  margin-bottom: 4px;
+  font-size: 12px; /* menor */
+  margin-bottom: 2px;
 }
 
-.small-text {
-  font-size: 11px;
-  line-height: 1.3;
+.tiny-text {
+  font-size: 10px;
+  line-height: 1.2;
+  margin: 0;
 }
 
 .count {
-  margin-left: 4px;
+  margin-left: 3px;
   font-weight: bold;
   color: #ff7a00;
   animation: pulse 1s infinite;
 }
 
-/* animação do número */
 @keyframes pulse {
   0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.3); opacity: 0.7; }
+  50% { transform: scale(1.2); opacity: 0.7; }
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* efeito fade-in ao aparecer */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
+  from { opacity: 0; transform: translateY(-6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.6s ease-in-out;
+  animation: fadeIn 0.5s ease-in-out;
 }
 </style>
