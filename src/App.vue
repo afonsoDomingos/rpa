@@ -17,6 +17,7 @@ import { RouterView } from "vue-router";
 import CustomCursor from "./views/Presentation/CustomCursor.vue";
 import SocialIcons from "./components/SocialIcons.vue";
 import ChatAssistente from "./components/ChatAssistente.vue";
+import FloatingDocs from "./components/FloatingDocs.vue";
 
 import { ref, onMounted, onUnmounted } from 'vue';
 
@@ -83,6 +84,8 @@ const props = defineProps({
       <CustomCursor />
       <ChatAssistente v-if="!showScrollTop" />
      <SocialIcons :size="14" />
+     <FloatingDocs />
+
 
       
       <button

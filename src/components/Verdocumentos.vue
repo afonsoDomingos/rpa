@@ -4,7 +4,6 @@ import { ref, onMounted, onUnmounted, watch } from "vue"; // Importa funções d
 import MaterialSwitch from "@/components/MaterialSwitch.vue"; // Componente para um switch material
 import eventBus from "@/eventBus";
 
-
 import { Modal } from 'bootstrap';
 
 
@@ -1008,6 +1007,7 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
 
       </div>
     </div>
+    
   </section>
 </template>
 
