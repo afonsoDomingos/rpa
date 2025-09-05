@@ -1,7 +1,6 @@
 <template>
   <div class="doacao-container">
     <div class="doacao-header">
-      
       <h3>Apoie o Projeto RPA!</h3>
     </div>
     <p class="doacao-desc">
@@ -9,28 +8,52 @@
     </p>
     <div class="doacao-list">
       <div class="doacao-item">
-        <span class="doacao-label">PayPal</span>
+        <span class="doacao-label">
+          <span class="icon-paypal" title="PayPal">
+            <!-- PayPal SVG -->
+            <svg width="20" height="20" viewBox="0 0 32 32"><g><path fill="#003087" d="M25.6 6.4c-1.6-1.6-4-2.4-7.2-2.4H8c-1.6 0-2.4.8-2.4 2.4L2.4 27.2c0 .8.8 1.6 1.6 1.6h5.6l1.6-8h2.4c6.4 0 11.2-2.4 12.8-8 .8-2.4.8-4.8-1.6-6.4z"/></g></svg>
+          </span>
+          PayPal
+        </span>
         <span class="doacao-value">{{ paypal }}</span>
         <button class="btn-copiar" @click="copiar(paypal)" :aria-label="`Copiar ${paypal}`">
           <i class="fas fa-copy"></i>
         </button>
       </div>
       <div class="doacao-item">
-        <span class="doacao-label">M-Pesa</span>
+        <span class="doacao-label">
+          <span class="icon-mpesa" title="M-Pesa">
+            <!-- M-Pesa SVG -->
+            <svg width="20" height="20" viewBox="0 0 32 32"><g><circle cx="16" cy="16" r="14" fill="#43b02a"/><text x="16" y="22" text-anchor="middle" font-size="14" fill="#fff" font-family="Arial" font-weight="bold">M</text></g></svg>
+          </span>
+          M-Pesa
+        </span>
         <span class="doacao-value">{{ mpesa }}</span>
         <button class="btn-copiar" @click="copiar(mpesa)" :aria-label="`Copiar ${mpesa}`">
           <i class="fas fa-copy"></i>
         </button>
       </div>
       <div class="doacao-item">
-        <span class="doacao-label">Emola</span>
+        <span class="doacao-label">
+          <span class="icon-emola" title="Emola">
+            <!-- Emola SVG -->
+            <svg width="20" height="20" viewBox="0 0 32 32"><g><circle cx="16" cy="16" r="14" fill="#fbbc05"/><text x="16" y="22" text-anchor="middle" font-size="14" fill="#fff" font-family="Arial" font-weight="bold">E</text></g></svg>
+          </span>
+          Emola
+        </span>
         <span class="doacao-value">{{ emola }}</span>
         <button class="btn-copiar" @click="copiar(emola)" :aria-label="`Copiar ${emola}`">
           <i class="fas fa-copy"></i>
         </button>
       </div>
       <div class="doacao-item">
-        <span class="doacao-label">NIB BIM</span>
+        <span class="doacao-label">
+          <span class="icon-bim" title="BIM">
+            <!-- BIM SVG -->
+            <svg width="20" height="20" viewBox="0 0 32 32"><g><circle cx="16" cy="16" r="14" fill="#e30613"/><text x="16" y="22" text-anchor="middle" font-size="14" fill="#fff" font-family="Arial" font-weight="bold">B</text></g></svg>
+          </span>
+          NIB BIM
+        </span>
         <span class="doacao-value">{{ nib }}</span>
         <button class="btn-copiar" @click="copiar(nib)" :aria-label="`Copiar ${nib}`">
           <i class="fas fa-copy"></i>
@@ -81,13 +104,6 @@ function copiar(valor) {
   margin-bottom: 0.7rem;
 }
 
-.icon-heart {
-  font-size: 2.2rem;
-  color: #800080;
-  margin-bottom: 0.2rem;
-  filter: drop-shadow(0 2px 6px #80008022);
-}
-
 .doacao-header h3 {
   font-size: 1.25rem;
   font-weight: 700;
@@ -123,8 +139,24 @@ function copiar(valor) {
   color: #800080;
   font-weight: 600;
   font-size: 1rem;
-  min-width: 70px;
+  min-width: 90px;
   text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon-paypal svg {
+  vertical-align: middle;
+}
+.icon-mpesa svg {
+  vertical-align: middle;
+}
+.icon-emola svg {
+  vertical-align: middle;
+}
+.icon-bim svg {
+  vertical-align: middle;
 }
 
 .doacao-value {
@@ -199,6 +231,8 @@ function copiar(valor) {
   .doacao-label {
     font-size: 0.97rem;
     margin-bottom: 2px;
+    min-width: 0;
+    justify-content: flex-start;
   }
   .doacao-value {
     font-size: 0.93rem;
@@ -211,62 +245,6 @@ function copiar(valor) {
     font-size: 1rem;
     margin-left: 0;
     align-self: flex-end;
-  }
-}
-
-@media (max-width: 480px) {
-  .doacao-container {
-    padding: 0.7rem 0.1rem 0.7rem 0.1rem;
-    max-width: 99vw;
-    font-size: 0.95rem;
-    margin: 1rem auto;
-    border-radius: 14px;
-  }
-  .doacao-header {
-    margin-bottom: 0.4rem;
-  }
-  .icon-heart {
-    font-size: 1.5rem;
-    margin-bottom: 0.1rem;
-  }
-  .doacao-header h3 {
-    font-size: 0.98rem;
-  }
-  .doacao-desc {
-    font-size: 0.93rem;
-    margin-bottom: 0.7rem;
-  }
-  .doacao-list {
-    gap: 0.7rem;
-  }
-  .doacao-item {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.2rem;
-    padding: 0.5rem 0.3rem;
-    border-radius: 9px;
-  }
-  .doacao-label {
-    font-size: 0.93rem;
-    margin-bottom: 1px;
-  }
-  .doacao-value {
-    font-size: 0.89rem;
-    padding: 2px 2px;
-    margin: 0 0 2px 0;
-    border-radius: 4px;
-  }
-  .btn-copiar {
-    width: 24px;
-    height: 24px;
-    font-size: 0.95rem;
-    margin-left: 0;
-    align-self: flex-end;
-    border-radius: 50%;
-  }
-  .copiado-msg {
-    font-size: 0.97rem;
-    margin-top: 0.7rem;
   }
 }
 </style>
