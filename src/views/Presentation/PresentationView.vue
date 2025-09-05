@@ -23,7 +23,7 @@ import data from "./Sections/Data/designBlocksData";
 import BuiltByDevelopers from "./Components/BuiltByDevelopers.vue";
 import PresentationTestimonials from "./Sections/PresentationTestimonials.vue";
 import PresentationInformation from "./Sections/PresentationInformation.vue";
-
+import FloatingDocs from "../../components/FloatingDocs.vue";
 
 import DoacaoProjeto from "../../components/DoacaoProjeto.vue";
 
@@ -226,6 +226,7 @@ const solicitarDocumento = async () => {
   </div>
 </transition>
 
+<FloatingDocs />
   <Header>
     <div class="page-header min-vh-75" :style="`background-image: url(${vueMkHeader})`" loading="lazy">
       <div class="container">

@@ -1,12 +1,22 @@
 <template>
-  <div v-if="documentos.length > 0" 
-       class="floating-box animate-fade-in shadow-sm rounded p-1">
-    <h6 class="fw-bold text-purple small-title">
-      📄Encontrados 
-      <span class="count">{{ displayCount }}</span>
-    </h6>
-    <p class="mb-1 tiny-text"><strong>Nome:</strong> {{ documentos[indexAtual].nome_completo }}</p>
-    <p class="mb-1 tiny-text"><strong>Tipo:</strong> {{ documentos[indexAtual].tipo_documento }}</p>
+  <div>
+    <!-- Botão reaparecer discreto -->
+    <button v-if="!visivel" @click="visivel = true" class="reaparecer-btn">
+      📄
+    </button>
+
+    <!-- Componente flutuante -->
+    <div v-if="documentos.length > 0 && visivel" class="floating-box animate-fade-in shadow-sm rounded p-1">
+      <!-- Botão de esconder dentro do box -->
+      <button @click="fecharBox" class="hide-btn">✖</button>
+
+      <h6 class="fw-bold text-purple small-title">
+        📄Encontrados 
+        <span class="count">{{ displayCount }}</span>
+      </h6>
+      <p class="mb-1 tiny-text"><strong>Nome:</strong> {{ documentos[indexAtual].nome_completo }}</p>
+      <p class="mb-1 tiny-text"><strong>Tipo:</strong> {{ documentos[indexAtual].tipo_documento }}</p>
+    </div>
   </div>
 </template>
 
@@ -16,9 +26,11 @@ import api from "../api";
 
 const documentos = ref([]);
 const indexAtual = ref(0);
-let intervalo = null;
 const displayCount = ref(0);
+const visivel = ref(true); // controla visibilidade
+let intervalo = null;
 let countInterval = null;
+let timerReaparecer = null; // timer para reaparecer automático
 
 const buscarDocumentos = async () => {
   try {
@@ -40,6 +52,17 @@ const startCounting = () => {
   }, 400);
 };
 
+// função para fechar box e iniciar timer de reaparecer
+const fecharBox = () => {
+  visivel.value = false;
+  if (timerReaparecer) clearTimeout(timerReaparecer);
+
+  // reaparecer automaticamente após 1 minuto (60000 ms)
+  timerReaparecer = setTimeout(() => {
+    visivel.value = true;
+  }, 60000);
+};
+
 onMounted(async () => {
   await buscarDocumentos();
   startCounting();
@@ -54,6 +77,7 @@ onMounted(async () => {
 onUnmounted(() => {
   if (intervalo) clearInterval(intervalo);
   if (countInterval) clearInterval(countInterval);
+  if (timerReaparecer) clearTimeout(timerReaparecer);
 });
 </script>
 
@@ -64,14 +88,14 @@ onUnmounted(() => {
 
 .floating-box {
   position: fixed;
-  top: 15px;  
-  left: 15px; 
-  width: 180px; /* menor largura */
+  top: 400px;  
+  left: 25px; 
+  width: 180px;
   background: rgba(255, 255, 255, 0.75); 
   backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   z-index: 9999;
-  padding: 6px; /* menos padding */
+  padding: 6px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -81,7 +105,7 @@ onUnmounted(() => {
 }
 
 .small-title {
-  font-size: 12px; /* menor */
+  font-size: 12px;
   margin-bottom: 2px;
 }
 
@@ -96,6 +120,47 @@ onUnmounted(() => {
   font-weight: bold;
   color: #ff7a00;
   animation: pulse 1s infinite;
+}
+
+/* Botão dentro do box para esconder */
+.hide-btn {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  color: #999;
+}
+.hide-btn:hover {
+  color: #ff0000;
+}
+
+/* Botão reaparecer discreto e transparente */
+.reaparecer-btn {
+  position: fixed;
+  top: 400px;
+  left: 25px;
+  z-index: 9999;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #6f42c1;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font-size: 14px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.reaparecer-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 @keyframes pulse {
