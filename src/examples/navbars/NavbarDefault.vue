@@ -188,7 +188,8 @@ watch(
           ? 'text-dark font-weight-bolder ms-sm-3'
           : 'text-white font-weight-bolder ms-sm-3'
       ]" :to="{ name: 'presentation' }" rel="tooltip" title="Página inicial" data-placement="bottom">
-        <img src="@/assets/img/rPa.png" alt="Logo Rpa" style="height:38px;width:auto;object-fit:contain;vertical-align:middle;" />
+        <img src="@/assets/img/rPa.png" alt="Logo Rpa"
+          style="height:38px;width:auto;object-fit:contain;vertical-align:middle;" />
       </RouterLink>
 
 
@@ -214,17 +215,17 @@ watch(
         </span>
       </button>
       <div class="collapse navbar-collapse w-100 pt-3 pb-2 py-lg-0" id="navigation">
-        <ul class="navbar-nav navbar-nav-hover ms-auto " >
+        <ul class="navbar-nav navbar-nav-hover ms-auto ">
           <li class="nav-item dropdown dropdown-hover mx-2">
-            <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center borda-destacada" :class="getTextColor()"
-              id="dropdownMenuPages" data-bs-toggle="dropdown" aria-expanded="false">
+            <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center borda-destacada"
+              :class="getTextColor()" id="dropdownMenuPages" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="material-icons opacity-6 me-2 text-md" :class="getTextColor()">dashboard</i>
               Paginas
               <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-2 d-lg-block d-none" />
               <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-1 d-lg-none d-block ms-auto" />
             </a>
             <div class=" dropdown-menu dropdown-menu-animation ms-n3 dropdown-md p-3 border-radius-xl mt-0 mt-lg-3"
-              aria-labelledby="dropdownMenuPages" >
+              aria-labelledby="dropdownMenuPages">
               <div class="row d-none d-lg-block">
                 <div class="col-12 px-4 py-2">
                   <div class="row">
@@ -328,70 +329,45 @@ watch(
           </li>
 
 
-        <li v-if="usuario" class="nav-item dropdown dropdown-hover mx-2">
-  <a
-    role="button"
-    class="nav-link ps-2 d-flex cursor-pointer align-items-center"
-    :class="getTextColor()"
-    id="dropdownUser"
-    data-bs-toggle="dropdown"
-    aria-expanded="false"
-  >
-    <i class="material-icons opacity-6 me-2 text-md" :class="getTextColor()">person</i>
-    {{ usuario?.nome || 'Usuário' }}
-    <img
-      :src="getArrowColor()"
-      alt="down-arrow"
-      class="arrow ms-2 d-lg-block d-none"
-    />
-  </a>
+          <li v-if="usuario" class="nav-item dropdown dropdown-hover mx-2">
+            <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" :class="getTextColor()"
+              id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="material-icons opacity-6 me-2 text-md" :class="getTextColor()">person</i>
+              {{ usuario?.nome || 'Usuário' }}
+              <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-2 d-lg-block d-none" />
+            </a>
 
- <div
- ref="dropdownMenu"
-  class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada"
-  aria-labelledby="dropdownUser"
-  style="min-width: 180px;"
->
-  <button
-    class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-    @click="$router.push({ name: 'MeusPagamentos' })"
-    style="cursor: pointer;"
-  >
-    <i class="bi bi-credit-card text-primary"></i>
-    Meus Pagamentos
-  </button>
+            <div ref="dropdownMenu"
+              class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada"
+              aria-labelledby="dropdownUser" style="min-width: 180px;">
+              <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+                @click="$router.push({ name: 'MeusPagamentos' })" style="cursor: pointer;">
+                <i class="bi bi-credit-card text-primary"></i>
+                Meus Pagamentos
+              </button>
 
-  <button
-    class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-    @click="$router.push({ name: 'MeusDocumentos' })"
-    style="cursor: pointer;"
-  >
-    <i class="bi bi-folder2-open text-info"></i>
-    Meus Documentos
-  </button>
+              <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+                @click="$router.push({ name: 'MeusDocumentos' })" style="cursor: pointer;">
+                <i class="bi bi-folder2-open text-info"></i>
+                Meus Documentos
+              </button>
 
-  <button
-    class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-    @click="$router.push({ name: 'GuardarDocumentos' })"
-    style="cursor: pointer;"
-  >
-    <i class="bi bi-folder-plus text-success"></i>
-    Guardar Documentos
-  </button>
+              <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+                @click="$router.push({ name: 'GuardarDocumentos' })" style="cursor: pointer;">
+                <i class="bi bi-folder-plus text-success"></i>
+                Guardar Documentos
+              </button>
 
-  <div class="dropdown-divider"></div>
+              <div class="dropdown-divider"></div>
 
-  <button
-    class="dropdown-item border-radius-md d-flex align-items-center gap-2 text-danger"
-    @click="logout"
-    style="cursor: pointer;"
-  >
-    <i class="bi bi-box-arrow-right"></i>
-    Sair
-  </button>
-</div>
+              <button class="dropdown-item border-radius-md d-flex align-items-center gap-2 text-danger" @click="logout"
+                style="cursor: pointer;">
+                <i class="bi bi-box-arrow-right"></i>
+                Sair
+              </button>
+            </div>
 
-</li>
+          </li>
 
 
 
@@ -423,31 +399,37 @@ watch(
             <a :href="action.route" class="btn btn-sm mb-0" :class="action.color"
               onclick="smoothToPricing('pricing-soft-ui')">{{ action.label }}</a>
           </li>-->
-          <li class="nav-item">
+
+
+          <!--Uso Botao-->
+          <!--<li class="nav-item">
             <a @click="goToCadastrar" class="btn btn-sm mb-0" :class="action.color" role="button">
               {{ action.label }}
             </a>
-          </li>
+          </li>-->
         </ul>
-         <a class="btn btn-sm mb-0 ms-2" role="button" @click="$router.push({ name: 'Viaturas' })"
-   style="background-color: #ff9800; color: white;">
-   Viaturas
-</a>
+        <a class="btn btn-sm mb-0 ms-2" role="button" @click="$router.push({ name: 'CVGenerator' })"
+          style="background-color: #ff9800; color: white;">
+          Gerar Cv
+        </a>
+        
+        <a class="btn btn-sm mb-0 ms-2" role="button" @click="$router.push({ name: 'Viaturas' })"
+          style="background-color: #ff9800; color: white;">
+          Viaturas
+        </a>
+
+        
         <a class="btn btn-sm mb-0 ms-2" role="button" @click="$router.push({ name: 'Assinaturas' })"
           style="background-color: #6f42c1; color: white;">
           Assinatura
         </a>
-          <a class="btn btn-sm mb-0 ms-2" role="button" @click="$router.push({ name: 'CVGenerator' })"
-   style="background-color: #ff9800; color: white;">
-   Gerar  Cv
-</a>
-
-      
 
 
 
 
-      <!--  <a class="btn btn-sm bg-gradient-primary mb-0 ms-2" role="button"
+
+
+        <!--  <a class="btn btn-sm bg-gradient-primary mb-0 ms-2" role="button"
           @click="$router.push({ name: 'GuardarDocumentos' })">
           Guardar Documentos
         </a>-->
@@ -460,11 +442,11 @@ watch(
 
 
 <style scoped>
-
 .borda-destacada {
   border: 2px solid #66bb6a;
   border-radius: 12px;
-  padding: 10px 0; /* removi padding grande para não ficar pesado */
+  padding: 10px 0;
+  /* removi padding grande para não ficar pesado */
   background-color: #fff;
   transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
@@ -478,6 +460,4 @@ watch(
 
 
 /*efeitos*/
-
-
 </style>
