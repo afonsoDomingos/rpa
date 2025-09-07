@@ -182,7 +182,7 @@ const predefinidas = [
   { id: 8, pergunta: '📄 8. Como gerar um PDF na Rpa?', resposta: 'Após guardar um documento, clique em "Gerar PDF".\nUm arquivo será criado automaticamente com os dados preenchidos.' },
   { id: 9, pergunta: '🔁 9. Como renovar a assinatura na Rpa?', resposta: 'Quando sua assinatura expirar, clique em "Renovar" no painel.\nEscolha o plano desejado e continue acessando todos os recursos.' },
   { id: 10, pergunta: '❓ 10. Como posso receber ajuda na Rpa?', resposta: 'Você pode digitar perguntas como:\n"Assinar", "Reportar documento", "PDF", "Renovar" ou "Guardar".\nOu clique no botão "Ajuda" para ver todas as opções.' },
-  { id: 11, pergunta: '🔎 11. Perdi meu documento', resposta: 'Vou te ajudar a procurar seu documento! Primeiro preciso de algumas informações.' }
+  { id: 11, pergunta: '🔎 11. Perdi um documento. Como faço para recuperar?', resposta: 'Vou te ajudar a procurar seu documento! Primeiro preciso de algumas informações.' }
 ];
 
 const messages = ref([

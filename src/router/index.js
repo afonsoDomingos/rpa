@@ -32,6 +32,10 @@ import Assinaturas from "../components/Assinaturas.vue";
 import MeusPagamentos from "../components/MeusPagamentos.vue";
 import MeusDocumentos from "../components/MeusDocumentos.vue";
 import Viaturas from "../components/viaturas.vue";
+
+
+// NOVO COMPONENTE
+import CVGenerator from "../components/CVGenerator.vue";
     
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -226,6 +230,11 @@ const router = createRouter({
       path: '/guardardocumentos',
       name: 'GuardarDocumentos',
       component: GuardarDocumentos,
+    },
+     {
+      path: '/CVGenerator',
+      name: 'CVGenerator',
+      component: CVGenerator,
     }
   ],
 });
