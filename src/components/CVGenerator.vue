@@ -1,5 +1,19 @@
 <template>
+  <div>
+    <!-- Navbar fixo -->
+    <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
+      <div class="row gx-0">
+        <div class="col-12">
+          <NavbarDefault :sticky="true" />
+        </div>
+      </div>
+    </div>
+
+ 
+
+    <!-- Conteúdo principal -->
   <div class="cv-generator">
+       <br/><br/><br/>
     <div class="container-fluid">
       <!-- Formulário -->
       <div class="form-container">
@@ -257,11 +271,18 @@
 
     </div>
   </div>
+
+    <!-- Rodapé -->
+    <FooterDefault />
+  </div>
 </template>
 
 <script setup>
+
 import { ref } from "vue"
 import html2pdf from "html2pdf.js"
+import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
+import FooterDefault from "../examples/footers/FooterDefault.vue";
 
 // Estado do formulário
 const form = ref({
@@ -733,6 +754,7 @@ const generateCV = () => {
   to { transform: translateY(0); opacity: 1; }
 }
 </style>
+
 
 
 

@@ -437,6 +437,10 @@ watch(
           style="background-color: #6f42c1; color: white;">
           Assinatura
         </a>
+          <a class="btn btn-sm mb-0 ms-2" role="button" @click="$router.push({ name: 'CVGenerator' })"
+   style="background-color: #ff9800; color: white;">
+   Gerar  Cv
+</a>
 
       
 
