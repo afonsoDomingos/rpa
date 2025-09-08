@@ -20,6 +20,10 @@
         <div class="header-section">
           <h1 class="main-title">Gerador de CV</h1>
           <p class="subtitle">Preencha os dados abaixo para gerar o seu currículo</p>
+           <button class="download-btn" @click="toggleExampleData">
+  {{ isFilled ? 'Despreencher Exemplo' : 'Preencher com Exemplo' }}
+</button>
+
         </div>
 
         <!-- Upload Foto -->
@@ -71,7 +75,7 @@
         </div>
 
         <!-- Resumo -->
-        <h3 class="section-title"><i class="fas fa-align-left"></i> Resumo</h3>
+        <h3 class="section-title"><i class="fas fa-align-left"></i> Sobre Mim</h3>
         <div class="borda-destacada mb-3">
           <div class="form-floating">
             <textarea v-model="form.summary" class="form-control-enhanced" placeholder=" "></textarea>
@@ -191,7 +195,7 @@
         <button class="add-btn" @click="addReference">+ Adicionar Referência</button>
 
         <!-- Botões de ação -->
-        <button class="example-btn" @click="fillExampleData">Preencher Dados</button>
+       
         <button class="reset-btn" @click="resetForm">Resetar Formulário</button>
         <button class="download-btn" @click="generateCV">
           <i class="fas fa-file-download"></i> Gerar CV
@@ -200,9 +204,11 @@
 
       <!-- Preview -->
       <div class="preview-container" id="cv-preview">
-        <div class="preview-header">
-          <h2 class="preview-title"><i class="fas fa-eye"></i> Pré-visualização</h2>
-        </div>
+        <!-- Adicione v-show para controlar a exibição -->
+<div class="preview-header" v-show="showPreviewHeader">
+  <h2 class="preview-title"><i class="fas fa-eye"></i> Pré-visualização</h2>
+</div>
+
         <div class="cv-preview">
           <div class="cv-document">
             <div class="cv-header">
@@ -228,7 +234,7 @@
             <div class="cv-body">
               <!-- Resumo -->
               <div class="cv-section" v-if="form.summary">
-                <h3 class="section-title-cv"><i class="fas fa-align-left"></i> Resumo</h3>
+                <h3 class="section-title-cv"><i class="fas fa-align-left"></i> Sobre Mim</h3>
                 <p class="resume-text">{{ form.summary }}</p>
               </div>
               <!-- Experiência -->
@@ -278,11 +284,11 @@
 </template>
 
 <script setup>
-
-import { ref } from "vue"
-import html2pdf from "html2pdf.js"
-import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
-import FooterDefault from "../examples/footers/FooterDefault.vue";
+import { ref, nextTick } from 'vue'
+import html2pdf from 'html2pdf.js'
+import NavbarDefault from "../examples/navbars/NavbarDefault.vue"
+import FooterDefault from "../examples/footers/FooterDefault.vue"
+import exemploPhoto from '@/assets/img/afonsodomingos.jpg'
 
 // Estado do formulário
 const form = ref({
@@ -303,21 +309,16 @@ const form = ref({
 })
 
 const photo = ref(null)
-
-// Opções para idiomas e níveis
+const isFilled = ref(false)
 const languageOptions = ["Português", "Inglês", "Francês", "Espanhol", "Chinês", "Alemão"]
 const levelOptions = ["Básico", "Intermediário", "Avançado", "Fluente", "Nativo"]
 
-// Upload de foto
-const onPhotoUpload = (event) => {
-  const file = event.target.files[0]
-  if (file) {
-    photo.value = URL.createObjectURL(file)
-  }
+const onPhotoUpload = (e) => {
+  const file = e.target.files[0]
+  if (file) photo.value = URL.createObjectURL(file)
 }
 const removePhoto = () => { photo.value = null }
 
-// Funções para adicionar/remover
 const addExperience = () => form.value.experience.push({ company: "", role: "", period: "", yearsExp: 0, description: "" })
 const removeExperience = (i) => form.value.experience.splice(i, 1)
 
@@ -336,7 +337,6 @@ const removeProject = (i) => form.value.projects.splice(i, 1)
 const addReference = () => form.value.references.push({ name: "", role: "", contact: "" })
 const removeReference = (i) => form.value.references.splice(i, 1)
 
-// Resetar formulário
 const resetForm = () => {
   form.value = {
     name: "",
@@ -355,59 +355,58 @@ const resetForm = () => {
     references: []
   }
   photo.value = null
+  isFilled.value = false
 }
 
+const toggleExampleData = () => {
+  if (!isFilled.value) {
+    photo.value = exemploPhoto
+    form.value.name = "Afonso Domingos"
+    form.value.title = "Profissional de Tecnologia / Front-End"
+    form.value.idNumber = "110301744616C"
+    form.value.birthDate = "1998-01-01"
+    form.value.email = "karinganastudio23@gmail.com"
+    form.value.phone = "847 877 405"
+    form.value.address = "Maputo, Moçambique"
+    form.value.summary = "Profissional apaixonado por tecnologia, com experiência em front-end, IA, gestão de redes sociais e branding, usando ferramentas da Meta e Adobe."
+    form.value.experience = [
+      { company: "Front‑End DpWorks", role: "Desenvolvimento de Ecommerce e TI", period: "2018–2020", yearsExp: 2, description: "" },
+      { company: "Fullstack Quinatec Lda", role: "Desenvolvimento, IT Specialist – Brand Manager OmniTrack Quality", period: "2024", yearsExp: 1, description: "" }
+    ]
+    form.value.education = [
+      { institution: "Maxaquene B", degree: "7ª Classe", period: "2010", yearsExp: 1, description: "" },
+      { institution: "Noroeste 1", degree: "12ª Classe", period: "2018", yearsExp: 1, description: "" }
+    ]
+    form.value.skills = ["HTML", "CSS", "JavaScript", "Vue.js", "React"]
+    form.value.languages = [
+      { language: "Português", level: "Nativo" },
+      { language: "Inglês", level: "Fluente" }
+    ]
+    form.value.references = [
+      { name: "Inácio Birrisau", role: "Empreendedor", contact: "84*******" },
+      { name: "Silva Machel", role: "Desenvolvedor de Negócios", contact: "84*******" },
+      { name: "Pedro Muiambo", role: "Eng. Informático", contact: "84*******" },
+      { name: "Jorge Quinarivo", role: "Eng. Informático", contact: "84*******" },
+      { name: "Douglas Pendula", role: "Eng. Informático", contact: "84*******" }
+    ]
+    isFilled.value = true
+  } else {
+    resetForm()
+  }
+}
 
-// Preencher dados pessoais
-// Importando a foto corretamente
-import exemploPhoto from '@/assets/img/afonsodomingos.jpg';
+const showPreviewHeader = ref(true)
 
-const fillExampleData = () => {
-  // Define a foto enviada como padrão
-  photo.value = exemploPhoto;
-
-  form.value.name = "Afonso Domingos";
-  form.value.title = "Profissional de Tecnologia / Front-End";
-  form.value.idNumber = "110301744616C";
-  form.value.birthDate = "1998-01-01";
-  form.value.email = "karinganastudio23@gmail.com";
-  form.value.phone = "847 877 405";
-  form.value.address = "Maputo, Moçambique";
-  form.value.summary = "Profissional apaixonado por tecnologia,Inteligência Artificial, desenvolvimento front-end (Vue.js, CSS, HTML, Bootstrap, WordPress) e em gestão de redes sociais e Branding Empresarial com ferramentas da Meta e Adobe.";
-
-  form.value.experience = [
-    { company: "Acácio Macicame – Front-End DpWorks", role: "Desenvolvimento de Ecommerce e TI", period: "2018–2020", yearsExp: 2, description: "" },
-    { company: "Fullstack Quinatec Lda", role: "Desenvolvimento, IT Specialist – Brand Manager OmniTrack Quality", period: "2024", yearsExp: 1, description: "" }
-  ];
-
-  form.value.education = [
-    { institution: "Maxaquene B", degree: "7ª Classe", period: "2010", yearsExp: 1, description: "" },
-    { institution: "Noroeste 1", degree: "12ª Classe", period: "2018", yearsExp: 1, description: "" }
-  ];
-
-  form.value.skills = ["HTML", "CSS", "JavaScript", "Vue.js", "React"];
-
-  form.value.languages = [
-    { language: "Português", level: "Nativo" },
-    { language: "Inglês", level: "Fluente" }
-  ];
-
-  form.value.references = [
-    { name: "Inácio Birrisau", role: "Empreendedor", contact: "84*******" },
-    { name: "Silva Machel", role: "Desenvolvedor de Negócios", contact: "84*******" },
-    { name: "Pedro Muiambo", role: "Eng. Informático", contact: "84*******" },
-    { name: "Jorge Quinarivo", role: "Eng. Informático", contact: "84*******" },
-    { name: "Douglas Pendula", role: "Eng. Informático", contact: "84*******" }
-  ];
-};
-
-
-// Gerar PDF
-const generateCV = () => {
+const generateCV = async () => {
+  showPreviewHeader.value = false
+  await nextTick()
   const element = document.getElementById("cv-preview")
-  html2pdf().from(element).save(`${form.value.name || "CV"}.pdf`)
+  html2pdf().from(element).save(`${form.value.name || "CV"}.pdf`).then(() => {
+    showPreviewHeader.value = true
+  })
 }
 </script>
+
 
 
 
@@ -753,6 +752,15 @@ const generateCV = () => {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+.section-title,
+.section-title-cv,
+.main-title {
+  text-transform: uppercase;
+}
+
+
+
 </style>
 
 
