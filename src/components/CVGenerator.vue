@@ -933,7 +933,7 @@ const generateCV = async () => {
 .cv-generator {
   background: #f8fafc;
   min-height: 100vh;
-  padding: 0.5rem;
+  padding: 1rem;
   width: 100vw;
   overflow-x: hidden;
 }
@@ -941,10 +941,10 @@ const generateCV = async () => {
 .container-fluid {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 0.5rem;
+  padding: 0 1rem;
   width: 100%;
   box-sizing: border-box;
 }
@@ -952,8 +952,8 @@ const generateCV = async () => {
 @media (min-width: 768px) {
   .container-fluid {
     flex-direction: row;
-    gap: 1rem;
-    padding: 0 1rem;
+    gap: 1.5rem;
+    padding: 0 1.5rem;
   }
 }
 
@@ -961,50 +961,69 @@ const generateCV = async () => {
   .container-fluid {
     display: grid;
     grid-template-columns: 1fr 1.5fr;
-    gap: 1.5rem;
-    padding: 0 1.5rem;
+    gap: 2rem;
+    padding: 0 2rem;
   }
 }
 
 /* Estilos do Formulário */
 .form-container {
   background: #ffffff;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
 }
 
 .form-container:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
 .header-section {
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .main-title {
-  font-size: clamp(1.25rem, 4.5vw, 1.5rem);
+  font-size: clamp(1.5rem, 5vw, 1.75rem);
   font-weight: 600;
   color: #1e3a8a;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.main-title:hover {
+  color: #3b82f6;
 }
 
 .subtitle {
-  font-size: clamp(0.8rem, 3.5vw, 0.9rem);
+  font-size: clamp(0.9rem, 3.5vw, 1rem);
   color: #4b5563;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+  transition: color 0.3s ease;
 }
 
 .alert {
-  padding: 0.5rem 0.75rem;
-  margin-bottom: 0.75rem;
-  border-radius: 0.25rem;
-  font-size: clamp(0.8rem, 3vw, 0.9rem);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.375rem;
+  font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-10px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
 .alert-danger {
@@ -1022,12 +1041,12 @@ const generateCV = async () => {
 .photo-upload-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .photo-placeholder {
-  width: clamp(70px, 18vw, 80px);
-  height: clamp(70px, 18vw, 80px);
+  width: clamp(80px, 20vw, 90px);
+  height: clamp(80px, 20vw, 90px);
   border: 2px dashed #9ca3af;
   border-radius: 50%;
   display: flex;
@@ -1036,18 +1055,8 @@ const generateCV = async () => {
   flex-direction: column;
   color: #6b7280;
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.photo-placeholder i {
-  font-size: clamp(18px, 4.5vw, 20px);
-  margin-bottom: 0.25rem;
-}
-
-.photo-placeholder span {
-  font-size: clamp(11px, 3vw, 12px);
-  text-align: center;
-  line-height: 1.2;
+  transition: border-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+  padding: 0.5rem;
 }
 
 .photo-placeholder:hover {
@@ -1056,17 +1065,39 @@ const generateCV = async () => {
   transform: scale(1.05);
 }
 
+.photo-placeholder i {
+  font-size: clamp(20px, 5vw, 22px);
+  margin-bottom: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+.photo-placeholder:hover i {
+  transform: rotate(10deg);
+}
+
+.photo-placeholder span {
+  font-size: clamp(12px, 3.5vw, 13px);
+  text-align: center;
+  line-height: 1.3;
+}
+
 .photo-input {
   display: none;
 }
 
 .photo-preview {
   position: relative;
-  width: clamp(70px, 18vw, 80px);
-  height: clamp(70px, 18vw, 80px);
+  width: clamp(80px, 20vw, 90px);
+  height: clamp(80px, 20vw, 90px);
   border-radius: 50%;
   overflow: hidden;
   border: 2px solid #3b82f6;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.photo-preview:hover {
+  transform: scale(1.03);
+  border-color: #1e40af;
 }
 
 .photo-preview img {
@@ -1077,87 +1108,94 @@ const generateCV = async () => {
 
 .remove-photo-btn {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 6px;
+  right: 6px;
   background: rgba(220, 38, 38, 0.9);
   color: white;
   border: none;
   border-radius: 50%;
-  padding: 4px 6px;
+  padding: 5px 7px;
   cursor: pointer;
-  transition: background 0.2s ease;
-  font-size: clamp(11px, 2.5vw, 12px);
+  transition: background 0.3s ease, transform 0.3s ease;
+  font-size: clamp(12px, 3vw, 13px);
 }
 
 .remove-photo-btn:hover {
   background: rgba(185, 28, 28, 0.9);
+  transform: scale(1.1);
 }
 
 .form-floating {
   position: relative;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
 }
 
 .form-control-enhanced {
   width: 100%;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.25rem;
-  border: 1px solid #d1d5db;
+  padding: 0.625rem;
+  border: 1px solid #66bb6a;
+  border-radius: 5px;
   outline: none;
-  transition: all 0.2s ease;
-  font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+  font-size: clamp(0.9rem, 3.5vw, 1rem);
+  line-height: 1.5;
+  background: #f8fafc;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
 
 .form-control-enhanced:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  border-color: #800080;
+  box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
+  transform: translateY(-1px);
 }
 
 .form-floating label {
   position: absolute;
   top: 50%;
-  left: 0.75rem;
+  left: 1.5rem;
   transform: translateY(-50%);
   color: #6b7280;
-  transition: all 0.2s ease;
+  font-size: clamp(0.95rem, 3.5vw, 1.05rem);
+  font-weight: 400;
+  padding: 0.1rem 0.3rem;
   pointer-events: none;
-  font-size: clamp(0.8rem, 3vw, 0.9rem);
+  z-index: 1;
+  transition: opacity 0.3s ease, visibility 0.3s ease, color 0.3s ease, top 0.3s ease, transform 0.3s ease;
 }
 
 .form-control-enhanced:focus + label,
 .form-control-enhanced:not(:placeholder-shown) + label {
-  top: 0.15rem;
-  font-size: clamp(0.65rem, 2.5vw, 0.75rem);
-  color: #3b82f6;
+  opacity: 0;
+  visibility: hidden;
 }
 
 textarea.form-control-enhanced {
-  min-height: 60px;
+  min-height: 100px;
   resize: vertical;
+  padding: 0.625rem;
 }
 
 .borda-destacada {
   border: 1px solid #e5e7eb;
-  border-radius: 0.25rem;
-  padding: 0.75rem;
+  border-radius: 0.375rem;
+  padding: 1.25rem;
   background: #f9fafb;
-  transition: all 0.2s ease;
-  margin-bottom: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 1.5rem;
 }
 
 .borda-destacada:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .add-btn, .remove-btn, .download-btn, .reset-btn {
   border: none;
-  border-radius: 0.25rem;
-  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  padding: 0.75rem 1.5rem;
   cursor: pointer;
   font-weight: 500;
-  font-size: clamp(0.85rem, 3vw, 0.95rem);
-  transition: all 0.2s ease;
+  font-size: clamp(0.9rem, 3.5vw, 1rem);
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .add-btn {
@@ -1168,31 +1206,39 @@ textarea.form-control-enhanced {
 
 .add-btn:hover {
   background: #15803d;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
 .remove-btn {
   background: #b91c1c;
   color: white;
-  padding: 0.3rem 0.6rem;
+  padding: 0.5rem 1rem;
 }
 
 .remove-btn:hover {
   background: #991b1b;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
 .download-btn {
   background: #1e40af;
   color: white;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.5rem;
 }
 
 .download-btn:hover {
   background: #1e3a8a;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
 .download-btn:disabled {
   background: #6b7280;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .reset-btn {
@@ -1202,6 +1248,8 @@ textarea.form-control-enhanced {
 
 .reset-btn:hover {
   background: #d97706;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
 /* Botões de Ação */
@@ -1209,33 +1257,44 @@ textarea.form-control-enhanced {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 0.75rem;
-  margin-top: 1rem;
+  gap: 1rem;
+  margin-top: 1.5rem;
 }
 
 .actions-inline {
   display: flex;
   justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
 }
 
 /* Estilos da Visualização do CV */
 .preview-container {
   background: white;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
 }
 
+.preview-container:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
 .preview-title {
-  font-size: clamp(1rem, 3.5vw, 1.25rem);
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
   font-weight: 600;
   color: #1e3a8a;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
+  transition: color 0.3s ease;
+}
+
+.preview-title:hover {
+  color: #3b82f6;
 }
 
 .cv-preview {
@@ -1243,9 +1302,14 @@ textarea.form-control-enhanced {
   max-width: 100%;
   margin: 0 auto;
   border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   background: white;
   box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.cv-preview:hover {
+  border-color: #3b82f6;
 }
 
 @media (min-width: 768px) {
@@ -1267,6 +1331,11 @@ textarea.form-control-enhanced {
   padding: 4mm 6mm;
   max-height: 40mm;
   page-break-after: avoid;
+  transition: background 0.3s ease;
+}
+
+.cv-header:hover {
+  background: #1e3a8a;
 }
 
 .header-content {
@@ -1301,6 +1370,12 @@ textarea.form-control-enhanced {
   overflow: hidden;
   border: 0.5mm solid white;
   flex-shrink: 0;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.profile-photo:hover {
+  transform: scale(1.03);
+  border-color: #e0e7ff;
 }
 
 .profile-photo img {
@@ -1319,6 +1394,11 @@ textarea.form-control-enhanced {
   margin: 0;
   color: white;
   line-height: 1.2;
+  transition: transform 0.3s ease;
+}
+
+.cv-name:hover {
+  transform: translateX(2px);
 }
 
 .cv-title {
@@ -1327,6 +1407,11 @@ textarea.form-control-enhanced {
   margin: 1mm 0 0;
   color: white;
   line-height: 1.2;
+  transition: transform 0.3s ease;
+}
+
+.cv-title:hover {
+  transform: translateX(2px);
 }
 
 .contact-info {
@@ -1342,6 +1427,11 @@ textarea.form-control-enhanced {
   align-items: center;
   justify-content: flex-end;
   gap: 0.5mm;
+  transition: transform 0.3s ease;
+}
+
+.contact-item:hover {
+  transform: translateX(2px);
 }
 
 .contact-item i {
@@ -1363,10 +1453,12 @@ textarea.form-control-enhanced {
   align-items: center;
   gap: 0.5mm;
   text-decoration: none;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .social-link:hover {
   color: #e0e7ff;
+  transform: translateX(2px);
 }
 
 .social-link i {
@@ -1392,6 +1484,11 @@ textarea.form-control-enhanced {
   margin-bottom: 1.5mm;
   page-break-inside: avoid;
   page-break-after: auto;
+  transition: transform 0.3s ease;
+}
+
+.cv-section:hover {
+  transform: translateY(-1px);
 }
 
 .section-title-cv {
@@ -1403,10 +1500,20 @@ textarea.form-control-enhanced {
   align-items: center;
   gap: 0.5mm;
   text-transform: uppercase;
+  transition: color 0.3s ease;
+}
+
+.section-title-cv:hover {
+  color: #3b82f6;
 }
 
 .section-title-cv i {
   font-size: clamp(8pt, 2vw, 9pt);
+  transition: transform 0.3s ease;
+}
+
+.section-title-cv:hover i {
+  transform: rotate(10deg);
 }
 
 .section-divider {
@@ -1415,6 +1522,11 @@ textarea.form-control-enhanced {
   background-color: #1e3a8a;
   margin: 1mm 0;
   page-break-inside: avoid;
+  transition: background-color 0.3s ease;
+}
+
+.section-divider:hover {
+  background-color: #3b82f6;
 }
 
 .resume-text {
@@ -1439,6 +1551,12 @@ textarea.form-control-enhanced {
   font-size: clamp(7pt, 2vw, 8pt);
   color: #374151;
   background: #f8fafc;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.skill-item:hover, .language-item:hover, .certification-item:hover {
+  transform: scale(1.02);
+  background: #e0e7ff;
 }
 
 .certification-item {
@@ -1454,10 +1572,12 @@ textarea.form-control-enhanced {
   text-decoration: none;
   display: block;
   margin-top: 0.25mm;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .project-link:hover, .cert-link:hover {
-  text-decoration: underline;
+  color: #3b82f6;
+  transform: translateX(2px);
 }
 
 .timeline {
@@ -1474,6 +1594,11 @@ textarea.form-control-enhanced {
   bottom: 0;
   width: 1px;
   background-color: #1e3a8a;
+  transition: background-color 0.3s ease;
+}
+
+.timeline:hover::before {
+  background-color: #3b82f6;
 }
 
 .timeline-item {
@@ -1481,6 +1606,11 @@ textarea.form-control-enhanced {
   margin-bottom: 1.5mm;
   padding-left: 4mm;
   page-break-inside: avoid;
+  transition: transform 0.3s ease;
+}
+
+.timeline-item:hover {
+  transform: translateX(2px);
 }
 
 .timeline-marker {
@@ -1492,6 +1622,12 @@ textarea.form-control-enhanced {
   background-color: #1e3a8a;
   border-radius: 50%;
   border: 0.5mm solid white;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.timeline-item:hover .timeline-marker {
+  background-color: #3b82f6;
+  transform: scale(1.2);
 }
 
 .timeline-content p.resume-text {
@@ -1504,6 +1640,11 @@ textarea.form-control-enhanced {
   font-weight: 600;
   color: #1f2937;
   margin-bottom: 0.25mm;
+  transition: color 0.3s ease;
+}
+
+.timeline-title:hover {
+  color: #3b82f6;
 }
 
 /* Rodapé com Logotipo */
@@ -1520,14 +1661,26 @@ textarea.form-control-enhanced {
 .footer-logo {
   width: clamp(7mm, 4vw, 8mm);
   height: auto;
+  transition: transform 0.3s ease;
+}
+
+.footer-logo:hover {
+  transform: rotate(5deg);
 }
 
 /* Erros de Campo */
 .field-error {
   color: #b91c1c;
   display: block;
-  margin-top: 0.25rem;
-  font-size: clamp(0.75rem, 2.5vw, 0.8rem);
+  margin-top: 0.5rem;
+  font-size: clamp(0.8rem, 3vw, 0.9rem);
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
 }
 
 /* Animações */
@@ -1604,109 +1757,105 @@ textarea.form-control-enhanced {
 /* Ajustes para Mobile */
 @media (max-width: 576px) {
   .cv-generator {
-    padding: 0.25rem;
+    padding: 0.5rem;
   }
 
   .container-fluid {
-    padding: 0 0.25rem;
-    gap: 0.5rem;
+    padding: 0 0.5rem;
+    gap: 0.75rem;
   }
 
   .form-container {
-    padding: 0.75rem;
+    padding: 1rem;
   }
 
   .header-section {
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
   }
 
   .main-title {
-    font-size: clamp(1rem, 4vw, 1.25rem);
+    font-size: clamp(1.25rem, 4.5vw, 1.5rem);
   }
 
   .subtitle {
-    font-size: clamp(0.75rem, 3vw, 0.85rem);
-    margin-bottom: 0.5rem;
+    font-size: clamp(0.85rem, 3.5vw, 0.9rem);
+    margin-bottom: 0.75rem;
   }
 
   .alert {
-    padding: 0.4rem 0.6rem;
-    margin-bottom: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.75rem;
   }
 
   .photo-upload-container {
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
   }
 
   .photo-placeholder, .photo-preview {
-    width: clamp(60px, 16vw, 70px);
-    height: clamp(60px, 16vw, 70px);
+    width: clamp(70px, 18vw, 80px);
+    height: clamp(70px, 18vw, 80px);
   }
 
   .photo-placeholder i {
-    font-size: clamp(16px, 4vw, 18px);
+    font-size: clamp(18px, 4.5vw, 20px);
   }
 
   .photo-placeholder span {
-    font-size: clamp(10px, 2.5vw, 11px);
+    font-size: clamp(11px, 3vw, 12px);
   }
 
   .remove-photo-btn {
-    padding: 3px 5px;
-    font-size: clamp(10px, 2vw, 11px);
+    padding: 4px 6px;
+    font-size: clamp(11px, 2.5vw, 12px);
   }
 
   .form-floating {
-    margin-bottom: 0.5rem;
+    margin-bottom: 1.25rem;
   }
 
   .form-control-enhanced {
-    font-size: clamp(0.8rem, 3vw, 0.9rem);
-    padding: 0.4rem 0.6rem;
+    font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+    padding: 0.625rem;
   }
 
   .form-floating label {
-    font-size: clamp(0.75rem, 2.5vw, 0.85rem);
-    left: 0.6rem;
-  }
-
-  .form-control-enhanced:focus + label,
-  .form-control-enhanced:not(:placeholder-shown) + label {
-    font-size: clamp(0.6rem, 2vw, 0.7rem);
-    top: 0.1rem;
+    font-size: clamp(0.9rem, 3.5vw, 1rem);
+    top: 50%;
+    left: 1rem;
+    transform: translateY(-50%);
   }
 
   textarea.form-control-enhanced {
-    min-height: 50px;
+    min-height: 80px;
   }
 
   .borda-destacada {
-    padding: 0.5rem;
-    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
   }
 
   .add-btn, .remove-btn, .download-btn, .reset-btn {
-    font-size: clamp(0.8rem, 3vw, 0.9rem);
-    padding: 0.4rem 0.8rem;
+    font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+    padding: 0.5rem 1rem;
   }
 
   .actions-block {
-    gap: 0.5rem;
-    margin-top: 0.75rem;
+    gap: 0.75rem;
+    margin-top: 1rem;
   }
 
   .actions-inline {
-    gap: 0.3rem;
-    margin-top: 0.3rem;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
   }
 
   .preview-container {
-    padding: 0.75rem;
+    padding: 1rem;
   }
 
   .preview-title {
-    font-size: clamp(0.9rem, 3vw, 1rem);
-    margin-bottom: 0.5rem;
+    font-size: clamp(1rem, 3.5vw, 1.25rem);
+    margin-bottom: 0.75rem;
   }
 
   .cv-header {
