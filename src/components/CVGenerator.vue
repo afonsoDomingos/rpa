@@ -1142,10 +1142,14 @@ const generateCV = async () => {
   transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
 
+.form-control-enhanced:hover {
+  transform: scale(1.02);
+}
+
 .form-control-enhanced:focus {
   border-color: #800080;
   box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
-  transform: translateY(-1px);
+  transform: scale(1.02);
 }
 
 .form-floating label {
@@ -1206,7 +1210,7 @@ textarea.form-control-enhanced {
 
 .add-btn:hover {
   background: #15803d;
-  transform: translateY(-2px);
+  transform: scale(1.05);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
@@ -1218,7 +1222,7 @@ textarea.form-control-enhanced {
 
 .remove-btn:hover {
   background: #991b1b;
-  transform: translateY(-2px);
+  transform: scale(1.05);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
@@ -1230,7 +1234,7 @@ textarea.form-control-enhanced {
 
 .download-btn:hover {
   background: #1e3a8a;
-  transform: translateY(-2px);
+  transform: scale(1.05);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
@@ -1248,7 +1252,7 @@ textarea.form-control-enhanced {
 
 .reset-btn:hover {
   background: #d97706;
-  transform: translateY(-2px);
+  transform: scale(1.05);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
