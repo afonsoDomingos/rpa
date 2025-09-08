@@ -11,6 +11,7 @@
 
     <!-- Conteúdo Principal -->
     <div class="cv-generator">
+        <br/><br/><br/><br/>
       <div class="container-fluid">
         <!-- Formulário -->
         <div class="form-container" role="form" aria-labelledby="cv-generator-title">
