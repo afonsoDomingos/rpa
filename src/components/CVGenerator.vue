@@ -223,12 +223,9 @@
             </div>
             <div class="form-floating mb-1">
               <input v-model="reference.role" :id="'ref-role-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Cargo da referência" />
-              <label :for="'ref-role-' + index">Cargo</label>
+              <label :for="'ref-role-' + index">Profissão</label>
             </div>
-            <div class="form-floating mb-1">
-              <input v-model="reference.contact" :id="'ref-contact-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Contato da referência" />
-              <label :for="'ref-contact-' + index">Contato</label>
-            </div>
+          
             <div class="actions-inline">
               <button class="remove-btn" @click="removeItem('references', index)" type="button" :aria-label="'Remover referência ' + (index + 1)">Remover</button>
             </div>
@@ -349,7 +346,7 @@
                   <h3 class="section-title-cv"><i class="fas fa-users" aria-hidden="true"></i> Referências</h3>
                   <ul class="resume-text">
                     <li v-for="(ref, i) in form.references" :key="'preview-ref-' + i">
-                      {{ ref.name || 'Nome' }} - {{ ref.role || 'Cargo' }} - {{ ref.contact || 'Contato' }}
+                      {{ ref.name || 'Nome' }} - {{ ref.role || 'Cargo' }} 
                     </li>
                   </ul>
                 </div>
@@ -516,7 +513,7 @@ const addItem = (type) => {
       form.languages.push({ language: '', level: '' })
       break
     case 'references':
-      form.references.push({ name: '', role: '', contact: '' })
+      form.references.push({ name: '', role: '' })
       break
   }
 }
@@ -577,8 +574,8 @@ const toggleExampleData = async () => {
         { language: 'Inglês', level: 'Fluente' }
       ],
       references: [
-        { name: 'Inácio Birrisau', role: 'Empreendedor', contact: '84*******' },
-        { name: 'Silva Machel', role: 'Desenvolvedor', contact: '84*******' }
+        { name: 'Inácio Birrisau', role: 'Empreendedor' },
+        { name: 'Silva Machel', role: 'Desenvolvedor'}
       ]
     })
     isFilled.value = true
