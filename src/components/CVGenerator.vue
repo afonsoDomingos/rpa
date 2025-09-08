@@ -167,10 +167,7 @@
               <input v-model="edu.period" :id="'edu-period-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Ano de conclusão" />
               <label :for="'edu-period-' + index">Ano de Conclusão</label>
             </div>
-            <div class="form-floating mb-1">
-              <textarea v-model="edu.description" :id="'edu-desc-' + index" class="form-control-enhanced" placeholder=" " aria-label="Descrição da formação"></textarea>
-              <label :for="'edu-desc-' + index">Descrição</label>
-            </div>
+           
             <div class="actions-inline">
               <button class="remove-btn" @click="removeItem('education', index)" type="button" :aria-label="'Remover formação ' + (index + 1)">Remover</button>
             </div>
@@ -266,16 +263,16 @@
                     <div class="contact-item"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> {{ form.address || 'Não informado' }}</div>
                     <div class="social-links" v-if="hasSocialLinks">
                       <a v-if="form.socialLinks.linkedin" :href="form.socialLinks.linkedin" target="_blank" class="social-link" :aria-label="'Perfil do LinkedIn de ' + socialNames.linkedin">
-                        <i class="fab fa-linkedin"></i> {{ socialNames.linkedin }}
+                        <i class="fab fa-linkedin"></i> {{ socialNames.linkedin || 'LinkedIn' }}
                       </a>
                       <a v-if="form.socialLinks.facebook" :href="form.socialLinks.facebook" target="_blank" class="social-link" :aria-label="'Perfil do Facebook de ' + socialNames.facebook">
-                        <i class="fab fa-facebook"></i> {{ socialNames.facebook }}
+                        <i class="fab fa-facebook"></i> {{ socialNames.facebook || 'Facebook' }}
                       </a>
                       <a v-if="form.socialLinks.instagram" :href="form.socialLinks.instagram" target="_blank" class="social-link" :aria-label="'Perfil do Instagram de ' + socialNames.instagram">
-                        <i class="fab fa-instagram"></i> {{ socialNames.instagram }}
+                        <i class="fab fa-instagram"></i> {{ socialNames.instagram || 'Instagram' }}
                       </a>
                       <a v-if="form.socialLinks.website" :href="form.socialLinks.website" target="_blank" class="social-link" :aria-label="'Website pessoal de ' + socialNames.website">
-                        <i class="fas fa-globe"></i> {{ socialNames.website }}
+                        <i class="fas fa-globe"></i> {{ socialNames.website || 'Website' }}
                       </a>
                     </div>
                   </div>
@@ -314,7 +311,7 @@
                       <div class="timeline-content">
                         <h4 class="timeline-title">{{ edu.degree || 'Curso' }}</h4>
                         <p class="resume-text"><strong>{{ edu.institution || 'Instituição' }}</strong> - {{ edu.period || 'Período' }}</p>
-                        <p class="resume-text">{{ edu.description || 'Sem descrição' }}</p>
+                       
                       </div>
                     </div>
                   </div>
@@ -502,7 +499,7 @@ const addItem = (type) => {
       form.experience.push({ company: '', role: '', period: '', yearsExp: 0, description: '' })
       break
     case 'education':
-      form.education.push({ institution: '', degree: '', period: '', description: '' })
+      form.education.push({ institution: '', degree: '', period: '' })
       break
     case 'skills':
       form.skills.push('')
@@ -1031,7 +1028,7 @@ textarea.form-control-enhanced {
   background: #1e40af;
   color: white;
   padding: 6mm;
-  max-height: 32mm;
+  max-height: 40mm; /* Aumentado para acomodar links sociais */
   page-break-after: avoid;
 }
 
@@ -1051,7 +1048,7 @@ textarea.form-control-enhanced {
   align-items: flex-start;
   gap: 2mm;
   flex: 1;
-  max-height: 32mm;
+  max-height: 40mm; /* Aumentado */
 }
 
 .profile-photo {
@@ -1074,26 +1071,26 @@ textarea.form-control-enhanced {
 }
 
 .cv-name {
-  font-size: 14pt;
+  font-size: 16pt;
   font-weight: 700;
   margin: 0;
   color: white;
-  line-height: 1.1;
+  line-height: 1.2;
 }
 
 .cv-title {
-  font-size: 11pt;
+  font-size: 12pt;
   font-weight: 500;
-  margin: 0.5mm 0 0;
+  margin: 1mm 0 0;
   color: white;
-  line-height: 1.1;
+  line-height: 1.2;
 }
 
 .contact-info {
   text-align: right;
   font-size: 9pt;
   flex: 1;
-  max-height: 32mm;
+  max-height: 40mm; /* Aumentado */
 }
 
 .contact-item {
@@ -1112,13 +1109,13 @@ textarea.form-control-enhanced {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.3mm;
-  margin-top: 0.5mm;
+  gap: 0.5mm; /* Aumentado */
+  margin-top: 1mm; /* Aumentado */
 }
 
 .social-link {
   color: white;
-  font-size: 9pt;
+  font-size: 10pt; /* Aumentado */
   display: flex;
   align-items: center;
   gap: 0.5mm;
@@ -1130,7 +1127,7 @@ textarea.form-control-enhanced {
 }
 
 .social-link i {
-  font-size: 9pt;
+  font-size: 10pt; /* Aumentado */
 }
 
 .cv-body {
@@ -1149,10 +1146,10 @@ textarea.form-control-enhanced {
 }
 
 .section-title-cv {
-  font-size: 11pt;
+  font-size: 13pt;
   font-weight: 600;
   color: #1e3a8a;
-  margin-bottom: 0.5mm;
+  margin-bottom: 0.75mm;
   display: flex;
   align-items: center;
   gap: 0.5mm;
@@ -1160,7 +1157,7 @@ textarea.form-control-enhanced {
 }
 
 .section-title-cv i {
-  font-size: 9pt;
+  font-size: 10pt;
 }
 
 .section-divider {
@@ -1369,11 +1366,11 @@ textarea.form-control-enhanced {
   }
 
   .cv-name {
-    font-size: 13pt;
+    font-size: 14pt;
   }
 
   .cv-title {
-    font-size: 10pt;
+    font-size: 11pt;
   }
 
   .contact-info {
@@ -1381,11 +1378,19 @@ textarea.form-control-enhanced {
   }
 
   .social-link {
-    font-size: 8pt;
+    font-size: 9pt; /* Ajustado para mobile */
+  }
+
+  .social-link i {
+    font-size: 9pt; /* Ajustado para mobile */
   }
 
   .section-title-cv {
-    font-size: 10pt;
+    font-size: 11pt;
+  }
+
+  .section-title-cv i {
+    font-size: 9pt;
   }
 
   .resume-text {
