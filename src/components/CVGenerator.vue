@@ -81,7 +81,7 @@
               <small v-if="fieldErrors.birthDate" id="error-birth" class="field-error" role="alert">{{ fieldErrors.birthDate }}</small>
             </div>
             <div class="form-floating mb-2">
-              <input ref="emailInput" v-model="form.email" id="input-email" type="email" class="form-control-enhanced" placeholder=" "
+              <input ref="emailInput" v-model="form.email" id="input-email" type="text" class="form-control-enhanced" placeholder=" "
                      aria-label="Email" :aria-invalid="fieldErrors.email ? 'true' : 'false'"
                      :aria-describedby="fieldErrors.email ? 'error-email' : null" />
               <label for="input-email">Email *</label>
@@ -102,7 +102,7 @@
           </div>
 
           <!-- Redes Sociais -->
-          <h3 class="section-title"><i class="fas fa-link" aria-hidden="true"></i> Linkedin</h3>
+          <h3 class="section-title"><i class="fas fa-link" aria-hidden="true"></i> LinkedIn</h3>
           <div class="borda-destacada mb-2">
             <div class="form-floating mb-2">
               <input v-model="form.socialLinks.linkedin" id="input-linkedin" type="url" class="form-control-enhanced" placeholder=" "
@@ -111,7 +111,6 @@
               <label for="input-linkedin">LinkedIn (opcional)</label>
               <small v-if="fieldErrors.linkedin" id="error-linkedin" class="field-error" role="alert">{{ fieldErrors.linkedin }}</small>
             </div>
-           
           </div>
 
           <!-- Resumo -->
@@ -225,7 +224,6 @@
               <input v-model="reference.role" :id="'ref-role-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Cargo da referência" />
               <label :for="'ref-role-' + index">Profissão</label>
             </div>
-          
             <div class="actions-inline">
               <button class="remove-btn" @click="removeItem('references', index)" type="button" :aria-label="'Remover referência ' + (index + 1)">Remover</button>
             </div>
@@ -326,7 +324,7 @@
                 <!-- Competências -->
                 <div class="cv-section" v-if="form.skills.length">
                   <h3 class="section-title-cv"><i class="fas fa-star" aria-hidden="true"></i> Competências</h3>
-                  <ul class="resume-text">
+                  <ul class="resume-text skill-list">
                     <li v-for="(skill, i) in form.skills" :key="'preview-skill-' + i" class="skill-item">{{ skill || 'Competência' }}</li>
                   </ul>
                 </div>
@@ -335,7 +333,7 @@
                 <!-- Idiomas -->
                 <div class="cv-section" v-if="form.languages.length">
                   <h3 class="section-title-cv"><i class="fas fa-language" aria-hidden="true"></i> Idiomas</h3>
-                  <ul class="resume-text">
+                  <ul class="resume-text language-list">
                     <li v-for="(lang, i) in form.languages" :key="'preview-lang-' + i" class="language-item">{{ lang.language || 'Idioma' }} - {{ lang.level || 'Nível' }}</li>
                   </ul>
                 </div>
@@ -678,7 +676,7 @@ const generateCV = async () => {
   }
   try {
     await html2pdf().set({
-      margin: [10, 10, 10, 10], // Margens de 10mm
+      margin: [8, 8, 8, 8], // Margens de 8mm
       filename: `${form.name.replace(/\s+/g, '_') || 'CV'}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { 
@@ -768,14 +766,14 @@ const generateCV = async () => {
 }
 
 .main-title {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 600;
   color: #1e3a8a;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.3rem;
 }
 
 .subtitle {
-  font-size: 0.85rem;
+  font-size: 1.1rem;
   color: #4b5563;
   margin-bottom: 0.5rem;
 }
@@ -784,7 +782,7 @@ const generateCV = async () => {
   padding: 0.75rem;
   margin-bottom: 0.75rem;
   border-radius: 0.4rem;
-  font-size: 0.8rem;
+  font-size: 1rem;
 }
 
 .alert-danger {
@@ -806,8 +804,8 @@ const generateCV = async () => {
 }
 
 .photo-placeholder {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   border: 2px dashed #9ca3af;
   border-radius: 50%;
   display: flex;
@@ -818,12 +816,14 @@ const generateCV = async () => {
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
 .photo-placeholder i {
-  font-size: 18px;
-  margin-bottom: 4px;
+  font-size: 24px;
+  margin-bottom: 6px;
 }
+
 .photo-placeholder span {
-  font-size: 10px;
+  font-size: 14px;
   text-align: center;
   line-height: 1.2;
 }
@@ -840,8 +840,8 @@ const generateCV = async () => {
 
 .photo-preview {
   position: relative;
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   overflow: hidden;
   border: 2px solid #3b82f6;
@@ -855,15 +855,16 @@ const generateCV = async () => {
 
 .remove-photo-btn {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 8px;
+  right: 8px;
   background: rgba(220, 38, 38, 0.9);
   color: white;
   border: none;
   border-radius: 50%;
-  padding: 4px 6px;
+  padding: 6px 8px;
   cursor: pointer;
   transition: background 0.2s ease;
+  font-size: 14px;
 }
 
 .remove-photo-btn:hover {
@@ -882,7 +883,7 @@ const generateCV = async () => {
   border: 1px solid #d1d5db;
   outline: none;
   transition: all 0.2s ease;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
 }
 
 .form-control-enhanced:focus {
@@ -898,13 +899,13 @@ const generateCV = async () => {
   color: #6b7280;
   transition: all 0.2s ease;
   pointer-events: none;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .form-control-enhanced:focus + label,
 .form-control-enhanced:not(:placeholder-shown) + label {
   top: 0.1rem;
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   color: #3b82f6;
 }
 
@@ -915,8 +916,8 @@ textarea.form-control-enhanced {
 
 .borda-destacada {
   border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1rem;
+  border-radius: 0.4rem;
+  padding: 0.8rem;
   background: #f9fafb;
   transition: all 0.2s ease;
 }
@@ -932,7 +933,7 @@ textarea.form-control-enhanced {
   padding: 0.6rem 1rem;
   cursor: pointer;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   transition: all 0.2s ease;
 }
 
@@ -980,19 +981,19 @@ textarea.form-control-enhanced {
   background: #d97706;
 }
 
-/* Botões de Ação (Restaurados) */
+/* Botões de Ação */
 .actions-block {
   display: flex;
   justify-content: space-between;
-  gap: 0.8rem;
-  margin-top: 1rem;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
 }
 
 .actions-inline {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
-  margin-top: 0.3rem;
+  margin-top: 0.2rem;
 }
 
 /* Estilos da Visualização do CV */
@@ -1004,37 +1005,34 @@ textarea.form-control-enhanced {
 }
 
 .preview-title {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: #1e3a8a;
   margin-bottom: 0.5rem;
 }
 
 .cv-preview {
-  width: 210mm; /* Largura A4 */
-  height: 297mm; /* Altura A4 */
+  width: 210mm;
   margin: 0 auto;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
-  overflow: hidden;
   background: white;
   box-sizing: border-box;
 }
 
 .cv-document {
   width: 100%;
-  height: 297mm; /* Altura fixa para uma página */
   display: flex;
   flex-direction: column;
-  font-size: 9pt; /* Fonte compacta */
-  overflow: hidden; /* Evita estouro */
+  font-size: 9pt;
 }
 
 .cv-header {
   background: #1e40af;
   color: white;
-  padding: 8mm; /* Compacto */
-  max-height: 40mm; /* Limita o cabeçalho */
+  padding: 6mm;
+  max-height: 32mm;
+  page-break-after: avoid;
 }
 
 .header-content {
@@ -1042,26 +1040,26 @@ textarea.form-control-enhanced {
   justify-content: space-between;
   align-items: flex-start;
   flex-wrap: nowrap;
-  gap: 5mm;
+  gap: 3mm;
   width: 100%;
-  max-width: 190mm; /* Conta margens de 10mm */
+  max-width: 194mm;
   margin: 0 auto;
 }
 
 .profile-section {
   display: flex;
   align-items: flex-start;
-  gap: 3mm;
+  gap: 2mm;
   flex: 1;
-  max-height: 35mm; /* Compacto */
+  max-height: 32mm;
 }
 
 .profile-photo {
-  width: 25mm;
-  height: 25mm;
+  width: 20mm;
+  height: 20mm;
   border-radius: 50%;
   overflow: hidden;
-  border: 1mm solid white;
+  border: 0.5mm solid white;
   flex-shrink: 0;
 }
 
@@ -1076,7 +1074,7 @@ textarea.form-control-enhanced {
 }
 
 .cv-name {
-  font-size: 14pt; /* Compacto */
+  font-size: 14pt;
   font-weight: 700;
   margin: 0;
   color: white;
@@ -1084,46 +1082,46 @@ textarea.form-control-enhanced {
 }
 
 .cv-title {
-  font-size: 10pt; /* Compacto */
+  font-size: 11pt;
   font-weight: 500;
-  margin: 1mm 0 0;
+  margin: 0.5mm 0 0;
   color: white;
   line-height: 1.1;
 }
 
 .contact-info {
   text-align: right;
-  font-size: 8pt; /* Compacto */
+  font-size: 9pt;
   flex: 1;
-  max-height: 35mm; /* Compacto */
+  max-height: 32mm;
 }
 
 .contact-item {
-  margin: 0.5mm 0;
+  margin: 0.2mm 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 1mm;
+  gap: 0.5mm;
 }
 
 .contact-item i {
-  font-size: 7pt;
+  font-size: 8pt;
 }
 
 .social-links {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 1mm; /* Compacto */
-  margin-top: 2mm;
+  gap: 0.3mm;
+  margin-top: 0.5mm;
 }
 
 .social-link {
   color: white;
-  font-size: 8pt;
+  font-size: 9pt;
   display: flex;
   align-items: center;
-  gap: 1mm;
+  gap: 0.5mm;
   text-decoration: none;
 }
 
@@ -1132,63 +1130,81 @@ textarea.form-control-enhanced {
 }
 
 .social-link i {
-  font-size: 8pt;
+  font-size: 9pt;
 }
 
 .cv-body {
-  padding: 8mm; /* Compacto */
+  padding: 5mm;
   color: #1f2937;
   width: 100%;
-  max-width: 190mm;
+  max-width: 194mm;
   margin: 0 auto;
   flex: 1;
-  max-height: 246mm; /* Reserva espaço para o rodapé (297mm - 40mm cabeçalho - 11mm rodapé) */
 }
 
 .cv-section {
-  margin-bottom: 3mm; /* Compacto, reduzido para economizar espaço */
+  margin-bottom: 1.5mm;
+  page-break-inside: avoid;
+  page-break-after: auto;
 }
 
 .section-title-cv {
-  font-size: 10pt; /* Compacto */
+  font-size: 11pt;
   font-weight: 600;
   color: #1e3a8a;
-  margin-bottom: 2mm;
+  margin-bottom: 0.5mm;
   display: flex;
   align-items: center;
-  gap: 1mm;
+  gap: 0.5mm;
   text-transform: uppercase;
 }
 
 .section-title-cv i {
-  font-size: 8pt;
+  font-size: 9pt;
 }
 
 .section-divider {
   border: none;
   height: 1px;
   background-color: #1e3a8a;
-  margin: 4mm 0; /* Compacto */
+  margin: 1mm 0;
+  page-break-inside: avoid;
 }
 
 .resume-text {
-  font-size: 9pt; /* Compacto */
-  line-height: 1.3; /* Compacto */
+  font-size: 9pt;
+  line-height: 1.2;
   color: #374151;
-  max-height: 20mm; /* Limita textos longos */
-  overflow: hidden;
+}
+
+.resume-text.skill-list, .resume-text.language-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5mm;
+  padding: 0;
+  margin: 0.3mm 0;
+  list-style: none;
+}
+
+.skill-item, .language-item {
+  border: 1px solid #1e3a8a;
+  border-radius: 2mm;
+  padding: 0.75mm 2.5mm;
+  font-size: 9pt;
+  color: #374151;
+  background: #f8fafc;
 }
 
 .timeline {
   position: relative;
-  margin-left: 8mm;
-  padding-left: 8mm;
+  margin-left: 5mm;
+  padding-left: 5mm;
 }
 
 .timeline::before {
   content: '';
   position: absolute;
-  left: 4mm;
+  left: 2.5mm;
   top: 0;
   bottom: 0;
   width: 1px;
@@ -1197,64 +1213,47 @@ textarea.form-control-enhanced {
 
 .timeline-item {
   position: relative;
-  margin-bottom: 4mm; /* Compacto */
-  padding-left: 8mm;
+  margin-bottom: 1.5mm;
+  padding-left: 5mm;
+  page-break-inside: avoid;
 }
 
 .timeline-marker {
   position: absolute;
   left: -1mm;
   top: 1mm;
-  width: 6mm;
-  height: 6mm;
+  width: 3mm;
+  height: 3mm;
   background-color: #1e3a8a;
   border-radius: 50%;
-  border: 1px solid white;
+  border: 0.5mm solid white;
 }
 
 .timeline-content p.resume-text {
-  max-height: 15mm; /* Limita descrições */
+  max-height: 10mm;
   overflow: hidden;
 }
 
 .timeline-title {
-  font-size: 10pt; /* Compacto */
+  font-size: 11pt;
   font-weight: 600;
   color: #1f2937;
-  margin-bottom: 1mm;
-}
-
-/* Competências e Idiomas (Layout Horizontal com Bordas Arredondadas) */
-.resume-text ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2mm; /* Espaçamento entre itens */
-  padding: 0;
-  margin: 1mm 0;
-  list-style: none;
-}
-
-.skill-item, .language-item {
-  border: 1px solid #1e3a8a;
-  border-radius: 4mm; /* Extremidades arredondadas */
-  padding: 1mm 3mm;
-  font-size: 9pt;
-  color: #374151;
-  background: #f8fafc;
+  margin-bottom: 0.3mm;
 }
 
 /* Rodapé com Logotipo */
 .cv-footer {
-  padding: 5mm; /* Compacto */
+  padding: 3mm;
   display: flex;
   justify-content: center;
   align-items: flex-end;
   margin-top: auto;
-  min-height: 11mm; /* Garante espaço para o logotipo */
+  min-height: 5mm;
+  page-break-before: avoid;
 }
 
 .footer-logo {
-  width: 12mm; /* Compacto */
+  width: 10mm;
   height: auto;
 }
 
@@ -1263,7 +1262,7 @@ textarea.form-control-enhanced {
   color: #b91c1c;
   display: block;
   margin-top: 0.2rem;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 /* Animações */
@@ -1286,18 +1285,14 @@ textarea.form-control-enhanced {
 @media print {
   .cv-preview {
     width: 210mm;
-    height: 297mm;
     margin: 0;
     padding: 0;
     border: none;
     box-shadow: none;
-    overflow: hidden;
   }
 
   .cv-document {
     width: 100%;
-    height: 297mm;
-    overflow: hidden;
   }
 
   .cv-header {
@@ -1305,11 +1300,16 @@ textarea.form-control-enhanced {
   }
 
   .cv-body {
-    page-break-inside: avoid;
+    page-break-inside: auto;
   }
 
   .cv-section,
   .timeline-item {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  .section-divider {
     page-break-inside: avoid;
   }
 
@@ -1333,6 +1333,75 @@ textarea.form-control-enhanced {
   .skill-item, .language-item {
     border: 1px solid #1e3a8a !important;
     background: #f8fafc !important;
+  }
+}
+
+/* Ajustes para Mobile */
+@media (max-width: 576px) {
+  .main-title {
+    font-size: 1.75rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .form-control-enhanced {
+    font-size: 1rem;
+  }
+
+  .form-floating label {
+    font-size: 0.9rem;
+  }
+
+  .form-control-enhanced:focus + label,
+  .form-control-enhanced:not(:placeholder-shown) + label {
+    font-size: 0.75rem;
+  }
+
+  .add-btn, .remove-btn, .download-btn, .reset-btn {
+    font-size: 1rem;
+    padding: 0.5rem 0.8rem;
+  }
+
+  .preview-title {
+    font-size: 1.25rem;
+  }
+
+  .cv-name {
+    font-size: 13pt;
+  }
+
+  .cv-title {
+    font-size: 10pt;
+  }
+
+  .contact-info {
+    font-size: 8pt;
+  }
+
+  .social-link {
+    font-size: 8pt;
+  }
+
+  .section-title-cv {
+    font-size: 10pt;
+  }
+
+  .resume-text {
+    font-size: 8pt;
+  }
+
+  .timeline-title {
+    font-size: 10pt;
+  }
+
+  .skill-item, .language-item {
+    font-size: 8pt;
+  }
+
+  .footer-logo {
+    width: 8mm;
   }
 }
 </style>
