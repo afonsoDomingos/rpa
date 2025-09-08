@@ -364,7 +364,7 @@ const toggleExampleData = () => {
     form.value.name = "Afonso Domingos"
     form.value.title = "Profissional de Tecnologia / Front-End"
     form.value.idNumber = "110301744616C"
-    form.value.birthDate = "1998-01-01"
+    form.value.birthDate = "1999-14-10"
     form.value.email = "karinganastudio23@gmail.com"
     form.value.phone = "847 877 405"
     form.value.address = "Maputo, Moçambique"
@@ -377,7 +377,7 @@ const toggleExampleData = () => {
       { institution: "Maxaquene B", degree: "7ª Classe", period: "2010", yearsExp: 1, description: "" },
       { institution: "Noroeste 1", degree: "12ª Classe", period: "2018", yearsExp: 1, description: "" }
     ]
-    form.value.skills = ["HTML", "CSS", "JavaScript", "Vue.js", "React"]
+    form.value.skills = ["JavaScript", "Vue.js", "React"]
     form.value.languages = [
       { language: "Português", level: "Nativo" },
       { language: "Inglês", level: "Fluente" }
