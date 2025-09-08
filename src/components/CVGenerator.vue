@@ -1,3 +1,459 @@
+<script setup>
+import { ref, reactive, nextTick, computed } from 'vue'
+import html2pdf from 'html2pdf.js'
+import NavbarDefault from "../examples/navbars/NavbarDefault.vue"
+import FooterDefault from "../examples/footers/FooterDefault.vue"
+import exemploPhoto from '@/assets/img/afonsodomingos.jpg'
+import logo from '@/assets/img/rPa.png'
+
+// Função para debounce
+const debounce = (fn, delay) => {
+  let timeoutId
+  return (...args) => {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => fn(...args), delay)
+  }
+}
+
+// Estado
+const form = reactive({
+  name: '',
+  title: '',
+  idNumber: '',
+  birthDate: '',
+  email: '',
+  phone: '',
+  address: '',
+  socialLinks: {
+    linkedin: '',
+    facebook: '',
+    instagram: '',
+    website: ''
+  },
+  summary: '',
+  experience: [],
+  education: [],
+  projects: [],
+  certifications: [],
+  skills: [],
+  languages: [],
+  references: []
+})
+
+const photo = ref(null)
+let photoObjectUrl = null
+const isFilled = ref(false)
+const isGenerating = ref(false)
+const errorsList = ref([])
+const fieldErrors = reactive({})
+const successMessage = ref('')
+const liveMessage = ref('')
+const showPreviewHeader = ref(true)
+const photoInput = ref(null)
+
+// Opções
+const languageOptions = ['Português', 'Inglês', 'Francês', 'Espanhol', 'Chinês', 'Alemão']
+const levelOptions = ['Básico', 'Intermediário', 'Avançado', 'Fluente', 'Nativo']
+
+// Propriedades Computadas
+const photoAlt = computed(() => `Foto de perfil de ${form.name || 'usuário'}`)
+const formattedBirthDate = computed(() => {
+  if (!form.birthDate) return ''
+  try {
+    const d = new Date(form.birthDate)
+    return isNaN(d.getTime()) ? 'Data inválida' : d.toLocaleDateString('pt-BR')
+  } catch {
+    return 'Data inválida'
+  }
+})
+const hasSocialLinks = computed(() => {
+  return !!(form.socialLinks.linkedin || form.socialLinks.facebook || form.socialLinks.instagram || form.socialLinks.website)
+})
+const socialNames = computed(() => {
+  return {
+    linkedin: form.socialLinks.linkedin ? 'Afonso Domingos' : '',
+    facebook: form.socialLinks.facebook ? 'Techvibemz' : '',
+    instagram: form.socialLinks.instagram ? 'Techvibemz' : '',
+    website: form.socialLinks.website ? 'Website' : ''
+  }
+})
+const sortedExperience = computed(() => {
+  return [...form.experience].sort((a, b) => {
+    const yearA = parseInt(a.period.split('–')[1] || a.period) || 0
+    const yearB = parseInt(b.period.split('–')[1] || b.period) || 0
+    return yearB - yearA
+  })
+})
+const sortedEducation = computed(() => {
+  return [...form.education].sort((a, b) => {
+    const yearA = parseInt(a.period) || 0
+    const yearB = parseInt(b.period) || 0
+    return yearB - yearA
+  })
+})
+const sortedProjects = computed(() => {
+  return [...form.projects].sort((a, b) => {
+    const yearA = parseInt(a.period.split('–')[1] || a.period) || 0
+    const yearB = parseInt(b.period.split('–')[1] || b.period) || 0
+    return yearB - yearA
+  })
+})
+const sortedCertifications = computed(() => {
+  return [...form.certifications].sort((a, b) => {
+    const yearA = parseInt(a.date) || 0
+    const yearB = parseInt(b.date) || 0
+    return yearB - yearA
+  })
+})
+
+// Referências para foco
+const nameInput = ref(null)
+const emailInput = ref(null)
+const phoneInput = ref(null)
+
+// Métodos
+const triggerPhotoUpload = () => {
+  if (photoInput.value) photoInput.value.click()
+}
+
+const onPhotoUpload = (e) => {
+  const file = e.target.files?.[0]
+  if (!file) return
+  if (photoObjectUrl) URL.revokeObjectURL(photoObjectUrl)
+  photoObjectUrl = URL.createObjectURL(file)
+  photo.value = photoObjectUrl
+}
+
+const removePhoto = () => {
+  if (photoObjectUrl) URL.revokeObjectURL(photoObjectUrl)
+  photoObjectUrl = null
+  photo.value = null
+  if (photoInput.value) photoInput.value.value = ''
+}
+
+const onPhoneInput = (e) => {
+  const raw = (e.target.value || '').replace(/\D/g, '').slice(0, 9)
+  const parts = []
+  if (raw.length > 0) parts.push(raw.slice(0, 3))
+  if (raw.length > 3) parts.push(raw.slice(3, 6))
+  if (raw.length > 6) parts.push(raw.slice(6, 9))
+  form.phone = parts.join(' ')
+}
+
+const onBIInput = (e) => {
+  form.idNumber = (e.target.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20)
+}
+
+const debouncedPhoneInput = debounce(onPhoneInput, 300)
+const debouncedBIInput = debounce(onBIInput, 300)
+
+const addItem = (type) => {
+  switch (type) {
+    case 'experience':
+      form.experience.push({ company: '', role: '', period: '', yearsExp: 0, description: '' })
+      break
+    case 'education':
+      form.education.push({ institution: '', degree: '', period: '' })
+      break
+    case 'projects':
+      form.projects.push({ name: '', description: '', period: '', technologies: '', link: '' })
+      break
+    case 'certifications':
+      form.certifications.push({ name: '', institution: '', date: '', link: '' })
+      break
+    case 'skills':
+      form.skills.push('')
+      break
+    case 'languages':
+      form.languages.push({ language: '', level: '' })
+      break
+    case 'references':
+      form.references.push({ name: '', role: '' })
+      break
+  }
+}
+
+const removeItem = (type, index) => {
+  form[type].splice(index, 1)
+}
+
+const resetForm = async () => {
+  Object.assign(form, {
+    name: '', title: '', idNumber: '', birthDate: '',
+    email: '', phone: '', address: '',
+    socialLinks: { linkedin: '', facebook: '', instagram: '', website: '' },
+    summary: '',
+    experience: [], education: [], projects: [], certifications: [], skills: [], languages: [], references: []
+  })
+  removePhoto()
+  isFilled.value = false
+  errorsList.value = []
+  Object.keys(fieldErrors).forEach(k => delete fieldErrors[k])
+  successMessage.value = 'Formulário resetado com sucesso!'
+  liveMessage.value = 'Formulário foi resetado com sucesso.'
+  await nextTick()
+  nameInput.value?.focus()
+  setTimeout(() => { successMessage.value = ''; liveMessage.value = '' }, 3500)
+}
+
+const toggleExampleData = async () => {
+  if (!isFilled.value) {
+    removePhoto()
+    photo.value = exemploPhoto
+    Object.assign(form, {
+      name: 'Afonso Domingos',
+      title: 'Desenvolvedor Front-End',
+      idNumber: '110301744616C',
+      birthDate: '1999-10-14',
+      email: 'karinganastudio23@gmail.com',
+      phone: '847 877 405',
+      address: 'Maputo, Moçambique',
+      socialLinks: {
+        linkedin: 'https://www.linkedin.com/in/afonso-domingos-6b59361a5/',
+        facebook: 'https://web.facebook.com/Techvibemz/',
+        instagram: 'https://www.instagram.com/techvibemz/',
+        website: ''
+      },
+      summary: 'Desenvolvedor front-end apaixonado por criar interfaces modernas e funcionais.',
+      experience: [
+        { company: 'Front-End DpWorks', role: 'Desenvolvedor', period: '2018–2020', yearsExp: 2, description: 'Desenvolvimento de lojas online.' },
+        { company: 'Quinatec Lda', role: 'IT Specialist', period: '2024', yearsExp: 1, description: 'Gestão de projetos.' }
+      ],
+      education: [
+        { institution: 'Maxaquene B', degree: '7ª Classe', period: '2010', description: '' },
+        { institution: 'Noroeste 1', degree: '12ª Classe', period: '2018', description: '' }
+      ],
+      projects: [
+        { 
+          name: 'Rpa Moçambique', 
+          description: 'Plataforma para recuperação de documentos perdidos, com registro rápido, busca otimizada por nome e notificações.', 
+          period: '2020–2025', 
+          technologies: 'Vue.js, JavaScript, CSS', 
+          link: 'https://github.com/afonsoDomingos/rpa' 
+        },
+    
+      ],
+      certifications: [
+        { 
+          name: 'Above - Multimedia', 
+          institution: 'Above', 
+          date: '2022', 
+          link: '' 
+        },
+       
+      ],
+      skills: ['JavaScript', 'Vue.js', 'React'],
+      languages: [
+        { language: 'Português', level: 'Nativo' },
+        { language: 'Inglês', level: 'Fluente' }
+      ],
+      references: [
+        { name: 'Inácio Birrisau', role: 'Empreendedor' },
+        { name: 'Silva Machel', role: 'Desenvolvedor' }
+      ]
+    })
+    isFilled.value = true
+    successMessage.value = 'Dados de exemplo preenchidos com sucesso!'
+    liveMessage.value = 'Formulário preenchido com dados de exemplo.'
+    await nextTick()
+    nameInput.value?.focus()
+  } else {
+    resetForm()
+  }
+  setTimeout(() => { successMessage.value = ''; liveMessage.value = '' }, 3000)
+}
+
+const validateForm = async () => {
+  errorsList.value = []
+  Object.keys(fieldErrors).forEach(k => delete fieldErrors[k])
+
+  // Nome
+  if (!form.name.trim()) {
+    fieldErrors.name = 'O nome completo é obrigatório.'
+    errorsList.value.push(fieldErrors.name)
+  }
+
+  // Email
+  const email = form.email.trim()
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!email) {
+    fieldErrors.email = 'O email é obrigatório.'
+    errorsList.value.push(fieldErrors.email)
+  } else if (!emailRegex.test(email)) {
+    fieldErrors.email = 'Por favor, insira um email válido.'
+    errorsList.value.push(fieldErrors.email)
+  }
+
+  // Telefone
+  const phoneDigits = form.phone.replace(/\D/g, '')
+  if (!phoneDigits) {
+    fieldErrors.phone = 'O telefone é obrigatório.'
+    errorsList.value.push(fieldErrors.phone)
+  } else if (phoneDigits.length !== 9) {
+    fieldErrors.phone = 'O telefone deve conter 9 dígitos (ex: 847 877 405).'
+    errorsList.value.push(fieldErrors.phone)
+  }
+
+  // Data de Nascimento
+  if (form.birthDate) {
+    const d = new Date(form.birthDate)
+    if (isNaN(d.getTime())) {
+      fieldErrors.birthDate = 'Por favor, insira uma data de nascimento válida.'
+      errorsList.value.push(fieldErrors.birthDate)
+    } else if (d > new Date()) {
+      fieldErrors.birthDate = 'A data de nascimento não pode ser futura.'
+      errorsList.value.push(fieldErrors.birthDate)
+    }
+  }
+
+  // URLs das Redes Sociais
+  const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/
+  const socialFields = ['linkedin', 'facebook', 'instagram', 'website']
+  socialFields.forEach(field => {
+    const url = form.socialLinks[field].trim()
+    if (url && !urlRegex.test(url)) {
+      fieldErrors[field] = `Por favor, insira um link válido para ${field.charAt(0).toUpperCase() + field.slice(1)}.`
+      errorsList.value.push(fieldErrors[field])
+    }
+  })
+
+  // Validação de Períodos (Experiência, Projetos)
+  const periodRegex = /^\d{4}(–\d{4})?$/
+  form.experience.forEach((exp, i) => {
+    if (exp.period && !periodRegex.test(exp.period)) {
+      fieldErrors[`exp-period-${i}`] = 'Período deve estar no formato "YYYY" ou "YYYY–YYYY".'
+      errorsList.value.push(fieldErrors[`exp-period-${i}`])
+    }
+  })
+  form.projects.forEach((project, i) => {
+    if (project.period && !periodRegex.test(project.period)) {
+      fieldErrors[`project-period-${i}`] = 'Período deve estar no formato "YYYY" ou "YYYY–YYYY".'
+      errorsList.value.push(fieldErrors[`project-period-${i}`])
+    }
+    if (project.link && !urlRegex.test(project.link)) {
+      fieldErrors[`project-link-${i}`] = 'Por favor, insira um link válido para o projeto.'
+      errorsList.value.push(fieldErrors[`project-link-${i}`])
+    }
+  })
+
+  // Validação de Períodos e Links (Certificações, Formação)
+  form.education.forEach((edu, i) => {
+    if (edu.period && !/^\d{4}$/.test(edu.period)) {
+      fieldErrors[`edu-period-${i}`] = 'Ano de conclusão deve ser um ano válido (ex.: 2020).'
+      errorsList.value.push(fieldErrors[`edu-period-${i}`])
+    }
+  })
+  form.certifications.forEach((cert, i) => {
+    if (cert.date && !/^\d{4}$/.test(cert.date)) {
+      fieldErrors[`cert-date-${i}`] = 'Data de emissão deve ser um ano válido (ex.: 2020).'
+      errorsList.value.push(fieldErrors[`cert-date-${i}`])
+    }
+    if (cert.link && !urlRegex.test(cert.link)) {
+      fieldErrors[`cert-link-${i}`] = 'Por favor, insira um link válido para o certificado.'
+      errorsList.value.push(fieldErrors[`cert-link-${i}`])
+    }
+  })
+
+  if (errorsList.value.length) {
+    liveMessage.value = 'Por favor, corrija os erros no formulário antes de prosseguir.'
+    await nextTick()
+    if (fieldErrors.name) nameInput.value?.focus()
+    else if (fieldErrors.email) emailInput.value?.focus()
+    else if (fieldErrors.phone) phoneInput.value?.focus()
+    else if (fieldErrors.birthDate) document.getElementById('input-birth')?.focus()
+    else if (fieldErrors.linkedin) document.getElementById('input-linkedin')?.focus()
+    else if (fieldErrors.facebook) document.getElementById('input-facebook')?.focus()
+    else if (fieldErrors.instagram) document.getElementById('input-instagram')?.focus()
+    else if (fieldErrors.website) document.getElementById('input-website')?.focus()
+    else {
+      for (let i = 0; i < form.experience.length; i++) {
+        if (fieldErrors[`exp-period-${i}`]) {
+          document.getElementById(`exp-period-${i}`)?.focus()
+          break
+        }
+      }
+      for (let i = 0; i < form.education.length; i++) {
+        if (fieldErrors[`edu-period-${i}`]) {
+          document.getElementById(`edu-period-${i}`)?.focus()
+          break
+        }
+      }
+      for (let i = 0; i < form.projects.length; i++) {
+        if (fieldErrors[`project-period-${i}`]) {
+          document.getElementById(`project-period-${i}`)?.focus()
+          break
+        } else if (fieldErrors[`project-link-${i}`]) {
+          document.getElementById(`project-link-${i}`)?.focus()
+          break
+        }
+      }
+      for (let i = 0; i < form.certifications.length; i++) {
+        if (fieldErrors[`cert-date-${i}`]) {
+          document.getElementById(`cert-date-${i}`)?.focus()
+          break
+        } else if (fieldErrors[`cert-link-${i}`]) {
+          document.getElementById(`cert-link-${i}`)?.focus()
+          break
+        }
+      }
+    }
+    return false
+  }
+
+  liveMessage.value = 'Formulário validado com sucesso.'
+  return true
+}
+
+const generateCV = async () => {
+  if (isGenerating.value) return
+  isGenerating.value = true
+  successMessage.value = ''
+  const ok = await validateForm()
+  if (!ok) {
+    isGenerating.value = false
+    return
+  }
+  showPreviewHeader.value = false
+  await nextTick()
+  const element = document.getElementById('cv-preview')
+  if (!element) {
+    isGenerating.value = false
+    errorsList.value = ['Erro ao localizar a pré-visualização. Tente novamente.']
+    liveMessage.value = 'Erro ao gerar o PDF.'
+    return
+  }
+  try {
+    await html2pdf().set({
+      margin: [8, 8, 8, 8],
+      filename: `${form.name.replace(/\s+/g, '_') || 'CV'}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        width: 794,
+        windowWidth: 794,
+        useCORS: true
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait',
+        putOnlyUsedFonts: true,
+        floatPrecision: 16
+      }
+    }).from(element).save()
+    successMessage.value = 'CV gerado com sucesso!'
+    liveMessage.value = 'Seu currículo foi gerado e baixado com sucesso.'
+  } catch (err) {
+    console.error('Erro ao gerar PDF:', err)
+    errorsList.value = ['Erro ao gerar o PDF. Por favor, tente novamente.']
+    liveMessage.value = 'Ocorreu um erro ao gerar o PDF.'
+  } finally {
+    showPreviewHeader.value = true
+    isGenerating.value = false
+    setTimeout(() => { successMessage.value = ''; liveMessage.value = '' }, 3500)
+  }
+}
+</script>
 <template>
   <div>
     <!-- Navbar -->
@@ -135,8 +591,10 @@
               <label :for="'exp-role-' + index">Cargo</label>
             </div>
             <div class="form-floating mb-1">
-              <input v-model="exp.period" :id="'exp-period-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Período" />
+              <input v-model="exp.period" :id="'exp-period-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Período"
+                     :aria-invalid="fieldErrors[`exp-period-${index}`] ? 'true' : 'false'" :aria-describedby="fieldErrors[`exp-period-${index}`] ? `error-exp-period-${index}` : null" />
               <label :for="'exp-period-' + index">Período</label>
+              <small v-if="fieldErrors[`exp-period-${index}`]" :id="'error-exp-period-' + index" class="field-error" role="alert">{{ fieldErrors[`exp-period-${index}`] }}</small>
             </div>
             <div class="form-floating mb-1">
               <input v-model.number="exp.yearsExp" :id="'exp-years-' + index" type="number" min="0" class="form-control-enhanced" placeholder=" " aria-label="Anos de experiência" />
@@ -147,10 +605,10 @@
               <label :for="'exp-desc-' + index">Descrição</label>
             </div>
             <div class="actions-inline">
-              <button class="remove-btn" @click="removeItem('experience', index)" type="button" :aria-label="'Remover experiência ' + (index + 1)">Remover</button>
+              <button class="remove-btn" @click="removeItem('experience', index)" @keypress.enter="removeItem('experience', index)" type="button" :aria-label="'Remover experiência ' + (index + 1)" tabindex="0">Remover</button>
             </div>
           </div>
-          <button class="add-btn" @click="addItem('experience')" type="button">+ Adicionar Experiência</button>
+          <button class="add-btn" @click="addItem('experience')" @keypress.enter="addItem('experience')" type="button" tabindex="0">+ Adicionar Experiência</button>
 
           <!-- Formação -->
           <h3 class="section-title"><i class="fas fa-graduation-cap" aria-hidden="true"></i> Formação Acadêmica</h3>
@@ -164,15 +622,78 @@
               <label :for="'edu-degree-' + index">Curso</label>
             </div>
             <div class="form-floating mb-1">
-              <input v-model="edu.period" :id="'edu-period-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Ano de conclusão" />
+              <input v-model="edu.period" :id="'edu-period-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Ano de conclusão"
+                     :aria-invalid="fieldErrors[`edu-period-${index}`] ? 'true' : 'false'" :aria-describedby="fieldErrors[`edu-period-${index}`] ? `error-edu-period-${index}` : null" />
               <label :for="'edu-period-' + index">Ano de Conclusão</label>
+              <small v-if="fieldErrors[`edu-period-${index}`]" :id="'error-edu-period-' + index" class="field-error" role="alert">{{ fieldErrors[`edu-period-${index}`] }}</small>
             </div>
-           
             <div class="actions-inline">
-              <button class="remove-btn" @click="removeItem('education', index)" type="button" :aria-label="'Remover formação ' + (index + 1)">Remover</button>
+              <button class="remove-btn" @click="removeItem('education', index)" @keypress.enter="removeItem('education', index)" type="button" :aria-label="'Remover formação ' + (index + 1)" tabindex="0">Remover</button>
             </div>
           </div>
-          <button class="add-btn" @click="addItem('education')" type="button">+ Adicionar Formação</button>
+          <button class="add-btn" @click="addItem('education')" @keypress.enter="addItem('education')" type="button" tabindex="0">+ Adicionar Formação</button>
+
+          <!-- Projetos -->
+          <h3 class="section-title"><i class="fas fa-project-diagram" aria-hidden="true"></i> Projetos</h3>
+          <div v-for="(project, index) in form.projects" :key="index" class="borda-destacada mb-2">
+            <div class="form-floating mb-1">
+              <input v-model="project.name" :id="'project-name-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Nome do projeto" />
+              <label :for="'project-name-' + index">Nome do Projeto</label>
+            </div>
+            <div class="form-floating mb-1">
+              <textarea v-model="project.description" :id="'project-desc-' + index" class="form-control-enhanced" placeholder=" " aria-label="Descrição do projeto"></textarea>
+              <label :for="'project-desc-' + index">Descrição</label>
+            </div>
+            <div class="form-floating mb-1">
+              <input v-model="project.period" :id="'project-period-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Período"
+                     :aria-invalid="fieldErrors[`project-period-${index}`] ? 'true' : 'false'" :aria-describedby="fieldErrors[`project-period-${index}`] ? `error-project-period-${index}` : null" />
+              <label :for="'project-period-' + index">Período</label>
+              <small v-if="fieldErrors[`project-period-${index}`]" :id="'error-project-period-' + index" class="field-error" role="alert">{{ fieldErrors[`project-period-${index}`] }}</small>
+            </div>
+            <div class="form-floating mb-1">
+              <input v-model="project.technologies" :id="'project-tech-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Tecnologias utilizadas" />
+              <label :for="'project-tech-' + index">Tecnologias Utilizadas</label>
+            </div>
+            <div class="form-floating mb-1">
+              <input v-model="project.link" :id="'project-link-' + index" type="url" class="form-control-enhanced" placeholder=" " aria-label="Link do projeto"
+                     :aria-invalid="fieldErrors[`project-link-${index}`] ? 'true' : 'false'" :aria-describedby="fieldErrors[`project-link-${index}`] ? `error-project-link-${index}` : null" />
+              <label :for="'project-link-' + index">Link (opcional)</label>
+              <small v-if="fieldErrors[`project-link-${index}`]" :id="'error-project-link-' + index" class="field-error" role="alert">{{ fieldErrors[`project-link-${index}`] }}</small>
+            </div>
+            <div class="actions-inline">
+              <button class="remove-btn" @click="removeItem('projects', index)" @keypress.enter="removeItem('projects', index)" type="button" :aria-label="'Remover projeto ' + (index + 1)" tabindex="0">Remover</button>
+            </div>
+          </div>
+          <button class="add-btn" @click="addItem('projects')" @keypress.enter="addItem('projects')" type="button" tabindex="0">+ Adicionar Projeto</button>
+
+          <!-- Certificações -->
+          <h3 class="section-title"><i class="fas fa-certificate" aria-hidden="true"></i> Certificações</h3>
+          <div v-for="(cert, index) in form.certifications" :key="index" class="borda-destacada mb-2">
+            <div class="form-floating mb-1">
+              <input v-model="cert.name" :id="'cert-name-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Nome do certificado" />
+              <label :for="'cert-name-' + index">Nome do Certificado</label>
+            </div>
+            <div class="form-floating mb-1">
+              <input v-model="cert.institution" :id="'cert-inst-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Instituição" />
+              <label :for="'cert-inst-' + index">Instituição</label>
+            </div>
+            <div class="form-floating mb-1">
+              <input v-model="cert.date" :id="'cert-date-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Data de emissão"
+                     :aria-invalid="fieldErrors[`cert-date-${index}`] ? 'true' : 'false'" :aria-describedby="fieldErrors[`cert-date-${index}`] ? `error-cert-date-${index}` : null" />
+              <label :for="'cert-date-' + index">Data de Emissão</label>
+              <small v-if="fieldErrors[`cert-date-${index}`]" :id="'error-cert-date-' + index" class="field-error" role="alert">{{ fieldErrors[`cert-date-${index}`] }}</small>
+            </div>
+            <div class="form-floating mb-1">
+              <input v-model="cert.link" :id="'cert-link-' + index" type="url" class="form-control-enhanced" placeholder=" " aria-label="Link do certificado"
+                     :aria-invalid="fieldErrors[`cert-link-${index}`] ? 'true' : 'false'" :aria-describedby="fieldErrors[`cert-link-${index}`] ? `error-cert-link-${index}` : null" />
+              <label :for="'cert-link-' + index">Link (opcional)</label>
+              <small v-if="fieldErrors[`cert-link-${index}`]" :id="'error-cert-link-' + index" class="field-error" role="alert">{{ fieldErrors[`cert-link-${index}`] }}</small>
+            </div>
+            <div class="actions-inline">
+              <button class="remove-btn" @click="removeItem('certifications', index)" @keypress.enter="removeItem('certifications', index)" type="button" :aria-label="'Remover certificação ' + (index + 1)" tabindex="0">Remover</button>
+            </div>
+          </div>
+          <button class="add-btn" @click="addItem('certifications')" @keypress.enter="addItem('certifications')" type="button" tabindex="0">+ Adicionar Certificação</button>
 
           <!-- Competências -->
           <h3 class="section-title"><i class="fas fa-star" aria-hidden="true"></i> Competências</h3>
@@ -182,10 +703,10 @@
               <label :for="'skill-' + index">Competência</label>
             </div>
             <div class="actions-inline">
-              <button class="remove-btn" @click="removeItem('skills', index)" type="button" :aria-label="'Remover competência ' + (index + 1)">Remover</button>
+              <button class="remove-btn" @click="removeItem('skills', index)" @keypress.enter="removeItem('skills', index)" type="button" :aria-label="'Remover competência ' + (index + 1)" tabindex="0">Remover</button>
             </div>
           </div>
-          <button class="add-btn" @click="addItem('skills')" type="button">+ Adicionar Competência</button>
+          <button class="add-btn" @click="addItem('skills')" @keypress.enter="addItem('skills')" type="button" tabindex="0">+ Adicionar Competência</button>
 
           <!-- Idiomas -->
           <h3 class="section-title"><i class="fas fa-language" aria-hidden="true"></i> Idiomas</h3>
@@ -205,10 +726,10 @@
               <label :for="'lang-level-' + index">Nível</label>
             </div>
             <div class="actions-inline">
-              <button class="remove-btn" @click="removeItem('languages', index)" type="button" :aria-label="'Remover idioma ' + (index + 1)">Remover</button>
+              <button class="remove-btn" @click="removeItem('languages', index)" @keypress.enter="removeItem('languages', index)" type="button" :aria-label="'Remover idioma ' + (index + 1)" tabindex="0">Remover</button>
             </div>
           </div>
-          <button class="add-btn" @click="addItem('languages')" type="button">+ Adicionar Idioma</button>
+          <button class="add-btn" @click="addItem('languages')" @keypress.enter="addItem('languages')" type="button" tabindex="0">+ Adicionar Idioma</button>
 
           <!-- Referências -->
           <h3 class="section-title"><i class="fas fa-users" aria-hidden="true"></i> Referências</h3>
@@ -222,10 +743,10 @@
               <label :for="'ref-role-' + index">Profissão</label>
             </div>
             <div class="actions-inline">
-              <button class="remove-btn" @click="removeItem('references', index)" type="button" :aria-label="'Remover referência ' + (index + 1)">Remover</button>
+              <button class="remove-btn" @click="removeItem('references', index)" @keypress.enter="removeItem('references', index)" type="button" :aria-label="'Remover referência ' + (index + 1)" tabindex="0">Remover</button>
             </div>
           </div>
-          <button class="add-btn" @click="addItem('references')" type="button">+ Adicionar Referência</button>
+          <button class="add-btn" @click="addItem('references')" @keypress.enter="addItem('references')" type="button" tabindex="0">+ Adicionar Referência</button>
 
           <!-- Ações -->
           <div class="actions-block">
@@ -284,7 +805,7 @@
                   <h3 class="section-title-cv"><i class="fas fa-align-left" aria-hidden="true"></i> Sobre Mim</h3>
                   <p class="resume-text">{{ form.summary }}</p>
                 </div>
-                <hr class="section-divider" v-if="form.summary && (form.experience.length || form.education.length || form.skills.length || form.languages.length || form.references.length)">
+                <hr class="section-divider" v-if="form.summary && (form.experience.length || form.education.length || form.projects.length || form.certifications.length || form.skills.length || form.languages.length || form.references.length)">
 
                 <!-- Experiência Profissional -->
                 <div class="cv-section" v-if="form.experience.length">
@@ -300,7 +821,7 @@
                     </div>
                   </div>
                 </div>
-                <hr class="section-divider" v-if="form.experience.length && (form.education.length || form.skills.length || form.languages.length || form.references.length)">
+                <hr class="section-divider" v-if="form.experience.length && (form.education.length || form.projects.length || form.certifications.length || form.skills.length || form.languages.length || form.references.length)">
 
                 <!-- Formação Acadêmica -->
                 <div class="cv-section" v-if="form.education.length">
@@ -311,12 +832,40 @@
                       <div class="timeline-content">
                         <h4 class="timeline-title">{{ edu.degree || 'Curso' }}</h4>
                         <p class="resume-text"><strong>{{ edu.institution || 'Instituição' }}</strong> - {{ edu.period || 'Período' }}</p>
-                       
                       </div>
                     </div>
                   </div>
                 </div>
-                <hr class="section-divider" v-if="form.education.length && (form.skills.length || form.languages.length || form.references.length)">
+                <hr class="section-divider" v-if="form.education.length && (form.projects.length || form.certifications.length || form.skills.length || form.languages.length || form.references.length)">
+
+                <!-- Projetos -->
+                <div class="cv-section" v-if="form.projects.length">
+                  <h3 class="section-title-cv"><i class="fas fa-project-diagram" aria-hidden="true"></i> Projetos</h3>
+                  <div class="timeline">
+                    <div v-for="(project, i) in sortedProjects" :key="'preview-project-' + i" class="timeline-item">
+                      <div class="timeline-marker"></div>
+                      <div class="timeline-content">
+                        <h4 class="timeline-title">{{ project.name || 'Projeto' }}</h4>
+                        <p class="resume-text"><strong>{{ project.technologies || 'Tecnologias' }}</strong> - {{ project.period || 'Período' }}</p>
+                        <p class="resume-text">{{ project.description || 'Sem descrição' }}</p>
+                        <a v-if="project.link" :href="project.link" target="_blank" class="project-link">{{ project.link }}</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <hr class="section-divider" v-if="form.projects.length && (form.certifications.length || form.skills.length || form.languages.length || form.references.length)">
+
+                <!-- Certificações -->
+                <div class="cv-section" v-if="form.certifications.length">
+                  <h3 class="section-title-cv"><i class="fas fa-certificate" aria-hidden="true"></i> Certificações</h3>
+                  <ul class="resume-text certification-list">
+                    <li v-for="(cert, i) in sortedCertifications" :key="'preview-cert-' + i" class="certification-item">
+                      {{ cert.name || 'Certificado' }} - <strong>{{ cert.institution || 'Instituição' }}</strong> ({{ cert.date || 'Data' }})
+                      <a v-if="cert.link" :href="cert.link" target="_blank" class="cert-link">{{ cert.link }}</a>
+                    </li>
+                  </ul>
+                </div>
+                <hr class="section-divider" v-if="form.certifications.length && (form.skills.length || form.languages.length || form.references.length)">
 
                 <!-- Competências -->
                 <div class="cv-section" v-if="form.skills.length">
@@ -341,7 +890,7 @@
                   <h3 class="section-title-cv"><i class="fas fa-users" aria-hidden="true"></i> Referências</h3>
                   <ul class="resume-text">
                     <li v-for="(ref, i) in form.references" :key="'preview-ref-' + i">
-                      {{ ref.name || 'Nome' }} - {{ ref.role || 'Cargo' }} 
+                      {{ ref.name || 'Nome' }} - {{ ref.role || 'Cargo' }}
                     </li>
                   </ul>
                 </div>
@@ -360,350 +909,6 @@
   </div>
 </template>
 
-<script setup>
-import { ref, reactive, nextTick, computed } from 'vue'
-import html2pdf from 'html2pdf.js'
-import NavbarDefault from "../examples/navbars/NavbarDefault.vue"
-import FooterDefault from "../examples/footers/FooterDefault.vue"
-import exemploPhoto from '@/assets/img/afonsodomingos.jpg'
-import logo from '@/assets/img/rPa.png'
-
-// Função para debounce
-const debounce = (fn, delay) => {
-  let timeoutId
-  return (...args) => {
-    clearTimeout(timeoutId)
-    timeoutId = setTimeout(() => fn(...args), delay)
-  }
-}
-
-// Estado
-const form = reactive({
-  name: '',
-  title: '',
-  idNumber: '',
-  birthDate: '',
-  email: '',
-  phone: '',
-  address: '',
-  socialLinks: {
-    linkedin: '',
-    facebook: '',
-    instagram: '',
-    website: ''
-  },
-  summary: '',
-  experience: [],
-  education: [],
-  skills: [],
-  languages: [],
-  references: []
-})
-
-const photo = ref(null)
-let photoObjectUrl = null
-const isFilled = ref(false)
-const isGenerating = ref(false)
-const errorsList = ref([])
-const fieldErrors = reactive({})
-const successMessage = ref('')
-const liveMessage = ref('')
-const showPreviewHeader = ref(true)
-const photoInput = ref(null)
-
-// Opções
-const languageOptions = ['Português', 'Inglês', 'Francês', 'Espanhol', 'Chinês', 'Alemão']
-const levelOptions = ['Básico', 'Intermediário', 'Avançado', 'Fluente', 'Nativo']
-
-// Propriedades Computadas
-const photoAlt = computed(() => `Foto de perfil de ${form.name || 'usuário'}`)
-const formattedBirthDate = computed(() => {
-  if (!form.birthDate) return ''
-  try {
-    const d = new Date(form.birthDate)
-    return isNaN(d.getTime()) ? 'Data inválida' : d.toLocaleDateString('pt-BR')
-  } catch {
-    return 'Data inválida'
-  }
-})
-const hasSocialLinks = computed(() => {
-  return !!(form.socialLinks.linkedin || form.socialLinks.facebook || form.socialLinks.instagram || form.socialLinks.website)
-})
-const socialNames = computed(() => {
-  return {
-    linkedin: form.socialLinks.linkedin ? 'Afonso Domingos' : '',
-    facebook: form.socialLinks.facebook ? 'Techvibemz' : '',
-    instagram: form.socialLinks.instagram ? 'Techvibemz' : '',
-    website: form.socialLinks.website ? 'Website' : ''
-  }
-})
-const sortedExperience = computed(() => {
-  return [...form.experience].sort((a, b) => {
-    const yearA = parseInt(a.period.split('–')[1] || a.period) || 0
-    const yearB = parseInt(b.period.split('–')[1] || b.period) || 0
-    return yearB - yearA
-  })
-})
-const sortedEducation = computed(() => {
-  return [...form.education].sort((a, b) => {
-    const yearA = parseInt(a.period) || 0
-    const yearB = parseInt(b.period) || 0
-    return yearB - yearA
-  })
-})
-
-// Referências para foco
-const nameInput = ref(null)
-const emailInput = ref(null)
-const phoneInput = ref(null)
-
-// Métodos
-const triggerPhotoUpload = () => {
-  if (photoInput.value) photoInput.value.click()
-}
-
-const onPhotoUpload = (e) => {
-  const file = e.target.files?.[0]
-  if (!file) return
-  if (photoObjectUrl) URL.revokeObjectURL(photoObjectUrl)
-  photoObjectUrl = URL.createObjectURL(file)
-  photo.value = photoObjectUrl
-}
-
-const removePhoto = () => {
-  if (photoObjectUrl) URL.revokeObjectURL(photoObjectUrl)
-  photoObjectUrl = null
-  photo.value = null
-  if (photoInput.value) photoInput.value.value = ''
-}
-
-const onPhoneInput = (e) => {
-  const raw = (e.target.value || '').replace(/\D/g, '').slice(0, 9)
-  const parts = []
-  if (raw.length > 0) parts.push(raw.slice(0, 3))
-  if (raw.length > 3) parts.push(raw.slice(3, 6))
-  if (raw.length > 6) parts.push(raw.slice(6, 9))
-  form.phone = parts.join(' ')
-}
-
-const onBIInput = (e) => {
-  form.idNumber = (e.target.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20)
-}
-
-const debouncedPhoneInput = debounce(onPhoneInput, 300)
-const debouncedBIInput = debounce(onBIInput, 300)
-
-const addItem = (type) => {
-  switch (type) {
-    case 'experience':
-      form.experience.push({ company: '', role: '', period: '', yearsExp: 0, description: '' })
-      break
-    case 'education':
-      form.education.push({ institution: '', degree: '', period: '' })
-      break
-    case 'skills':
-      form.skills.push('')
-      break
-    case 'languages':
-      form.languages.push({ language: '', level: '' })
-      break
-    case 'references':
-      form.references.push({ name: '', role: '' })
-      break
-  }
-}
-
-const removeItem = (type, index) => {
-  form[type].splice(index, 1)
-}
-
-const resetForm = async () => {
-  Object.assign(form, {
-    name: '', title: '', idNumber: '', birthDate: '',
-    email: '', phone: '', address: '',
-    socialLinks: { linkedin: '', facebook: '', instagram: '', website: '' },
-    summary: '',
-    experience: [], education: [], skills: [], languages: [], references: []
-  })
-  removePhoto()
-  isFilled.value = false
-  errorsList.value = []
-  Object.keys(fieldErrors).forEach(k => delete fieldErrors[k])
-  successMessage.value = 'Formulário resetado com sucesso!'
-  liveMessage.value = 'Formulário foi resetado com sucesso.'
-  await nextTick()
-  nameInput.value?.focus()
-  setTimeout(() => { successMessage.value = ''; liveMessage.value = '' }, 3500)
-}
-
-const toggleExampleData = async () => {
-  if (!isFilled.value) {
-    removePhoto()
-    photo.value = exemploPhoto
-    Object.assign(form, {
-      name: 'Afonso Domingos',
-      title: 'Desenvolvedor Front-End',
-      idNumber: '110301744616C',
-      birthDate: '1999-10-14',
-      email: 'karinganastudio23@gmail.com',
-      phone: '847 877 405',
-      address: 'Maputo, Moçambique',
-      socialLinks: {
-        linkedin: 'https://www.linkedin.com/in/afonso-domingos-6b59361a5/',
-        facebook: 'https://web.facebook.com/Techvibemz/',
-        instagram: 'https://www.instagram.com/techvibemz/',
-        website: ''
-      },
-      summary: 'Desenvolvedor front-end apaixonado por criar interfaces modernas e funcionais.',
-      experience: [
-        { company: 'Front-End DpWorks', role: 'Desenvolvedor', period: '2018–2020', yearsExp: 2, description: 'Desenvolvimento de lojas online.' },
-        { company: 'Quinatec Lda', role: 'IT Specialist', period: '2024', yearsExp: 1, description: 'Gestão de projetos.' }
-      ],
-      education: [
-        { institution: 'Maxaquene B', degree: '7ª Classe', period: '2010', description: '' },
-        { institution: 'Noroeste 1', degree: '12ª Classe', period: '2018', description: '' }
-      ],
-      skills: ['JavaScript', 'Vue.js', 'React'],
-      languages: [
-        { language: 'Português', level: 'Nativo' },
-        { language: 'Inglês', level: 'Fluente' }
-      ],
-      references: [
-        { name: 'Inácio Birrisau', role: 'Empreendedor' },
-        { name: 'Silva Machel', role: 'Desenvolvedor'}
-      ]
-    })
-    isFilled.value = true
-    successMessage.value = 'Dados de exemplo preenchidos com sucesso!'
-    liveMessage.value = 'Formulário preenchido com dados de exemplo.'
-    await nextTick()
-    nameInput.value?.focus()
-  } else {
-    resetForm()
-  }
-  setTimeout(() => { successMessage.value = ''; liveMessage.value = '' }, 3000)
-}
-
-const validateForm = async () => {
-  errorsList.value = []
-  Object.keys(fieldErrors).forEach(k => delete fieldErrors[k])
-
-  // Nome
-  if (!form.name.trim()) {
-    fieldErrors.name = 'O nome completo é obrigatório.'
-    errorsList.value.push(fieldErrors.name)
-  }
-
-  // Email
-  const email = form.email.trim()
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!email) {
-    fieldErrors.email = 'O email é obrigatório.'
-    errorsList.value.push(fieldErrors.email)
-  } else if (!emailRegex.test(email)) {
-    fieldErrors.email = 'Por favor, insira um email válido.'
-    errorsList.value.push(fieldErrors.email)
-  }
-
-  // Telefone
-  const phoneDigits = form.phone.replace(/\D/g, '')
-  if (!phoneDigits) {
-    fieldErrors.phone = 'O telefone é obrigatório.'
-    errorsList.value.push(fieldErrors.phone)
-  } else if (phoneDigits.length !== 9) {
-    fieldErrors.phone = 'O telefone deve conter 9 dígitos (ex: 847 877 405).'
-    errorsList.value.push(fieldErrors.phone)
-  }
-
-  // Data de Nascimento
-  if (form.birthDate) {
-    const d = new Date(form.birthDate)
-    if (isNaN(d.getTime())) {
-      fieldErrors.birthDate = 'Por favor, insira uma data de nascimento válida.'
-      errorsList.value.push(fieldErrors.birthDate)
-    }
-  }
-
-  // URLs das Redes Sociais
-  const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/
-  const socialFields = ['linkedin', 'facebook', 'instagram', 'website']
-  socialFields.forEach(field => {
-    const url = form.socialLinks[field].trim()
-    if (url && !urlRegex.test(url)) {
-      fieldErrors[field] = `Por favor, insira um link válido para ${field.charAt(0).toUpperCase() + field.slice(1)}.`
-      errorsList.value.push(fieldErrors[field])
-    }
-  })
-
-  if (errorsList.value.length) {
-    liveMessage.value = 'Por favor, corrija os erros no formulário antes de prosseguir.'
-    await nextTick()
-    if (fieldErrors.name) nameInput.value?.focus()
-    else if (fieldErrors.email) emailInput.value?.focus()
-    else if (fieldErrors.phone) phoneInput.value?.focus()
-    else if (fieldErrors.birthDate) document.getElementById('input-birth')?.focus()
-    else if (fieldErrors.linkedin) document.getElementById('input-linkedin')?.focus()
-    else if (fieldErrors.facebook) document.getElementById('input-facebook')?.focus()
-    else if (fieldErrors.instagram) document.getElementById('input-instagram')?.focus()
-    else if (fieldErrors.website) document.getElementById('input-website')?.focus()
-    return false
-  }
-
-  liveMessage.value = 'Formulário validado com sucesso.'
-  return true
-}
-
-const generateCV = async () => {
-  if (isGenerating.value) return
-  isGenerating.value = true
-  successMessage.value = ''
-  const ok = await validateForm()
-  if (!ok) {
-    isGenerating.value = false
-    return
-  }
-  showPreviewHeader.value = false
-  await nextTick()
-  const element = document.getElementById('cv-preview')
-  if (!element) {
-    isGenerating.value = false
-    errorsList.value = ['Erro ao localizar a pré-visualização. Tente novamente.']
-    liveMessage.value = 'Erro ao gerar o PDF.'
-    return
-  }
-  try {
-    await html2pdf().set({
-      margin: [8, 8, 8, 8], // Margens de 8mm
-      filename: `${form.name.replace(/\s+/g, '_') || 'CV'}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { 
-        scale: 2, 
-        width: 794, // Largura A4 em pixels a 96 DPI
-        windowWidth: 794, // Renderização consistente
-        useCORS: true // Suporta imagens externas
-      },
-      jsPDF: { 
-        unit: 'mm', 
-        format: 'a4', 
-        orientation: 'portrait',
-        putOnlyUsedFonts: true, // Otimiza tamanho do PDF
-        floatPrecision: 16 // Alta precisão no layout
-      }
-    }).from(element).save()
-    successMessage.value = 'CV gerado com sucesso!'
-    liveMessage.value = 'Seu currículo foi gerado e baixado com sucesso.'
-  } catch (err) {
-    console.error('Erro ao gerar PDF:', err)
-    errorsList.value = ['Erro ao gerar o PDF. Por favor, tente novamente.']
-    liveMessage.value = 'Ocorreu um erro ao gerar o PDF.'
-  } finally {
-    showPreviewHeader.value = true
-    isGenerating.value = false
-    setTimeout(() => { successMessage.value = ''; liveMessage.value = '' }, 3500)
-  }
-}
-</script>
-
 <style scoped>
 /* Importação de Fonte */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
@@ -712,6 +917,8 @@ const generateCV = async () => {
 * {
   font-family: 'Poppins', sans-serif;
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 .sr-only {
@@ -726,31 +933,49 @@ const generateCV = async () => {
 .cv-generator {
   background: #f8fafc;
   min-height: 100vh;
-  padding: 1rem;
+  padding: 0.5rem;
+  width: 100vw;
+  overflow-x: hidden;
 }
 
 .container-fluid {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: 1rem;
-  max-width: 1400px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 1440px;
   margin: 0 auto;
+  padding: 0 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-@media (max-width: 992px) {
+@media (min-width: 768px) {
   .container-fluid {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
+    flex-direction: row;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .container-fluid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 1.5rem;
+    padding: 0 1.5rem;
   }
 }
 
 /* Estilos do Formulário */
 .form-container {
   background: #ffffff;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   padding: 1rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .form-container:hover {
@@ -763,23 +988,23 @@ const generateCV = async () => {
 }
 
 .main-title {
-  font-size: 2rem;
+  font-size: clamp(1.25rem, 4.5vw, 1.5rem);
   font-weight: 600;
   color: #1e3a8a;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.25rem;
 }
 
 .subtitle {
-  font-size: 1.1rem;
+  font-size: clamp(0.8rem, 3.5vw, 0.9rem);
   color: #4b5563;
   margin-bottom: 0.5rem;
 }
 
 .alert {
-  padding: 0.75rem;
+  padding: 0.5rem 0.75rem;
   margin-bottom: 0.75rem;
-  border-radius: 0.4rem;
-  font-size: 1rem;
+  border-radius: 0.25rem;
+  font-size: clamp(0.8rem, 3vw, 0.9rem);
 }
 
 .alert-danger {
@@ -801,8 +1026,8 @@ const generateCV = async () => {
 }
 
 .photo-placeholder {
-  width: 100px;
-  height: 100px;
+  width: clamp(70px, 18vw, 80px);
+  height: clamp(70px, 18vw, 80px);
   border: 2px dashed #9ca3af;
   border-radius: 50%;
   display: flex;
@@ -815,12 +1040,12 @@ const generateCV = async () => {
 }
 
 .photo-placeholder i {
-  font-size: 24px;
-  margin-bottom: 6px;
+  font-size: clamp(18px, 4.5vw, 20px);
+  margin-bottom: 0.25rem;
 }
 
 .photo-placeholder span {
-  font-size: 14px;
+  font-size: clamp(11px, 3vw, 12px);
   text-align: center;
   line-height: 1.2;
 }
@@ -837,8 +1062,8 @@ const generateCV = async () => {
 
 .photo-preview {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: clamp(70px, 18vw, 80px);
+  height: clamp(70px, 18vw, 80px);
   border-radius: 50%;
   overflow: hidden;
   border: 2px solid #3b82f6;
@@ -852,16 +1077,16 @@ const generateCV = async () => {
 
 .remove-photo-btn {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 5px;
+  right: 5px;
   background: rgba(220, 38, 38, 0.9);
   color: white;
   border: none;
   border-radius: 50%;
-  padding: 6px 8px;
+  padding: 4px 6px;
   cursor: pointer;
   transition: background 0.2s ease;
-  font-size: 14px;
+  font-size: clamp(11px, 2.5vw, 12px);
 }
 
 .remove-photo-btn:hover {
@@ -870,17 +1095,17 @@ const generateCV = async () => {
 
 .form-floating {
   position: relative;
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.75rem;
 }
 
 .form-control-enhanced {
   width: 100%;
-  padding: 0.8rem;
-  border-radius: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.25rem;
   border: 1px solid #d1d5db;
   outline: none;
   transition: all 0.2s ease;
-  font-size: 1.1rem;
+  font-size: clamp(0.85rem, 3.5vw, 0.95rem);
 }
 
 .form-control-enhanced:focus {
@@ -891,46 +1116,47 @@ const generateCV = async () => {
 .form-floating label {
   position: absolute;
   top: 50%;
-  left: 0.8rem;
+  left: 0.75rem;
   transform: translateY(-50%);
   color: #6b7280;
   transition: all 0.2s ease;
   pointer-events: none;
-  font-size: 1rem;
+  font-size: clamp(0.8rem, 3vw, 0.9rem);
 }
 
 .form-control-enhanced:focus + label,
 .form-control-enhanced:not(:placeholder-shown) + label {
-  top: 0.1rem;
-  font-size: 0.85rem;
+  top: 0.15rem;
+  font-size: clamp(0.65rem, 2.5vw, 0.75rem);
   color: #3b82f6;
 }
 
 textarea.form-control-enhanced {
-  min-height: 80px;
+  min-height: 60px;
   resize: vertical;
 }
 
 .borda-destacada {
   border: 1px solid #e5e7eb;
-  border-radius: 0.4rem;
-  padding: 0.8rem;
+  border-radius: 0.25rem;
+  padding: 0.75rem;
   background: #f9fafb;
   transition: all 0.2s ease;
+  margin-bottom: 1rem;
 }
 
 .borda-destacada:hover {
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
 .add-btn, .remove-btn, .download-btn, .reset-btn {
   border: none;
-  border-radius: 0.4rem;
-  padding: 0.6rem 1rem;
+  border-radius: 0.25rem;
+  padding: 0.5rem 1rem;
   cursor: pointer;
   font-weight: 500;
-  font-size: 1.1rem;
+  font-size: clamp(0.85rem, 3vw, 0.95rem);
   transition: all 0.2s ease;
 }
 
@@ -947,7 +1173,7 @@ textarea.form-control-enhanced {
 .remove-btn {
   background: #b91c1c;
   color: white;
-  padding: 0.4rem 0.8rem;
+  padding: 0.3rem 0.6rem;
 }
 
 .remove-btn:hover {
@@ -957,7 +1183,7 @@ textarea.form-control-enhanced {
 .download-btn {
   background: #1e40af;
   color: white;
-  padding: 0.6rem 1.2rem;
+  padding: 0.5rem 1rem;
 }
 
 .download-btn:hover {
@@ -981,35 +1207,40 @@ textarea.form-control-enhanced {
 /* Botões de Ação */
 .actions-block {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 0.6rem;
-  margin-top: 0.8rem;
+  gap: 0.75rem;
+  margin-top: 1rem;
 }
 
 .actions-inline {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
-  margin-top: 0.2rem;
+  margin-top: 0.5rem;
 }
 
 /* Estilos da Visualização do CV */
 .preview-container {
   background: white;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   padding: 1rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .preview-title {
-  font-size: 1.5rem;
+  font-size: clamp(1rem, 3.5vw, 1.25rem);
   font-weight: 600;
   color: #1e3a8a;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .cv-preview {
-  width: 210mm;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
@@ -1017,18 +1248,24 @@ textarea.form-control-enhanced {
   box-sizing: border-box;
 }
 
+@media (min-width: 768px) {
+  .cv-preview {
+    max-width: 210mm;
+  }
+}
+
 .cv-document {
   width: 100%;
   display: flex;
   flex-direction: column;
-  font-size: 9pt;
+  font-size: clamp(7pt, 2vw, 8pt);
 }
 
 .cv-header {
   background: #1e40af;
   color: white;
-  padding: 6mm;
-  max-height: 40mm; /* Aumentado para acomodar links sociais */
+  padding: 4mm 6mm;
+  max-height: 40mm;
   page-break-after: avoid;
 }
 
@@ -1036,11 +1273,17 @@ textarea.form-control-enhanced {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  flex-wrap: nowrap;
-  gap: 3mm;
+  flex-wrap: wrap;
+  gap: 2mm;
   width: 100%;
-  max-width: 194mm;
+  max-width: 100%;
   margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .header-content {
+    max-width: 194mm;
+  }
 }
 
 .profile-section {
@@ -1048,12 +1291,12 @@ textarea.form-control-enhanced {
   align-items: flex-start;
   gap: 2mm;
   flex: 1;
-  max-height: 40mm; /* Aumentado */
+  max-height: 40mm;
 }
 
 .profile-photo {
-  width: 20mm;
-  height: 20mm;
+  width: clamp(16mm, 8vw, 18mm);
+  height: clamp(16mm, 8vw, 18mm);
   border-radius: 50%;
   overflow: hidden;
   border: 0.5mm solid white;
@@ -1071,7 +1314,7 @@ textarea.form-control-enhanced {
 }
 
 .cv-name {
-  font-size: 16pt;
+  font-size: clamp(12pt, 3.5vw, 14pt);
   font-weight: 700;
   margin: 0;
   color: white;
@@ -1079,7 +1322,7 @@ textarea.form-control-enhanced {
 }
 
 .cv-title {
-  font-size: 12pt;
+  font-size: clamp(9pt, 3vw, 11pt);
   font-weight: 500;
   margin: 1mm 0 0;
   color: white;
@@ -1088,13 +1331,13 @@ textarea.form-control-enhanced {
 
 .contact-info {
   text-align: right;
-  font-size: 9pt;
+  font-size: clamp(7pt, 2vw, 8pt);
   flex: 1;
-  max-height: 40mm; /* Aumentado */
+  max-height: 40mm;
 }
 
 .contact-item {
-  margin: 0.2mm 0;
+  margin: 0.25mm 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -1102,20 +1345,20 @@ textarea.form-control-enhanced {
 }
 
 .contact-item i {
-  font-size: 8pt;
+  font-size: clamp(6pt, 1.5vw, 7pt);
 }
 
 .social-links {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.5mm; /* Aumentado */
-  margin-top: 1mm; /* Aumentado */
+  gap: 0.5mm;
+  margin-top: 1mm;
 }
 
 .social-link {
   color: white;
-  font-size: 10pt; /* Aumentado */
+  font-size: clamp(8pt, 2vw, 9pt);
   display: flex;
   align-items: center;
   gap: 0.5mm;
@@ -1123,20 +1366,26 @@ textarea.form-control-enhanced {
 }
 
 .social-link:hover {
-  color: #a5b4fc;
+  color: #e0e7ff;
 }
 
 .social-link i {
-  font-size: 10pt; /* Aumentado */
+  font-size: clamp(8pt, 2vw, 9pt);
 }
 
 .cv-body {
-  padding: 5mm;
+  padding: 4mm 6mm;
   color: #1f2937;
   width: 100%;
-  max-width: 194mm;
+  max-width: 100%;
   margin: 0 auto;
   flex: 1;
+}
+
+@media (min-width: 768px) {
+  .cv-body {
+    max-width: 194mm;
+  }
 }
 
 .cv-section {
@@ -1146,7 +1395,7 @@ textarea.form-control-enhanced {
 }
 
 .section-title-cv {
-  font-size: 13pt;
+  font-size: clamp(10pt, 3vw, 11pt);
   font-weight: 600;
   color: #1e3a8a;
   margin-bottom: 0.75mm;
@@ -1157,7 +1406,7 @@ textarea.form-control-enhanced {
 }
 
 .section-title-cv i {
-  font-size: 10pt;
+  font-size: clamp(8pt, 2vw, 9pt);
 }
 
 .section-divider {
@@ -1169,39 +1418,58 @@ textarea.form-control-enhanced {
 }
 
 .resume-text {
-  font-size: 9pt;
-  line-height: 1.2;
+  font-size: clamp(7pt, 2vw, 8pt);
+  line-height: 1.3;
   color: #374151;
 }
 
-.resume-text.skill-list, .resume-text.language-list {
+.resume-text.skill-list, .resume-text.language-list, .resume-text.certification-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.5mm;
+  gap: 1mm;
   padding: 0;
-  margin: 0.3mm 0;
+  margin: 0.25mm 0;
   list-style: none;
 }
 
-.skill-item, .language-item {
+.skill-item, .language-item, .certification-item {
   border: 1px solid #1e3a8a;
-  border-radius: 2mm;
-  padding: 0.75mm 2.5mm;
-  font-size: 9pt;
+  border-radius: 1.5mm;
+  padding: 0.5mm 2mm;
+  font-size: clamp(7pt, 2vw, 8pt);
   color: #374151;
   background: #f8fafc;
 }
 
+.certification-item {
+  width: 100%;
+  border: none;
+  padding: 0;
+  background: none;
+}
+
+.project-link, .cert-link {
+  color: #1e3a8a;
+  font-size: clamp(7pt, 2vw, 8pt);
+  text-decoration: none;
+  display: block;
+  margin-top: 0.25mm;
+}
+
+.project-link:hover, .cert-link:hover {
+  text-decoration: underline;
+}
+
 .timeline {
   position: relative;
-  margin-left: 5mm;
-  padding-left: 5mm;
+  margin-left: 4mm;
+  padding-left: 4mm;
 }
 
 .timeline::before {
   content: '';
   position: absolute;
-  left: 2.5mm;
+  left: 2mm;
   top: 0;
   bottom: 0;
   width: 1px;
@@ -1211,7 +1479,7 @@ textarea.form-control-enhanced {
 .timeline-item {
   position: relative;
   margin-bottom: 1.5mm;
-  padding-left: 5mm;
+  padding-left: 4mm;
   page-break-inside: avoid;
 }
 
@@ -1219,28 +1487,28 @@ textarea.form-control-enhanced {
   position: absolute;
   left: -1mm;
   top: 1mm;
-  width: 3mm;
-  height: 3mm;
+  width: 2mm;
+  height: 2mm;
   background-color: #1e3a8a;
   border-radius: 50%;
   border: 0.5mm solid white;
 }
 
 .timeline-content p.resume-text {
-  max-height: 10mm;
+  max-height: 8mm;
   overflow: hidden;
 }
 
 .timeline-title {
-  font-size: 11pt;
+  font-size: clamp(9pt, 2.5vw, 10pt);
   font-weight: 600;
   color: #1f2937;
-  margin-bottom: 0.3mm;
+  margin-bottom: 0.25mm;
 }
 
 /* Rodapé com Logotipo */
 .cv-footer {
-  padding: 3mm;
+  padding: 3mm 6mm;
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -1250,7 +1518,7 @@ textarea.form-control-enhanced {
 }
 
 .footer-logo {
-  width: 10mm;
+  width: clamp(7mm, 4vw, 8mm);
   height: auto;
 }
 
@@ -1258,18 +1526,18 @@ textarea.form-control-enhanced {
 .field-error {
   color: #b91c1c;
   display: block;
-  margin-top: 0.2rem;
-  font-size: 0.9rem;
+  margin-top: 0.25rem;
+  font-size: clamp(0.75rem, 2.5vw, 0.8rem);
 }
 
 /* Animações */
 @keyframes fadeInUp {
-  from { transform: translateY(10px); opacity: 0; }
+  from { transform: translateY(8px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 
 .form-container, .preview-container {
-  animation: fadeInUp 0.5s ease;
+  animation: fadeInUp 0.4s ease;
 }
 
 /* Acessibilidade */
@@ -1318,7 +1586,7 @@ textarea.form-control-enhanced {
     display: none;
   }
 
-  .social-link {
+  .social-link, .project-link, .cert-link {
     color: white !important;
   }
 
@@ -1327,7 +1595,7 @@ textarea.form-control-enhanced {
     background-color: #1e3a8a !important;
   }
 
-  .skill-item, .language-item {
+  .skill-item, .language-item, .certification-item {
     border: 1px solid #1e3a8a !important;
     background: #f8fafc !important;
   }
@@ -1335,78 +1603,162 @@ textarea.form-control-enhanced {
 
 /* Ajustes para Mobile */
 @media (max-width: 576px) {
+  .cv-generator {
+    padding: 0.25rem;
+  }
+
+  .container-fluid {
+    padding: 0 0.25rem;
+    gap: 0.5rem;
+  }
+
+  .form-container {
+    padding: 0.75rem;
+  }
+
+  .header-section {
+    margin-bottom: 0.75rem;
+  }
+
   .main-title {
-    font-size: 1.75rem;
+    font-size: clamp(1rem, 4vw, 1.25rem);
   }
 
   .subtitle {
-    font-size: 1rem;
+    font-size: clamp(0.75rem, 3vw, 0.85rem);
+    margin-bottom: 0.5rem;
+  }
+
+  .alert {
+    padding: 0.4rem 0.6rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .photo-upload-container {
+    margin-bottom: 0.75rem;
+  }
+
+  .photo-placeholder, .photo-preview {
+    width: clamp(60px, 16vw, 70px);
+    height: clamp(60px, 16vw, 70px);
+  }
+
+  .photo-placeholder i {
+    font-size: clamp(16px, 4vw, 18px);
+  }
+
+  .photo-placeholder span {
+    font-size: clamp(10px, 2.5vw, 11px);
+  }
+
+  .remove-photo-btn {
+    padding: 3px 5px;
+    font-size: clamp(10px, 2vw, 11px);
+  }
+
+  .form-floating {
+    margin-bottom: 0.5rem;
   }
 
   .form-control-enhanced {
-    font-size: 1rem;
+    font-size: clamp(0.8rem, 3vw, 0.9rem);
+    padding: 0.4rem 0.6rem;
   }
 
   .form-floating label {
-    font-size: 0.9rem;
+    font-size: clamp(0.75rem, 2.5vw, 0.85rem);
+    left: 0.6rem;
   }
 
   .form-control-enhanced:focus + label,
   .form-control-enhanced:not(:placeholder-shown) + label {
-    font-size: 0.75rem;
+    font-size: clamp(0.6rem, 2vw, 0.7rem);
+    top: 0.1rem;
+  }
+
+  textarea.form-control-enhanced {
+    min-height: 50px;
+  }
+
+  .borda-destacada {
+    padding: 0.5rem;
+    margin-bottom: 0.75rem;
   }
 
   .add-btn, .remove-btn, .download-btn, .reset-btn {
-    font-size: 1rem;
-    padding: 0.5rem 0.8rem;
+    font-size: clamp(0.8rem, 3vw, 0.9rem);
+    padding: 0.4rem 0.8rem;
+  }
+
+  .actions-block {
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .actions-inline {
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+  }
+
+  .preview-container {
+    padding: 0.75rem;
   }
 
   .preview-title {
-    font-size: 1.25rem;
+    font-size: clamp(0.9rem, 3vw, 1rem);
+    margin-bottom: 0.5rem;
+  }
+
+  .cv-header {
+    padding: 3mm 4mm;
+  }
+
+  .cv-body {
+    padding: 3mm 4mm;
   }
 
   .cv-name {
-    font-size: 14pt;
+    font-size: clamp(11pt, 3vw, 12pt);
   }
 
   .cv-title {
-    font-size: 11pt;
+    font-size: clamp(8pt, 2.5vw, 10pt);
   }
 
   .contact-info {
-    font-size: 8pt;
+    font-size: clamp(6pt, 1.5vw, 7pt);
   }
 
   .social-link {
-    font-size: 9pt; /* Ajustado para mobile */
+    font-size: clamp(7pt, 1.5vw, 8pt);
   }
 
   .social-link i {
-    font-size: 9pt; /* Ajustado para mobile */
+    font-size: clamp(7pt, 1.5vw, 8pt);
   }
 
   .section-title-cv {
-    font-size: 11pt;
+    font-size: clamp(9pt, 2.5vw, 10pt);
   }
 
   .section-title-cv i {
-    font-size: 9pt;
+    font-size: clamp(7pt, 1.5vw, 8pt);
   }
 
   .resume-text {
-    font-size: 8pt;
+    font-size: clamp(6pt, 1.5vw, 7pt);
   }
 
   .timeline-title {
-    font-size: 10pt;
+    font-size: clamp(8pt, 2vw, 9pt);
   }
 
-  .skill-item, .language-item {
-    font-size: 8pt;
+  .skill-item, .language-item, .certification-item {
+    font-size: clamp(6pt, 1.5vw, 7pt);
   }
 
   .footer-logo {
-    width: 8mm;
+    width: clamp(6mm, 3.5vw, 7mm);
   }
 }
 </style>
