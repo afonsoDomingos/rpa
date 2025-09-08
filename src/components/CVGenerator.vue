@@ -102,7 +102,7 @@
           </div>
 
           <!-- Redes Sociais -->
-          <h3 class="section-title"><i class="fas fa-link" aria-hidden="true"></i> Redes Sociais</h3>
+          <h3 class="section-title"><i class="fas fa-link" aria-hidden="true"></i> Linkedin</h3>
           <div class="borda-destacada mb-2">
             <div class="form-floating mb-2">
               <input v-model="form.socialLinks.linkedin" id="input-linkedin" type="url" class="form-control-enhanced" placeholder=" "
@@ -111,27 +111,7 @@
               <label for="input-linkedin">LinkedIn (opcional)</label>
               <small v-if="fieldErrors.linkedin" id="error-linkedin" class="field-error" role="alert">{{ fieldErrors.linkedin }}</small>
             </div>
-            <div class="form-floating mb-2">
-              <input v-model="form.socialLinks.facebook" id="input-facebook" type="url" class="form-control-enhanced" placeholder=" "
-                     aria-label="Link do Facebook" :aria-invalid="fieldErrors.facebook ? 'true' : 'false'"
-                     :aria-describedby="fieldErrors.facebook ? 'error-facebook' : null" />
-              <label for="input-facebook">Facebook (opcional)</label>
-              <small v-if="fieldErrors.facebook" id="error-facebook" class="field-error" role="alert">{{ fieldErrors.facebook }}</small>
-            </div>
-            <div class="form-floating mb-2">
-              <input v-model="form.socialLinks.instagram" id="input-instagram" type="url" class="form-control-enhanced" placeholder=" "
-                     aria-label="Link do Instagram" :aria-invalid="fieldErrors.instagram ? 'true' : 'false'"
-                     :aria-describedby="fieldErrors.instagram ? 'error-instagram' : null" />
-              <label for="input-instagram">Instagram (opcional)</label>
-              <small v-if="fieldErrors.instagram" id="error-instagram" class="field-error" role="alert">{{ fieldErrors.instagram }}</small>
-            </div>
-            <div class="form-floating mb-2">
-              <input v-model="form.socialLinks.website" id="input-website" type="url" class="form-control-enhanced" placeholder=" "
-                     aria-label="Link do Website" :aria-invalid="fieldErrors.website ? 'true' : 'false'"
-                     :aria-describedby="fieldErrors.website ? 'error-website' : null" />
-              <label for="input-website">Website (opcional)</label>
-              <small v-if="fieldErrors.website" id="error-website" class="field-error" role="alert">{{ fieldErrors.website }}</small>
-            </div>
+           
           </div>
 
           <!-- Resumo -->
