@@ -50,6 +50,7 @@ const successMessage = ref('')
 const liveMessage = ref('')
 const showPreviewHeader = ref(true)
 const photoInput = ref(null)
+const isNavOpen = ref(false) // Estado para menu colapsável
 
 // Opções
 const languageOptions = ['Português', 'Inglês', 'Francês', 'Espanhol', 'Chinês', 'Alemão']
@@ -231,7 +232,6 @@ const toggleExampleData = async () => {
           technologies: 'Vue.js, JavaScript, CSS', 
           link: 'https://github.com/afonsoDomingos/rpa' 
         },
-    
       ],
       certifications: [
         { 
@@ -240,7 +240,6 @@ const toggleExampleData = async () => {
           date: '2022', 
           link: '' 
         },
-       
       ],
       skills: ['JavaScript', 'Vue.js', 'React'],
       languages: [
@@ -453,7 +452,21 @@ const generateCV = async () => {
     setTimeout(() => { successMessage.value = ''; liveMessage.value = '' }, 3500)
   }
 }
+
+const scrollToSection = (sectionId) => {
+  const element = document.getElementById(sectionId)
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    element.focus({ preventScroll: true }) // Melhora acessibilidade
+    isNavOpen.value = false // Fecha o menu após clicar
+  }
+}
+
+const toggleNav = () => {
+  isNavOpen.value = !isNavOpen.value
+}
 </script>
+
 <template>
   <div>
     <!-- Navbar -->
@@ -467,7 +480,7 @@ const generateCV = async () => {
 
     <!-- Conteúdo Principal -->
     <div class="cv-generator">
-        <br/><br/><br/><br/>
+      <br/><br/><br/><br/>
       <div class="container-fluid">
         <!-- Formulário -->
         <div class="form-container" role="form" aria-labelledby="cv-generator-title">
@@ -478,6 +491,26 @@ const generateCV = async () => {
               {{ isFilled ? 'Limpar Exemplo' : 'Preencher com Exemplo' }}
             </button>
           </div>
+
+          <!-- Navigation Menu -->
+          <nav class="section-nav" aria-label="Navegação entre seções">
+            <button class="nav-toggle" @click="toggleNav" :aria-expanded="isNavOpen" aria-label="Alternar menu de navegação">
+              <i class="fas" :class="isNavOpen ? 'fa-times' : 'fa-bars'"></i>
+              <span>{{ isNavOpen ? '' : '' }}</span>
+            </button>
+            <ul v-show="isNavOpen" class="nav-list">
+              <li><a href="#personal-info" @click.prevent="scrollToSection('personal-info')" class="nav-link">Dados Pessoais</a></li>
+              <li><a href="#social-links" @click.prevent="scrollToSection('social-links')" class="nav-link">LinkedIn</a></li>
+              <li><a href="#summary" @click.prevent="scrollToSection('summary')" class="nav-link">Sobre Mim</a></li>
+              <li><a href="#experience" @click.prevent="scrollToSection('experience')" class="nav-link">Experiência</a></li>
+              <li><a href="#education" @click.prevent="scrollToSection('education')" class="nav-link">Formação</a></li>
+              <li><a href="#projects" @click.prevent="scrollToSection('projects')" class="nav-link">Projetos</a></li>
+              <li><a href="#certifications" @click.prevent="scrollToSection('certifications')" class="nav-link">Certificações</a></li>
+              <li><a href="#skills" @click.prevent="scrollToSection('skills')" class="nav-link">Competências</a></li>
+              <li><a href="#languages" @click.prevent="scrollToSection('languages')" class="nav-link">Idiomas</a></li>
+              <li><a href="#references" @click.prevent="scrollToSection('references')" class="nav-link">Referências</a></li>
+            </ul>
+          </nav>
 
           <!-- Feedback ao Vivo -->
           <div class="sr-only" aria-live="polite">{{ liveMessage }}</div>
@@ -508,7 +541,7 @@ const generateCV = async () => {
           </div>
 
           <!-- Dados Pessoais -->
-          <h3 class="section-title"><i class="fas fa-user" aria-hidden="true"></i> Dados Pessoais</h3>
+          <h3 class="section-title" id="personal-info"><i class="fas fa-user" aria-hidden="true"></i> Dados Pessoais</h3>
           <div class="borda-destacada mb-2">
             <div class="form-floating mb-2">
               <input ref="nameInput" v-model="form.name" id="input-name" type="text" class="form-control-enhanced"
@@ -558,7 +591,7 @@ const generateCV = async () => {
           </div>
 
           <!-- Redes Sociais -->
-          <h3 class="section-title"><i class="fas fa-link" aria-hidden="true"></i> LinkedIn</h3>
+          <h3 class="section-title" id="social-links"><i class="fas fa-link" aria-hidden="true"></i> LinkedIn</h3>
           <div class="borda-destacada mb-2">
             <div class="form-floating mb-2">
               <input v-model="form.socialLinks.linkedin" id="input-linkedin" type="url" class="form-control-enhanced" placeholder=" "
@@ -570,7 +603,7 @@ const generateCV = async () => {
           </div>
 
           <!-- Resumo -->
-          <h3 class="section-title"><i class="fas fa-align-left" aria-hidden="true"></i> Sobre Mim</h3>
+          <h3 class="section-title" id="summary"><i class="fas fa-align-left" aria-hidden="true"></i> Sobre Mim</h3>
           <div class="borda-destacada mb-2">
             <div class="form-floating">
               <textarea v-model="form.summary" id="input-summary" class="form-control-enhanced" placeholder=" "
@@ -580,7 +613,7 @@ const generateCV = async () => {
           </div>
 
           <!-- Experiência -->
-          <h3 class="section-title"><i class="fas fa-briefcase" aria-hidden="true"></i> Experiência Profissional</h3>
+          <h3 class="section-title" id="experience"><i class="fas fa-briefcase" aria-hidden="true"></i> Experiência Profissional</h3>
           <div v-for="(exp, index) in form.experience" :key="index" class="borda-destacada mb-2">
             <div class="form-floating mb-1">
               <input v-model="exp.company" :id="'exp-company-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Empresa" />
@@ -611,7 +644,7 @@ const generateCV = async () => {
           <button class="add-btn" @click="addItem('experience')" @keypress.enter="addItem('experience')" type="button" tabindex="0">+ Adicionar Experiência</button>
 
           <!-- Formação -->
-          <h3 class="section-title"><i class="fas fa-graduation-cap" aria-hidden="true"></i> Formação Acadêmica</h3>
+          <h3 class="section-title" id="education"><i class="fas fa-graduation-cap" aria-hidden="true"></i> Formação Acadêmica</h3>
           <div v-for="(edu, index) in form.education" :key="index" class="borda-destacada mb-2">
             <div class="form-floating mb-1">
               <input v-model="edu.institution" :id="'edu-inst-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Instituição" />
@@ -634,7 +667,7 @@ const generateCV = async () => {
           <button class="add-btn" @click="addItem('education')" @keypress.enter="addItem('education')" type="button" tabindex="0">+ Adicionar Formação</button>
 
           <!-- Projetos -->
-          <h3 class="section-title"><i class="fas fa-project-diagram" aria-hidden="true"></i> Projetos</h3>
+          <h3 class="section-title" id="projects"><i class="fas fa-project-diagram" aria-hidden="true"></i> Projetos</h3>
           <div v-for="(project, index) in form.projects" :key="index" class="borda-destacada mb-2">
             <div class="form-floating mb-1">
               <input v-model="project.name" :id="'project-name-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Nome do projeto" />
@@ -667,7 +700,7 @@ const generateCV = async () => {
           <button class="add-btn" @click="addItem('projects')" @keypress.enter="addItem('projects')" type="button" tabindex="0">+ Adicionar Projeto</button>
 
           <!-- Certificações -->
-          <h3 class="section-title"><i class="fas fa-certificate" aria-hidden="true"></i> Certificações</h3>
+          <h3 class="section-title" id="certifications"><i class="fas fa-certificate" aria-hidden="true"></i> Certificações</h3>
           <div v-for="(cert, index) in form.certifications" :key="index" class="borda-destacada mb-2">
             <div class="form-floating mb-1">
               <input v-model="cert.name" :id="'cert-name-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Nome do certificado" />
@@ -696,7 +729,7 @@ const generateCV = async () => {
           <button class="add-btn" @click="addItem('certifications')" @keypress.enter="addItem('certifications')" type="button" tabindex="0">+ Adicionar Certificação</button>
 
           <!-- Competências -->
-          <h3 class="section-title"><i class="fas fa-star" aria-hidden="true"></i> Competências</h3>
+          <h3 class="section-title" id="skills"><i class="fas fa-star" aria-hidden="true"></i> Competências</h3>
           <div v-for="(skill, index) in form.skills" :key="index" class="borda-destacada mb-2">
             <div class="form-floating mb-1">
               <input v-model="form.skills[index]" :id="'skill-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Competência" />
@@ -709,7 +742,7 @@ const generateCV = async () => {
           <button class="add-btn" @click="addItem('skills')" @keypress.enter="addItem('skills')" type="button" tabindex="0">+ Adicionar Competência</button>
 
           <!-- Idiomas -->
-          <h3 class="section-title"><i class="fas fa-language" aria-hidden="true"></i> Idiomas</h3>
+          <h3 class="section-title" id="languages"><i class="fas fa-language" aria-hidden="true"></i> Idiomas</h3>
           <div v-for="(lang, index) in form.languages" :key="index" class="borda-destacada mb-2">
             <div class="form-floating mb-1">
               <input list="languages" v-model="form.languages[index].language" :id="'lang-' + index" class="form-control-enhanced" placeholder=" " aria-label="Idioma" />
@@ -732,7 +765,7 @@ const generateCV = async () => {
           <button class="add-btn" @click="addItem('languages')" @keypress.enter="addItem('languages')" type="button" tabindex="0">+ Adicionar Idioma</button>
 
           <!-- Referências -->
-          <h3 class="section-title"><i class="fas fa-users" aria-hidden="true"></i> Referências</h3>
+          <h3 class="section-title" id="references"><i class="fas fa-users" aria-hidden="true"></i> Referências</h3>
           <div v-for="(reference, index) in form.references" :key="index" class="borda-destacada mb-2">
             <div class="form-floating mb-1">
               <input v-model="reference.name" :id="'ref-name-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Nome da referência" />
@@ -1756,6 +1789,193 @@ textarea.form-control-enhanced {
     border: 1px solid #1e3a8a !important;
     background: #f8fafc !important;
   }
+
+  .section-nav {
+    display: none; /* Oculta o menu flutuante na impressão */
+  }
+}
+
+/* Estilos do Menu de Navegação */
+.section-nav {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000; /* Aumentado para garantir que fique acima de outros elementos */
+  margin-bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.nav-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: auto;
+  padding: 0.5rem 1rem; /* Reduzido para tornar o botão menor */
+  background-color: #1e40af;
+  color: #fff;
+  border: none;
+  border-radius: 50px; /* Bordas mais arredondadas para um look flutuante */
+  font-size: clamp(0.85rem, 3vw, 0.9rem); /* Fonte menor */
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra mais pronunciada para efeito flutuante */
+}
+
+.nav-toggle:hover,
+.nav-toggle:focus {
+  background-color: #1e3a8a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+.nav-toggle:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.nav-toggle i {
+  font-size: clamp(0.9rem, 3vw, 1rem); /* Ícone menor */
+  transition: transform 0.3s ease;
+}
+
+.nav-toggle:hover i {
+  transform: scale(1.1);
+}
+
+.nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.4s ease, opacity 0.3s ease, margin-top 0.3s ease;
+  width: 100%;
+  max-width: 280px; /* Reduzido para combinar com o botão menor */
+  position: absolute;
+  bottom: 50px; /* Posiciona a lista acima do botão */
+  right: 0;
+}
+
+.nav-list.show {
+  max-height: 600px;
+  opacity: 1;
+  margin-top: 0.75rem;
+}
+
+.nav-list li {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.nav-list li:last-child {
+  border-bottom: none;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: #1f2937;
+  font-weight: 500;
+  font-size: clamp(0.9rem, 3.5vw, 0.95rem);
+  padding: 0.85rem 1.5rem;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link:focus {
+  background-color: #f1f5f9;
+  color: #3b82f6;
+  transform: translateX(4px);
+}
+
+.nav-link:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: -2px;
+}
+
+.nav-link::before {
+  content: '\f054';
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  font-size: 0.8rem;
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover::before,
+.nav-link:focus::before {
+  color: #3b82f6;
+}
+
+/* Ajustes responsivos */
+@media (min-width: 768px) {
+  .section-nav {
+    position: sticky;
+    top: 80px;
+    bottom: auto;
+    right: auto;
+    justify-content: flex-start;
+  }
+
+  .nav-toggle {
+    width: auto;
+    padding: 0.5rem 1rem;
+    border-radius: 6px; /* Bordas menos arredondadas em desktop */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .nav-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    max-height: none;
+    opacity: 1;
+    margin-top: 0;
+    box-shadow: none;
+    background: transparent;
+    max-width: none;
+    position: static;
+  }
+
+  .nav-list.show {
+    max-height: none;
+  }
+
+  .nav-list li {
+    border-bottom: none;
+  }
+
+  .nav-link {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: clamp(0.85rem, 3vw, 0.9rem);
+  }
+
+  .nav-link:hover,
+  .nav-link:focus {
+    background-color: #e0e7ff;
+    transform: scale(1.03);
+  }
+
+  .nav-link::before {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .nav-list {
+    flex-direction: column;
+  }
 }
 
 /* Ajustes para Mobile */
@@ -1912,6 +2132,25 @@ textarea.form-control-enhanced {
 
   .footer-logo {
     width: clamp(6mm, 3.5vw, 7mm);
+  }
+
+  .section-nav {
+    bottom: 15px;
+    right: 15px;
+  }
+
+  .nav-toggle {
+    padding: 0.4rem 0.8rem; /* Ainda menor em mobile */
+    font-size: clamp(0.8rem, 3vw, 0.85rem);
+  }
+
+  .nav-list {
+    max-width: 240px; /* Ajustado para mobile */
+  }
+
+  .nav-link {
+    font-size: clamp(0.85rem, 3.5vw, 0.9rem);
+    padding: 0.75rem 1.25rem;
   }
 }
 </style>
