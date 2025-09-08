@@ -3,7 +3,7 @@
 
 ![Logo RPA](https://github.com/afonsoDomingos/rpa/blob/main/src/assets/img/rPa.png)
 
-O RPA é a nossa plataforma inovadora focada em oferecer soluções para a recuperação de documentos perdidos. Criado com tecnologia de ponta, nosso sistema proporciona uma maneira simples e eficaz de registrar, buscar e recuperar documentos perdidos de forma segura e eficiente.
+O RPA é uma plataforma inovadora focada em oferecer soluções para a recuperação de documentos perdidos. Criado com tecnologia de ponta, nosso sistema proporciona uma maneira simples e eficaz de registrar, buscar e recuperar documentos perdidos de forma segura e eficiente.
 
 **Funcionalidades da Plataforma**
 
@@ -14,6 +14,7 @@ A plataforma oferece:
 - Sistema de busca otimizado para encontrar documentos com base no nome completo.
 - Notificações de disponibilidade de documentos.
 - Visibilidade completa sobre o status do processo.
+- Funcionalidade de Guardar Documentos Pessoais
 
 **Interface e Experiência do Usuário**
 
@@ -27,9 +28,9 @@ O RPA é desenvolvido com as melhores práticas de segurança e tecnologia. A pl
 
 **Links Úteis**
 
-- [Acesse o RPA](https://www.recuperaqui.co.mz)
-- [Veja nosso FAQ](https://www.recuperaqui.co.mz/faq)
-- [Suporte Técnico](https://www.recuperaqui.co.mz/suporte)
+- [Acesse o RPA](https://www.recuperaqui.vercel.app)
+- [Veja nosso FAQ](https://www.recuperaqui.vercel.app/faq)
+- [Suporte Técnico](https://www.recuperaqui.vercel.app/suporte)
 
 ## Como Funciona o RPA?
 
@@ -39,7 +40,7 @@ O RPA é desenvolvido com as melhores práticas de segurança e tecnologia. A pl
 
 **Relatar Problemas ou Solicitar Suporte**
 
-Caso encontre algum problema ou precise de suporte, entre em contato conosco para assistência. Nosso time está preparado para resolver qualquer situação rapidamente.
+Caso encontre algum problema ou precise de suporte, entre em contacto conosco para assistência. Nosso time está preparado para resolver qualquer situação rapidamente.
 
 
 Dentro do download você encontrará os seguintes diretórios e arquivos:
@@ -69,6 +70,14 @@ Rpa
             └── modalum.vue
             └── Verdocumentos
             └── Verdocumentosadmin.vue
+            └── UsuariosView.vue
+            └── SolicitanteModal.vue
+            └── SocialIcons.vue
+            └── Floating.vue
+            └── Guardardocumentos.vue
+            └── DoacaoProjeto.vue
+            └── Chatassistente.vue
+            └── CVGenerator.vue
             
     │   ├── examples
     │   │   ├── cards
