@@ -486,7 +486,7 @@ const toggleNav = () => {
         <div class="form-container" role="form" aria-labelledby="cv-generator-title">
           <div class="header-section">
             <h1 id="cv-generator-title" class="main-title">Gerador de CV</h1>
-            <p class="subtitle">Preencha os dados para criar seu currículo profissional</p>
+            <p class="subtitle">Preencha os dados para criar seu Cv</p>
             <button class="download-btn" @click="toggleExampleData" type="button">
               {{ isFilled ? 'Limpar Exemplo' : 'Preencher com Exemplo' }}
             </button>
