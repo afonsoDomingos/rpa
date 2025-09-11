@@ -1,0 +1,94 @@
+{
+     "cv_generator": "CV Generator",
+     "fill_data": "Fill in the details to create your CV",
+     "toggle_example": {
+       "fill": "Fill with Example",
+       "clear": "Clear Example"
+     },
+     "nav": {
+       "personal_info": "Personal Information",
+       "social_links": "LinkedIn",
+       "summary": "About Me",
+       "experience": "Experience",
+       "education": "Education",
+       "projects": "Projects",
+       "certifications": "Certifications",
+       "skills": "Skills",
+       "languages": "Languages",
+       "references": "References",
+       "toggle_menu": "Toggle navigation menu"
+     },
+     "photo": {
+       "upload": "Upload Photo",
+       "remove": "Remove photo",
+       "alt": "Profile photo of {{name}}"
+     },
+     "form": {
+       "name": "Full Name *",
+       "title": "Profession",
+       "id_number": "ID Number",
+       "birth_date": "Date of Birth",
+       "email": "Email *",
+       "phone": "Phone * (e.g., 847 877 405)",
+       "address": "Address",
+       "linkedin": "LinkedIn (optional)",
+       "summary": "Professional Summary",
+       "company": "Company",
+       "role": "Role",
+       "period": "Period",
+       "years_exp": "Years of Experience",
+       "description": "Description",
+       "institution": "Institution",
+       "degree": "Degree",
+       "year": "Year of Completion",
+       "project_name": "Project Name",
+       "technologies": "Technologies Used",
+       "link": "Link (optional)",
+       "cert_name": "Certificate Name",
+       "cert_date": "Issue Date",
+       "skill": "Skill",
+       "language": "Language",
+       "level": "Level",
+       "ref_name": "Name",
+       "ref_role": "Profession"
+     },
+     "actions": {
+       "add_experience": "+ Add Experience",
+       "add_education": "+ Add Education",
+       "add_project": "+ Add Project",
+       "add_certification": "+ Add Certification",
+       "add_skill": "+ Add Skill",
+       "add_language": "+ Add Language",
+       "add_reference": "+ Add Reference",
+       "reset_form": "Reset Form",
+       "generate_cv": "Generate CV",
+       "generating": "Generating..."
+     },
+     "preview": {
+       "title": "Preview",
+       "not_provided": "Not provided"
+     },
+     "errors": {
+       "name_required": "Full name is required.",
+       "email_required": "Email is required.",
+       "email_invalid": "Please enter a valid email.",
+       "phone_required": "Phone number is required.",
+       "phone_invalid": "Phone number must contain 9 digits (e.g., 847 877 405).",
+       "birth_date_invalid": "Please enter a valid date of birth.",
+       "birth_date_future": "Date of birth cannot be in the future.",
+       "invalid_url": "Please enter a valid link for {{field}}.",
+       "invalid_period": "Period must be in the format 'YYYY' or 'YYYY–YYYY'.",
+       "invalid_year": "Year of completion must be a valid year (e.g., 2020).",
+       "invalid_cert_date": "Issue date must be a valid year (e.g., 2020).",
+       "invalid_cert_link": "Please enter a valid link for the certificate.",
+       "form_errors": "Please correct the errors in the form before proceeding.",
+       "pdf_error": "Error generating the PDF.",
+       "preview_error": "Error locating the preview. Please try again."
+     },
+     "success": {
+       "form_reset": "Form reset successfully!",
+       "example_filled": "Example data filled successfully!",
+       "cv_generated": "Your CV was generated and downloaded successfully."
+     },
+     "language_select": "Select Language"
+   }

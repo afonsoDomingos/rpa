@@ -1,0 +1,94 @@
+{
+     "cv_generator": "Gerador de CV",
+     "fill_data": "Preencha os dados para criar seu Cv",
+     "toggle_example": {
+       "fill": "Preencher com Exemplo",
+       "clear": "Limpar Exemplo"
+     },
+     "nav": {
+       "personal_info": "Dados Pessoais",
+       "social_links": "LinkedIn",
+       "summary": "Sobre Mim",
+       "experience": "Experiência",
+       "education": "Formação",
+       "projects": "Projetos",
+       "certifications": "Certificações",
+       "skills": "Competências",
+       "languages": "Idiomas",
+       "references": "Referências",
+       "toggle_menu": "Alternar menu de navegação"
+     },
+     "photo": {
+       "upload": "Upload Foto",
+       "remove": "Remover foto",
+       "alt": "Foto de perfil de {{name}}"
+     },
+     "form": {
+       "name": "Nome Completo *",
+       "title": "Profissão",
+       "id_number": "Número do Bilhete de Identidade",
+       "birth_date": "Data de Nascimento",
+       "email": "Email *",
+       "phone": "Telefone * (ex: 847 877 405)",
+       "address": "Endereço",
+       "linkedin": "LinkedIn (opcional)",
+       "summary": "Resumo Profissional",
+       "company": "Empresa",
+       "role": "Cargo",
+       "period": "Período",
+       "years_exp": "Anos de Experiência",
+       "description": "Descrição",
+       "institution": "Instituição",
+       "degree": "Curso",
+       "year": "Ano de Conclusão",
+       "project_name": "Nome do Projeto",
+       "technologies": "Tecnologias Utilizadas",
+       "link": "Link (opcional)",
+       "cert_name": "Nome do Certificado",
+       "cert_date": "Data de Emissão",
+       "skill": "Competência",
+       "language": "Idioma",
+       "level": "Nível",
+       "ref_name": "Nome",
+       "ref_role": "Profissão"
+     },
+     "actions": {
+       "add_experience": "+ Adicionar Experiência",
+       "add_education": "+ Adicionar Formação",
+       "add_project": "+ Adicionar Projeto",
+       "add_certification": "+ Adicionar Certificação",
+       "add_skill": "+ Adicionar Competência",
+       "add_language": "+ Adicionar Idioma",
+       "add_reference": "+ Adicionar Referência",
+       "reset_form": "Resetar Formulário",
+       "generate_cv": "Gerar CV",
+       "generating": "Gerando..."
+     },
+     "preview": {
+       "title": "Pré-visualização",
+       "not_provided": "Não informado"
+     },
+     "errors": {
+       "name_required": "O nome completo é obrigatório.",
+       "email_required": "O email é obrigatório.",
+       "email_invalid": "Por favor, insira um email válido.",
+       "phone_required": "O telefone é obrigatório.",
+       "phone_invalid": "O telefone deve conter 9 dígitos (ex: 847 877 405).",
+       "birth_date_invalid": "Por favor, insira uma data de nascimento válida.",
+       "birth_date_future": "A data de nascimento não pode ser futura.",
+       "invalid_url": "Por favor, insira um link válido para {{field}}.",
+       "invalid_period": "Período deve estar no formato 'YYYY' ou 'YYYY–YYYY'.",
+       "invalid_year": "Ano de conclusão deve ser um ano válido (ex.: 2020).",
+       "invalid_cert_date": "Data de emissão deve ser um ano válido (ex.: 2020).",
+       "invalid_cert_link": "Por favor, insira um link válido para o certificado.",
+       "form_errors": "Por favor, corrija os erros no formulário antes de prosseguir.",
+       "pdf_error": "Erro ao gerar o PDF.",
+       "preview_error": "Erro ao localizar a pré-visualização. Tente novamente."
+     },
+     "success": {
+       "form_reset": "Formulário resetado com sucesso!",
+       "example_filled": "Dados de exemplo preenchidos com sucesso!",
+       "cv_generated": "Seu currículo foi gerado e baixado com sucesso."
+     },
+     "language_select": "Selecione o Idioma"
+   }
