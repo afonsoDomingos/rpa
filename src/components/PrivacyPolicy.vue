@@ -197,11 +197,11 @@ const solicitarDocumento = async () => {
         <div class="col-lg-6 mt-lg-0 mt-5 ps-lg-0 ps-0">
           <TermsOption
             icon="token"
-            content=" <strong>1.Coleta de Dados</strong><br /> Coletamos apenas nome, contato, tipo e número do <br />  documento, e localização.<br />"
+            content=" <strong>1.Coleta de Dados</strong><br /> Coletamos apenas nome, contacto, tipo e número do <br />  documento, e localização.<br />"
           />
           <TermsOption
             icon="token"
-            content="<strong>2.Uso das Informações</strong><br /> Os dados são usados para conectar quem perdeu <br /> com quemencontrou documentos."
+            content="<strong>2.Uso das Informações</strong><br /> Os dados são usados para conectar quem perdeu <br /> com quem encontrou documentos."
           />
 
           <TermsOption
@@ -210,7 +210,7 @@ const solicitarDocumento = async () => {
           />
            <TermsOption
             icon="token"
-            content="<strong>4.Privacidade</strong><br />ão compartilhamos nem vendemos seus dados.<br />
+            content="<strong>4.Privacidade</strong><br />Não compartilhamos nem vendemos seus dados.<br />
             só são mostrados quando necessário."
           />
           <TermsOption
@@ -219,7 +219,7 @@ const solicitarDocumento = async () => {
           />
           <TermsOption
             icon="token"
-            content="<strong>6.Alterações</strong><br /> sta política pode ser atualizada. Fique atento."
+            content="<strong>6.Alterações</strong><br /> Esta política pode ser atualizada. Fique atento."
           />
           <TermsOption
             icon="token"
