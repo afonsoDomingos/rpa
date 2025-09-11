@@ -6,16 +6,25 @@
     </button>
 
     <!-- Componente flutuante -->
-    <div v-if="documentos.length > 0 && visivel" class="floating-box animate-fade-in shadow-sm rounded p-1">
+    <div
+      v-if="documentos.length > 0 && visivel"
+      class="floating-box animate-fade-in shadow-sm rounded p-1"
+    >
       <!-- Botão de esconder dentro do box -->
       <button @click="fecharBox" class="hide-btn">✖</button>
 
       <h6 class="fw-bold text-purple small-title">
-        📄Encontrados 
+        📄Encontrados
         <span class="count">{{ displayCount }}</span>
       </h6>
-      <p class="mb-1 tiny-text"><strong>Nome:</strong> {{ documentos[indexAtual].nome_completo }}</p>
-      <p class="mb-1 tiny-text"><strong>Tipo:</strong> {{ documentos[indexAtual].tipo_documento }}</p>
+      <!-- Nome anonimizado -->
+      <p class="mb-1 tiny-text">
+        <strong>Nome:</strong>
+        {{ anonimizarNome(documentos[indexAtual].nome_completo) }}
+      </p>
+      <p class="mb-1 tiny-text">
+        <strong>Tipo:</strong> {{ documentos[indexAtual].tipo_documento }}
+      </p>
     </div>
   </div>
 </template>
@@ -32,6 +41,26 @@ let intervalo = null;
 let countInterval = null;
 let timerReaparecer = null; // timer para reaparecer automático
 
+// Função para anonimizar nome
+const anonimizarNome = (nomeCompleto) => {
+  if (!nomeCompleto) return "";
+
+  const partes = nomeCompleto.trim().split(" ");
+
+  if (partes.length === 1) {
+    // Se só houver um nome
+    return partes[0].charAt(0) + ".";
+  }
+
+  if (partes.length === 2) {
+    // Se tiver dois nomes
+    return `${partes[0]} ${partes[1].charAt(0)}.`;
+  }
+
+  // Caso comum: três ou mais nomes
+  return `${partes[0]} ${partes[1].charAt(0)}. ${partes[partes.length - 1]}`;
+};
+
 const buscarDocumentos = async () => {
   try {
     const response = await api.get("/documentos");
@@ -47,7 +76,8 @@ const startCounting = () => {
 
   countInterval = setInterval(() => {
     if (documentos.value.length > 0) {
-      displayCount.value = (displayCount.value + 1) % (documentos.value.length + 1);
+      displayCount.value =
+        (displayCount.value + 1) % (documentos.value.length + 1);
     }
   }, 400);
 };
@@ -88,10 +118,10 @@ onUnmounted(() => {
 
 .floating-box {
   position: fixed;
-  top: 400px;  
-  left: 25px; 
+  top: 400px;
+  left: 25px;
   width: 180px;
-  background: rgba(255, 255, 255, 0.75); 
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   z-index: 9999;
@@ -164,14 +194,29 @@ onUnmounted(() => {
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.7; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
