@@ -209,7 +209,7 @@ const solicitarDocumento = async () => {
           <TermsOption
             icon="token"
             content="<strong>3.Cadastro e Informações</strong><br /> Os dados fornecidos devem ser verdadeiros. Não é permitido <br />
-            cadastrar documentos de terceiros ou usar informações falsas."
+            usar informações falsas."
           />
            <TermsOption
             icon="token"
