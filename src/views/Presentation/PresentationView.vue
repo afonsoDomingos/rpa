@@ -24,6 +24,7 @@ import BuiltByDevelopers from "./Components/BuiltByDevelopers.vue";
 import PresentationTestimonials from "./Sections/PresentationTestimonials.vue";
 import PresentationInformation from "./Sections/PresentationInformation.vue";
 import FloatingDocs from "../../components/FloatingDocs.vue";
+import MapaDocumentos from "../../components/MapaDocumentos.vue";
 
 import DoacaoProjeto from "../../components/DoacaoProjeto.vue";
 
@@ -227,6 +228,8 @@ const solicitarDocumento = async () => {
 </transition>
 
 <FloatingDocs />
+
+
   <Header>
     <div class="page-header min-vh-75" :style="`background-image: url(${vueMkHeader})`" loading="lazy">
       <div class="container">
@@ -386,6 +389,8 @@ const solicitarDocumento = async () => {
   <!-- Componente para exibir informações sobre a nossa equipe -->
   <Nossateam />
   <!-- Componente para exibir o rodapé padrão -->
+   <MapaDocumentos />
+   
   <DefaultFooter />
 </template>
 <style scoped>
