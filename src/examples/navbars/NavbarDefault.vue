@@ -228,18 +228,20 @@ watch(() => type.value, (newValue) => {
               
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="$router.push({ name: 'CVGenerator' })">
-                <i class="bi bi-file-earmark-person text-warning"></i> Gerar CV
+                <i class="bi bi-file-earmark-person text-warning"></i> Gerar Cv
+              </button>
+
+               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+                @click="$router.push({ name: 'GuardarDocumentos' })">
+                <i class="bi bi-folder-plus text-success"></i> Guardar Docs
               </button>
 
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="$router.push({ name: 'Viaturas' })">
-                <i class="bi bi-car-front text-success"></i> Viaturas
+                <i class="bi bi-car-front text-success"></i> Recuperar Viaturas
               </button>
 
-              <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'GuardarDocumentos' })">
-                <i class="bi bi-folder-plus text-success"></i> Guardar Documentos
-              </button>
+             
 
             </div>
           </li>
