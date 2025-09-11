@@ -224,7 +224,7 @@ const solicitarDocumento = async () => {
           <TermsOption
             icon="token"
             content="<strong>7.Contacto</strong><br /> Dúvidas ou denúncias?
-            suporte@recuperaaqui.co.mz
+            879642412
             <br />"
           />
         </div>
