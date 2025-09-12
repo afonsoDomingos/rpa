@@ -127,9 +127,9 @@ const register = async () => {
             <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
               <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">Criar uma conta</h4>
               <div class="row mt-3 text-center">
-                <div class="col-2 ms-auto"><a class="btn btn-link px-3" href="#"><i class="fa fa-facebook text-white text-lg"></i></a></div>
-                <div class="col-2 px-1"><a class="btn btn-link px-3" href="#"><i class="fa fa-github text-white text-lg"></i></a></div>
-                <div class="col-2 me-auto"><a class="btn btn-link px-3" href="#"><i class="fa fa-google text-white text-lg"></i></a></div>
+                <div class="col-2 ms-auto"><a class="btn btn-link px-3" href="#"><i class="fab fa-facebook text-white text-lg"></i></a></div>
+                <div class="col-2 px-1"><a class="btn btn-link px-3" href="#"><i class="fab fa-github text-white text-lg"></i></a></div>
+                <div class="col-2 me-auto"><a class="btn btn-link px-3" href="#"><i class="fab fa-google text-white text-lg"></i></a></div>
               </div>
             </div>
           </div>
@@ -200,9 +200,9 @@ const register = async () => {
             <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
               <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">Faça Login</h4>
               <div class="row mt-3 text-center">
-                <div class="col-2 ms-auto"><a class="btn btn-link px-3" href="#"><i class="fa fa-facebook text-white text-lg"></i></a></div>
-                <div class="col-2 px-1"><a class="btn btn-link px-3" href="#"><i class="fa fa-github text-white text-lg"></i></a></div>
-                <div class="col-2 me-auto"><a class="btn btn-link px-3" href="#"><i class="fa fa-google text-white text-lg"></i></a></div>
+                <div class="col-2 ms-auto"><a class="btn btn-link px-3" href="#"><i class="fab fa-facebook text-white text-lg"></i></a></div>
+                <div class="col-2 px-1"><a class="btn btn-link px-3" href="#"><i class="fab fa-github text-white text-lg"></i></a></div>
+                <div class="col-2 me-auto"><a class="btn btn-link px-3" href="#"><i class="fab fa-google text-white text-lg"></i></a></div>
               </div>
             </div>
           </div>
