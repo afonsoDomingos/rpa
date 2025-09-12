@@ -1,61 +1,3 @@
-<template>
-  <div class="mapa-wrapper">
-    <!-- Mapa à esquerda -->
-    <div class="mapa-container">
-      <div id="mapa" class="mapa"></div>
-    </div>
-
-    <!-- Painel lateral à direita -->
-    <div class="painel-lateral">
-      <!-- Cabeçalho -->
-      <div class="mapa-header">
-        <h3>🗺️ Rastreador Rpa</h3>
-        <p>Total: <strong>{{ documentosFiltrados.length }}</strong> documentos</p>
-        <button
-          class="btn-refresh"
-          @click="carregarDocumentos"
-          :disabled="isLoading"
-        >
-          <span v-if="!isLoading">🔄 Atualizar</span>
-          <span v-else>⏳ Atualizando...</span>
-        </button>
-      </div>
-
-      <!-- Filtro -->
-      <div class="mapa-filtros">
-        <select v-model="filtroProvincia">
-          <option value="">Todas as províncias</option>
-          <option
-            v-for="(coords, prov) in coordenadasProvincias"
-            :key="prov"
-            :value="prov"
-          >
-            {{ prov }}
-          </option>
-        </select>
-        <button class="btn-clear" @click="limparFiltros">❌ Limpar</button>
-      </div>
-
-      <!-- Ranking -->
-      <div class="ranking">
-        <h4>📊 Ranking por Província</h4>
-        <ul>
-          <li
-            v-for="(item, idx) in rankingProvincias"
-            :key="item.provincia"
-          >
-            <span class="posicao">#{{ idx + 1 }}</span>
-            <span class="nome">{{ item.provincia }}</span>
-            <span class="qtd">{{ item.qtd }}</span>
-            <button class="btn-zoom" @click="centrarProvincia(item.provincia)">
-              🔍
-            </button>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</template>
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
@@ -197,75 +139,196 @@ onUnmounted(() => {
   }
 });
 </script>
+<template>
+  <div class="mapa-wrapper">
+    <!-- Mapa à esquerda -->
+    <div class="mapa-container borda-destacada">
+      <div id="mapa" class="mapa"></div>
+    </div>
+
+    <!-- Painel lateral à direita -->
+    <div class="painel-lateral borda-destacada">
+      <!-- Cabeçalho -->
+      <div class="mapa-header">
+        <h3>🗺️ Rastreador Rpa</h3>
+        <p>Total: <strong>{{ documentosFiltrados.length }}</strong> documentos</p>
+        <div class="botoes-topo">
+          <button
+            class="btn-refresh"
+            @click="carregarDocumentos"
+            :disabled="isLoading"
+          >
+            <span v-if="!isLoading">🔄 Atualizar</span>
+            <span v-else>⏳ Atualizando...</span>
+          </button>
+          <button class="btn-clear" @click="limparFiltros">❌</button>
+        </div>
+      </div>
+
+      <!-- Filtro -->
+      <div class="mapa-filtros">
+        <select v-model="filtroProvincia" class="borda-destacada">
+          <option value="">Todas as províncias</option>
+          <option
+            v-for="(coords, prov) in coordenadasProvincias"
+            :key="prov"
+            :value="prov"
+          >
+            {{ prov }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Ranking -->
+      <div class="ranking">
+        <h4>📊 Ranking por Província</h4>
+        <ul>
+          <li
+            v-for="(item, idx) in rankingProvincias"
+            :key="item.provincia"
+          >
+            <span class="posicao">#{{ idx + 1 }}</span>
+            <span class="nome">{{ item.provincia }}</span>
+            <span class="qtd">{{ item.qtd }}</span>
+            <button class="btn-zoom" @click="centrarProvincia(item.provincia)">
+              🔍
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
-.mapa-header h3 {
-  font-family: 'Poppins', sans-serif; /* fonte moderna e elegante */
-  font-size: 1.6rem;                  /* um pouco maior */
-  font-weight: 700;                   /* mais destaque */
-  color: #007bff;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.2); /* sombra leve */
-  text-align: center;
-  margin: 0;
+/* 🔹 Classe adicionada */
+.borda-destacada {
+  border: 2px solid #66bb6a;
+  border-radius: 12px;
+  padding: 10px 0;
+  background-color: #fff;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
+.borda-destacada:hover {
+  border-color: #800080;
+  box-shadow: 0 8px 20px rgba(128, 0, 128, 0.25);
+  transform: scale(1.02);
+}
+
+/* 🔹 Wrapper geral */
 .mapa-wrapper {
   display: flex;
-  gap: 15px;
+  gap: 20px;
   height: 600px;
   flex-direction: row;
+  margin: 0 20px;
 }
 
+/* 🔹 Painel lateral */
 .painel-lateral {
-  width: 300px;
+  flex: 0 0 30%;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
+/* 🔹 Container do mapa */
 .mapa-container {
-  flex: 1;
+  flex: 0 0 70%;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+  display: flex;
 }
 
+/* 🔹 O mapa precisa de altura fixa */
+.mapa {
+  width: 100%;
+  height: 100%;
+  min-height: 580px; /* 👈 garante que o mapa aparece */
+}
+
+/* 🔹 Header */
 .mapa-header {
   background: #f8f9fa;
   padding: 12px;
   border-radius: 8px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .mapa-header h3 {
+  font-family: 'Poppins', sans-serif;
   font-size: 1.3rem;
+  font-weight: 700;
   color: #007bff;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+  margin: 0;
 }
 
+/* 🔹 Botões no topo */
+.botoes-topo {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 🔹 Filtros */
 .mapa-filtros {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 10px;
+  align-items: center;
+  justify-content: center;
 }
 
 .mapa-filtros select {
-  flex: 1;
+  width: 70%;
+  max-width: 220px;
   padding: 6px;
   border-radius: 6px;
 }
 
-.btn-refresh, .btn-clear, .btn-zoom {
+/* 🔹 Botões */
+.btn-refresh,
+.btn-clear,
+.btn-zoom {
   background: #007bff;
   color: white;
   border: none;
-  padding: 5px 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-refresh {
+  background: #007bff;
+}
+
+.btn-clear {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #6c757d;
   border-radius: 6px;
   cursor: pointer;
 }
 
-.btn-clear { background: #6c757d; }
-.btn-zoom { background: #28a745; font-size: 0.8rem; }
+.btn-zoom {
+  background: #28a745;
+  font-size: 0.8rem;
+  padding: 4px 8px;
+}
 
+/* 🔹 Ranking */
 .ranking {
   background: #fff;
   border-radius: 8px;
@@ -301,11 +364,63 @@ onUnmounted(() => {
   color: #007bff;
   margin-right: 6px;
 }
-.ranking .nome { flex: 1; }
-.ranking .qtd { font-weight: bold; margin-right: 6px; }
 
-.mapa {
-  width: 100%;
-  height: 100%;
+.ranking .nome {
+  flex: 1;
+}
+
+.ranking .qtd {
+  font-weight: bold;
+  margin-right: 6px;
+}
+
+/* ================= RESPONSIVIDADE ================= */
+@media (max-width: 768px) {
+  .mapa-wrapper {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .mapa-container,
+  .painel-lateral {
+    flex: 0 0 100%;
+    height: auto;
+  }
+
+  .mapa-container {
+    height: 300px; /* mapa menor no mobile */
+  }
+
+  .mapa {
+    min-height: 280px; /* mapa responsivo */
+  }
+
+  .painel-lateral {
+    gap: 16px;
+  }
+
+  .mapa-filtros {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mapa-filtros select {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .botoes-topo {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-refresh,
+  .btn-clear {
+    width: 100%;
+  }
 }
 </style>
+
+
+
+
