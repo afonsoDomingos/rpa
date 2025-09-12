@@ -216,31 +216,33 @@ onUnmounted(() => {
   transform: scale(1.02);
 }
 
-/* 🔹 Wrapper geral */
+/* .mapa-wrapper */
 .mapa-wrapper {
   display: flex;
   gap: 20px;
   height: 600px;
   flex-direction: row;
-  margin: 0 20px;
+  margin: 0 40px; /* aumentei margem lateral */
 }
 
-/* 🔹 Painel lateral */
+
+/* Painel lateral */
 .painel-lateral {
-  flex: 0 0 30%;
+  flex: 0 0 27%; /* ↓ reduzido */
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-/* 🔹 Container do mapa */
+/* Mapa */
 .mapa-container {
-  flex: 0 0 70%;
+  flex: 0 0 73%; /* ↑ aumentado */
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
   display: flex;
 }
+
 
 /* 🔹 O mapa precisa de altura fixa */
 .mapa {
