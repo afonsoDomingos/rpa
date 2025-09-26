@@ -200,7 +200,7 @@ onMounted(() => {
     .addTo(mapa.value);
 
   L.control.attribution({ prefix: false })
-    .addAttribution('<span style="font-size:10px;color:#666;">Fonte: MapSource</span>')
+    .addAttribution('<a href="https://www.openstreetmap.org/" target="_blank" style="font-size: 10px; color: #666;">Fonte: MapSource</a')
     .setPosition("bottomright")
     .addTo(mapa.value);
 
