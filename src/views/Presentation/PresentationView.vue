@@ -28,6 +28,8 @@ import MapaDocumentos from "../../components/MapaDocumentos.vue";
 
 import DoacaoProjeto from "../../components/DoacaoProjeto.vue";
 
+import NoticiasList from "../../components/NoticiasList.vue";
+
 //images
 import vueMkHeader from "@/assets/img/banner.jpg";
 
@@ -385,8 +387,11 @@ const solicitarDocumento = async () => {
   </div>
 
 
-
+  <div>
+    <NoticiasList />
+  </div>
   <!-- Componente para exibir informações sobre a nossa equipe -->
+  
   <Nossateam />
   <!-- Componente para exibir o rodapé padrão -->
    <MapaDocumentos />

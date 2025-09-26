@@ -32,6 +32,7 @@ import Assinaturas from "../components/Assinaturas.vue";
 import MeusPagamentos from "../components/MeusPagamentos.vue";
 import MeusDocumentos from "../components/MeusDocumentos.vue";
 import Viaturas from "../components/viaturas.vue";
+import NoticiasAdmin from "../components/NoticiasAdmin.vue";
 
 
 // NOVO COMPONENTE
@@ -47,7 +48,7 @@ const router = createRouter({
       component: MeusDocumentos,
       meta: { requerAutenticacao: true }
     },
-
+    
      {
       path: '/viaturas',
       name: 'Viaturas',
@@ -235,7 +236,15 @@ const router = createRouter({
       path: '/CVGenerator',
       name: 'CVGenerator',
       component: CVGenerator,
-    }
+    },
+
+  {
+  path: '/noticias',
+  name: 'NoticiasAdmin',
+  component: NoticiasAdmin,
+}
+
+
   ],
 });
 

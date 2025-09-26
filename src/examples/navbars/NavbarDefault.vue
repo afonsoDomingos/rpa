@@ -112,7 +112,7 @@ watch(() => type.value, (newValue) => {
   <nav class="navbar navbar-expand-lg top-0"
     :class="{
       'z-index-3 w-100 shadow-none navbar-transparent position-absolute my-3': props.transparent,
-      'my-3 blur border-radius-lg z-index-3 py-2 shadow py-2 start-0 end-0 mx-4 position-absolute mt-4': props.sticky,
+      'my-3 blur border-radius-lg z-index-3 py-2 shadow py-2 start-0 end-0 mx-4 position-absolute  mt-4': props.sticky,
       'navbar-light bg-white py-3': props.light,
       ' navbar-dark bg-gradient-dark z-index-3 py-3': props.dark
     }">
