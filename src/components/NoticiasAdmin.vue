@@ -32,7 +32,6 @@
             <p class="text-muted small mb-1">{{ noticia.data }}</p>
             <p>{{ noticia.resumo }}</p>
             <div v-if="noticia.imagem" class="mb-2 text-center">
-              <!-- Corrigido: monta URL completa do backend -->
               <img 
                 :src="API_BASE + noticia.imagem" 
                 alt="Imagem da Notícia" 
@@ -99,13 +98,8 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue"
 
-// Detecta ambiente: dev ou produção
-const isDev = window.location.hostname === 'localhost'
-
-// Base URL do backend
-const API_BASE = isDev 
-  ? 'http://localhost:5000' 
-  : 'https://apirpa.onrender.com'
+// Base URL fixo para produção
+const API_BASE = 'https://apirpa.onrender.com'
 
 // Endpoint das notícias
 const API_URL = `${API_BASE}/api/noticias`
@@ -123,11 +117,13 @@ const imagemArquivo = ref(null)
 
 // Carregar notícias
 const fetchNoticias = async () => {
+  console.log('[INFO] Iniciando fetchNoticias...')
   try {
     const res = await axios.get(API_URL)
     noticias.value = res.data
+    console.log('[SUCESSO] Notícias carregadas:', noticias.value)
   } catch (err) {
-    console.error('Erro ao carregar notícias:', err.message)
+    console.error('[ERRO] Falha ao carregar notícias:', err.message)
     if (err.response) {
       console.error('Status:', err.response.status)
       console.error('Resposta:', err.response.data)
@@ -137,6 +133,7 @@ const fetchNoticias = async () => {
 
 // Abrir modal
 const abrirModal = (noticia = null) => {
+  console.log('[INFO] Abrindo modal', noticia ? 'para edição' : 'para nova notícia', noticia || '')
   if (noticia) {
     noticiaSelecionada.value = noticia
     noticiaForm.value = { ...noticia }
@@ -149,16 +146,19 @@ const abrirModal = (noticia = null) => {
 }
 
 const fecharModal = () => {
+  console.log('[INFO] Fechando modal.')
   modalAberto.value = false
 }
 
 // Captura o arquivo
 const handleFileUpload = (event) => {
   imagemArquivo.value = event.target.files[0]
+  console.log('[INFO] Arquivo selecionado:', imagemArquivo.value?.name)
 }
 
 // Salvar notícia (com imagem)
 const salvarNoticia = async () => {
+  console.log('[INFO] Salvando notícia...', noticiaForm.value)
   try {
     const formData = new FormData()
     formData.append('titulo', noticiaForm.value.titulo)
@@ -168,23 +168,28 @@ const salvarNoticia = async () => {
 
     if (imagemArquivo.value) {
       formData.append('imagem', imagemArquivo.value)
+      console.log('[INFO] Imagem anexada:', imagemArquivo.value.name)
     }
 
     if (noticiaSelecionada.value?.id) {
+      console.log('[INFO] Atualizando notícia ID:', noticiaSelecionada.value.id)
       const res = await axios.put(`${API_URL}/${noticiaSelecionada.value.id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       const index = noticias.value.findIndex(n => n.id === noticiaSelecionada.value.id)
       noticias.value[index] = res.data
+      console.log('[SUCESSO] Notícia atualizada:', res.data)
     } else {
+      console.log('[INFO] Criando nova notícia...')
       const res = await axios.post(API_URL, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       noticias.value.push(res.data)
+      console.log('[SUCESSO] Nova notícia criada:', res.data)
     }
     fecharModal()
   } catch (err) {
-    console.error('Erro ao salvar notícia:', err.message)
+    console.error('[ERRO] Falha ao salvar notícia:', err.message)
     if (err.response) {
       console.error('Status:', err.response.status)
       console.error('Resposta:', err.response.data)
@@ -195,11 +200,13 @@ const salvarNoticia = async () => {
 // Remover notícia
 const removerNoticia = async (id) => {
   if (!confirm('Tem certeza que deseja remover esta notícia?')) return
+  console.log('[INFO] Removendo notícia ID:', id)
   try {
     await axios.delete(`${API_URL}/${id}`)
     noticias.value = noticias.value.filter(n => n.id !== id)
+    console.log('[SUCESSO] Notícia removida com ID:', id)
   } catch (err) {
-    console.error('Erro ao remover notícia:', err.message)
+    console.error('[ERRO] Falha ao remover notícia:', err.message)
     if (err.response) {
       console.error('Status:', err.response.status)
       console.error('Resposta:', err.response.data)
@@ -208,6 +215,7 @@ const removerNoticia = async (id) => {
 }
 
 onMounted(() => {
+  console.log('[INFO] Componente montado. Carregando notícias...')
   fetchNoticias()
 })
 </script>

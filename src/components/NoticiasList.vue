@@ -1,4 +1,3 @@
-
 <template>
   <div class="noticias-container">
     <!-- Campo de busca -->
@@ -110,8 +109,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 
-const isDev = window.location.hostname === 'localhost'
-const API_BASE = isDev ? 'http://localhost:5000' : 'https://apirpa.onrender.com'
+// Sempre usa o backend em produção
+const API_BASE = 'https://apirpa.onrender.com'
 const API_URL = `${API_BASE}/api/noticias`
 
 const noticias = ref([])
@@ -132,13 +131,14 @@ const noticiasFiltradas = computed(() => {
 
 const proximaNoticia = () => {
   if (noticiasGrid.value) {
-    const cardWidth = 350 + 20 // Largura do card + gap
+    const cardWidth = 350 + 20
     const maxScroll = noticiasGrid.value.scrollWidth - noticiasGrid.value.clientWidth
     if (noticiasGrid.value.scrollLeft >= maxScroll - 1) {
-      // Volta ao início quando atinge o final
       noticiasGrid.value.scrollTo({ left: 0, behavior: 'smooth' })
+      console.log('[INFO] Voltou para a primeira notícia')
     } else {
       noticiasGrid.value.scrollBy({ left: cardWidth, behavior: 'smooth' })
+      console.log('[INFO] Avançou para a próxima notícia')
     }
   }
 }
@@ -146,6 +146,7 @@ const proximaNoticia = () => {
 const irParaPrimeiraNoticia = () => {
   if (noticiasGrid.value) {
     noticiasGrid.value.scrollTo({ left: 0, behavior: 'smooth' })
+    console.log('[INFO] Scrollado para a primeira notícia')
   }
 }
 
@@ -153,29 +154,34 @@ const irParaUltimaNoticia = () => {
   if (noticiasGrid.value) {
     const maxScroll = noticiasGrid.value.scrollWidth - noticiasGrid.value.clientWidth
     noticiasGrid.value.scrollTo({ left: maxScroll, behavior: 'smooth' })
+    console.log('[INFO] Scrollado para a última notícia')
   }
 }
 
 const iniciarAutoScroll = () => {
   autoScrollInterval = setInterval(() => {
     proximaNoticia()
-  }, 3000) // 3 segundos
+  }, 3000)
+  console.log('[INFO] Auto-scroll iniciado')
 }
 
 const pausarAutoScroll = () => {
   if (autoScrollInterval) {
     clearInterval(autoScrollInterval)
     autoScrollInterval = null
+    console.log('[INFO] Auto-scroll pausado')
   }
 }
 
 const retomarAutoScroll = () => {
   if (!autoScrollInterval) {
     iniciarAutoScroll()
+    console.log('[INFO] Auto-scroll retomado')
   }
 }
 
 onMounted(() => {
+  console.log('[INFO] Componente montado. Carregando notícias de:', API_URL)
   fetchNoticias()
   iniciarAutoScroll()
 })
@@ -185,43 +191,51 @@ onUnmounted(() => {
 })
 
 const abrirImagem = async (noticia) => {
+  console.log('[INFO] Abrindo imagem ampliada da notícia ID:', noticia.id)
   imagemAmpliada.value = noticia.imagem
-  // Incrementar visualizações localmente
   noticia.visualizacoes = (noticia.visualizacoes || 0) + 1
-  // Enviar atualização para a API
   try {
     await axios.patch(`${API_URL}/${noticia.id}`, { visualizacoes: noticia.visualizacoes })
+    console.log('[SUCESSO] Visualizações atualizadas para:', noticia.visualizacoes)
   } catch (err) {
-    console.error('Erro ao atualizar visualizações', err)
+    console.error('[ERRO] Falha ao atualizar visualizações:', err.message)
   }
 }
 
 const fecharImagem = () => {
+  console.log('[INFO] Fechando modal de imagem')
   imagemAmpliada.value = null
 }
 
 const abrirModalConteudo = async (noticia) => {
+  console.log('[INFO] Abrindo conteúdo da notícia ID:', noticia.id)
   conteudoModal.value = noticia.conteudo
-  // Incrementar visualizações localmente
   noticia.visualizacoes = (noticia.visualizacoes || 0) + 1
-  // Enviar atualização para a API
   try {
     await axios.patch(`${API_URL}/${noticia.id}`, { visualizacoes: noticia.visualizacoes })
+    console.log('[SUCESSO] Visualizações atualizadas para:', noticia.visualizacoes)
   } catch (err) {
-    console.error('Erro ao atualizar visualizações', err)
+    console.error('[ERRO] Falha ao atualizar visualizações:', err.message)
   }
 }
 
 const fecharModalConteudo = () => {
+  console.log('[INFO] Fechando modal de conteúdo')
   conteudoModal.value = null
 }
 
 const fetchNoticias = async () => {
+  console.log('[INFO] Buscando notícias em:', API_URL)
   try {
     const res = await axios.get(API_URL)
     noticias.value = res.data
+    console.log('[SUCESSO] Notícias carregadas:', noticias.value.length)
   } catch (err) {
-    console.error('Erro ao carregar notícias', err)
+    console.error('[ERRO] Falha ao carregar notícias:', err.message)
+    if (err.response) {
+      console.error('Status:', err.response.status)
+      console.error('Resposta:', err.response.data)
+    }
   }
 }
 
@@ -235,6 +249,8 @@ const formatarData = (data) => {
   })
 }
 </script>
+
+
 
 <style scoped>
 .noticias-container {
