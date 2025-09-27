@@ -25,8 +25,12 @@
         class="card shadow-sm"
       >
         <div class="card-body">
-          <h5 class="fw-bold text-success mb-2 borda-destacada">{{ noticia.titulo }}</h5>
-          <p class="text-muted small mb-2">{{ formatarData(noticia.data) }}</p>
+          <h5 class="fw-bold text-success mb-2 borda-destacada">
+            {{ noticia.titulo }}
+          </h5>
+          <p class="text-muted small mb-2">
+            {{ formatarData(noticia.data) }}
+          </p>
           <p class="resumo">{{ noticia.resumo }}</p>
 
           <div v-if="noticia.imagem" class="mb-3 text-center">
@@ -48,11 +52,13 @@
               Ler mais
             </button>
             <p class="text-muted small visualizacoes">
-              <span class="icon">👁️</span> {{ noticia.visualizacoes || 0 }}
+              <span class="icon">👁️</span>
+              {{ noticia.visualizacoes || 0 }}
             </p>
           </div>
         </div>
       </div>
+
       <!-- Botão Próximo acima da última notícia -->
       <button
         v-if="noticiasFiltradas.length > 0"
@@ -62,6 +68,7 @@
       >
         <span class="arrow-icon">▶</span>
       </button>
+
       <!-- Botão para a primeira notícia -->
       <button
         v-if="noticiasFiltradas.length > 0"
@@ -71,6 +78,7 @@
       >
         <span class="arrow-icon">⏮</span>
       </button>
+
       <!-- Botão para a última notícia -->
       <button
         v-if="noticiasFiltradas.length > 0"
@@ -83,7 +91,10 @@
     </div>
 
     <!-- Mensagem se não houver notícias -->
-    <div v-if="noticiasFiltradas.length === 0" class="text-center text-muted mt-3">
+    <div
+      v-if="noticiasFiltradas.length === 0"
+      class="text-center text-muted mt-3"
+    >
       Nenhuma notícia encontrada.
     </div>
 
@@ -91,70 +102,113 @@
     <div v-if="imagemAmpliada" class="modal" @click="fecharImagem">
       <div class="modal-content imagem-modal">
         <span class="fechar-modal" @click="fecharImagem">&times;</span>
-        <img :src="API_BASE + imagemAmpliada" alt="Imagem Ampliada" class="img-fluid" />
+        <img
+          :src="API_BASE + imagemAmpliada"
+          alt="Imagem Ampliada"
+          class="img-fluid"
+        />
       </div>
     </div>
 
+    
     <!-- Modal para conteúdo da notícia -->
-    <div v-if="conteudoModal" class="modal" @click="fecharModalConteudo">
-      <div class="modal-content conteudo-modal">
-        <span class="fechar-modal" @click="fecharModalConteudo">&times;</span>
-        <p class="conteudo">{{ conteudoModal }}</p>
-      </div>
+<div v-if="conteudoModal" class="modal" @click="fecharModalConteudo">
+  <div class="modal-content conteudo-modal" @click.stop>
+    <span class="fechar-modal" @click="fecharModalConteudo">&times;</span>
+    <p class="conteudo">{{ conteudoModal }}</p>
+
+    <!-- 🔗 Ícones de redes sociais -->
+    <div class="redes-sociais">
+      <a
+        href="https://www.facebook.com/tuaPagina"
+        target="_blank"
+        aria-label="Facebook"
+      >
+        <i class="fab fa-facebook"></i>
+      </a>
+      <a
+        href="https://www.instagram.com/teuPerfil"
+        target="_blank"
+        aria-label="Instagram"
+      >
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a
+        href="https://www.linkedin.com/company/tuaEmpresa"
+        target="_blank"
+        aria-label="LinkedIn"
+      >
+        <i class="fab fa-linkedin"></i>
+      </a>
+      <a
+        href="https://www.youtube.com/@recuperaqui"
+        target="_blank"
+        aria-label="YouTube"
+      >
+        <i class="fab fa-youtube"></i>
+      </a>
     </div>
+  </div>
+</div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import axios from 'axios'
+import { ref, computed, onMounted, onUnmounted } from "vue"
+import axios from "axios"
 
-// Sempre usa o backend em produção
-const API_BASE = 'https://apirpa.onrender.com'
+// 🚀 Usa o backend em produção
+const API_BASE = "https://apirpa.onrender.com"
 const API_URL = `${API_BASE}/api/noticias`
 
 const noticias = ref([])
-const termoBusca = ref('')
+const termoBusca = ref("")
 const imagemAmpliada = ref(null)
 const conteudoModal = ref(null)
 const noticiasGrid = ref(null)
 let autoScrollInterval = null
 
+// 🔍 Filtro de notícias
 const noticiasFiltradas = computed(() => {
   if (!termoBusca.value) return noticias.value
-  return noticias.value.filter(noticia =>
-    noticia.titulo.toLowerCase().includes(termoBusca.value.toLowerCase()) ||
-    noticia.resumo.toLowerCase().includes(termoBusca.value.toLowerCase()) ||
-    noticia.conteudo.toLowerCase().includes(termoBusca.value.toLowerCase())
+  return noticias.value.filter(
+    (noticia) =>
+      noticia.titulo.toLowerCase().includes(termoBusca.value.toLowerCase()) ||
+      noticia.resumo.toLowerCase().includes(termoBusca.value.toLowerCase()) ||
+      noticia.conteudo.toLowerCase().includes(termoBusca.value.toLowerCase())
   )
 })
 
+// ▶ Auto-scroll
 const proximaNoticia = () => {
   if (noticiasGrid.value) {
     const cardWidth = 350 + 20
-    const maxScroll = noticiasGrid.value.scrollWidth - noticiasGrid.value.clientWidth
+    const maxScroll =
+      noticiasGrid.value.scrollWidth - noticiasGrid.value.clientWidth
     if (noticiasGrid.value.scrollLeft >= maxScroll - 1) {
-      noticiasGrid.value.scrollTo({ left: 0, behavior: 'smooth' })
-      console.log('[INFO] Voltou para a primeira notícia')
+      noticiasGrid.value.scrollTo({ left: 0, behavior: "smooth" })
+      console.log("[INFO] Voltou para a primeira notícia")
     } else {
-      noticiasGrid.value.scrollBy({ left: cardWidth, behavior: 'smooth' })
-      console.log('[INFO] Avançou para a próxima notícia')
+      noticiasGrid.value.scrollBy({ left: cardWidth, behavior: "smooth" })
+      console.log("[INFO] Avançou para a próxima notícia")
     }
   }
 }
 
 const irParaPrimeiraNoticia = () => {
   if (noticiasGrid.value) {
-    noticiasGrid.value.scrollTo({ left: 0, behavior: 'smooth' })
-    console.log('[INFO] Scrollado para a primeira notícia')
+    noticiasGrid.value.scrollTo({ left: 0, behavior: "smooth" })
+    console.log("[INFO] Scrollado para a primeira notícia")
   }
 }
 
 const irParaUltimaNoticia = () => {
   if (noticiasGrid.value) {
-    const maxScroll = noticiasGrid.value.scrollWidth - noticiasGrid.value.clientWidth
-    noticiasGrid.value.scrollTo({ left: maxScroll, behavior: 'smooth' })
-    console.log('[INFO] Scrollado para a última notícia')
+    const maxScroll =
+      noticiasGrid.value.scrollWidth - noticiasGrid.value.clientWidth
+    noticiasGrid.value.scrollTo({ left: maxScroll, behavior: "smooth" })
+    console.log("[INFO] Scrollado para a última notícia")
   }
 }
 
@@ -162,26 +216,26 @@ const iniciarAutoScroll = () => {
   autoScrollInterval = setInterval(() => {
     proximaNoticia()
   }, 3000)
-  console.log('[INFO] Auto-scroll iniciado')
+  console.log("[INFO] Auto-scroll iniciado")
 }
 
 const pausarAutoScroll = () => {
   if (autoScrollInterval) {
     clearInterval(autoScrollInterval)
     autoScrollInterval = null
-    console.log('[INFO] Auto-scroll pausado')
+    console.log("[INFO] Auto-scroll pausado")
   }
 }
 
 const retomarAutoScroll = () => {
   if (!autoScrollInterval) {
     iniciarAutoScroll()
-    console.log('[INFO] Auto-scroll retomado')
+    console.log("[INFO] Auto-scroll retomado")
   }
 }
 
 onMounted(() => {
-  console.log('[INFO] Componente montado. Carregando notícias de:', API_URL)
+  console.log("[INFO] Componente montado. Carregando notícias de:", API_URL)
   fetchNoticias()
   iniciarAutoScroll()
 })
@@ -190,67 +244,75 @@ onUnmounted(() => {
   pausarAutoScroll()
 })
 
+// 🖼️ Abrir imagem + atualizar visualizações
 const abrirImagem = async (noticia) => {
-  console.log('[INFO] Abrindo imagem ampliada da notícia ID:', noticia.id)
+  console.log("[INFO] Abrindo imagem ampliada da notícia ID:", noticia.id)
   imagemAmpliada.value = noticia.imagem
-  noticia.visualizacoes = (noticia.visualizacoes || 0) + 1
   try {
-    await axios.patch(`${API_URL}/${noticia.id}`, { visualizacoes: noticia.visualizacoes })
-    console.log('[SUCESSO] Visualizações atualizadas para:', noticia.visualizacoes)
+    const res = await axios.patch(`${API_URL}/${noticia.id}`)
+    noticia.visualizacoes = res.data.visualizacoes
+    console.log(
+      "[SUCESSO] Visualizações atualizadas para:",
+      noticia.visualizacoes
+    )
   } catch (err) {
-    console.error('[ERRO] Falha ao atualizar visualizações:', err.message)
+    console.error("[ERRO] Falha ao atualizar visualizações:", err.message)
   }
 }
 
 const fecharImagem = () => {
-  console.log('[INFO] Fechando modal de imagem')
+  console.log("[INFO] Fechando modal de imagem")
   imagemAmpliada.value = null
 }
 
+// 📖 Abrir modal de conteúdo + atualizar visualizações
 const abrirModalConteudo = async (noticia) => {
-  console.log('[INFO] Abrindo conteúdo da notícia ID:', noticia.id)
+  console.log("[INFO] Abrindo conteúdo da notícia ID:", noticia.id)
   conteudoModal.value = noticia.conteudo
-  noticia.visualizacoes = (noticia.visualizacoes || 0) + 1
   try {
-    await axios.patch(`${API_URL}/${noticia.id}`, { visualizacoes: noticia.visualizacoes })
-    console.log('[SUCESSO] Visualizações atualizadas para:', noticia.visualizacoes)
+    const res = await axios.patch(`${API_URL}/${noticia.id}`)
+    noticia.visualizacoes = res.data.visualizacoes
+    console.log(
+      "[SUCESSO] Visualizações atualizadas para:",
+      noticia.visualizacoes
+    )
   } catch (err) {
-    console.error('[ERRO] Falha ao atualizar visualizações:', err.message)
+    console.error("[ERRO] Falha ao atualizar visualizações:", err.message)
   }
 }
 
 const fecharModalConteudo = () => {
-  console.log('[INFO] Fechando modal de conteúdo')
+  console.log("[INFO] Fechando modal de conteúdo")
   conteudoModal.value = null
 }
 
+// 🌐 Buscar notícias
 const fetchNoticias = async () => {
-  console.log('[INFO] Buscando notícias em:', API_URL)
+  console.log("[INFO] Buscando notícias em:", API_URL)
   try {
     const res = await axios.get(API_URL)
     noticias.value = res.data
-    console.log('[SUCESSO] Notícias carregadas:', noticias.value.length)
+    console.log("[SUCESSO] Notícias carregadas:", noticias.value.length)
   } catch (err) {
-    console.error('[ERRO] Falha ao carregar notícias:', err.message)
+    console.error("[ERRO] Falha ao carregar notícias:", err.message)
     if (err.response) {
-      console.error('Status:', err.response.status)
-      console.error('Resposta:', err.response.data)
+      console.error("Status:", err.response.status)
+      console.error("Resposta:", err.response.data)
     }
   }
 }
 
+// 📅 Formatador de datas
 const formatarData = (data) => {
-  if (!data) return ''
+  if (!data) return ""
   const d = new Date(data)
-  return d.toLocaleDateString('pt-PT', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
+  return d.toLocaleDateString("pt-PT", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
   })
 }
 </script>
-
-
 
 <style scoped>
 .noticias-container {
@@ -487,4 +549,25 @@ const formatarData = (data) => {
 .fechar-modal:hover {
   color: #66bb6a;
 }
+
+/* 🔗 Redes sociais */
+.redes-sociais {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.redes-sociais a {
+  font-size: 1.8rem;
+  color: #555;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.redes-sociais a:hover {
+  color: #800080;
+  transform: scale(1.2);
+}
+
+
 </style>
