@@ -234,7 +234,7 @@ onUnmounted(() => {
     <!-- Painel lateral -->
     <div class="painel-lateral borda-destacada">
       <div class="mapa-header">
-        <h3>🗺️ Rastreador Rpa</h3>
+        <p>🗺️ Rastreador Rpa</p>
         <p>Total: <strong>{{ documentosFiltrados.length }}</strong></p>
         <p class="pop-total">👥 População: <strong>{{ populacaoTotal.toLocaleString() }}</strong></p>
         <div class="botoes-topo">

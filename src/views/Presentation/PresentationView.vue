@@ -252,9 +252,15 @@ const solicitarDocumento = async () => {
   <div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n6 gradient-background">
     <!-- Componente para Exibir Documentos -->
     <Verdocumentos />
+  
+    
    <!-- <Guardardocumentos />-->
     <!-- Componente para Contador de Apresentação -->
     <PresentationCounter />
+       <div class="py-5">
+       <!-- Componente para exibir o rodapé padrão -->
+   <MapaDocumentos />
+    </div>
     <!-- Componente para Definir Popover (ajuda contextual ou informações extras ao interagir com elementos) -->
     <setPopover />
     <!-- Componente para Exibir Informações de Apresentação -->
@@ -283,6 +289,7 @@ const solicitarDocumento = async () => {
         </div>
       </div>
     </div>
+   
     <div class="py-5">
       <div class="container">
         <div class="row">
@@ -301,8 +308,11 @@ const solicitarDocumento = async () => {
           </div>
         </div>
       </div>
+      
     </div>
   </div> <!-- Fechamento da div card -->
+
+  
 
   <!-- Modal -->
   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -385,6 +395,7 @@ const solicitarDocumento = async () => {
       </div>
     </div>
   </div>
+  
 
 
   <div>
@@ -393,8 +404,7 @@ const solicitarDocumento = async () => {
   <!-- Componente para exibir informações sobre a nossa equipe -->
   
   <Nossateam />
-  <!-- Componente para exibir o rodapé padrão -->
-   <MapaDocumentos />
+ 
    
   <DefaultFooter />
 </template>
