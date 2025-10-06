@@ -79,7 +79,10 @@ const login = async () => {
     });
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("email", res.data.email);
-    await router.push("/home");
+    
+    // Redireciona baseado no redirectUrl do backend (admin vai para dashboard, cliente para home)
+    const redirectUrl = res.data.redirectUrl || "/home";
+    await router.push(redirectUrl);
   } catch (err: any) {
     errorMessage.value = err.response?.data?.msg || "Falha no login. Tente novamente.";
   } finally {
@@ -129,7 +132,13 @@ const handleCredentialResponse = async (response: { credential: string }) => {
     const res = await api.googleAuth(response.credential);
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("email", res.data.usuario.email);
-    await router.push("/home");
+
+    // Se o backend retornar redirectUrl, use ele. Caso contrário, use role para decidir
+    const redirectUrl =
+      res.data.redirectUrl ||
+      (res.data.usuario.role === "admin" ? "/dashboard/admin" : "/home");
+
+    await router.push(redirectUrl);
   } catch (err: any) {
     errorMessage.value = err.response?.data?.msg || "Falha no login com Google";
   } finally {
@@ -354,6 +363,7 @@ onMounted(async () => {
 
   <FooterDefault />
 </template>
+
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
