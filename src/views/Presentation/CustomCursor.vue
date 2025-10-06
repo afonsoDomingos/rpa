@@ -10,20 +10,17 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import clickSoundFile from '@/assets/sounds/click.mp3' // coloque o som nessa pasta
+// import clickSoundFile from '@/assets/sounds/click.mp3' // removido
 
-// Posições do cursor
 const mouseX = ref(0)
 const mouseY = ref(0)
 const cursorX = ref(0)
 const cursorY = ref(0)
 
-// Controle de hover e clique
 const isHovering = ref(false)
 const pulses = ref([])
 
-// Som de clique
-const clickSound = new Audio(clickSoundFile)
+// const clickSound = new Audio(clickSoundFile) // removido
 
 const cursorStyle = computed(() => ({
   left: `${cursorX.value}px`,
@@ -48,15 +45,13 @@ function checkHover(e) {
 }
 
 function triggerClickPulse(e) {
-  // Cria o efeito visual
   pulses.value.push({ x: e.clientX, y: e.clientY })
   setTimeout(() => {
     pulses.value.shift()
   }, 500)
 
-  // Toca o som
-  clickSound.currentTime = 0
-  clickSound.play()
+  // clickSound.currentTime = 0
+  // clickSound.play() // removido
 }
 
 onMounted(() => {
