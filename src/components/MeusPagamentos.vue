@@ -6,189 +6,468 @@
       </div>
     </div>
   </div>
+  
   <br/><br/><br/>
-  <div class="container-fluid pag-container-fluid py-4 my-4 bg-white shadow-sm rounded borda-destacada pag-container-responsive">
-    <h2 class="mb-4 text-center text-success fw-bold">Meus Pagamentos</h2>
+  
+  <div class="container-fluid pag-container-fluid py-4 my-4 shadow-sm rounded borda-destacada pag-container-responsive">
+     Alerta de Renovação 
+    <transition name="fade">
+      <div 
+        v-if="alertaRenovacao.mostrar" 
+        :class="['alert', 'd-flex', 'align-items-center', 'gap-2', alertaRenovacao.tipo === 'danger' ? 'alert-danger' : 'alert-warning']" 
+        role="alert" 
+        style="max-width: 700px; margin: 0 auto 1.5rem auto;"
+      >
+        <i class="material-icons">{{ alertaRenovacao.tipo === 'danger' ? 'error' : 'warning' }}</i>
+        <span>{{ alertaRenovacao.texto }}</span>
+      </div>
+    </transition>
 
-    <div v-if="alertaRenovacao.mostrar" :class="['alert', alertaRenovacao.tipo === 'danger' ? 'alert-danger' : 'alert-warning']" role="alert" style="max-width: 600px; margin: 0 auto 1rem auto;">
-  {{ alertaRenovacao.texto }}
-</div>
-
-
-    <!-- Usuário -->
-    <li v-if="usuario" class="nav-item dropdown dropdown-hover mx-auto mb-4" style="list-style: none; max-width: 300px;">
-      <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center justify-content-center border border-success rounded-pill px-3 py-2" :class="getTextColor()" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="material-icons opacity-6 me-2 text-md" :class="getTextColor()">person</i>
-        {{ usuario.nome || 'Usuário' }}
+     Usuário Dropdown 
+    <li 
+      v-if="usuario" 
+      class="nav-item dropdown dropdown-hover mx-auto mb-4" 
+      style="list-style: none; max-width: 320px;"
+    >
+      <a 
+        role="button" 
+        class="nav-link ps-2 d-flex cursor-pointer align-items-center justify-content-center border rounded-pill px-4 py-2 user-dropdown" 
+        id="dropdownUser" 
+        data-bs-toggle="dropdown" 
+        aria-expanded="false"
+        aria-label="Menu do usuário"
+      >
+        <i class="material-icons opacity-6 me-2 text-md">person</i>
+        <span class="fw-semibold">{{ usuario.nome || 'Usuário' }}</span>
+        <i class="material-icons ms-2 text-sm">expand_more</i>
       </a>
-      <ul class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 border-radius-lg" aria-labelledby="dropdownUser">
-        <li><button class="dropdown-item border-radius-md text-danger" @click="logout">Sair</button></li>
+      <ul 
+        class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 border-radius-lg" 
+        aria-labelledby="dropdownUser"
+      >
+        <li>
+          <button 
+            class="dropdown-item border-radius-md text-danger d-flex align-items-center gap-2" 
+            @click="logout"
+          >
+            <i class="material-icons text-sm">logout</i>
+            Sair
+          </button>
+        </li>
       </ul>
     </li>
 
-    <!-- Resumo financeiro -->
-    <div class="mb-4 resumo-financeiro-row">
-      <div class="resumo-item"><strong>Total pago:</strong> MZN {{ totalPago.toFixed(2) }}</div>
-      <div class="resumo-item"><strong>Último pagamento:</strong> {{ ultimoPagamento ? formatarData(ultimoPagamento.data) + " (" + ultimoPagamento.valor.toFixed(2) + " MZN)" : "-" }}</div>
-      <div class="resumo-item"><strong>Total de pagamentos:</strong> {{ pagamentos.length }}</div>
-      <div class="resumo-item"><button @click="exportarCSV" class="btn btn-outline-success btn-sm w-100-mobile">Exportar CSV</button></div>
+     Resumo Financeiro 
+    <div class="mb-4 resumo-financeiro-container">
+      <div class="resumo-card">
+        <div class="resumo-icon bg-gradient-primary">
+          <i class="material-icons text-white">payments</i>
+        </div>
+        <div class="resumo-content">
+          <span class="resumo-label">Total Pago</span>
+          <span class="resumo-value">MZN {{ totalPago.toFixed(2) }}</span>
+        </div>
+      </div>
+
+      <div class="resumo-card">
+        <div class="resumo-icon bg-gradient-info">
+          <i class="material-icons text-white">receipt</i>
+        </div>
+        <div class="resumo-content">
+          <span class="resumo-label">Último Pagamento</span>
+          <span class="resumo-value-small">
+            {{ ultimoPagamento ? formatarData(ultimoPagamento.dataPagamento) : "-" }}
+          </span>
+          <span v-if="ultimoPagamento" class="resumo-subtext">
+            MZN {{ ultimoPagamento.valor.toFixed(2) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="resumo-card">
+        <div class="resumo-icon bg-gradient-success">
+          <i class="material-icons text-white">list_alt</i>
+        </div>
+        <div class="resumo-content">
+          <span class="resumo-label">Total de Pagamentos</span>
+          <span class="resumo-value">{{ pagamentos.length }}</span>
+        </div>
+      </div>
+
+      <div class="resumo-card resumo-card-action">
+        <button 
+          @click="exportarCSV" 
+          class="btn btn-gradient-primary w-100 d-flex align-items-center justify-content-center gap-2"
+          :disabled="pagamentos.length === 0"
+          aria-label="Exportar pagamentos para CSV"
+        >
+          <i class="material-icons text-sm">download</i>
+          Exportar CSV
+        </button>
+      </div>
     </div>
 
-    <!-- Filtros -->
-    <div class="mb-4 filtros-row filtros-compact">
-      <select v-model="filtros.status" class="form-select form-select-sm filtro-item filtro-compact">
-        <option value="">Todos os status</option>
-        <option value="pago">Pago</option>
-        <option value="pendente">Pendente</option>
-        <option value="cancelado">Cancelado</option>
-        <option value="expirado">Expirado</option>
-      </select>
+     Filtros 
+    <div class="mb-4 filtros-container">
+      <div class="filtros-wrapper">
+        <div class="filtro-group">
+          <label for="filtroStatus" class="visually-hidden">Filtrar por status</label>
+          <select 
+            id="filtroStatus"
+            v-model="filtros.status" 
+            class="form-select form-select-sm filtro-select"
+            aria-label="Filtrar por status"
+          >
+            <option value="">Todos os status</option>
+            <option value="pago">Pago</option>
+            <option value="pendente">Pendente</option>
+            <option value="cancelado">Cancelado</option>
+            <option value="expirado">Expirado</option>
+          </select>
+        </div>
 
-      <select v-model="filtros.pacote" class="form-select form-select-sm filtro-item filtro-compact">
-        <option value="">Todos os pacotes</option>
-        <option v-for="p in pacotesUnicos" :key="p" :value="p">{{ p }}</option>
-      </select>
+        <div class="filtro-group">
+          <label for="filtroPacote" class="visually-hidden">Filtrar por pacote</label>
+          <select 
+            id="filtroPacote"
+            v-model="filtros.pacote" 
+            class="form-select form-select-sm filtro-select"
+            aria-label="Filtrar por pacote"
+          >
+            <option value="">Todos os pacotes</option>
+            <option v-for="p in pacotesUnicos" :key="p" :value="p">{{ p }}</option>
+          </select>
+        </div>
 
-      <select v-model="filtros.formaPagamento" class="form-select form-select-sm filtro-item filtro-compact">
-        <option value="">Todas as formas</option>
-        <option v-for="f in formasUnicas" :key="f" :value="f">{{ f }}</option>
-      </select>
+        <div class="filtro-group">
+          <label for="filtroForma" class="visually-hidden">Filtrar por forma de pagamento</label>
+          <select 
+            id="filtroForma"
+            v-model="filtros.formaPagamento" 
+            class="form-select form-select-sm filtro-select"
+            aria-label="Filtrar por forma de pagamento"
+          >
+            <option value="">Todas as formas</option>
+            <option v-for="f in formasUnicas" :key="f" :value="f">{{ f }}</option>
+          </select>
+        </div>
 
-      <button class="btn btn-outline-secondary btn-sm filtro-item filtro-compact w-100-mobile btn-limpar-filtros" @click="limparFiltros">
-        Limpar filtros
-      </button>
+        <button 
+          class="btn btn-outline-light btn-sm filtro-limpar" 
+          @click="limparFiltros"
+          :disabled="!temFiltrosAtivos"
+          aria-label="Limpar todos os filtros"
+        >
+          <i class="material-icons text-sm me-1">clear</i>
+          Limpar
+        </button>
+      </div>
+
+       Contador de resultados 
+      <div v-if="temFiltrosAtivos" class="filtros-info mt-2 text-center">
+        <small class="text-light">
+          Mostrando {{ pagamentosFiltrados.length }} de {{ pagamentos.length }} pagamento(s)
+        </small>
+      </div>
     </div>
 
-    <!-- Loading / Erro -->
-    <div v-if="loading" class="alert alert-info text-center">Carregando pagamentos...</div>
-    <div v-else-if="erro" class="alert alert-danger text-center">{{ erro }}</div>
+     Loading / Erro 
+    <transition name="fade">
+      <div v-if="loading" class="alert alert-info text-center d-flex align-items-center justify-content-center gap-2">
+        <div class="spinner-border spinner-border-sm" role="status">
+          <span class="visually-hidden">Carregando...</span>
+        </div>
+        Carregando pagamentos...
+      </div>
+    </transition>
 
-    <!-- Conteúdo -->
-    <div v-else>
-  <!-- Desktop -->
-<div class="table-responsive d-none d-md-block">
-  <table class="table table-hover align-middle mb-0">
-    <thead class="table-success">
-      <tr>
-        <th>Pacote</th>
-        <th>Status</th>
-        <th>Forma</th>
-        <th>Preço (MZN)</th>
-        <th>Data</th>
-        <th>Validade</th>
-        <th>Detalhes</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="pag in paginaAtual" :key="pag._id" 
-          @mouseenter="hoverId = pag._id" 
-          @mouseleave="hoverId = null" 
-          :class="{ 'table-active': hoverId === pag._id }" 
-          style="cursor: pointer;">
-        <td>{{ pag.pacote }}</td>
-        <td>
-          <span class="badge" :class="{
-            'bg-success': pag.status === 'pago',
-            'bg-warning text-dark': pag.status === 'pendente',
-            'bg-danger': pag.status === 'cancelado' || pag.status === 'expirado'
-          }">{{ pag.status }}</span>
-        </td>
-        <td>{{ pag.formaPagamento }}</td>
-        <td>{{ Number(pag.valor).toFixed(2) }}</td>
-        <td>{{ formatarData(pag.dataPagamento) }}</td>
-        <td :class="pag.status === 'pago' ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).classe : 'text-muted'">
-          {{ pag.status === 'pago' ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).texto : '-' }}
-        </td>
-        <td>
-          <button @click="abrirDetalhes(pag)" class="btn btn-outline-primary btn-sm">Ver</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<!-- Mobile -->
-<div class="d-md-none">
-  <div v-for="pag in paginaAtual" :key="pag._id" class="card mb-3 shadow-sm" @click="abrirDetalhes(pag)" style="cursor: pointer;">
-    <div class="card-body">
-      <h5 class="card-title">{{ pag.pacote }}</h5>
-      <p class="card-text mb-1"><strong>Status:</strong>
-        <span class="badge" :class="{
-          'bg-success': pag.status === 'pago',
-          'bg-warning text-dark': pag.status === 'pendente',
-          'bg-danger': pag.status === 'cancelado' || pag.status === 'expirado'
-        }">{{ pag.status }}</span>
-      </p>
-      <p class="card-text mb-1"><strong>Forma:</strong> {{ pag.formaPagamento }}</p>
-      <p class="card-text mb-1"><strong>Preço:</strong> MZN {{ Number(pag.valor).toFixed(2) }}</p>
-      <p class="card-text mb-1"><strong>Data:</strong> {{ formatarData(pag.data) }}</p>
-      <p class="card-text mb-1" :class="pag.status === 'pago' ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).classe : 'text-muted'">
-        <strong>Validade:</strong> {{ pag.status === 'pago' ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).texto : '-' }}
-      </p>
-    </div>
-  </div>
-</div>
+    <transition name="fade">
+      <div v-if="erro" class="alert alert-danger text-center d-flex align-items-center justify-content-center gap-2">
+        <i class="material-icons">error</i>
+        {{ erro }}
+      </div>
+    </transition>
 
-      <!-- Paginação -->
-      <nav v-if="paginas > 1" aria-label="Paginação" class="mt-3">
-        <ul class="pagination justify-content-center flex-wrap gap-2">
-          <li class="page-item" :class="{ disabled: paginaAtualIndex === 1 }">
-            <button class="page-link" @click="mudarPagina(paginaAtualIndex - 1)" :disabled="paginaAtualIndex === 1">&laquo; Anterior</button>
-          </li>
-          <li class="page-item" v-for="p in paginas" :key="p" :class="{ active: p === paginaAtualIndex }">
-            <button class="page-link" @click="mudarPagina(p)">{{ p }}</button>
-          </li>
-          <li class="page-item" :class="{ disabled: paginaAtualIndex === paginas }">
-            <button class="page-link" @click="mudarPagina(paginaAtualIndex + 1)" :disabled="paginaAtualIndex === paginas">Próximo &raquo;</button>
-          </li>
-        </ul>
+     Conteúdo 
+    <div v-if="!loading && !erro">
+       Desktop Table 
+      <div class="table-responsive d-none d-md-block">
+        <table class="table table-dark table-hover align-middle mb-0 payments-table">
+          <thead class="table-header-gradient">
+            <tr>
+              <th scope="col">Pacote</th>
+              <th scope="col">Status</th>
+              <th scope="col">Forma</th>
+              <th scope="col">Preço (MZN)</th>
+              <th scope="col">Data</th>
+              <th scope="col">Validade</th>
+              <th scope="col" class="text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr 
+              v-for="pag in paginaAtual" 
+              :key="pag._id" 
+              @mouseenter="hoverId = pag._id" 
+              @mouseleave="hoverId = null" 
+              :class="{ 'table-active-dark': hoverId === pag._id }" 
+              class="payment-row"
+            >
+              <td class="fw-semibold">{{ pag.pacote }}</td>
+              <td>
+                <span 
+                  class="badge status-badge" 
+                  :class="getStatusClass(pag.status)"
+                >
+                  {{ pag.status }}
+                </span>
+              </td>
+              <td>{{ pag.formaPagamento }}</td>
+              <td class="fw-semibold">{{ Number(pag.valor).toFixed(2) }}</td>
+              <td>{{ formatarData(pag.dataPagamento) }}</td>
+              <td :class="pag.status === 'pago' ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).classe : 'text-muted'">
+                {{ pag.status === 'pago' ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).texto : '-' }}
+              </td>
+              <td class="text-center">
+                <button 
+                  @click="abrirDetalhes(pag)" 
+                  class="btn btn-gradient-primary btn-sm btn-action"
+                  aria-label="Ver detalhes do pagamento"
+                >
+                  <i class="material-icons text-sm">visibility</i>
+                  Ver
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+       Mobile Cards 
+      <div class="d-md-none">
+        <div 
+          v-for="pag in paginaAtual" 
+          :key="pag._id" 
+          class="card mb-3 shadow-sm payment-card-dark" 
+          @click="abrirDetalhes(pag)"
+          role="button"
+          tabindex="0"
+          @keypress.enter="abrirDetalhes(pag)"
+          aria-label="Ver detalhes do pagamento"
+        >
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h5 class="card-title mb-0 text-light">{{ pag.pacote }}</h5>
+              <span 
+                class="badge status-badge" 
+                :class="getStatusClass(pag.status)"
+              >
+                {{ pag.status }}
+              </span>
+            </div>
+            
+            <div class="payment-details">
+              <div class="detail-row">
+                <span class="detail-label">
+                  <i class="material-icons text-sm">payment</i>
+                  Forma:
+                </span>
+                <span class="detail-value">{{ pag.formaPagamento }}</span>
+              </div>
+              
+              <div class="detail-row">
+                <span class="detail-label">
+                  <i class="material-icons text-sm">attach_money</i>
+                  Preço:
+                </span>
+                <span class="detail-value fw-bold">MZN {{ Number(pag.valor).toFixed(2) }}</span>
+              </div>
+              
+              <div class="detail-row">
+                <span class="detail-label">
+                  <i class="material-icons text-sm">calendar_today</i>
+                  Data:
+                </span>
+                <span class="detail-value">{{ formatarData(pag.dataPagamento) }}</span>
+              </div>
+              
+              <div class="detail-row">
+                <span class="detail-label">
+                  <i class="material-icons text-sm">schedule</i>
+                  Validade:
+                </span>
+                <span 
+                  class="detail-value" 
+                  :class="pag.status === 'pago' ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).classe : 'text-muted'"
+                >
+                  {{ pag.status === 'pago' ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).texto : '-' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+       Paginação 
+      <nav 
+        v-if="paginas > 1" 
+        aria-label="Navegação de páginas" 
+        class="mt-4"
+      >
+        <div class="pagination-container">
+          <button 
+            class="btn btn-gradient-primary pagination-btn pagination-btn-prev" 
+            @click="mudarPagina(paginaAtualIndex - 1)" 
+            :disabled="paginaAtualIndex === 1"
+            aria-label="Página anterior"
+          >
+            <i class="material-icons">chevron_left</i>
+            <span class="d-none d-sm-inline ms-2">Anterior</span>
+          </button>
+          
+          <div class="pagination-numbers">
+            <button 
+              v-for="p in paginasVisiveis" 
+              :key="p" 
+              class="btn pagination-number" 
+              :class="{ 'active': p === paginaAtualIndex, 'disabled': typeof p === 'string' }"
+              @click="typeof p === 'number' && mudarPagina(p)"
+              :disabled="typeof p === 'string'"
+              :aria-label="`Página ${p}`"
+              :aria-current="p === paginaAtualIndex ? 'page' : undefined"
+            >
+              {{ p }}
+            </button>
+          </div>
+          
+          <button 
+            class="btn btn-gradient-primary pagination-btn pagination-btn-next" 
+            @click="mudarPagina(paginaAtualIndex + 1)" 
+            :disabled="paginaAtualIndex === paginas"
+            aria-label="Próxima página"
+          >
+            <span class="d-none d-sm-inline me-2">Próximo</span>
+            <i class="material-icons">chevron_right</i>
+          </button>
+        </div>
       </nav>
 
-      <div v-if="pagamentosFiltrados.length === 0" class="alert alert-warning text-center">
-        Nenhum pagamento encontrado.
+       Empty State 
+      <div 
+        v-if="pagamentosFiltrados.length === 0" 
+        class="alert alert-warning text-center empty-state"
+      >
+        <i class="material-icons mb-2" style="font-size: 48px;">inbox</i>
+        <p class="mb-0">
+          {{ temFiltrosAtivos ? 'Nenhum pagamento encontrado com os filtros aplicados.' : 'Nenhum pagamento encontrado.' }}
+        </p>
+        <button 
+          v-if="temFiltrosAtivos" 
+          @click="limparFiltros" 
+          class="btn btn-sm btn-outline-warning mt-2"
+        >
+          Limpar filtros
+        </button>
       </div>
     </div>
 
-    <!-- Modal -->
-    <!-- Modal -->
-<div class="modal fade" id="modalDetalhes" tabindex="-1" aria-labelledby="modalDetalhesLabel" aria-hidden="true" ref="modalRef">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-success text-white">
-        <h5 class="modal-title" id="modalDetalhesLabel">Detalhes do Pagamento</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar" @click="fecharModal"></button>
-      </div>
-      <div class="modal-body" v-if="pagamentoSelecionado">
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item"><strong>Pacote:</strong> {{ pagamentoSelecionado.pacote }}</li>
-          <li class="list-group-item"><strong>Status:</strong>
-            <span class="badge" :class="{
-              'bg-success': pagamentoSelecionado.status === 'pago',
-              'bg-warning text-dark': pagamentoSelecionado.status === 'pendente',
-              'bg-danger': pagamentoSelecionado.status === 'cancelado' || pagamentoSelecionado.status === 'expirado'
-            }">{{ pagamentoSelecionado.status }}</span>
-          </li>
-          <li class="list-group-item"><strong>Forma:</strong> {{ pagamentoSelecionado.formaPagamento }}</li>
-          <li class="list-group-item"><strong>Preço:</strong> MZN {{ Number(pagamentoSelecionado.valor).toFixed(2) }}</li>
-          <li class="list-group-item"><strong>Data:</strong> {{ formatarData(pagamentoSelecionado.dataPagamento) }}</li>
-          <li class="list-group-item" :class="pagamentoSelecionado.status === 'pago' ? diasParaExpirarInfo(pagamentoSelecionado.dataPagamento, pagamentoSelecionado.pacote).classe : 'text-muted'">
-            <strong>Validade:</strong> {{ pagamentoSelecionado.status === 'pago' ? diasParaExpirarInfo(pagamentoSelecionado.dataPagamento, pagamentoSelecionado.pacote).texto : '-' }}
-          </li>
-          <li class="list-group-item"><strong>Referência:</strong> {{ pagamentoSelecionado.referencia || "-" }}</li>
-          <li class="list-group-item"><strong>Descrição:</strong> {{ pagamentoSelecionado.descricao || "Nenhuma" }}</li>
-          <li class="list-group-item" v-if="pagamentoSelecionado.comprovante">
-            <strong>Comprovante:</strong> 
-            <a :href="pagamentoSelecionado.comprovante" target="_blank">Ver aqui</a>
-          </li>
-        </ul>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="fecharModal">Fechar</button>
+     Modal de Detalhes 
+    <div 
+      class="modal fade" 
+      id="modalDetalhes" 
+      tabindex="-1" 
+      aria-labelledby="modalDetalhesLabel" 
+      aria-hidden="true" 
+      ref="modalRef"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content modal-dark">
+          <div class="modal-header modal-header-gradient">
+            <h5 class="modal-title d-flex align-items-center gap-2 text-white" id="modalDetalhesLabel">
+              <i class="material-icons">receipt_long</i>
+              Detalhes do Pagamento
+            </h5>
+            <button 
+              type="button" 
+              class="btn-close btn-close-white" 
+              data-bs-dismiss="modal" 
+              aria-label="Fechar modal"
+              @click="fecharModal"
+            ></button>
+          </div>
+          <div class="modal-body" v-if="pagamentoSelecionado">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center">
+                <strong><i class="material-icons text-sm me-2">category</i>Pacote:</strong>
+                <span>{{ pagamentoSelecionado.pacote }}</span>
+              </li>
+              <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center">
+                <strong><i class="material-icons text-sm me-2">info</i>Status:</strong>
+                <span 
+                  class="badge status-badge" 
+                  :class="getStatusClass(pagamentoSelecionado.status)"
+                >
+                  {{ pagamentoSelecionado.status }}
+                </span>
+              </li>
+              <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center">
+                <strong><i class="material-icons text-sm me-2">payment</i>Forma:</strong>
+                <span>{{ pagamentoSelecionado.formaPagamento }}</span>
+              </li>
+              <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center">
+                <strong><i class="material-icons text-sm me-2">attach_money</i>Preço:</strong>
+                <span class="fw-bold">MZN {{ Number(pagamentoSelecionado.valor).toFixed(2) }}</span>
+              </li>
+              <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center">
+                <strong><i class="material-icons text-sm me-2">calendar_today</i>Data:</strong>
+                <span>{{ formatarData(pagamentoSelecionado.dataPagamento) }}</span>
+              </li>
+              <li 
+                class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center"
+                :class="pagamentoSelecionado.status === 'pago' ? diasParaExpirarInfo(pagamentoSelecionado.dataPagamento, pagamentoSelecionado.pacote).classe : 'text-muted'"
+              >
+                <strong><i class="material-icons text-sm me-2">schedule</i>Validade:</strong>
+                <span>
+                  {{ pagamentoSelecionado.status === 'pago' ? diasParaExpirarInfo(pagamentoSelecionado.dataPagamento, pagamentoSelecionado.pacote).texto : '-' }}
+                </span>
+              </li>
+              <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center">
+                <strong><i class="material-icons text-sm me-2">tag</i>Referência:</strong>
+                <span>{{ pagamentoSelecionado.referencia || "-" }}</span>
+              </li>
+              <li class="list-group-item list-group-item-dark">
+                <strong class="d-block mb-2"><i class="material-icons text-sm me-2">description</i>Descrição:</strong>
+                <span>{{ pagamentoSelecionado.descricao || "Nenhuma descrição disponível" }}</span>
+              </li>
+              <li class="list-group-item list-group-item-dark" v-if="pagamentoSelecionado.comprovante">
+                <strong class="d-block mb-2"><i class="material-icons text-sm me-2">attachment</i>Comprovante:</strong>
+                <a 
+                  :href="pagamentoSelecionado.comprovante" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  class="btn btn-sm btn-gradient-primary"
+                >
+                  <i class="material-icons text-sm me-1">open_in_new</i>
+                  Ver comprovante
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button 
+              type="button" 
+              class="btn btn-secondary" 
+              data-bs-dismiss="modal" 
+              @click="fecharModal"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
-
-  </div>
+  
   <FooterDefault />
 </template>
 
@@ -200,31 +479,9 @@ import { useRouter } from "vue-router";
 import api from "../api";
 import * as bootstrap from "bootstrap";
 
-
-
-import { watchEffect } from "vue";
-
-// Computed que calcula a mensagem de alerta e tipo baseado no último pagamento
-const alertaRenovacao = computed(() => {
-  if (!ultimoPagamento.value) {
-    return { mostrar: false, texto: "", tipo: "" };
-  }
-  const info = diasParaExpirarInfo(ultimoPagamento.value.dataPagamento, ultimoPagamento.value.pacote);
-  // info.texto pode ser "Expirado", "Expira hoje", ou "Faltam X dias"
-  if (info.texto === "Expirado") {
-    return { mostrar: true, texto: "Sua assinatura expirou. Renove para continuar usando o serviço.", tipo: "danger" };
-  }
-  // Extrair o número de dias do texto "Faltam X dia(s)"
-  const match = info.texto.match(/Faltam (\d+)/);
-  if (match && Number(match[1]) <= 3) {
-    return { mostrar: true, texto: `Sua assinatura expira em ${match[1]} dia${match[1] > 1 ? "s" : ""}. Renove para evitar interrupções.`, tipo: "warning" };
-  }
-  return { mostrar: false, texto: "", tipo: "" };
-});
-
-
 const router = useRouter();
 
+// State
 const usuario = ref(null);
 const pagamentos = ref([]);
 const loading = ref(false);
@@ -237,11 +494,105 @@ const pagamentoSelecionado = ref(null);
 const modalRef = ref(null);
 let modalInstance = null;
 
+// Computed - Alerta de Renovação
+const alertaRenovacao = computed(() => {
+  if (!ultimoPagamento.value) {
+    return { mostrar: false, texto: "", tipo: "" };
+  }
+  const info = diasParaExpirarInfo(ultimoPagamento.value.dataPagamento, ultimoPagamento.value.pacote);
+  
+  if (info.texto === "Expirado") {
+    return { 
+      mostrar: true, 
+      texto: "⚠️ Sua assinatura expirou. Renove para continuar usando o serviço.", 
+      tipo: "danger" 
+    };
+  }
+  
+  const match = info.texto.match(/Faltam (\d+)/);
+  if (match && Number(match[1]) <= 3) {
+    return { 
+      mostrar: true, 
+      texto: `⏰ Sua assinatura expira em ${match[1]} dia${match[1] > 1 ? "s" : ""}. Renove para evitar interrupções.`, 
+      tipo: "warning" 
+    };
+  }
+  
+  return { mostrar: false, texto: "", tipo: "" };
+});
+
+// Computed - Filtros e Dados
+const pacotesUnicos = computed(() => 
+  [...new Set(pagamentos.value.map(p => p.pacote))].sort()
+);
+
+const formasUnicas = computed(() => 
+  [...new Set(pagamentos.value.map(p => p.formaPagamento))].sort()
+);
+
+const pagamentosFiltrados = computed(() =>
+  pagamentos.value.filter((p) =>
+    (!filtros.value.status || p.status === filtros.value.status) &&
+    (!filtros.value.pacote || p.pacote === filtros.value.pacote) &&
+    (!filtros.value.formaPagamento || p.formaPagamento === filtros.value.formaPagamento)
+  )
+);
+
+const temFiltrosAtivos = computed(() => 
+  filtros.value.status || filtros.value.pacote || filtros.value.formaPagamento
+);
+
+const paginas = computed(() => 
+  Math.ceil(pagamentosFiltrados.value.length / itensPorPagina)
+);
+
+const paginaAtual = computed(() => 
+  pagamentosFiltrados.value.slice(
+    (paginaAtualIndex.value - 1) * itensPorPagina, 
+    paginaAtualIndex.value * itensPorPagina
+  )
+);
+
+const paginasVisiveis = computed(() => {
+  const total = paginas.value;
+  const atual = paginaAtualIndex.value;
+  const delta = 2;
+  const range = [];
+  
+  for (let i = Math.max(2, atual - delta); i <= Math.min(total - 1, atual + delta); i++) {
+    range.push(i);
+  }
+  
+  if (atual - delta > 2) {
+    range.unshift('...');
+  }
+  if (atual + delta < total - 1) {
+    range.push('...');
+  }
+  
+  range.unshift(1);
+  if (total > 1) {
+    range.push(total);
+  }
+  
+  return range.filter((v, i, a) => a.indexOf(v) === i);
+});
+
+const totalPago = computed(() => 
+  pagamentosFiltrados.value
+    .filter(p => p.status === "pago")
+    .reduce((a, b) => a + Number(b.valor), 0)
+);
+
+const ultimoPagamento = computed(() => 
+  [...pagamentosFiltrados.value.filter(p => p.status === "pago")]
+    .sort((a, b) => new Date(b.dataPagamento) - new Date(a.dataPagamento))[0] || null
+);
+
+// Functions
 function diasParaExpirarInfo(dataISO, pacote) {
   const dataPagamento = new Date(dataISO);
   const nomePacote = pacote?.toLowerCase().trim();
-
-  // Aqui comparamos diretamente com os nomes esperados
   const diasValidade = nomePacote === "anual" ? 365 : 30;
 
   const dataExpiracao = new Date(dataPagamento);
@@ -256,30 +607,25 @@ function diasParaExpirarInfo(dataISO, pacote) {
   return { texto: `Faltam ${diffDias} dia${diffDias > 1 ? "s" : ""}`, classe: "text-success fw-bold" };
 }
 
-
-
 function formatarData(dataISO) {
-  return new Date(dataISO).toLocaleString("pt-MZ", { dateStyle: "short", timeStyle: "short" });
+  return new Date(dataISO).toLocaleString("pt-MZ", { 
+    dateStyle: "short", 
+    timeStyle: "short" 
+  });
 }
 
-const pacotesUnicos = computed(() => [...new Set(pagamentos.value.map(p => p.pacote))].sort());
-const formasUnicas = computed(() => [...new Set(pagamentos.value.map(p => p.formaPagamento))].sort());
-
-const pagamentosFiltrados = computed(() =>
-  pagamentos.value.filter((p) =>
-    (!filtros.value.status || p.status === filtros.value.status) &&
-    (!filtros.value.pacote || p.pacote === filtros.value.pacote) &&
-    (!filtros.value.formaPagamento || p.formaPagamento === filtros.value.formaPagamento)
-  )
-);
-
-const paginas = computed(() => Math.ceil(pagamentosFiltrados.value.length / itensPorPagina));
-const paginaAtual = computed(() => pagamentosFiltrados.value.slice((paginaAtualIndex.value - 1) * itensPorPagina, paginaAtualIndex.value * itensPorPagina));
-const totalPago = computed(() => pagamentosFiltrados.value.filter(p => p.status === "pago").reduce((a, b) => a + Number(b.valor), 0));
-const ultimoPagamento = computed(() => [...pagamentosFiltrados.value.filter(p => p.status === "pago")].sort((a, b) => new Date(b.data) - new Date(a.data))[0] || null);
+function getStatusClass(status) {
+  const classes = {
+    'pago': 'bg-success',
+    'pendente': 'bg-warning text-dark',
+    'cancelado': 'bg-danger',
+    'expirado': 'bg-danger'
+  };
+  return classes[status] || 'bg-secondary';
+}
 
 function mudarPagina(p) {
-  if (p >= 1 && p <= paginas.value) {
+  if (typeof p === 'number' && p >= 1 && p <= paginas.value) {
     paginaAtualIndex.value = p;
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -292,7 +638,9 @@ function limparFiltros() {
 
 function abrirDetalhes(p) {
   pagamentoSelecionado.value = p;
-  if (!modalInstance) modalInstance = new bootstrap.Modal(modalRef.value);
+  if (!modalInstance) {
+    modalInstance = new bootstrap.Modal(modalRef.value);
+  }
   modalInstance.show();
 }
 
@@ -304,28 +652,29 @@ function fecharModal() {
 function exportarCSV() {
   const headers = ["Pacote", "Status", "Forma", "Preço (MZN)", "Data", "Validade", "Referência", "Descrição"];
   const rows = pagamentosFiltrados.value.map(p => {
-    const validade = diasParaExpirarInfo(p.data, p.pacote).texto;
+    const validade = p.status === 'pago' ? diasParaExpirarInfo(p.dataPagamento, p.pacote).texto : '-';
     return [
       p.pacote,
       p.status,
       p.formaPagamento,
       Number(p.valor).toFixed(2),
-      formatarData(p.data),
-      p.status === 'pago' ? validade : '-',
+      formatarData(p.dataPagamento),
+      validade,
       p.referencia || "",
       p.descricao || ""
     ];
   });
 
-  const csv = "data:text/csv;charset=utf-8," + [headers.join(";"), ...rows.map(r => r.join(";"))].join("\n");
+  const csv = "data:text/csv;charset=utf-8," + 
+    [headers.join(";"), ...rows.map(r => r.join(";"))].join("\n");
+  
   const link = document.createElement("a");
   link.href = encodeURI(csv);
-  link.download = "pagamentos.csv";
+  link.download = `pagamentos_${new Date().toISOString().split('T')[0]}.csv`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 }
-
 
 function logout() {
   localStorage.removeItem("email");
@@ -336,17 +685,21 @@ async function buscarUsuario() {
   try {
     const email = localStorage.getItem("email");
     if (!email) return router.push("/");
+    
     const res = await api.get("/auth/usuarios");
     usuario.value = res.data.find(u => u.email === email);
+    
     if (!usuario.value) router.push("/");
   } catch (err) {
     console.error("Erro ao buscar usuário:", err);
+    erro.value = "Erro ao carregar dados do usuário.";
   }
 }
 
 async function carregarPagamentos() {
   loading.value = true;
   erro.value = "";
+  
   try {
     const res = await api.get("/pagamentos/meus");
     pagamentos.value = res.data.pagamentos || [];
@@ -357,28 +710,23 @@ async function carregarPagamentos() {
   }
 }
 
+// Lifecycle
 onMounted(() => {
   buscarUsuario();
   carregarPagamentos();
 });
-
-function getTextColor() {
-  return "text-success";
-}
 </script>
 
-
-
-
-
 <style scoped>
-
-
-.container {
-  max-width: 900px;
-  background-color: #f9fff9;
+/* Transitions */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
 }
-/* Por padrão, ocupa 100% em telas pequenas, 80% centralizado em telas grandes */
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
+/* Container - Black Theme */
 .pag-container-fluid {
   width: 100%;
   max-width: 100vw;
@@ -386,7 +734,9 @@ function getTextColor() {
   margin-right: 0;
   padding-left: 0;
   padding-right: 0;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
 }
+
 @media (min-width: 992px) {
   .pag-container-fluid {
     width: 95% !important;
@@ -396,188 +746,555 @@ function getTextColor() {
     border-radius: 18px;
   }
 }
+
 @media (max-width: 991px) {
   .pag-container-fluid {
-    width: 85% !important;
-    max-width: 85vw !important;
+    width: 90% !important;
+    max-width: 90vw !important;
     margin-left: auto !important;
     margin-right: auto !important;
   }
 }
+
 .pag-container-responsive {
   padding-left: 32px;
   padding-right: 32px;
 }
 
-/* Borda destacada com transição e hover suave */
+/* Borda destacada - Black */
 .borda-destacada {
-  border: 2px solid #66bb6a;
-  border-radius: 12px;
-  padding: 25px;
-  background-color: #fff;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  border: 2px solid #6366f1;
+  border-radius: 16px;
+  padding: 32px;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
 
 .borda-destacada:hover {
-  border-color: #800080;
-  box-shadow: 0 8px 20px rgba(128, 0, 128, 0.25);
-  transform: scale(1.02);
-  cursor: default;
+  border-color: #818cf8;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
 }
 
-.table-active {
-  background-color: #d1e7dd !important;
-  transition: background-color 0.3s ease;
+/* User Dropdown - Dark */
+.user-dropdown {
+  transition: all 0.3s ease;
+  background: rgba(99, 102, 241, 0.1);
+  border-color: #6366f1 !important;
+  color: #e0e7ff;
 }
 
-h2 {
-  font-weight: 700;
-  font-size: 2rem;
+.user-dropdown:hover {
+  background: rgba(99, 102, 241, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
-.alert {
-  font-weight: 600;
-  font-size: 1.1rem;
+/* Gradientes */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
 }
 
-.btn-outline-success {
-  font-weight: 600;
-  font-size: 1rem;
-  border-radius: 30px;
-  padding: 6px 20px;
-  transition: background-color 0.3s ease, color 0.3s ease;
+.bg-gradient-info {
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
 }
 
-.btn-outline-success:hover,
-.btn-outline-success:focus {
-  background-color: #66bb6a;
+.bg-gradient-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.btn-gradient-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-gradient-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
   color: white;
 }
 
-/* Ícone de pessoa alinhado */
-.material-icons {
-  font-size: 20px;
-  color: #2e7d32; /* verde escuro */
+.btn-gradient-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
+/* Resumo Financeiro - Black */
+.resumo-financeiro-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
 
+.resumo-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+}
 
+.resumo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+  border-color: #6366f1;
+  background: rgba(255, 255, 255, 0.05);
+}
 
-/* Responsividade aprimorada para alinhar por linha em telas menores */
-.resumo-financeiro-row {
+.resumo-card-action {
+  padding: 12px;
+}
+
+.resumo-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.resumo-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.resumo-label {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.resumo-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f3f4f6;
+}
+
+.resumo-value-small {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #f3f4f6;
+}
+
+.resumo-subtext {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+/* Filtros - Black */
+.filtros-container {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.filtros-wrapper {
   display: flex;
   flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+}
+
+.filtro-group {
+  flex: 1;
+  min-width: 160px;
+  max-width: 220px;
+}
+
+.filtro-select {
+  border-radius: 10px;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  color: #f3f4f6;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  height: 38px;
+}
+
+.filtro-select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f3f4f6;
+}
+
+.filtro-select option {
+  background: #0a0a0a;
+  color: #f3f4f6;
+}
+
+.filtro-limpar {
+  border-radius: 10px;
+  min-width: 100px;
+  height: 38px;
+  transition: all 0.2s ease;
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #f3f4f6;
+}
+
+.filtro-limpar:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.filtro-limpar:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.filtros-info {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Table - Black */
+.payments-table {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.table-dark {
+  --bs-table-bg: rgba(255, 255, 255, 0.02);
+  --bs-table-color: #f3f4f6;
+  --bs-table-border-color: rgba(99, 102, 241, 0.2);
+}
+
+.table-header-gradient {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+}
+
+.table-header-gradient th {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+  padding: 16px;
+  border: none;
+  color: white;
+}
+
+.payment-row {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.payment-row:hover {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+  transform: scale(1.01);
+}
+
+.table-active-dark {
+  background-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+/* Mobile Cards - Black */
+.payment-card-dark {
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+}
+
+.payment-card-dark:hover {
+  border-color: #6366f1;
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.payment-card-dark:active {
+  transform: translateY(-2px);
+}
+
+.payment-card-dark .card-body {
+  background: transparent;
+}
+
+.payment-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.detail-row {
+  display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.2);
 }
-.resumo-item {
-  min-width: 160px;
-  margin-bottom: 0;
+
+.detail-row:last-child {
+  border-bottom: none;
 }
-.filtros-row {
+
+.detail-label {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
   align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  color: #9ca3af;
+  font-size: 0.9rem;
 }
-.filtro-item {
+
+.detail-value {
+  font-weight: 500;
+  color: #f3f4f6;
+  text-align: right;
+}
+
+/* Pagination - Improved Layout */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pagination-numbers {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  flex: 1;
+}
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
   min-width: 120px;
-  margin-bottom: 0;
-}
-.w-100-mobile {
-  width: auto;
 }
 
-/* Filtros compactos e elegantes em telas grandes */
-@media (min-width: 992px) {
-  .filtros-row {
-    justify-content: flex-end;
-    background: #f6f6fa;
-    border-radius: 32px;
-    padding: 10px 24px 10px 18px;
-    box-shadow: 0 2px 8px rgba(102, 187, 106, 0.07);
-    max-width: 820px;
-    margin-left: auto;
-    margin-right: auto;
-    min-height: 0;
-  }
-  .filtro-compact {
-    min-width: 100px;
-    max-width: 160px;
-    margin-bottom: 0;
-    border-radius: 18px !important;
-    background: #fff !important;
-    border: 1px solid #d0e6d0 !important;
-    font-size: 0.97rem;
-    box-shadow: 0 1px 2px rgba(102, 187, 106, 0.04);
-    transition: border-color 0.2s, box-shadow 0.2s;
-    height: 36px;
-    padding: 4px 10px;
-  }
-  .filtro-compact:focus {
-    border-color: #66bb6a !important;
-    box-shadow: 0 0 0 2px #c8e6c9;
-  }
-  .filtros-row select.filtro-compact,
-  .filtros-row input.filtro-compact {
-    margin-right: 6px;
-    margin-left: 0;
-    margin-bottom: 0;
-  }
-  .filtros-row button.filtro-compact {
-    margin-left: 8px;
-    margin-right: 0;
-    min-width: 110px;
-    border-radius: 18px;
-    font-size: 0.97rem;
-    padding: 6px 16px;
-    height: 36px;
-  }
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
 }
 
-@media (max-width: 768px) {
-  .resumo-financeiro-row, .filtros-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-  .resumo-item, .filtro-item {
-    width: 100% !important;
-    min-width: 0;
-    margin-bottom: 0;
-  }
-  .w-100-mobile {
-    width: 100% !important;
-  }
+.pagination-btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
 }
 
-/* Responsividade: padding e margem */
+.pagination-btn-prev {
+  margin-right: auto;
+}
+
+.pagination-btn-next {
+  margin-left: auto;
+}
+
+.pagination-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: rgba(255, 255, 255, 0.03);
+  color: #f3f4f6;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.pagination-number:hover:not(.disabled):not(.active) {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: #6366f1;
+  transform: translateY(-2px);
+}
+
+.pagination-number.active {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-color: #6366f1;
+  color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.pagination-number.disabled {
+  opacity: 0.3;
+  cursor: default;
+  border: none;
+  background: transparent;
+}
+
+/* Empty State */
+.empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  border-radius: 12px;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+/* Modal - Black */
+.modal-dark {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.modal-header-gradient {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.modal-content {
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+}
+
+.modal-body {
+  padding: 24px;
+  background: transparent;
+}
+
+.list-group-item-dark {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(99, 102, 241, 0.2);
+  color: #f3f4f6;
+}
+
+.list-group-item {
+  border-left: none;
+  border-right: none;
+  padding: 16px 0;
+}
+
+.list-group-item:first-child {
+  border-top: none;
+}
+
+.list-group-item:last-child {
+  border-bottom: none;
+}
+
+.modal-footer {
+  background: transparent;
+  border-top: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .pag-container-responsive {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
   }
-  .container {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
-  }
+
   .borda-destacada {
-    padding: 12px !important;
+    padding: 20px !important;
   }
-  .table-responsive {
-    font-size: 0.97rem;
+
+  .resumo-financeiro-container {
+    grid-template-columns: 1fr;
   }
-  .btn-outline-success {
-    font-size: 0.9rem;
-    padding: 5px 15px;
+
+  .filtros-wrapper {
+    flex-direction: column;
   }
-  h2 {
-    font-size: 1.3rem;
+
+  .filtro-group {
+    width: 100%;
+    max-width: 100%;
   }
-  .dropdown-menu {
-    min-width: 160px;
-    font-size: 0.97rem;
+
+  .filtro-limpar {
+    width: 100%;
+  }
+
+  .resumo-card {
+    padding: 16px;
+  }
+
+  .resumo-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .resumo-value {
+    font-size: 1.25rem;
+  }
+
+  .pagination-container {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .pagination-btn {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .pagination-btn-prev,
+  .pagination-btn-next {
+    margin: 0;
+  }
+
+  .pagination-numbers {
+    order: -1;
+    width: 100%;
+  }
+}
+
+/* Utilities */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>
