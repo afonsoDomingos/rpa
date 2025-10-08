@@ -120,8 +120,8 @@
 </template>
 <script setup>
 import { ref, reactive } from 'vue'
-import mpesaIcon from '@/assets/img/mpesa.png'
-import emolaIcon from '@/assets/img/emola.png'
+import mpesaIcon from '@/assets/img/Mpesa.png'
+import emolaIcon from '@/assets/img/Emola.png'
 import axios from "axios"
 
 const currentStep = ref(1)
