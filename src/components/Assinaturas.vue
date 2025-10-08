@@ -1,619 +1,796 @@
 <template>
-  <div class="container position-sticky z-index-sticky top-0">
-    <div class="row">
-      <div class="col-12">
-        <NavbarDefault :sticky="true" />
-      </div>
-    </div>
-  </div>
-  <br /><br />
-  <div
-    class="container py-5 d-flex flex-column align-items-center justify-content-center"
-    style="min-height: 80vh; overflow-y: auto;"
-  >
-    <div class="titulo-pacotes-box mb-5">
-      <h2 class="titulo-pacotes text-center m-0">Escolha o Seu Pacote Ideal</h2>
-    </div>
+  <div class="subscription-container">
+    <header class="header">
+      <button @click="goBack" class="back-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m15 18-6-6 6-6"/>
+        </svg>
+        Voltar
+      </button>
+      <h1 class="title">Escolha seu Plano</h1>
+    </header>
 
-    <!-- Lista de pacotes -->
-    <div
-      v-if="!pacoteSelecionado"
-      class="row justify-content-center w-100 align-items-stretch"
-    >
-      <div
-        v-for="pacote in pacotes"
-        :key="pacote.nome"
-        class="col-12 col-md-5 mx-2 mb-4 d-flex align-items-stretch"
-      >
-        <div
-          class="p-4 shadow-sm rounded border borda-destacada d-flex flex-column align-items-center w-100 pacote-card"
-          :class="{ 'border-success': pacoteSelecionado === pacote.nome }"
-        >
-          <h4 class="text-center">{{ pacote.nome }}</h4>
-          <h5 class="text-center text-primary">{{ pacote.preco }} MZN</h5>
-          <p class="text-center text-muted">{{ pacote.periodo }}</p>
-
-          <ul class="mt-3 w-100">
-            <li
-              v-for="(beneficio, idx) in pacote.beneficios"
-              :key="idx"
-              class="borda-destacada mb-2 text-center"
-            >
-              ✅ {{ beneficio }}
-            </li>
-          </ul>
-
-          <div class="d-flex justify-content-center w-100 mt-auto">
-            <button
-              class="selecionar-pacote-btn w-100"
-              @click="selecionarPacote(pacote.nome)"
-              :disabled="loading || sucesso"
-            >
-              <span class="selecionar-icone me-2">&#10003;</span>
-              <span>Selecionar</span>
+    <div class="content-wrapper">
+      <main class="main-content">
+        <!-- Passo 1: Seleção de Pacote -->
+        <div v-if="currentStep === 1" class="packages-grid">
+          <div v-for="pkg in packages" :key="pkg.id" :class="['package-card', { 'selected': selectedPackage?.id === pkg.id, 'recommended': pkg.recommended }]" @click="selectPackage(pkg)">
+            <div v-if="pkg.recommended" class="recommended-badge">Recomendado</div>
+            <h3 class="package-name">{{ pkg.name }}</h3>
+            <div class="package-price">
+              <span v-if="pkg.price > 0" class="currency">MZN</span>
+              <span v-if="pkg.price > 0" class="amount">{{ pkg.price.toLocaleString('pt-MZ') }}</span>
+              <span v-if="pkg.price > 0" class="period">/mês</span>
+              <span v-else class="amount">Gratuito</span>
+            </div>
+            <ul class="benefits-list">
+              <li v-for="(benefit, index) in pkg.benefits" :key="index" class="benefit-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="check-icon">
+                  <path d="M20 6 9 17l-5-5"/>
+                </svg>
+                {{ benefit }}
+              </li>
+            </ul>
+            <button :class="['select-button', { 'selected': selectedPackage?.id === pkg.id }]" @click.stop="selectPackage(pkg)">
+              {{ selectedPackage?.id === pkg.id ? 'Selecionado' : 'Selecionar' }}
             </button>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Pagamento -->
-    <div v-if="pacoteSelecionado" class="mt-5">
-      <div class="d-flex justify-content-center mb-4">
-        <button
-          class="btn voltar-pacotes-btn px-4 py-2 fw-bold"
-          @click="voltarPacotes"
-        >
-          <span
-            style="font-size:1.3em; margin-right:8px; vertical-align:middle;"
-            >&#8592;</span
-          >
-          Voltar aos Pacotes
-        </button>
-      </div>
-
-      <h4 class="text-center mb-3">Formas de Pagamento</h4>
-
-      <div
-        class="payment-options d-flex flex-wrap justify-content-center gap-3 mb-4"
-      >
-        <button
-          v-for="forma in formasPagamento"
-          :key="forma.value"
-          class="payment-btn btn"
-          :class="formaSelecionada === forma.value ? 'active' : ''"
-          @click="selecionarForma(forma.value)"
-          :disabled="loading || sucesso"
-        >
-          <span v-if="forma.value === 'cartao'">
-            <i class="bi bi-credit-card-2-front-fill me-2"></i>
-          </span>
-          <span v-else-if="forma.value === 'mpesa'">
-            <img
-              src="@/assets/img/Mpesa.png"
-              alt="M-Pesa"
-              style="height: 20px; margin-right: 8px; vertical-align: middle;"
-            />
-          </span>
-          <span v-else-if="forma.value === 'emola'">
-            <img
-              src="@/assets/img/Emola.png"
-              alt="Emola"
-              style="height: 20px; margin-right: 8px; vertical-align: middle;"
-            />
-          </span>
-          {{ forma.label }}
-        </button>
-      </div>
-
-      <div class="card mx-auto p-3 borda-destacada" style="max-width: 400px;">
-        <div v-if="formaSelecionada === 'cartao'">
-          <input
-            v-model="cartao.numero"
-            class="form-control mb-2"
-            placeholder="Número do Cartão"
-            @input="formatarCartao"
-            maxlength="19"
-          />
-          <input
-            v-model="cartao.nome"
-            class="form-control mb-2"
-            placeholder="Nome no Cartão"
-          />
-          <div class="d-flex gap-2 mb-2">
-            <input
-              v-model="cartao.validade"
-              class="form-control"
-              placeholder="MM/AA"
-              @input="formatarValidade"
-              maxlength="5"
-            />
-            <input
-              v-model="cartao.cvv"
-              class="form-control"
-              placeholder="CVV"
-              maxlength="4"
-            />
+        <!-- Passo 2: Escolher método de pagamento -->
+        <div v-if="currentStep === 2" class="payment-methods">
+          <h2 class="section-title">Escolha o Método de Pagamento</h2>
+          <div class="payment-methods-grid">
+            <button v-for="method in paymentMethods" :key="method.id" :class="['payment-method-card', { 'selected': selectedPaymentMethod === method.id }]" @click="selectPaymentMethod(method.id)">
+              <img v-if="method.img" :src="method.img" class="payment-method-icon-img" />
+              <div v-else class="payment-method-icon">{{ method.icon }}</div>
+              <span class="payment-method-name">{{ method.name }}</span>
+            </button>
           </div>
+
+          <form v-if="selectedPaymentMethod" @submit.prevent="handleSubmit" class="form">
+            <div v-if="['mpesa', 'emola'].includes(selectedPaymentMethod)" class="form-group">
+              <label class="form-label">Número {{ selectedPaymentMethod === 'mpesa' ? 'M-Pesa' : 'Emola' }}</label>
+              <input v-model="mobileDetails.phone" type="tel" :placeholder="selectedPaymentMethod === 'mpesa' ? '+258 84 123 4567' : '+258 82 123 4567'" required class="form-input"/>
+            </div>
+
+            <div v-if="selectedPaymentMethod === 'card'" class="form-group">
+              <label class="form-label">Número do Cartão</label>
+              <input v-model="cardDetails.number" type="text" placeholder="0000 0000 0000 0000" required class="form-input"/>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Validade</label>
+                  <input v-model="cardDetails.expiry" type="text" placeholder="MM/AA" required class="form-input"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">CVV</label>
+                  <input v-model="cardDetails.cvv" type="text" placeholder="123" required class="form-input"/>
+                </div>
+              </div>
+            </div>
+
+            <p class="form-hint">Você receberá uma notificação no seu telefone para confirmar o pagamento.</p>
+            <button type="submit" :disabled="loading" class="submit-button">
+              <span v-if="loading" class="spinner"></span>
+              {{ loading ? 'Processando...' : 'Enviar Pedido' }}
+            </button>
+          </form>
+
+          <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
         </div>
 
-        <div v-else-if="formaSelecionada === 'mpesa' || formaSelecionada === 'emola'">
-          <input
-            v-model="telefone"
-            class="form-control mb-2"
-            :placeholder="`Número de telefone (${formaSelecionada.toUpperCase()})`"
-          />
-          <small v-if="erroTelefone" class="text-danger">{{ erroTelefone }}</small>
+        <!-- Passo 3: Sucesso -->
+        <div v-if="showSuccess" class="success-message">
+          <div class="success-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <path d="m9 11 3 3L22 4"/>
+            </svg>
+          </div>
+          <h2 class="success-title">Pagamento Confirmado!</h2>
+          <p class="success-text">Sua assinatura foi ativada com sucesso.</p>
+        </div>
+      </main>
+
+      <!-- Resumo do Pedido -->
+      <aside class="order-summary">
+        <h3 class="summary-title">Resumo do Pedido</h3>
+        <div v-if="selectedPackage" class="summary-section">
+          <div class="summary-label">Plano Selecionado</div>
+          <div class="summary-value">{{ selectedPackage.name }}</div>
         </div>
 
-        <button
-          class="btn btn-success mt-3 w-100"
-          @click="pagar"
-          :disabled="loading || sucesso || !podePagar"
-        >
-          <span v-if="loading">Processando...</span>
-          <span v-else>Pagar {{ precoSelecionado }} MZN</span>
-        </button>
-      </div>
+        <div v-if="selectedPaymentMethod" class="summary-section">
+          <div class="summary-label">Método de Pagamento</div>
+          <div class="summary-value">{{ paymentMethods.find(m => m.id === selectedPaymentMethod)?.name }}</div>
+        </div>
 
-      <!-- Mensagem -->
-      <div class="text-center mt-3">
-        <p :class="sucesso ? 'text-success' : 'text-danger'">{{ mensagem }}</p>
-        <button v-if="sucesso" class="btn btn-primary mt-2" @click="voltarHome">
-          Voltar à Home
-        </button>
-      </div>
+        <div class="summary-divider"></div>
 
-      <!-- Resumo -->
-      <div
-        class="card mx-auto p-3 mt-4 borda-destacada"
-        style="max-width: 400px"
-      >
-        <h5>Resumo da Assinatura</h5>
-        <p><strong>Pacote:</strong> {{ pacoteSelecionado }}</p>
-        <p><strong>Preço:</strong> {{ precoSelecionado }} MZN</p>
-        <p><strong>Pagamento:</strong> {{ formaSelecionada || "-" }}</p>
-      </div>
+        <div class="summary-total">
+          <span class="total-label">Total</span>
+          <span class="total-amount">{{ selectedPackage?.price ? 'MZN ' + selectedPackage.price.toLocaleString('pt-MZ') : 'Gratuito' }}</span>
+        </div>
+
+        <button v-if="currentStep === 1 && selectedPackage" @click="nextStep" class="continue-button">Continuar para Pagamento</button>
+        <button v-if="currentStep === 2" @click="previousStep" class="back-step-button">Voltar aos Planos</button>
+      </aside>
     </div>
   </div>
-
-  <FooterDefault />
 </template>
-
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import api from "../api";
+import { ref, reactive } from 'vue'
+import mpesaIcon from '@/assets/img/mpesa.png'
+import emolaIcon from '@/assets/img/emola.png'
+import axios from "axios"
 
-import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
-import FooterDefault from "../examples/footers/FooterDefault.vue";
+const currentStep = ref(1)
+const selectedPackage = ref(null)
+const selectedPaymentMethod = ref(null)
+const loading = ref(false)
+const showSuccess = ref(false)
+const errorMessage = ref("")
 
-const router = useRouter();
+const packages = [
+  { id: 'free', name: 'Gratuito', price: 0, benefits: ['Permite fazer pesquisas', 'Gerar CV', '1 GB de armazenamento'], recommended: false },
+  { id: 'monthly', name: 'Mensal', price: 150, benefits: ['Tudo do plano gratuito', 'Solicitar documentos', '3 GB de armazenamento', 'Suporte prioritário', 'Atualizações semanais'], recommended: true },
+  { id: 'annual', name: 'Anual', price: 1500, benefits: ['Tudo do plano mensal', 'Delivery de documentos', 'Atualizações diárias'], recommended: false }
+]
 
-const usuario = ref(null);
-const pacoteSelecionado = ref(null);
-const formaSelecionada = ref(null);
-const telefone = ref("");
-const erroTelefone = ref("");
-const mensagem = ref("");
-const sucesso = ref(false);
-const loading = ref(false);
+const paymentMethods = [
+  { id: 'mpesa', name: 'M-Pesa', icon: '', img: mpesaIcon },
+  { id: 'emola', name: 'Emola', icon: '', img: emolaIcon },
+  { id: 'card', name: 'Cartão', icon: '💳', img: null }
+]
 
-const cartao = ref({ numero: "", nome: "", validade: "", cvv: "" });
+const mobileDetails = reactive({ phone: '' })
+const cardDetails = reactive({ number: '', expiry: '', cvv: '' })
 
-const pacotes = [
-  {
-    id: "mensal",
-    nome: "Mensal",
-    preco: 150,
-    periodo: "a cada 1 mês",
-    beneficios: [
-      "Solicitação Ilimitada",
-      "Notificações",
-      "Suporte Prioritário",
-      "Guardar Documento",
-      "Geração de 3 CVs",
-    ],
-  },
-  {
-    id: "anual",
-    nome: "Anual",
-    preco: 1500,
-    periodo: "a cada 12 meses",
-    beneficios: [
-      "Tudo do Mensal",
-      "Geração de CV Ilimitada",
-      "Suporte VIP",
-      "Consultoria personalizada",
-      "Acesso  a novos recursos",
-    ],
-  },
-];
-
-// Agora formasPagamento é array de objetos { label, value }
-const formasPagamento = [
-  { label: "Cartão", value: "cartao" },
-  { label: "M-Pesa", value: "mpesa" },
-  { label: "Emola", value: "emola" },
-];
-
-const precoSelecionado = computed(() => {
-  return pacotes.find((p) => p.nome === pacoteSelecionado.value)?.preco || 0;
-});
-
-const podePagar = computed(() => {
-  if (formaSelecionada.value === "cartao") return validarCartao();
-  if (["mpesa", "emola"].includes(formaSelecionada.value)) return validarTelefone();
-  return false;
-});
-
-function selecionarPacote(nome) {
-  console.log("[selecionarPacote] Pacote selecionado:", nome);
-  pacoteSelecionado.value = nome;
-  formaSelecionada.value = null;
-  resetarCampos();
+function normalizarTelefone(phone) {
+  const cleaned = phone.replace(/[\s\-\(\)\+]/g, '')
+  if (!/^258\d{9}$/.test(cleaned)) return null
+  return cleaned
 }
 
-function selecionarForma(formaValue) {
-  console.log("[selecionarForma] Forma selecionada:", formaValue);
-  formaSelecionada.value = formaValue;
-  mensagem.value = "";
-  erroTelefone.value = "";
-  telefone.value = "";
-  cartao.value = { numero: "", nome: "", validade: "", cvv: "" };
+// 🔹 Logs bonitos
+function logInfo(title, data) {
+  console.groupCollapsed(`%cℹ️ INFO: ${title}`, 'background: #e0f7fa; color: #006064; font-weight: bold; padding: 2px 6px; border-radius: 4px;')
+  console.log(data)
+  console.groupEnd()
 }
 
-function validarCartao() {
-  const c = cartao.value;
-  return (
-    c.numero.replace(/\s/g, "").length >= 13 &&
-    c.nome.length > 2 &&
-    /^\d{2}\/\d{2}$/.test(c.validade) &&
-    c.cvv.length >= 3
-  );
+function logSuccess(title, data) {
+  console.groupCollapsed(`%c✅ SUCCESS: ${title}`, 'background: #e8f5e9; color: #2e7d32; font-weight: bold; padding: 2px 6px; border-radius: 4px;')
+  console.log(data)
+  console.groupEnd()
 }
 
-function validarTelefone() {
-  erroTelefone.value = "";
-  const num = telefone.value;
-  if (!/^258(84|85|86|87)\d{7}$/.test(num)) {
-    erroTelefone.value = "Número inválido. Use formato 2588XXXXXXX.";
-    return false;
+function logWarning(title, data) {
+  console.groupCollapsed(`%c⚠️ WARNING: ${title}`, 'background: #fff8e1; color: #ff6f00; font-weight: bold; padding: 2px 6px; border-radius: 4px;')
+  console.warn(data)
+  console.groupEnd()
+}
+
+function logError(title, data) {
+  console.groupCollapsed(`%c❌ ERROR: ${title}`, 'background: #ffebee; color: #c62828; font-weight: bold; padding: 2px 6px; border-radius: 4px;')
+  console.error(data)
+  console.groupEnd()
+}
+
+// Funções de seleção
+const selectPackage = (pkg) => {
+  selectedPackage.value = pkg
+  errorMessage.value = ""
+  logInfo("Pacote selecionado", pkg)
+}
+
+const selectPaymentMethod = (id) => {
+  selectedPaymentMethod.value = id
+  errorMessage.value = ""
+  logInfo("Método de pagamento selecionado", id)
+}
+
+// Navegação de passos
+const nextStep = () => {
+  errorMessage.value = ""
+  if (!selectedPackage.value) {
+    errorMessage.value = "Por favor, selecione um pacote."
+    logWarning("Tentativa de avançar sem pacote selecionado", null)
+    return
   }
-  return true;
-}
-
-function formatarCartao() {
-  let num = cartao.value.numero.replace(/\D/g, "").slice(0, 16);
-  cartao.value.numero = num.replace(/(.{4})/g, "$1 ").trim();
-  console.log("[formatarCartao] Cartão formatado:", cartao.value.numero);
-}
-
-function formatarValidade() {
-  let val = cartao.value.validade.replace(/\D/g, "").slice(0, 4);
-  cartao.value.validade = val.length > 2 ? val.slice(0, 2) + "/" + val.slice(2) : val;
-  console.log("[formatarValidade] Validade formatada:", cartao.value.validade);
-}
-
-async function buscarUsuario() {
-  try {
-    const email = localStorage.getItem("email");
-    console.log("[buscarUsuario] Email logado:", email);
-    if (!email) return router.push("/");
-    const res = await api.get("/auth/usuarios");
-    console.log("[buscarUsuario] Resposta da API:", res.data);
-    usuario.value = res.data.find((u) => u.email === email);
-    console.log("[buscarUsuario] Usuário encontrado:", usuario.value);
-    if (!usuario.value) router.push("/");
-  } catch (e) {
-    console.error("[buscarUsuario] Erro:", e);
-    router.push("/");
+  if (selectedPackage.value.price > 0) {
+    currentStep.value = 2
+    logInfo("Avançando para passo 2 - escolha do pagamento", selectedPaymentMethod.value)
+  } else {
+    showSuccess.value = true
+    logSuccess("Plano gratuito selecionado - exibindo sucesso direto", selectedPackage.value)
   }
 }
 
-async function pagar() {
-  loading.value = true;
-  mensagem.value = "";
-  sucesso.value = false;
-  console.log("[pagar] Iniciando pagamento...");
-  try {
-    const token = localStorage.getItem("token");
-    console.log("[pagar] Token:", token);
-    if (!token) throw new Error("Não autenticado");
+const previousStep = () => {
+  currentStep.value = 1
+  selectedPaymentMethod.value = null
+  logInfo("Voltando para passo 1 - seleção de pacote", null)
+}
 
+const goBack = () => {
+  if(currentStep.value === 2) {
+    previousStep()
+  } else {
+    window.history.back()
+    logInfo("Voltando na navegação do navegador", null)
+  }
+}
+
+// Submissão do pedido
+const handleSubmit = async () => {
+  errorMessage.value = ""
+  if (loading.value) {
+    logWarning("Tentativa de enviar pedido enquanto já processando", null)
+    return
+  }
+
+  if (!selectedPackage.value || !selectedPaymentMethod.value) {
+    errorMessage.value = "Selecione um pacote e método de pagamento."
+    logWarning("Envio falhou - pacote ou método não selecionado", { pacote: selectedPackage.value, metodo: selectedPaymentMethod.value })
+    return
+  }
+
+  loading.value = true
+  logInfo("Iniciando submissão do pedido", { pacote: selectedPackage.value.id, metodo: selectedPaymentMethod.value })
+
+  // Normaliza telefone
+  if (['mpesa', 'emola'].includes(selectedPaymentMethod.value)) {
+    const telefoneValido = normalizarTelefone(mobileDetails.phone)
+    if (!telefoneValido) {
+      errorMessage.value = "Número inválido. Formato: 258XXXXXXXX"
+      logError("Número de telefone inválido", mobileDetails.phone)
+      loading.value = false
+      return
+    }
+    mobileDetails.phone = telefoneValido
+    logInfo("Telefone normalizado", mobileDetails.phone)
+  }
+
+  if (selectedPaymentMethod.value === "card") {
+    if (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv) {
+      errorMessage.value = "Preencha todos os dados do cartão."
+      logError("Dados do cartão incompletos", cardDetails)
+      loading.value = false
+      return
+    }
+  }
+
+  try {
+    const token = localStorage.getItem("token") || ""
     const payload = {
-      pacote: pacoteSelecionado.value,
-      method: formaSelecionada.value, // Envia valor esperado pelo backend
-      amount: precoSelecionado.value,
-      phone: ["mpesa", "emola"].includes(formaSelecionada.value)
-        ? telefone.value
-        : null,
-      type: "c2b", // Ajuste aqui se precisar enviar "b2c"
-      dadosCartao:
-        formaSelecionada.value === "cartao"
-          ? {
-              numero: cartao.value.numero.replace(/\s/g, ""),
-              nomeTitular: cartao.value.nome,
-              validade: cartao.value.validade,
-              cvv: cartao.value.cvv,
-            }
-          : null,
-    };
-    console.log("[pagar] Payload:", payload);
+      pacote: selectedPackage.value.id,
+      method: selectedPaymentMethod.value,
+      phone: mobileDetails.phone || null,
+      amount: selectedPackage.value.price,
+      type: "assinatura",
+      dadosCartao: selectedPaymentMethod.value === "card" ? cardDetails : null
+    }
 
-    const res = await api.post("/pagamentos/processar", payload, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    console.log("[pagar] Resposta da API:", res.data);
+    console.groupCollapsed("%c📦 Payload a ser enviado para a API", "background: #f3e5f5; color: #6a1b9a; font-weight: bold; padding: 2px 6px; border-radius: 4px;")
+    console.log(payload)
+    console.groupEnd()
 
-    mensagem.value = res.data.message || "Pagamento realizado com sucesso!";
-    sucesso.value = true;
-  } catch (e) {
-    console.error("[pagar] Erro:", e);
-    mensagem.value = e.response?.data?.message || "Erro no pagamento";
+    const API_URL = "https://apirpa.onrender.com/api/pagamentos"
+    const paymentResponse = await axios.post(`${API_URL}/processar`, payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+
+    logInfo("Resposta da API recebida", paymentResponse.data)
+
+    if (paymentResponse.data?.sucesso) {
+      showSuccess.value = true
+      logSuccess("Pagamento realizado com sucesso", paymentResponse.data)
+    } else {
+      errorMessage.value = paymentResponse.data?.mensagem || "Erro desconhecido no pagamento."
+      logError("Falha no pagamento", paymentResponse.data)
+    }
+  } catch (err) {
+    errorMessage.value = "Erro de conexão. Por favor, tente novamente."
+    logError("Erro de conexão com API", err)
   } finally {
-    loading.value = false;
-    console.log("[pagar] loading finalizado:", loading.value);
+    loading.value = false
+    logInfo("Processamento finalizado", { loading: loading.value })
   }
 }
-
-function logout() {
-  console.log("[logout] Efetuando logout do usuário.");
-  localStorage.removeItem("email");
-  localStorage.removeItem("token");
-  router.push("/");
-}
-
-function voltarHome() {
-  console.log("[voltarHome] Redirecionando para home.");
-  router.push("/home");
-}
-
-function voltarPacotes() {
-  pacoteSelecionado.value = null;
-  formaSelecionada.value = null;
-  mensagem.value = "";
-  erroTelefone.value = "";
-  cartao.value = { numero: "", nome: "", validade: "", cvv: "" };
-  sucesso.value = false;
-  telefone.value = "";
-  console.log("[voltarPacotes] Campos resetados e voltando à seleção de pacotes.");
-}
-
-function resetarCampos() {
-  telefone.value = "";
-  mensagem.value = "";
-  erroTelefone.value = "";
-  cartao.value = { numero: "", nome: "", validade: "", cvv: "" };
-  sucesso.value = false;
-  console.log("[re+setarCampos] Campos resetados.");
-}
-
-onMounted(() => {
-  console.log("[onMounted] Componente montado. Buscando usuário...");
-  buscarUsuario();
-});
 </script>
 
 
+
+
+
+
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-.titulo-pacotes-box {
-  background: #fff;
-  border-radius: 1.2rem;
-  box-shadow: 0 2px 12px rgba(60,60,60,0.07);
-  padding: 1.1rem 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 2.5rem;
-  border: 2px solid #66bb6a;
-  max-width: 420px;
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap');
+
+
+
+.payment-method-icon-img { width: 48px; height: auto; }
+.title, .package-name, .summary-title, .section-title, .success-title {
+  font-family: 'Poppins', sans-serif !important;
 }
-.titulo-pacotes {
-  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
-  font-size: 1.7rem;
-  font-weight: 800;
-  color: #198754;
-  letter-spacing: 0.5px;
-  text-shadow: 0 2px 8px rgba(102,187,106,0.07);
-  line-height: 1.1;
-  margin: 0;
-}
-@media (max-width: 576px) {
-  .titulo-pacotes-box {
-    padding: 0.7rem 0.7rem;
-    max-width: 98vw;
-    margin-bottom: 4.5rem;
-  }
-  .titulo-pacotes {
-    font-size: 1.1rem;
-  }
-}
-.payment-options {
-  gap: 1rem;
-}
-/* Cores padrão herdadas de .borda-destacada */
-/* Botão de seleção de forma de pagamento - visual padrão limpo */
-.payment-btn {
-  min-width: 120px;
-  padding: 0.75rem 1.5rem;
-  font-size: 1.1rem;
-  border-radius: 2rem;
-  border: 1.5px solid #66bb6a;
-  background: #fff;
-  color: #198754;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(102, 187, 106, 0.08);
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.3s, background 0.2s, color 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-  letter-spacing: 0.5px;
-}
-.payment-btn.active, .payment-btn:hover, .payment-btn:focus {
-  background: #fff;
-  color: #800080;
-  border-color: #800080;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  transform: scale(1.03);
-  cursor: pointer;
-}
-@media (max-width: 576px) {
-  .payment-btn {
-    min-width: 90px;
-    font-size: 0.95rem;
-    padding: 0.5rem 0.7rem;
-  }
-}
-.container {
-  max-width: 960px;
+.title, .package-name, .summary-title, .section-title, .success-title {
+  font-family: 'Poppins', sans-serif !important;
 }
 
-.container.py-5 {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+* {
+  box-sizing: border-box;
 }
 
-.row.justify-content-center {
-  width: 100%;
+.subscription-container {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #0a0a0a, #1a1a1a);
+  color: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-.col-md-5 {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.border-success {
-  border: 2px solid #198754 !important;
-}
-
-.btn-group .btn {
-  min-width: 120px;
-}
-
-/* Botão Voltar aos Pacotes: visual limpo, destaque só no box-shadow */
-.voltar-pacotes-btn {
-  background: #fff;
-  color: #198754 !important;
-  border: 1.5px solid #66bb6a;
-  border-radius: 2rem;
-  font-size: 1.1rem;
-  box-shadow: 0 2px 8px rgba(102, 187, 106, 0.10), 0 4px 16px rgba(128, 0, 128, 0.10);
-  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.voltar-pacotes-btn:hover, .voltar-pacotes-btn:focus {
-  background: #fff;
-  color: #800080 !important;
-  border-color: #800080;
-  transform: scale(1.05);
-  box-shadow: 0 8px 24px rgba(128, 0, 128, 0.18), 0 2px 8px rgba(102, 187, 106, 0.10);
-}
-/* Botão Selecionar Pacote - visual padrão limpo */
-.selecionar-pacote-btn {
-  background: #fff;
-  color: #198754 !important;
-  border: 1.5px solid #66bb6a;
-  border-radius: 2rem;
-  font-size: 1.08rem;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(102, 187, 106, 0.10);
-  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s, color 0.2s, background 0.2s;
+.back-button {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  outline: none;
-  gap: 0.5em;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  color: #a0a0a0;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0.5rem 0;
+  transition: color 0.2s;
+}
+
+.back-button:hover {
+  color: #ffffff;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 1rem 0 0 0;
+  background: linear-gradient(to right, #ffffff, #a0a0a0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.content-wrapper {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.packages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.package-card {
   position: relative;
-  overflow: hidden;
-  padding: 0.95rem 2.2rem;
-}
-.selecionar-pacote-btn .selecionar-icone {
-  font-size: 1.15em;
-  color: #198754;
-  background: rgba(102,187,106,0.10);
-  border-radius: 50%;
-  margin-right: 6px;
-  box-shadow: none;
-  transition: color 0.2s, background 0.2s;
-  padding: 0.1em 0.3em;
-}
-.selecionar-pacote-btn:hover, .selecionar-pacote-btn:focus {
-  background: #fff;
-  color: #800080 !important;
-  border-color: #800080;
-  transform: scale(1.045);
-  box-shadow: 0 8px 24px rgba(128, 0, 128, 0.13), 0 2px 8px rgba(102, 187, 106, 0.10);
+  background: #1a1a1a;
+  border: 2px solid transparent;
+  border-radius: 1rem;
+  padding: 2rem;
   cursor: pointer;
-}
-.selecionar-pacote-btn:hover .selecionar-icone,
-.selecionar-pacote-btn:focus .selecionar-icone {
-  color: #800080;
-  background: rgba(128,0,128,0.10);
-}
-/* Borda destacada padrão */
-.borda-destacada {
-  border: 1px solid #66bb6a;
-  border-radius: 5px;
-  padding: 10px;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.3s ease;
-  background-color: #fff;
-  /* box-shadow removido para visual mais limpo */
+  transition: all 0.3s ease;
 }
 
-.borda-destacada:hover {
+.package-card:hover {
   border-color: #800080;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  transform: scale(1.03);
-  cursor: pointer;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(128, 0, 128, 0.2);
 }
 
-.badge {
-  font-weight: 600;
-  font-size: 0.85rem;
-  user-select: none;
+.package-card.selected {
+  border-color: #800080;
+  background: linear-gradient(135deg, rgba(128, 0, 128, 0.1), rgba(128, 0, 128, 0.05));
 }
 
-/* Estilo do dropdown usuário */
-.nav-link {
+.package-card.recommended {
+  border-color: #14b8a6;
+}
+
+.recommended-badge {
+  position: absolute;
+  top: -12px;
+  right: 1rem;
+  background: linear-gradient(135deg, #14b8a6, #0d9488);
+  color: #ffffff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.package-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  color: #ffffff;
+}
+
+.package-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.currency {
   font-size: 1rem;
+  color: #a0a0a0;
 }
 
-.material-icons {
-  font-size: 20px;
-  color: #198754;
+.amount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #ffffff;
 }
 
-/* Centralização e alinhamento dos cards de pacotes */
-.pacote-card {
-  min-height: 410px;
-  max-width: 370px;
+.period {
+  font-size: 1rem;
+  color: #a0a0a0;
+}
+
+.benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  color: #d0d0d0;
+  font-size: 0.875rem;
+}
+
+.check-icon {
+  color: #14b8a6;
+  flex-shrink: 0;
+}
+
+.select-button {
   width: 100%;
+  padding: 0.875rem;
+  background: #800080;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.select-button:hover {
+  background: #9900cc;
+  transform: scale(1.02);
+}
+
+.select-button.selected {
+  background: #14b8a6;
+}
+
+.payment-methods {
+  max-width: 600px;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem 0;
+  color: #ffffff;
+}
+
+.payment-methods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.payment-method-card {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
   align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: #1a1a1a;
+  border: 2px solid transparent;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-@media (max-width: 576px) {
-  .pacote-card {
-    min-height: 350px;
-    max-width: 98vw;
-    padding: 1.2rem 0.5rem;
+.payment-method-card:hover {
+  border-color: #800080;
+}
+
+.payment-method-card.selected {
+  border-color: #800080;
+  background: rgba(128, 0, 128, 0.1);
+}
+
+.payment-method-icon {
+  font-size: 2rem;
+}
+
+.payment-method-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.payment-form {
+  margin-top: 2rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #d0d0d0;
+}
+
+.form-input {
+  padding: 0.875rem;
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  color: #ffffff;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #800080;
+  box-shadow: 0 0 0 3px rgba(128, 0, 128, 0.1);
+}
+
+.form-hint {
+  font-size: 0.875rem;
+  color: #a0a0a0;
+  margin: 0;
+}
+
+.submit-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #800080;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: #9900cc;
+  transform: scale(1.02);
+}
+
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.success-message {
+  text-align: center;
+  padding: 3rem;
+}
+
+.success-icon {
+  display: inline-flex;
+  padding: 1.5rem;
+  background: rgba(20, 184, 166, 0.1);
+  border-radius: 50%;
+  margin-bottom: 1.5rem;
+}
+
+.success-icon svg {
+  color: #14b8a6;
+}
+
+.success-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: #ffffff;
+}
+
+.success-text {
+  font-size: 1.125rem;
+  color: #a0a0a0;
+  margin: 0;
+}
+
+.error-message {
+  padding: 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 0.5rem;
+  color: #ef4444;
+  margin-top: 1rem;
+}
+
+.order-summary {
+  width: 350px;
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 2rem;
+  height: fit-content;
+  position: sticky;
+  top: 2rem;
+}
+
+.summary-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem 0;
+  color: #ffffff;
+}
+
+.summary-section {
+  margin-bottom: 1.5rem;
+}
+
+.summary-label {
+  font-size: 0.875rem;
+  color: #a0a0a0;
+  margin-bottom: 0.25rem;
+}
+
+.summary-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.summary-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 1.5rem 0;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.total-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #d0d0d0;
+}
+
+.total-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.continue-button,
+.back-step-button {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.continue-button {
+  background: #800080;
+  color: #ffffff;
+}
+
+.continue-button:hover {
+  background: #9900cc;
+  transform: scale(1.02);
+}
+
+.back-step-button {
+  background: transparent;
+  color: #a0a0a0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.back-step-button:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 1024px) {
+  .content-wrapper {
+    flex-direction: column;
+  }
+
+  .order-summary {
+    width: 100%;
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .packages-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-methods-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .content-wrapper {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
   }
 }
 </style>
-
