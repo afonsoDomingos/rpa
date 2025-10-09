@@ -349,35 +349,48 @@ const atualizarStatus = async (documento) => {
   <section class="py-7">
 
     <div class="container">
-      <!-- Conteúdo de Navegação -->
-      <ul class="nav nav-pills nav-fill p-1" role="tablist">
-        <li class="nav-item">
-          <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'procurar' }"
-            @click.prevent="activeTab = 'procurar'" role="tab" aria-selected="true">
-            Procurar Admin
-          </a>
-        </li>
+     <!-- Conteúdo de Navegação -->
+<ul class="nav nav-pills nav-fill custom-nav-admin p-2" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link"
+       :class="{ active: activeTab === 'procurar' }"
+       @click.prevent="activeTab = 'procurar'"
+       role="tab"
+       aria-selected="true">
+      <i class="bi bi-search me-2"></i> Procurar Admin
+    </a>
+  </li>
 
-        <li class="nav-item">
-          <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'cadastrar' }"
-            @click.prevent="activeTab = 'cadastrar'" role="tab" aria-selected="false">
-            Reportar Admin
-          </a>
-        </li>
+  <li class="nav-item">
+    <a class="nav-link"
+       :class="{ active: activeTab === 'cadastrar' }"
+       @click.prevent="activeTab = 'cadastrar'"
+       role="tab"
+       aria-selected="false">
+      <i class="bi bi-flag me-2"></i> Reportar Admin
+    </a>
+  </li>
 
-        <li class="nav-item">
-          <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'documentosReportados' }"
-            @click.prevent="activeTab = 'documentosReportados'" role="tab" aria-selected="false">
-            Reportados Admin
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'documentosProprietarios' }"
-            @click.prevent="activeTab = 'documentosProprietarios'" role="tab" aria-selected="false">
-            Proprietários Admin
-          </a>
-        </li>
-      </ul>
+  <li class="nav-item">
+    <a class="nav-link"
+       :class="{ active: activeTab === 'documentosReportados' }"
+       @click.prevent="activeTab = 'documentosReportados'"
+       role="tab"
+       aria-selected="false">
+      <i class="bi bi-file-earmark-text me-2"></i> Reportados Admin
+    </a>
+  </li>
+
+  <li class="nav-item">
+    <a class="nav-link"
+       :class="{ active: activeTab === 'documentosProprietarios' }"
+       @click.prevent="activeTab = 'documentosProprietarios'"
+       role="tab"
+       aria-selected="false">
+      <i class="bi bi-person-badge me-2"></i> Proprietários Admin
+    </a>
+  </li>
+</ul>
       <!-- Conteúdo das abas -->
       <div class="tab-content">
 
@@ -728,6 +741,40 @@ const atualizarStatus = async (documento) => {
 
 
 <style scoped>
+
+
+.custom-nav-admin {
+  background: #f9fbf9;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.custom-nav-admin .nav-link {
+  color: #4b6043;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 10px 12px;
+  transition: all 0.3s ease;
+}
+
+.custom-nav-admin .nav-link:hover {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.custom-nav-admin .nav-link.active {
+  background: linear-gradient(135deg, #2e7d32, #43a047);
+  color: #fff !important;
+  box-shadow: 0 3px 8px rgba(46, 125, 50, 0.3);
+}
+
+.custom-nav-admin .nav-link i {
+  font-size: 1.1rem;
+  vertical-align: middle;
+}
+
+
+
 .nav-link {
   transition: background-color 0.3s ease, color 0.3s ease;
   /* Transição suave */
