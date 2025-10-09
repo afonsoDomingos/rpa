@@ -397,6 +397,7 @@ const solicitarDocumento = async () => {
     </div>
   </div>
   
+  
   <div>
     <NoticiasList />
   </div>
