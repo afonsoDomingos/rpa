@@ -252,14 +252,12 @@ const solicitarDocumento = async () => {
   <div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n6 gradient-background">
     <!-- Componente para Exibir Documentos -->
     <Verdocumentos />
+    
   
     
    <!-- <Guardardocumentos />-->
     <!-- Componente para Contador de Apresentação -->
     <PresentationCounter />
-      <div>
-    <NoticiasList />
-  </div>
        <div class="py-5">
        <!-- Componente para exibir o rodapé padrão -->
    <MapaDocumentos />
@@ -399,9 +397,9 @@ const solicitarDocumento = async () => {
     </div>
   </div>
   
-
-
-
+  <div>
+    <NoticiasList />
+  </div>
   <!-- Componente para exibir informações sobre a nossa equipe -->
   
   <Nossateam />

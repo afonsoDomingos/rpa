@@ -1039,8 +1039,6 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
   vertical-align: middle;
 }
 
-
-
 .gradient-background {
   background: linear-gradient(
     180deg,
