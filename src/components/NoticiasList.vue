@@ -20,8 +20,8 @@
       @mouseleave="retomarAutoScroll"
     >
       <div
-        v-for="(noticia, index) in noticiasFiltradas"
-        :key="noticia.id"
+        v-for="noticia in noticiasFiltradas"
+        :key="noticia._id"
         class="card shadow-sm"
       >
         <div class="card-body">
@@ -59,7 +59,7 @@
         </div>
       </div>
 
-      <!-- Botão Próximo acima da última notícia -->
+      <!-- Botões de navegação -->
       <button
         v-if="noticiasFiltradas.length > 0"
         class="btn borda-destacada btn-proximo"
@@ -68,8 +68,6 @@
       >
         <span class="arrow-icon">▶</span>
       </button>
-
-      <!-- Botão para a primeira notícia -->
       <button
         v-if="noticiasFiltradas.length > 0"
         class="btn borda-destacada btn-primeira"
@@ -78,8 +76,6 @@
       >
         <span class="arrow-icon">⏮</span>
       </button>
-
-      <!-- Botão para a última notícia -->
       <button
         v-if="noticiasFiltradas.length > 0"
         class="btn borda-destacada btn-ultima"
@@ -91,66 +87,58 @@
     </div>
 
     <!-- Mensagem se não houver notícias -->
-    <div
-      v-if="noticiasFiltradas.length === 0"
-      class="text-center text-muted mt-3"
-    >
+    <div v-if="noticiasFiltradas.length === 0" class="text-center text-muted mt-3">
       Nenhuma notícia encontrada.
     </div>
 
-    <!-- Modal para imagem ampliada -->
+    <!-- Modal imagem -->
     <div v-if="imagemAmpliada" class="modal" @click="fecharImagem">
       <div class="modal-content imagem-modal">
         <span class="fechar-modal" @click="fecharImagem">&times;</span>
-        <img
-          :src="API_BASE + imagemAmpliada"
-          alt="Imagem Ampliada"
-          class="img-fluid"
-        />
+        <img :src="API_BASE + imagemAmpliada" alt="Imagem Ampliada" class="img-fluid" />
       </div>
     </div>
 
-    
-    <!-- Modal para conteúdo da notícia -->
-<div v-if="conteudoModal" class="modal" @click="fecharModalConteudo">
-  <div class="modal-content conteudo-modal" @click.stop>
-    <span class="fechar-modal" @click="fecharModalConteudo">&times;</span>
-    <p class="conteudo">{{ conteudoModal }}</p>
+    <!-- Modal conteúdo -->
+    <div v-if="conteudoModal" class="modal" @click="fecharModalConteudo">
+      <div class="modal-content conteudo-modal" @click.stop>
+        <span class="fechar-modal" @click="fecharModalConteudo">&times;</span>
+        <h5 class="fw-bold mb-3">{{ conteudoModal.titulo }}</h5>
+        <p class="conteudo">{{ conteudoModal.conteudo }}</p>
 
-    <!-- 🔗 Ícones de redes sociais -->
-    <div class="redes-sociais">
-      <a
-        href="https://www.facebook.com/tuaPagina"
-        target="_blank"
-        aria-label="Facebook"
-      >
-        <i class="fab fa-facebook"></i>
-      </a>
-      <a
-        href="https://www.instagram.com/teuPerfil"
-        target="_blank"
-        aria-label="Instagram"
-      >
-        <i class="fab fa-instagram"></i>
-      </a>
-      <a
-        href="https://www.linkedin.com/company/tuaEmpresa"
-        target="_blank"
-        aria-label="LinkedIn"
-      >
-        <i class="fab fa-linkedin"></i>
-      </a>
-      <a
-        href="https://www.youtube.com/@recuperaqui"
-        target="_blank"
-        aria-label="YouTube"
-      >
-        <i class="fab fa-youtube"></i>
-      </a>
+        <!-- 🔗 Ícones de redes sociais -->
+        <div class="redes-sociais">
+          <a
+            href="https://web.facebook.com/recuperaaqui/"
+            target="_blank"
+            aria-label="Facebook"
+          >
+            <i class="fab fa-facebook"></i>
+          </a>
+          <a
+            href="https://www.instagram.com/rpamocambique/"
+            target="_blank"
+            aria-label="Instagram"
+          >
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a
+            href="https://www.linkedin.com/company/rpa-mo%C3%A7ambique"
+            target="_blank"
+            aria-label="LinkedIn"
+          >
+            <i class="fab fa-linkedin"></i>
+          </a>
+          <a
+            href="https://www.youtube.com/@recuperaqui"
+            target="_blank"
+            aria-label="YouTube"
+          >
+            <i class="fab fa-youtube"></i>
+          </a>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-
   </div>
 </template>
 
@@ -158,7 +146,6 @@
 import { ref, computed, onMounted, onUnmounted } from "vue"
 import axios from "axios"
 
-// 🚀 Usa o backend em produção
 const API_BASE = "https://apirpa.onrender.com"
 const API_URL = `${API_BASE}/api/noticias`
 
@@ -169,150 +156,80 @@ const conteudoModal = ref(null)
 const noticiasGrid = ref(null)
 let autoScrollInterval = null
 
-// 🔍 Filtro de notícias
 const noticiasFiltradas = computed(() => {
   if (!termoBusca.value) return noticias.value
   return noticias.value.filter(
-    (noticia) =>
+    noticia =>
       noticia.titulo.toLowerCase().includes(termoBusca.value.toLowerCase()) ||
       noticia.resumo.toLowerCase().includes(termoBusca.value.toLowerCase()) ||
       noticia.conteudo.toLowerCase().includes(termoBusca.value.toLowerCase())
   )
 })
 
-// ▶ Auto-scroll
 const proximaNoticia = () => {
-  if (noticiasGrid.value) {
-    const cardWidth = 350 + 20
-    const maxScroll =
-      noticiasGrid.value.scrollWidth - noticiasGrid.value.clientWidth
-    if (noticiasGrid.value.scrollLeft >= maxScroll - 1) {
-      noticiasGrid.value.scrollTo({ left: 0, behavior: "smooth" })
-      console.log("[INFO] Voltou para a primeira notícia")
-    } else {
-      noticiasGrid.value.scrollBy({ left: cardWidth, behavior: "smooth" })
-      console.log("[INFO] Avançou para a próxima notícia")
-    }
-  }
-}
-
-const irParaPrimeiraNoticia = () => {
-  if (noticiasGrid.value) {
+  if (!noticiasGrid.value) return
+  const cardWidth = 370
+  const maxScroll = noticiasGrid.value.scrollWidth - noticiasGrid.value.clientWidth
+  if (noticiasGrid.value.scrollLeft >= maxScroll - 1) {
     noticiasGrid.value.scrollTo({ left: 0, behavior: "smooth" })
-    console.log("[INFO] Scrollado para a primeira notícia")
+  } else {
+    noticiasGrid.value.scrollBy({ left: cardWidth, behavior: "smooth" })
   }
 }
 
+const irParaPrimeiraNoticia = () => noticiasGrid.value?.scrollTo({ left: 0, behavior: "smooth" })
 const irParaUltimaNoticia = () => {
-  if (noticiasGrid.value) {
-    const maxScroll =
-      noticiasGrid.value.scrollWidth - noticiasGrid.value.clientWidth
-    noticiasGrid.value.scrollTo({ left: maxScroll, behavior: "smooth" })
-    console.log("[INFO] Scrollado para a última notícia")
-  }
+  if (!noticiasGrid.value) return
+  const maxScroll = noticiasGrid.value.scrollWidth - noticiasGrid.value.clientWidth
+  noticiasGrid.value.scrollTo({ left: maxScroll, behavior: "smooth" })
 }
 
-const iniciarAutoScroll = () => {
-  autoScrollInterval = setInterval(() => {
-    proximaNoticia()
-  }, 3000)
-  console.log("[INFO] Auto-scroll iniciado")
-}
+const iniciarAutoScroll = () => { autoScrollInterval = setInterval(proximaNoticia, 3000) }
+const pausarAutoScroll = () => { if (autoScrollInterval) { clearInterval(autoScrollInterval); autoScrollInterval = null } }
+const retomarAutoScroll = () => { if (!autoScrollInterval) iniciarAutoScroll() }
 
-const pausarAutoScroll = () => {
-  if (autoScrollInterval) {
-    clearInterval(autoScrollInterval)
-    autoScrollInterval = null
-    console.log("[INFO] Auto-scroll pausado")
-  }
-}
+onMounted(() => { fetchNoticias(); iniciarAutoScroll() })
+onUnmounted(() => pausarAutoScroll())
 
-const retomarAutoScroll = () => {
-  if (!autoScrollInterval) {
-    iniciarAutoScroll()
-    console.log("[INFO] Auto-scroll retomado")
-  }
-}
-
-onMounted(() => {
-  console.log("[INFO] Componente montado. Carregando notícias de:", API_URL)
-  fetchNoticias()
-  iniciarAutoScroll()
-})
-
-onUnmounted(() => {
-  pausarAutoScroll()
-})
-
-// 🖼️ Abrir imagem + atualizar visualizações
-const abrirImagem = async (noticia) => {
-  console.log("[INFO] Abrindo imagem ampliada da notícia ID:", noticia.id)
+const abrirImagem = async noticia => {
   imagemAmpliada.value = noticia.imagem
+  await incrementarVisualizacoes(noticia)
+}
+
+const fecharImagem = () => { imagemAmpliada.value = null }
+
+const abrirModalConteudo = async noticia => {
+  conteudoModal.value = noticia
+  await incrementarVisualizacoes(noticia)
+}
+
+const fecharModalConteudo = () => { conteudoModal.value = null }
+
+const incrementarVisualizacoes = async noticia => {
   try {
-    const res = await axios.patch(`${API_URL}/${noticia.id}`)
+    const res = await axios.patch(`${API_URL}/${noticia._id}`)
     noticia.visualizacoes = res.data.visualizacoes
-    console.log(
-      "[SUCESSO] Visualizações atualizadas para:",
-      noticia.visualizacoes
-    )
   } catch (err) {
     console.error("[ERRO] Falha ao atualizar visualizações:", err.message)
   }
 }
 
-const fecharImagem = () => {
-  console.log("[INFO] Fechando modal de imagem")
-  imagemAmpliada.value = null
-}
-
-// 📖 Abrir modal de conteúdo + atualizar visualizações
-const abrirModalConteudo = async (noticia) => {
-  console.log("[INFO] Abrindo conteúdo da notícia ID:", noticia.id)
-  conteudoModal.value = noticia.conteudo
-  try {
-    const res = await axios.patch(`${API_URL}/${noticia.id}`)
-    noticia.visualizacoes = res.data.visualizacoes
-    console.log(
-      "[SUCESSO] Visualizações atualizadas para:",
-      noticia.visualizacoes
-    )
-  } catch (err) {
-    console.error("[ERRO] Falha ao atualizar visualizações:", err.message)
-  }
-}
-
-const fecharModalConteudo = () => {
-  console.log("[INFO] Fechando modal de conteúdo")
-  conteudoModal.value = null
-}
-
-// 🌐 Buscar notícias
 const fetchNoticias = async () => {
-  console.log("[INFO] Buscando notícias em:", API_URL)
   try {
     const res = await axios.get(API_URL)
     noticias.value = res.data
-    console.log("[SUCESSO] Notícias carregadas:", noticias.value.length)
   } catch (err) {
     console.error("[ERRO] Falha ao carregar notícias:", err.message)
-    if (err.response) {
-      console.error("Status:", err.response.status)
-      console.error("Resposta:", err.response.data)
-    }
   }
 }
 
-// 📅 Formatador de datas
-const formatarData = (data) => {
+const formatarData = data => {
   if (!data) return ""
   const d = new Date(data)
-  return d.toLocaleDateString("pt-PT", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  })
+  return d.toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit", year: "numeric" })
 }
 </script>
+
 
 <style scoped>
 .noticias-container {
