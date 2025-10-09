@@ -36,7 +36,7 @@
         </div>
         <div class="card-overlay">
           <div class="card-content">
-            <!-- Resumo curto na parte inferior (até 3 linhas) -->
+            <!-- Resumo curto na parte inferior (até 6 linhas) -->
             <p class="card-resumo">{{ noticia.resumo }}</p>
           </div>
           <div class="card-footer">
@@ -258,8 +258,8 @@ const formatarData = data => {
 
 * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
 
-.noticias-container { max-width: 1100px; margin: 0 auto; padding: 20px; background: #f5f5f5; transition: background 0.3s ease; }
-.noticias-container.dark-mode { background: #1a1a1a; color: #e0e0e0; }
+.noticias-container { max-width: 1100px; margin: 0 auto; padding: 20px; background: transparent; transition: background 0.3s ease; }
+.noticias-container.dark-mode { color: #e0e0e0; }
 
 .busca-container { max-width: 600px; margin: 0 auto 20px; }
 .search-input { width: 100%; padding: 10px 15px; font-size: 0.9rem; border: none; border-radius: 25px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease; }
@@ -284,22 +284,39 @@ const formatarData = data => {
 .card-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.5); padding: 8px; display: flex; flex-direction: column; justify-content: flex-end; color: #fff; }
 .card-content { flex: 1; }
 
-/* Resumo visível com até 3 linhas */
+/* Resumo visível com até 6 linhas e fonte menor */
 .card-resumo {
-  font-size: 0.75rem;
+  font-size: 0.65rem; 
   line-height: 1.2;
   color: #fff;
   margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* até 3 linhas */
+  -webkit-line-clamp: 6; 
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .card-footer { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
-.btn-ler-mais { background: none; border: none; font-size: 0.85rem; color: #B794F4; font-weight: 500; transition: all 0.3s ease; }
-.btn-ler-mais:hover { color: #fff; text-decoration: underline; }
+
+/* Botão Ler Mais Modernizado */
+.btn-ler-mais {
+  background: #6B46C1;
+  color: #fff;
+  border: none;
+  padding: 5px 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+.btn-ler-mais:hover {
+  background: #553C9A;
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
 
 .visualizacoes { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; color: #e0e0e0; }
 .icon { font-size: 0.85rem; }
@@ -320,7 +337,7 @@ const formatarData = data => {
 /* Modal transparente */
 .modal {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.0); /* transparente */
+  background: rgba(0,0,0,0.0);
   display: flex; justify-content: center; align-items: center;
   z-index: 1000;
 }
