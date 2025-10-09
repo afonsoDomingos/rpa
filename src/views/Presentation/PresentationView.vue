@@ -228,9 +228,7 @@ const solicitarDocumento = async () => {
     </div>
   </div>
 </transition>
-
 <FloatingDocs />
-
 
   <Header>
     <div class="page-header min-vh-75" :style="`background-image: url(${vueMkHeader})`" loading="lazy">
@@ -249,11 +247,13 @@ const solicitarDocumento = async () => {
     </div>
   </Header>
 
+  
   <div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n6 gradient-background">
+    
     <!-- Componente para Exibir Documentos -->
     <Verdocumentos />
     
-  
+
     
    <!-- <Guardardocumentos />-->
     <!-- Componente para Contador de Apresentação -->
@@ -312,6 +312,10 @@ const solicitarDocumento = async () => {
       
     </div>
   </div> <!-- Fechamento da div card -->
+
+  <div>
+    <NoticiasList />
+  </div>
 
   
 
@@ -398,9 +402,7 @@ const solicitarDocumento = async () => {
   </div>
   
   
-  <div>
-    <NoticiasList />
-  </div>
+  
   <!-- Componente para exibir informações sobre a nossa equipe -->
   
   <Nossateam />
@@ -409,6 +411,7 @@ const solicitarDocumento = async () => {
   <DefaultFooter />
 </template>
 <style scoped>
+
 .gradient-background {
   background: linear-gradient(
     180deg,
@@ -651,4 +654,6 @@ const solicitarDocumento = async () => {
     left: auto !important;
   }
 }
+
+
 </style>
