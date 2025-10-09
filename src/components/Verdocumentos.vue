@@ -323,32 +323,26 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
   <section class="py-7">
     <div class="container">
       <!-- Conteúdo de Navegação -->
-      <ul class="nav nav-pills nav-fill p-1" role="tablist">
-        <li class="nav-item">
-          <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'procurar' }"
-            @click.prevent="activeTab = 'procurar'" role="tab" aria-selected="true">
-            Procurar
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'cadastrar' }"
-            @click.prevent="activeTab = 'cadastrar'" role="tab" aria-selected="false">
-            Reportar
-          </a>
-        </li>
-        <!--<li class="nav-item">
-          <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'documentosReportados' }"
-            @click.prevent="activeTab = 'documentosReportados'" role="tab" aria-selected="false">
-            Reportados
-          </a>
-        </li>-->
-        <!--<li class="nav-item">
-          <a class="nav-link mb-0 px-0 py-1" :class="{ active: activeTab === 'documentosProprietarios' }"
-            @click.prevent="activeTab = 'documentosProprietarios'" role="tab" aria-selected="false">
-            Proprietários
-          </a>
-        </li>-->
-      </ul>
+<ul class="nav nav-pills nav-fill custom-nav p-2" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link"
+       :class="{ active: activeTab === 'procurar' }"
+       @click.prevent="activeTab = 'procurar'"
+       role="tab"
+       aria-selected="true">
+      <i class="bi bi-search me-2"></i> Procurar
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link"
+       :class="{ active: activeTab === 'cadastrar' }"
+       @click.prevent="activeTab = 'cadastrar'"
+       role="tab"
+       aria-selected="false">
+      <i class="bi bi-flag me-2"></i> Reportar
+    </a>
+  </li>
+</ul>
       <!-- Conteúdo das abas -->
       <div class="tab-content">
         <!-- Aba Procurar (Formulário para busca de documentos) -->
@@ -1013,6 +1007,40 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
 
 
 <style scoped>
+
+
+.custom-nav {
+  background: #f9fbf9;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.custom-nav .nav-link {
+  color: #4b6043;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 10px 16px;
+  transition: all 0.3s ease;
+}
+
+.custom-nav .nav-link:hover {
+  background-color: #e7f5e4;
+  color: #2e7d32;
+}
+
+.custom-nav .nav-link.active {
+  background: linear-gradient(135deg, #43a047, #66bb6a);
+  color: #fff !important;
+  box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3);
+}
+
+.custom-nav .nav-link i {
+  font-size: 1.1rem;
+  vertical-align: middle;
+}
+
+
+
 .gradient-background {
   background: linear-gradient(
     180deg,
