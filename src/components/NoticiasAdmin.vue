@@ -10,40 +10,42 @@
     </div>
 
     <br /><br /><br />
-<br /><br /><br />
-    <!-- Container principal -->
+
     <div class="noticias-container bg-white shadow-lg rounded p-3">
       <!-- Cabeçalho -->
       <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <h2 class="text-success fw-bold titulo-pagina m-0 text-center flex-grow-1">
+        <h2 class="text-purple fw-bold titulo-pagina m-0 text-center flex-grow-1">
           Gestão de Notícias
         </h2>
-        <button class="btn btn-success btn-lg px-4 py-2 fw-bold sombra-suave" @click="abrirModal()">+ Nova</button>
+        <button class="btn btn-purple btn-sm px-3 py-1 fw-bold sombra-suave" @click="abrirModal()">+ Nova</button>
+      </div>
+
+      <!-- Feedbacks -->
+      <div v-if="mensagem.text" :class="['alert', mensagem.tipo === 'erro' ? 'alert-danger' : 'alert-success']">
+        {{ mensagem.text }}
       </div>
 
       <!-- Lista de notícias -->
-      <div v-if="noticias.length > 0" class="noticias-grid">
+      <div v-if="noticias.length > 0" class="noticias-grid-admin">
         <div
           v-for="noticia in noticias"
-          :key="noticia.id"
-          class="card shadow-sm borda-destacada"
+          :key="noticia._id"
+          class="card-admin sombra-suave borda-destacada"
         >
-          <div class="card-body">
-            <h6 class="fw-bold card-titulo">{{ noticia.titulo }}</h6>
-            <p class="text-muted small mb-1">{{ noticia.data }}</p>
-            <p class="resumo">{{ noticia.resumo }}</p>
-
-            <div v-if="noticia.imagem" class="mb-2 text-center">
-              <img
-                :src="API_BASE + noticia.imagem"
-                alt="Imagem da Notícia"
-                class="img-fluid rounded"
-              />
-            </div>
-
-            <div class="card-footer">
-              <button class="btn btn-outline-primary btn-sm borda-destacada" @click="abrirModal(noticia)">✏️</button>
-              <button class="btn btn-outline-danger btn-sm borda-destacada" @click="removerNoticia(noticia.id)">🗑</button>
+          <div class="card-image">
+            <img
+              v-if="noticia.imagem"
+              :src="API_BASE + noticia.imagem"
+              alt="Imagem da Notícia"
+              class="img-fluid"
+            />
+            <div v-else class="placeholder-image"></div>
+          </div>
+          <div class="card-overlay-admin">
+            <p class="card-resumo-admin">{{ noticia.resumo }}</p>
+            <div class="card-footer-admin">
+              <button class="btn-edit" @click="abrirModal(noticia)">✏️</button>
+              <button class="btn-delete" @click="removerNoticia(noticia._id)">🗑</button>
             </div>
           </div>
         </div>
@@ -56,8 +58,8 @@
       <!-- Modal -->
       <div v-if="modalAberto" class="modal-overlay" @click.self="fecharModal">
         <div class="modal-content conteudo-modal">
-          <h5 class="mb-3 text-center text-success fw-bold">
-            {{ noticiaSelecionada?.id ? 'Editar Notícia' : 'Nova Notícia' }}
+          <h5 class="mb-3 text-center text-purple fw-bold">
+            {{ noticiaSelecionada?._id ? 'Editar Notícia' : 'Nova Notícia' }}
           </h5>
           <form @submit.prevent="salvarNoticia">
             <div class="mb-2">
@@ -81,8 +83,8 @@
               <input type="file" class="form-control form-control-sm borda-destacada" @change="handleFileUpload" />
             </div>
             <div class="text-end">
-              <button type="submit" class="btn btn-success btn-sm me-2 borda-destacada">💾</button>
-              <button type="button" class="btn btn-secondary btn-sm borda-destacada" @click="fecharModal">❌</button>
+              <button type="submit" class="btn btn-purple btn-sm me-2 borda-destacada">💾 Salvar</button>
+              <button type="button" class="btn btn-secondary btn-sm borda-destacada" @click="fecharModal">❌ Cancelar</button>
             </div>
           </form>
         </div>
@@ -104,16 +106,26 @@ const modalAberto = ref(false)
 const noticiaSelecionada = ref(null)
 const noticiaForm = ref({ titulo: '', resumo: '', conteudo: '', data: '' })
 const imagemArquivo = ref(null)
+const mensagem = ref({ text: '', tipo: 'sucesso' })
 
+// Mostrar mensagem temporária
+const mostrarMensagem = (texto, tipo = 'sucesso') => {
+  mensagem.value = { text: texto, tipo }
+  setTimeout(() => { mensagem.value.text = '' }, 4000)
+}
+
+// Fetch notícias
 const fetchNoticias = async () => {
   try {
     const res = await axios.get(API_URL)
     noticias.value = res.data
   } catch (err) {
     console.error('[ERRO] Falha ao carregar notícias:', err.message)
+    mostrarMensagem('Falha ao carregar notícias', 'erro')
   }
 }
 
+// Abrir modal
 const abrirModal = (noticia = null) => {
   noticiaSelecionada.value = noticia ? noticia : null
   noticiaForm.value = noticia ? { ...noticia } : { titulo: '', resumo: '', conteudo: '', data: '' }
@@ -121,43 +133,52 @@ const abrirModal = (noticia = null) => {
   modalAberto.value = true
 }
 
+// Fechar modal
 const fecharModal = () => (modalAberto.value = false)
 
+// Upload de imagem
 const handleFileUpload = (event) => {
   imagemArquivo.value = event.target.files[0]
 }
 
+// Salvar notícia
 const salvarNoticia = async () => {
   try {
     const formData = new FormData()
     for (const campo in noticiaForm.value) formData.append(campo, noticiaForm.value[campo] || '')
     if (imagemArquivo.value) formData.append('imagem', imagemArquivo.value)
 
-    if (noticiaSelecionada.value?.id) {
-      const res = await axios.put(`${API_URL}/${noticiaSelecionada.value.id}`, formData, {
+    if (noticiaSelecionada.value?._id) {
+      const res = await axios.put(`${API_URL}/${noticiaSelecionada.value._id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
-      const index = noticias.value.findIndex(n => n.id === noticiaSelecionada.value.id)
+      const index = noticias.value.findIndex(n => n._id === noticiaSelecionada.value._id)
       noticias.value[index] = res.data
+      mostrarMensagem('Notícia atualizada com sucesso')
     } else {
       const res = await axios.post(API_URL, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       noticias.value.push(res.data)
+      mostrarMensagem('Notícia criada com sucesso')
     }
     fecharModal()
   } catch (err) {
     console.error('[ERRO] Falha ao salvar notícia:', err.message)
+    mostrarMensagem('Falha ao salvar notícia', 'erro')
   }
 }
 
-const removerNoticia = async (id) => {
+// Remover notícia
+const removerNoticia = async (_id) => {
   if (!confirm('Tem certeza que deseja remover esta notícia?')) return
   try {
-    await axios.delete(`${API_URL}/${id}`)
-    noticias.value = noticias.value.filter(n => n.id !== id)
+    await axios.delete(`${API_URL}/${_id}`)
+    noticias.value = noticias.value.filter(n => n._id !== _id)
+    mostrarMensagem('Notícia removida com sucesso')
   } catch (err) {
     console.error('[ERRO] Falha ao remover notícia:', err.message)
+    mostrarMensagem('Falha ao remover notícia', 'erro')
   }
 }
 
@@ -165,72 +186,100 @@ onMounted(fetchNoticias)
 </script>
 
 <style scoped>
-.noticias-container {
-  max-width: 95%;
-  margin: auto;
-  border-radius: 8px;
-}
+.noticias-container { max-width: 95%; margin: auto; border-radius: 8px; }
+.titulo-pagina { font-size: 1.3rem; color: #6B46C1; }
 
-.titulo-pagina {
-  font-size: 1.3rem;
-}
-
-.noticias-grid {
+/* Grid de cards pequenos */
+.noticias-grid-admin {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   justify-content: center;
 }
 
-.card {
-  flex: 1 1 240px;
-  max-width: 300px;
-  border-radius: 10px;
-  border: 1px solid #e0e0e0;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+/* Card pequeno */
+.card-admin {
+  flex: 0 0 180px;
+  aspect-ratio: 1/1;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
 }
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-.card-body {
-  padding: 10px;
-  text-align: center;
-}
-.card-titulo {
-  font-size: 1rem;
-  margin-bottom: 6px;
-}
-.resumo {
-  font-size: 0.85rem;
-  color: #555;
-}
-.card-footer {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  padding: 6px 0;
+.card-admin:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(107,70,193,0.2);
 }
 
-img.img-fluid {
-  max-height: 130px;
+/* Imagem */
+.card-image img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+.card-image img:hover { transform: scale(1.03); }
+
+.placeholder-image {
+  width: 100%;
+  height: 100%;
+  background: #e0e0e0;
+  border-radius: 12px;
+}
+
+/* Overlay do card */
+.card-overlay-admin {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.55);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  color: #fff;
+}
+
+.card-resumo-admin {
+  font-size: 0.65rem;
+  line-height: 1.2;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-footer-admin {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+/* Botões editar/deletar */
+.btn-edit, .btn-delete {
+  font-size: 0.75rem;
+  padding: 3px 6px;
   border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
+.btn-edit { background: #6B46C1; color: #fff; }
+.btn-edit:hover { background: #553C9A; }
+.btn-delete { background: #e53e3e; color: #fff; }
+.btn-delete:hover { background: #c53030; }
 
-.borda-destacada {
-  border: 1px solid #66bb6a;
-  border-radius: 5px;
-}
-
-.sombra-suave {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
+/* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0,0,0,0.45);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -243,4 +292,9 @@ img.img-fluid {
   border-radius: 8px;
   overflow-y: auto;
 }
+
+/* Feedbacks */
+.alert { padding: 8px 12px; border-radius: 6px; margin-bottom: 10px; font-size: 0.85rem; text-align: center; }
+.alert-success { background-color: #6B46C1; color: #fff; }
+.alert-danger { background-color: #e53e3e; color: #fff; }
 </style>

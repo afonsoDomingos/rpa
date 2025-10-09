@@ -257,6 +257,9 @@ const solicitarDocumento = async () => {
    <!-- <Guardardocumentos />-->
     <!-- Componente para Contador de Apresentação -->
     <PresentationCounter />
+      <div>
+    <NoticiasList />
+  </div>
        <div class="py-5">
        <!-- Componente para exibir o rodapé padrão -->
    <MapaDocumentos />
@@ -398,9 +401,7 @@ const solicitarDocumento = async () => {
   
 
 
-  <div>
-    <NoticiasList />
-  </div>
+
   <!-- Componente para exibir informações sobre a nossa equipe -->
   
   <Nossateam />
