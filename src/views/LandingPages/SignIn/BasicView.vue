@@ -209,154 +209,79 @@ onMounted(async () => {
   <div class="auth-container" :key="modo">
     <transition name="fade">
       <div class="switcher" key="modo">
-        <button
-          :class="{ active: modo === 'login' }"
-          @click="modo = 'login'"
-          aria-label="Alternar para formulário de login"
-        >
+        <button :class="{ active: modo === 'login' }" @click="modo = 'login'">
           <i class="fas fa-sign-in-alt"></i> Entrar
         </button>
-        <button
-          :class="{ active: modo === 'register' }"
-          @click="modo = 'register'"
-          aria-label="Alternar para formulário de registro"
-        >
+        <button :class="{ active: modo === 'register' }" @click="modo = 'register'">
           <i class="fas fa-user-plus"></i> Cadastrar
         </button>
       </div>
     </transition>
 
-    <div v-if="errorMessage" class="error-message" role="alert">
+    <div v-if="errorMessage" class="error-message">
       {{ errorMessage }}
     </div>
 
     <transition name="slide-fade" mode="out-in">
-      <form
-        v-if="modo === 'login'"
-        class="form"
-        @submit.prevent="login"
-        key="login"
-        aria-label="Formulário de login"
-      >
+      <form v-if="modo === 'login'" class="form" @submit.prevent="login">
         <label class="input-group">
-          <i class="far fa-envelope" aria-hidden="true"></i>
-          <input
-            v-model="email"
-            type="email"
-            placeholder="E-mail"
-            required
-            aria-label="Endereço de e-mail"
-          />
+          <i class="far fa-envelope"></i>
+          <input v-model="email" type="email" placeholder="E-mail" required />
         </label>
 
         <label class="input-group">
-          <i class="fas fa-lock" aria-hidden="true"></i>
-          <input
-            :type="showPass ? 'text' : 'password'"
-            v-model="password"
-            placeholder="Senha"
-            required
-            aria-label="Senha"
-          />
-          <i
-            :class="showPass ? 'fas fa-eye-slash' : 'fas fa-eye'"
-            class="eye"
-            @click="showPass = !showPass"
-            role="button"
-            aria-label="Alternar visibilidade da senha"
-          ></i>
+          <i class="fas fa-lock"></i>
+          <input :type="showPass ? 'text' : 'password'" v-model="password" placeholder="Senha" required />
+          <i :class="showPass ? 'fas fa-eye-slash' : 'fas fa-eye'" class="eye" @click="showPass = !showPass"></i>
         </label>
 
-        <button
-          type="submit"
-          class="btn pulse"
-          :disabled="isLoading || !isLoginValid"
-          aria-label="Enviar formulário de login"
-        >
+        <button type="submit" class="btn pulse" :disabled="isLoading || !isLoginValid">
           <span v-if="isLoading">Entrando...</span>
           <span v-else>Entrar</span>
         </button>
-        <a href="#" class="forgot" aria-label="Link para recuperação de senha">Esqueceu a senha?</a>
+
+        <a href="#" class="forgot">Esqueceu a senha?</a>
+
+        <!-- Botão Google dentro do formulário de login -->
+        <div class="google-login-btn">
+          <div id="googleButton"></div>
+        </div>
       </form>
 
-      <form
-        v-else
-        class="form"
-        @submit.prevent="register"
-        key="register"
-        aria-label="Formulário de registro"
-      >
+      <form v-else class="form" @submit.prevent="register">
         <label class="input-group">
-          <i class="far fa-user" aria-hidden="true"></i>
-          <input
-            v-model="nome"
-            type="text"
-            placeholder="Nome completo"
-            required
-            aria-label="Nome completo"
-          />
+          <i class="far fa-user"></i>
+          <input v-model="nome" type="text" placeholder="Nome completo" required />
         </label>
 
         <label class="input-group">
-          <i class="far fa-envelope" aria-hidden="true"></i>
-          <input
-            v-model="newEmail"
-            type="email"
-            placeholder="E-mail"
-            required
-            aria-label="Endereço de e-mail"
-          />
+          <i class="far fa-envelope"></i>
+          <input v-model="newEmail" type="email" placeholder="E-mail" required />
         </label>
 
         <label class="input-group">
-          <i class="fas fa-lock" aria-hidden="true"></i>
-          <input
-            :type="showNewPass ? 'text' : 'password'"
-            v-model="newPassword"
-            placeholder="Senha"
-            required
-            aria-label="Senha"
-          />
-          <i
-            :class="showNewPass ? 'fas fa-eye-slash' : 'fas fa-eye'"
-            class="eye"
-            @click="showNewPass = !showNewPass"
-            role="button"
-            aria-label="Alternar visibilidade da senha"
-          ></i>
+          <i class="fas fa-lock"></i>
+          <input :type="showNewPass ? 'text' : 'password'" v-model="newPassword" placeholder="Senha" required />
+          <i :class="showNewPass ? 'fas fa-eye-slash' : 'fas fa-eye'" class="eye" @click="showNewPass = !showNewPass"></i>
         </label>
 
         <label class="input-group">
-          <i class="fas fa-lock" aria-hidden="true"></i>
-          <input
-            :type="showConfirmPass ? 'text' : 'password'"
-            v-model="confirmPassword"
-            placeholder="Confirmar senha"
-            required
-            aria-label="Confirmar senha"
-          />
-          <i
-            :class="showConfirmPass ? 'fas fa-eye-slash' : 'fas fa-eye'"
-            class="eye"
-            @click="showConfirmPass = !showConfirmPass"
-            role="button"
-            aria-label="Alternar visibilidade da confirmação de senha"
-          ></i>
+          <i class="fas fa-lock"></i>
+          <input :type="showConfirmPass ? 'text' : 'password'" v-model="confirmPassword" placeholder="Confirmar senha" required />
+          <i :class="showConfirmPass ? 'fas fa-eye-slash' : 'fas fa-eye'" class="eye" @click="showConfirmPass = !showConfirmPass"></i>
         </label>
 
-        <button
-          type="submit"
-          class="btn pulse"
-          :disabled="isLoading || !isRegisterValid"
-          aria-label="Enviar formulário de registro"
-        >
+        <button type="submit" class="btn pulse" :disabled="isLoading || !isRegisterValid">
           <span v-if="isLoading">Cadastrando...</span>
           <span v-else>Cadastrar</span>
         </button>
+
+        <!-- Botão Google dentro do formulário de registro -->
+        <div class="google-login-btn">
+          <div id="googleButton"></div>
+        </div>
       </form>
     </transition>
-
-    <div id="googleButton" class="google-login-btn"></div>
 
     <p class="info">© 2025 RPA Moçambique</p>
   </div>
@@ -365,9 +290,16 @@ onMounted(async () => {
 </template>
 
 
+
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
 @import url("https://use.fontawesome.com/releases/v5.8.2/css/all.css");
+
+
+
+
+
+
 
 * {
   font-family: "Poppins", sans-serif;
