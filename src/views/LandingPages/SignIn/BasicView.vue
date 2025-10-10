@@ -1,4 +1,4 @@
-<script setup lang="ts"> 
+<script setup lang="ts">
 import { ref, onMounted, computed, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
@@ -225,7 +225,9 @@ onMounted(async () => {
           <i :class="showPass ? 'fas fa-eye-slash' : 'fas fa-eye'" class="eye" @click="showPass = !showPass"></i>
         </label>
         <button type="submit" class="btn pulse" :disabled="isLoading || !isLoginValid">
-          <span v-if="isLoading">Entrando...</span>
+          <span v-if="isLoading">
+            <span class="spinner"></span> Processando...
+          </span>
           <span v-else>Entrar</span>
         </button>
         <a href="#" class="forgot">Esqueceu a senha?</a>
@@ -251,7 +253,9 @@ onMounted(async () => {
           <i :class="showConfirmPass ? 'fas fa-eye-slash' : 'fas fa-eye'" class="eye" @click="showConfirmPass = !showConfirmPass"></i>
         </label>
         <button type="submit" class="btn pulse" :disabled="isLoading || !isRegisterValid">
-          <span v-if="isLoading">Cadastrando...</span>
+          <span v-if="isLoading">
+            <span class="spinner"></span> Processando...
+          </span>
           <span v-else>Cadastrar</span>
         </button>
       </form>
@@ -284,6 +288,7 @@ onMounted(async () => {
   align-items: center;
   min-height: 100vh;
   padding: 2rem;
+  margin-top: 50px;
   background: linear-gradient(135deg, #ffffff, #f8f3fc);
   animation: fadeIn 0.8s ease;
 }
@@ -379,6 +384,23 @@ onMounted(async () => {
   cursor: not-allowed;
 }
 
+.spinner {
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid #fff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .forgot {
   text-align: center;
   margin-top: 0.6rem;
@@ -427,20 +449,6 @@ onMounted(async () => {
   text-align: center;
 }
 
-
-.auth-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 2rem;
-  margin-top: 50px; /* aumento da margem superior */
-  background: linear-gradient(135deg, #ffffff, #f8f3fc);
-  animation: fadeIn 0.8s ease;
-}
-
-
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition: all 0.5s ease;
@@ -455,8 +463,4 @@ onMounted(async () => {
   opacity: 0;
   transform: translateX(-30px);
 }
-
-
-
-
 </style>
