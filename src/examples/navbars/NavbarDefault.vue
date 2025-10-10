@@ -200,6 +200,14 @@ watch(() => type.value, (newValue) => {
                 <i class="bi bi-folder2-open text-info"></i> Meus Documentos
               </button>
 
+              <button
+  class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+  @click="$router.push({ name: 'ComunidadeRpa' })"
+>
+  <i class="bi bi-people-fill text-info"></i> Comunidade RPA
+</button>
+
+
               <div class="dropdown-divider"></div>
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2 text-danger" @click="logout">
                 <i class="bi bi-box-arrow-right"></i> Sair
@@ -212,6 +220,9 @@ watch(() => type.value, (newValue) => {
               <i class="material-icons opacity-6 me-2 text-md">person</i> Entrar
             </router-link>
           </li>
+
+         
+
 
           <!-- Dropdown Ferramentas -->
           <li class="nav-item dropdown dropdown-hover mx-2">

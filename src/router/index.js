@@ -34,6 +34,8 @@ import MeusDocumentos from "../components/MeusDocumentos.vue";
 import Viaturas from "../components/viaturas.vue";
 import NoticiasAdmin from "../components/NoticiasAdmin.vue";
 
+import ComunidadeRpa from "../components/ComunidadeRpa.vue";  // NOVO COMPONENTE
+
 
 // NOVO COMPONENTE
 import CVGenerator from "../components/CVGenerator.vue";
@@ -242,8 +244,13 @@ const router = createRouter({
   path: '/noticias',
   name: 'NoticiasAdmin',
   component: NoticiasAdmin,
-}
+},
 
+ {
+    path: "/comunidade",
+    name: "ComunidadeRpa",
+    component: ComunidadeRpa
+  }
 
   ],
 });

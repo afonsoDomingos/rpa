@@ -8,6 +8,7 @@ import Nossateam from "../../examples/footers/Nossateam.vue";
 import Header from "../../examples/Header.vue";
 import FilledInfoCard from "../../examples/cards/infoCards/FilledInfoCard.vue";
 
+
 //Vue Material Kit 2 components
 //import Guardardocumentos from '@/components/Guardardocumentos.vue'
 import Verdocumentos from '@/components/Verdocumentos.vue';
@@ -316,6 +317,7 @@ const solicitarDocumento = async () => {
   <div>
     <NoticiasList />
   </div>
+
 
   
 
