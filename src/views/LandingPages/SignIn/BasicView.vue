@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+<script setup lang="ts"> 
+import { ref, onMounted, computed, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import NavbarDefault from "../../../examples/navbars/NavbarDefault.vue";
@@ -55,6 +55,7 @@ const isRegisterValid = computed(() =>
   newPassword.value === confirmPassword.value &&
   newPassword.value.length >= 8
 );
+
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email.trim().toLowerCase());
@@ -79,8 +80,6 @@ const login = async () => {
     });
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("email", res.data.email);
-    
-    // Redireciona baseado no redirectUrl do backend (admin vai para dashboard, cliente para home)
     const redirectUrl = res.data.redirectUrl || "/home";
     await router.push(redirectUrl);
   } catch (err: any) {
@@ -132,12 +131,9 @@ const handleCredentialResponse = async (response: { credential: string }) => {
     const res = await api.googleAuth(response.credential);
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("email", res.data.usuario.email);
-
-    // Se o backend retornar redirectUrl, use ele. Caso contrário, use role para decidir
     const redirectUrl =
       res.data.redirectUrl ||
       (res.data.usuario.role === "admin" ? "/dashboard/admin" : "/home");
-
     await router.push(redirectUrl);
   } catch (err: any) {
     errorMessage.value = err.response?.data?.msg || "Falha no login com Google";
@@ -168,16 +164,14 @@ const loadGoogleScript = () => {
 onMounted(async () => {
   try {
     await loadGoogleScript();
-    const waitForGoogle = setInterval(() => {
+    const waitForGoogle = setInterval(async () => {
       if (window.google?.accounts?.id) {
         clearInterval(waitForGoogle);
-        console.log("Google API carregada ✅");
-
         window.google.accounts.id.initialize({
           client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
           callback: handleCredentialResponse,
         });
-
+        await nextTick();
         window.google.accounts.id.renderButton(
           document.getElementById("googleButton"),
           {
@@ -187,8 +181,7 @@ onMounted(async () => {
             type: "standard",
           }
         );
-
-        window.google.accounts.id.prompt(); // força exibição
+        window.google.accounts.id.prompt();
       }
     }, 100);
   } catch (err) {
@@ -206,9 +199,9 @@ onMounted(async () => {
     </div>
   </div>
 
-  <div class="auth-container" :key="modo">
+  <div class="auth-container">
     <transition name="fade">
-      <div class="switcher" key="modo">
+      <div class="switcher">
         <button :class="{ active: modo === 'login' }" @click="modo = 'login'">
           <i class="fas fa-sign-in-alt"></i> Entrar
         </button>
@@ -218,70 +211,56 @@ onMounted(async () => {
       </div>
     </transition>
 
-    <div v-if="errorMessage" class="error-message">
-      {{ errorMessage }}
-    </div>
+    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
     <transition name="slide-fade" mode="out-in">
-      <form v-if="modo === 'login'" class="form" @submit.prevent="login">
+      <form v-if="modo === 'login'" @submit.prevent="login" class="form">
         <label class="input-group">
           <i class="far fa-envelope"></i>
           <input v-model="email" type="email" placeholder="E-mail" required />
         </label>
-
         <label class="input-group">
           <i class="fas fa-lock"></i>
           <input :type="showPass ? 'text' : 'password'" v-model="password" placeholder="Senha" required />
           <i :class="showPass ? 'fas fa-eye-slash' : 'fas fa-eye'" class="eye" @click="showPass = !showPass"></i>
         </label>
-
         <button type="submit" class="btn pulse" :disabled="isLoading || !isLoginValid">
           <span v-if="isLoading">Entrando...</span>
           <span v-else>Entrar</span>
         </button>
-
         <a href="#" class="forgot">Esqueceu a senha?</a>
-
-        <!-- Botão Google dentro do formulário de login -->
-        <div class="google-login-btn">
-          <div id="googleButton"></div>
-        </div>
       </form>
 
-      <form v-else class="form" @submit.prevent="register">
+      <form v-else @submit.prevent="register" class="form">
         <label class="input-group">
           <i class="far fa-user"></i>
           <input v-model="nome" type="text" placeholder="Nome completo" required />
         </label>
-
         <label class="input-group">
           <i class="far fa-envelope"></i>
           <input v-model="newEmail" type="email" placeholder="E-mail" required />
         </label>
-
         <label class="input-group">
           <i class="fas fa-lock"></i>
           <input :type="showNewPass ? 'text' : 'password'" v-model="newPassword" placeholder="Senha" required />
           <i :class="showNewPass ? 'fas fa-eye-slash' : 'fas fa-eye'" class="eye" @click="showNewPass = !showNewPass"></i>
         </label>
-
         <label class="input-group">
           <i class="fas fa-lock"></i>
           <input :type="showConfirmPass ? 'text' : 'password'" v-model="confirmPassword" placeholder="Confirmar senha" required />
           <i :class="showConfirmPass ? 'fas fa-eye-slash' : 'fas fa-eye'" class="eye" @click="showConfirmPass = !showConfirmPass"></i>
         </label>
-
         <button type="submit" class="btn pulse" :disabled="isLoading || !isRegisterValid">
           <span v-if="isLoading">Cadastrando...</span>
           <span v-else>Cadastrar</span>
         </button>
-
-        <!-- Botão Google dentro do formulário de registro -->
-        <div class="google-login-btn">
-          <div id="googleButton"></div>
-        </div>
       </form>
     </transition>
+
+    <!-- Botão Google fixo -->
+    <div class="google-login-btn">
+      <div id="googleButton"></div>
+    </div>
 
     <p class="info">© 2025 RPA Moçambique</p>
   </div>
@@ -289,17 +268,9 @@ onMounted(async () => {
   <FooterDefault />
 </template>
 
-
-
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
 @import url("https://use.fontawesome.com/releases/v5.8.2/css/all.css");
-
-
-
-
-
-
 
 * {
   font-family: "Poppins", sans-serif;
@@ -344,9 +315,8 @@ onMounted(async () => {
   box-shadow: 0 4px 8px rgba(128, 0, 128, 0.3);
 }
 
-.switcher button:focus {
-  outline: 2px solid #800080;
-  outline-offset: 2px;
+.switcher button i {
+  margin-right: 5px;
 }
 
 .form {
@@ -364,11 +334,6 @@ onMounted(async () => {
   background: #f1f1f1;
   border-radius: 8px;
   padding: 0.6rem 0.8rem;
-  transition: box-shadow 0.3s;
-}
-
-.input-group:focus-within {
-  box-shadow: 0 0 0 2px rgba(128, 0, 128, 0.3);
 }
 
 .input-group i {
@@ -389,8 +354,8 @@ onMounted(async () => {
 .eye {
   position: absolute;
   right: 12px;
-  color: #800080;
   cursor: pointer;
+  color: #800080;
 }
 
 .btn {
@@ -402,13 +367,6 @@ onMounted(async () => {
   font-weight: bold;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn:disabled {
-  background: #cccccc;
-  cursor: not-allowed;
 }
 
 .btn:hover:not(:disabled) {
@@ -416,17 +374,9 @@ onMounted(async () => {
   box-shadow: 0 4px 10px rgba(128, 0, 128, 0.4);
 }
 
-.btn:active::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 0;
-  height: 0;
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  animation: pulse 0.6s ease-out;
+.btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
 }
 
 .forgot {
@@ -437,14 +387,12 @@ onMounted(async () => {
   text-decoration: none;
 }
 
-.forgot:hover {
-  color: #5c005c;
-}
-
 .google-login-btn {
   margin-top: 1rem;
   display: flex;
   justify-content: center;
+  width: 100%;
+  max-width: 320px;
 }
 
 .google-login-btn > div {
@@ -452,6 +400,13 @@ onMounted(async () => {
   border-radius: 8px !important;
   padding: 10px;
   width: 100% !important;
+  box-sizing: border-box;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.google-login-btn > div:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.4);
 }
 
 .error-message {
@@ -472,41 +427,17 @@ onMounted(async () => {
   text-align: center;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
+
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+  margin-top: 50px; /* aumento da margem superior */
+  background: linear-gradient(135deg, #ffffff, #f8f3fc);
+  animation: fadeIn 0.8s ease;
 }
 
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.slide-fade-enter-active {
-  transition: all 0.5s ease;
-}
-
-.slide-fade-enter-from {
-  transform: translateY(10px);
-  opacity: 0;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulse {
-  to {
-    width: 200px;
-    height: 200px;
-    opacity: 0;
-  }
-}
 </style>
