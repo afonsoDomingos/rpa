@@ -1,5 +1,5 @@
 <template>
-  <div class="noticias-container" :class="{ 'dark-mode': isDarkMode }">
+  <div class="noticias-container">
     <!-- Campo de busca -->
     <div class="busca-container">
       <input
@@ -105,9 +105,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Alternar tema -->
-    <button class="theme-toggle" @click="toggleTheme"></button>
   </div>
 </template>
 
@@ -123,7 +120,6 @@ const termoBusca = ref("");
 const imagemAmpliada = ref(null);
 const conteudoModal = ref(null);
 const noticiasGrid = ref(null);
-const isDarkMode = ref(false);
 
 const noticiasPorPagina = 4;
 const paginaAtual = ref(1);
@@ -173,8 +169,6 @@ const retomarAutoScroll = () => {
   if (!autoScrollInterval) iniciarAutoScroll();
 };
 
-const toggleTheme = () => isDarkMode.value = !isDarkMode.value;
-
 const abrirImagem = async noticia => {
   imagemAmpliada.value = noticia.imagem;
   await incrementarVisualizacoes(noticia);
@@ -210,16 +204,10 @@ const fetchNoticias = async () => {
 onMounted(() => {
   fetchNoticias();
   iniciarAutoScroll();
-  isDarkMode.value = window.matchMedia("(prefers-color-scheme: dark)").matches;
 });
 
 onUnmounted(pausarAutoScroll);
 </script>
-
-<style scoped>
-/* Aqui fica todo o CSS do NoticiasList, igual ao que já tens */
-</style>
-
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
@@ -228,18 +216,15 @@ onUnmounted(pausarAutoScroll);
 * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
 
 .noticias-container { max-width: 1100px; margin: 0 auto; padding: 20px; background: transparent; transition: background 0.3s ease; }
-.noticias-container.dark-mode { color: #e0e0e0; }
 
 .busca-container { max-width: 600px; margin: 0 auto 20px; }
 .search-input { width: 100%; padding: 10px 15px; font-size: 0.9rem; border: none; border-radius: 25px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease; }
-.dark-mode .search-input { background: #2c2c2c; color: #e0e0e0; }
 .search-input:focus { outline: none; box-shadow: 0 4px 12px rgba(107,70,193,0.2); transform: scale(1.02); }
 
 .noticias-grid { display: flex; overflow-x: auto; gap: 20px; padding-bottom: 10px; scroll-snap-type: x mandatory; scroll-behavior: smooth; position: relative; }
 .noticias-grid::-webkit-scrollbar { height: 6px; }
 .noticias-grid::-webkit-scrollbar-thumb { background: #6B46C1; border-radius: 3px; }
 .noticias-grid::-webkit-scrollbar-track { background: #e0e0e0; }
-.dark-mode .noticias-grid::-webkit-scrollbar-track { background: #333; }
 
 .card { flex: 0 0 250px; aspect-ratio: 1/1; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.3s ease; scroll-snap-align: center; position: relative; overflow: hidden; }
 .card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(107,70,193,0.2); }
@@ -248,50 +233,21 @@ onUnmounted(pausarAutoScroll);
 .card-image img:hover { transform: scale(1.03); }
 
 .placeholder-image { width: 100%; height: 100%; background: #e0e0e0; border-radius: 12px; }
-.dark-mode .placeholder-image { background: #333; }
 
 .card-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.5); padding: 8px; display: flex; flex-direction: column; justify-content: flex-end; color: #fff; }
 .card-content { flex: 1; }
 
-/* Resumo visível com até 6 linhas e fonte menor */
-.card-resumo {
-  font-size: 0.65rem; 
-  line-height: 1.2;
-  color: #fff;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 6; 
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+.card-resumo { font-size: 0.65rem; line-height: 1.2; color: #fff; margin: 0; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
 
 .card-footer { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
 
-/* Botão Ler Mais Modernizado */
-.btn-ler-mais {
-  background: #6B46C1;
-  color: #fff;
-  border: none;
-  padding: 5px 12px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-.btn-ler-mais:hover {
-  background: #553C9A;
-  transform: scale(1.05);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
+.btn-ler-mais { background: #6B46C1; color: #fff; border: none; padding: 5px 12px; font-size: 0.75rem; font-weight: 500; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+.btn-ler-mais:hover { background: #553C9A; transform: scale(1.05); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
 .visualizacoes { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; color: #e0e0e0; }
 .icon { font-size: 0.85rem; }
 
 .btn-nav { position: absolute; top: -40px; background: #fff; border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease; }
-.dark-mode .btn-nav { background: #2c2c2c; }
 .btn-nav:hover { background: #6B46C1; color: #fff; }
 .btn-proximo { right: 10px; }
 .btn-primeira { left: 10px; }
@@ -301,38 +257,20 @@ onUnmounted(pausarAutoScroll);
 .btn-ver-mais:hover { background: #553C9A; transform: scale(1.05); }
 
 .no-news { text-align: center; font-size: 0.9rem; color: #666; margin-top: 20px; }
-.dark-mode .no-news { color: #aaa; }
 
-/* Modal transparente */
-.modal {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.0);
-  display: flex; justify-content: center; align-items: center;
-  z-index: 1000;
-}
-
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.0); display: flex; justify-content: center; align-items: center; z-index: 1000; }
 .modal-content.imagem-modal { max-width: 90%; max-height: 80vh; border-radius: 12px; overflow: hidden; }
 .modal-content.imagem-modal img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; }
-
 .modal-content.conteudo-modal { max-width: 500px; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(107,70,193,0.2); overflow-y: auto; }
-.dark-mode .modal-content.conteudo-modal { background: #2c2c2c; }
 
 .fechar-modal { position: absolute; top: -15px; right: -15px; font-size: 1.5rem; color: #fff; cursor: pointer; transition: color 0.3s ease; }
 .fechar-modal:hover { color: #6B46C1; }
 
 .modal-title { font-size: 1.2rem; font-weight: 500; color: #6B46C1; margin-bottom: 10px; }
-.dark-mode .modal-title { color: #B794F4; }
 
 .modal-conteudo { font-size: 0.9rem; line-height: 1.5; color: #444; }
-.dark-mode .modal-conteudo { color: #ccc; }
 
 .redes-sociais { display: flex; justify-content: center; gap: 15px; margin-top: 15px; }
 .redes-sociais a { font-size: 1.2rem; color: #666; transition: all 0.3s ease; }
-.dark-mode .redes-sociais a { color: #aaa; }
 .redes-sociais a:hover { color: #6B46C1; transform: scale(1.1); }
-
-.theme-toggle { position: fixed; top: 20px; right: 20px; background: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.3s ease; }
-.dark-mode .theme-toggle { background: #2c2c2c; }
-.theme-toggle:hover { background: #6B46C1; }
-
 </style>
