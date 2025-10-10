@@ -27,7 +27,7 @@
         <div class="card-image">
           <img
             v-if="noticia.imagem"
-            :src="API_BASE + noticia.imagem"
+            :src="noticia.imagem.startsWith('http') ? noticia.imagem : API_BASE + noticia.imagem"
             alt="Imagem da Notícia"
             class="img-fluid"
             @click="abrirImagem(noticia)"
@@ -36,7 +36,6 @@
         </div>
         <div class="card-overlay">
           <div class="card-content">
-            <!-- Resumo curto na parte inferior (até 6 linhas) -->
             <p class="card-resumo">{{ noticia.resumo }}</p>
           </div>
           <div class="card-footer">
@@ -55,12 +54,11 @@
         </div>
       </div>
 
-      <!-- Botões de navegação -->
+      <!-- Navegação -->
       <button
         v-if="noticiasFiltradas.length > 0"
         class="btn-nav btn-proximo"
         @click="proximaNoticia"
-        aria-label="Avançar para a próxima notícia"
       >
         <span class="arrow-icon">→</span>
       </button>
@@ -68,24 +66,19 @@
         v-if="noticiasFiltradas.length > 0"
         class="btn-nav btn-primeira"
         @click="irParaPrimeiraNoticia"
-        aria-label="Voltar para a primeira notícia"
       >
         <span class="arrow-icon">⮜</span>
       </button>
     </div>
 
-    <!-- Botão "Ver mais notícias" -->
+    <!-- Ver mais -->
     <div v-if="noticiasFiltradas.length > noticiasVisiveis.length" class="ver-mais-container">
-      <button
-        class="btn-ver-mais"
-        @click="mostrarMaisNoticias"
-        aria-label="Ver mais notícias"
-      >
+      <button class="btn-ver-mais" @click="mostrarMaisNoticias">
         Ver mais notícias
       </button>
     </div>
 
-    <!-- Mensagem se não houver notícias -->
+    <!-- Sem notícias -->
     <div v-if="noticiasFiltradas.length === 0" class="no-news">
       Nenhuma notícia encontrada.
     </div>
@@ -94,7 +87,7 @@
     <div v-if="imagemAmpliada" class="modal" @click="fecharImagem">
       <div class="modal-content imagem-modal">
         <span class="fechar-modal" @click="fecharImagem">×</span>
-        <img :src="API_BASE + imagemAmpliada" alt="Imagem Ampliada" class="img-fluid" />
+        <img :src="imagemAmpliada" alt="Imagem Ampliada" class="img-fluid" />
       </div>
     </div>
 
@@ -104,153 +97,129 @@
         <span class="fechar-modal" @click="fecharModalConteudo">×</span>
         <h5 class="modal-title">{{ conteudoModal.titulo }}</h5>
         <p class="modal-conteudo">{{ conteudoModal.conteudo }}</p>
-
-        <!-- Ícones de redes sociais -->
         <div class="redes-sociais">
-          <a href="https://web.facebook.com/recuperaaqui/" target="_blank" aria-label="Facebook">
-            <i class="fab fa-facebook-f"></i>
-          </a>
-          <a href="https://www.instagram.com/rpamocambique/" target="_blank" aria-label="Instagram">
-            <i class="fab fa-instagram"></i>
-          </a>
-          <a href="https://www.linkedin.com/company/rpa-mo%C3%A7ambique" target="_blank" aria-label="LinkedIn">
-            <i class="fab fa-linkedin-in"></i>
-          </a>
-          <a href="https://www.youtube.com/@recuperaqui" target="_blank" aria-label="YouTube">
-            <i class="fab fa-youtube"></i>
-          </a>
+          <a href="https://web.facebook.com/recuperaaqui/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/rpamocambique/" target="_blank"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.linkedin.com/company/rpa-mo%C3%A7ambique" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.youtube.com/@recuperaqui" target="_blank"><i class="fab fa-youtube"></i></a>
         </div>
       </div>
     </div>
 
-    <!-- Botão de alternância de tema -->
-    <button class="theme-toggle" @click="toggleTheme" aria-label="Alternar tema">
-      <!-- Sem ícones -->
-    </button>
+    <!-- Alternar tema -->
+    <button class="theme-toggle" @click="toggleTheme"></button>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue"
-import axios from "axios"
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import axios from "axios";
 
-const API_BASE = "https://apirpa.onrender.com"
-const API_URL = `${API_BASE}/api/noticias`
+const API_BASE = "https://apirpa.onrender.com";
+const API_URL = `${API_BASE}/api/noticias`;
 
-const noticias = ref([])
-const termoBusca = ref("")
-const imagemAmpliada = ref(null)
-const conteudoModal = ref(null)
-const noticiasGrid = ref(null)
-const isDarkMode = ref(false)
-const noticiasPorPagina = 4
-const paginaAtual = ref(1)
-let autoScrollInterval = null
+const noticias = ref([]);
+const termoBusca = ref("");
+const imagemAmpliada = ref(null);
+const conteudoModal = ref(null);
+const noticiasGrid = ref(null);
+const isDarkMode = ref(false);
+
+const noticiasPorPagina = 4;
+const paginaAtual = ref(1);
+let autoScrollInterval = null;
 
 const noticiasFiltradas = computed(() => {
-  if (!termoBusca.value) return noticias.value
+  if (!termoBusca.value) return noticias.value;
   return noticias.value.filter(
     noticia =>
       noticia.titulo.toLowerCase().includes(termoBusca.value.toLowerCase()) ||
       noticia.resumo.toLowerCase().includes(termoBusca.value.toLowerCase()) ||
       noticia.conteudo.toLowerCase().includes(termoBusca.value.toLowerCase())
-  )
-})
+  );
+});
 
-const noticiasVisiveis = computed(() => {
-  return noticiasFiltradas.value.slice(0, paginaAtual.value * noticiasPorPagina)
-})
+const noticiasVisiveis = computed(() =>
+  noticiasFiltradas.value.slice(0, paginaAtual.value * noticiasPorPagina)
+);
 
-const mostrarMaisNoticias = () => {
-  paginaAtual.value += 1
-}
+const mostrarMaisNoticias = () => paginaAtual.value++;
 
 const proximaNoticia = () => {
-  if (!noticiasGrid.value) return
-  const cardWidth = 270
-  const maxScroll = noticiasGrid.value.scrollWidth - noticiasGrid.value.clientWidth
+  if (!noticiasGrid.value) return;
+  const cardWidth = 270;
+  const maxScroll = noticiasGrid.value.scrollWidth - noticiasGrid.value.clientWidth;
   if (noticiasGrid.value.scrollLeft >= maxScroll - 1) {
-    noticiasGrid.value.scrollTo({ left: 0, behavior: "smooth" })
+    noticiasGrid.value.scrollTo({ left: 0, behavior: "smooth" });
   } else {
-    noticiasGrid.value.scrollBy({ left: cardWidth, behavior: "smooth" })
+    noticiasGrid.value.scrollBy({ left: cardWidth, behavior: "smooth" });
   }
-}
+};
 
-const irParaPrimeiraNoticia = () => {
-  noticiasGrid.value?.scrollTo({ left: 0, behavior: "smooth" })
-}
+const irParaPrimeiraNoticia = () => noticiasGrid.value?.scrollTo({ left: 0, behavior: "smooth" });
 
 const iniciarAutoScroll = () => {
-  autoScrollInterval = setInterval(proximaNoticia, 3000)
-}
+  autoScrollInterval = setInterval(proximaNoticia, 3000);
+};
 
 const pausarAutoScroll = () => {
   if (autoScrollInterval) {
-    clearInterval(autoScrollInterval)
-    autoScrollInterval = null
+    clearInterval(autoScrollInterval);
+    autoScrollInterval = null;
   }
-}
+};
 
 const retomarAutoScroll = () => {
-  if (!autoScrollInterval) iniciarAutoScroll()
-}
+  if (!autoScrollInterval) iniciarAutoScroll();
+};
 
-const toggleTheme = () => {
-  isDarkMode.value = !isDarkMode.value
-}
-
-onMounted(() => {
-  fetchNoticias()
-  iniciarAutoScroll()
-  isDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches
-})
-
-onUnmounted(() => {
-  pausarAutoScroll()
-})
+const toggleTheme = () => isDarkMode.value = !isDarkMode.value;
 
 const abrirImagem = async noticia => {
-  imagemAmpliada.value = noticia.imagem
-  await incrementarVisualizacoes(noticia)
-}
+  imagemAmpliada.value = noticia.imagem;
+  await incrementarVisualizacoes(noticia);
+};
 
-const fecharImagem = () => {
-  imagemAmpliada.value = null
-}
+const fecharImagem = () => imagemAmpliada.value = null;
 
 const abrirModalConteudo = async noticia => {
-  conteudoModal.value = noticia
-  await incrementarVisualizacoes(noticia)
-}
+  conteudoModal.value = noticia;
+  await incrementarVisualizacoes(noticia);
+};
 
-const fecharModalConteudo = () => {
-  conteudoModal.value = null
-}
+const fecharModalConteudo = () => conteudoModal.value = null;
 
 const incrementarVisualizacoes = async noticia => {
   try {
-    const res = await axios.patch(`${API_URL}/${noticia._id}`)
-    noticia.visualizacoes = res.data.visualizacoes
+    const res = await axios.patch(`${API_URL}/${noticia._id}`);
+    noticia.visualizacoes = res.data.visualizacoes;
   } catch (err) {
-    console.error("[ERRO] Falha ao atualizar visualizações:", err.message)
+    console.error("[ERRO] Falha ao atualizar visualizações:", err.message);
   }
-}
+};
 
 const fetchNoticias = async () => {
   try {
-    const res = await axios.get(API_URL)
-    noticias.value = res.data
+    const res = await axios.get(API_URL);
+    noticias.value = res.data;
   } catch (err) {
-    console.error("[ERRO] Falha ao carregar notícias:", err.message)
+    console.error("[ERRO] Falha ao carregar notícias:", err.message);
   }
-}
+};
 
-const formatarData = data => {
-  if (!data) return ""
-  const d = new Date(data)
-  return d.toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit", year: "numeric" })
-}
+onMounted(() => {
+  fetchNoticias();
+  iniciarAutoScroll();
+  isDarkMode.value = window.matchMedia("(prefers-color-scheme: dark)").matches;
+});
+
+onUnmounted(pausarAutoScroll);
 </script>
+
+<style scoped>
+/* Aqui fica todo o CSS do NoticiasList, igual ao que já tens */
+</style>
+
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');

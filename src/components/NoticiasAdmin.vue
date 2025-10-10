@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- Navbar fixa -->
+    <!-- Navbar -->
     <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
       <div class="row gx-0">
         <div class="col-12">
@@ -20,22 +20,37 @@
         <button class="btn btn-purple btn-sm px-3 py-1 fw-bold sombra-suave" @click="abrirModal()">+ Nova</button>
       </div>
 
-      <!-- Feedbacks -->
+      <!-- Campo de busca -->
+      <div class="mb-3 d-flex justify-content-center">
+        <input
+          v-model="termoBusca"
+          type="text"
+          class="form-control form-control-sm w-75 borda-destacada"
+          placeholder="Pesquisar por título ou resumo..."
+        />
+      </div>
+
+      <!-- Feedback -->
       <div v-if="mensagem.text" :class="['alert', mensagem.tipo === 'erro' ? 'alert-danger' : 'alert-success']">
         {{ mensagem.text }}
       </div>
 
-      <!-- Lista de notícias -->
-      <div v-if="noticias.length > 0" class="noticias-grid-admin">
+      <!-- Loading -->
+      <div v-if="carregando" class="text-center py-3 text-muted small">
+        Carregando notícias...
+      </div>
+
+      <!-- Lista -->
+      <div v-else-if="noticiasFiltradas.length > 0" class="noticias-grid-admin">
         <div
-          v-for="noticia in noticias"
+          v-for="noticia in noticiasPaginadas"
           :key="noticia._id"
           class="card-admin sombra-suave borda-destacada"
         >
           <div class="card-image">
             <img
-              v-if="noticia.imagem"
-              :src="API_BASE + noticia.imagem"
+              v-if="noticia.imagem && noticia.imagem.startsWith('http')"
+              :src="noticia.imagem"
               alt="Imagem da Notícia"
               class="img-fluid"
             />
@@ -44,15 +59,23 @@
           <div class="card-overlay-admin">
             <p class="card-resumo-admin">{{ noticia.resumo }}</p>
             <div class="card-footer-admin">
-              <button class="btn-edit" @click="abrirModal(noticia)">✏️</button>
-              <button class="btn-delete" @click="removerNoticia(noticia._id)">🗑</button>
+              <button class="btn-edit" aria-label="Editar notícia" @click="abrirModal(noticia)">✏️</button>
+              <button class="btn-delete" aria-label="Excluir notícia" @click="removerNoticia(noticia._id)">🗑</button>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- Nenhum resultado -->
       <div v-else class="text-center text-muted small py-3">
-        Nenhuma notícia publicada ainda.
+        Nenhuma notícia encontrada.
+      </div>
+
+      <!-- Paginação -->
+      <div v-if="totalPaginas > 1" class="paginacao mt-3 text-center">
+        <button class="btn btn-light btn-sm mx-1" :disabled="paginaAtual === 1" @click="paginaAtual--">⬅ Anterior</button>
+        <span class="fw-bold small mx-2">Página {{ paginaAtual }} de {{ totalPaginas }}</span>
+        <button class="btn btn-light btn-sm mx-1" :disabled="paginaAtual === totalPaginas" @click="paginaAtual++">Próxima ➡</button>
       </div>
 
       <!-- Modal -->
@@ -81,6 +104,7 @@
             <div class="mb-2">
               <label class="form-label small">Imagem</label>
               <input type="file" class="form-control form-control-sm borda-destacada" @change="handleFileUpload" />
+              <img v-if="previewImagem" :src="previewImagem" class="img-preview mt-2" alt="Pré-visualização da imagem" />
             </div>
             <div class="text-end">
               <button type="submit" class="btn btn-purple btn-sm me-2 borda-destacada">💾 Salvar</button>
@@ -94,7 +118,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue"
 
@@ -102,66 +126,99 @@ const API_BASE = 'https://apirpa.onrender.com'
 const API_URL = `${API_BASE}/api/noticias`
 
 const noticias = ref([])
+const termoBusca = ref('')
+const carregando = ref(false)
 const modalAberto = ref(false)
 const noticiaSelecionada = ref(null)
-const noticiaForm = ref({ titulo: '', resumo: '', conteudo: '', data: '' })
+const formVazio = { titulo: '', resumo: '', conteudo: '', data: '' }
+const noticiaForm = ref({ ...formVazio })
 const imagemArquivo = ref(null)
+const previewImagem = ref(null)
 const mensagem = ref({ text: '', tipo: 'sucesso' })
 
-// Mostrar mensagem temporária
+// Paginação
+const paginaAtual = ref(1)
+const itensPorPagina = 6
+
+// Mensagens
 const mostrarMensagem = (texto, tipo = 'sucesso') => {
   mensagem.value = { text: texto, tipo }
   setTimeout(() => { mensagem.value.text = '' }, 4000)
 }
 
-// Fetch notícias
+// Busca e Paginação
+const noticiasFiltradas = computed(() => {
+  if (!termoBusca.value) return noticias.value
+  const termo = termoBusca.value.toLowerCase()
+  return noticias.value.filter(
+    n =>
+      n.titulo.toLowerCase().includes(termo) ||
+      n.resumo.toLowerCase().includes(termo)
+  )
+})
+
+const totalPaginas = computed(() => Math.ceil(noticiasFiltradas.value.length / itensPorPagina))
+const noticiasPaginadas = computed(() => {
+  const start = (paginaAtual.value - 1) * itensPorPagina
+  return noticiasFiltradas.value.slice(start, start + itensPorPagina)
+})
+
+// Buscar notícias
 const fetchNoticias = async () => {
   try {
+    carregando.value = true
     const res = await axios.get(API_URL)
     noticias.value = res.data
   } catch (err) {
     console.error('[ERRO] Falha ao carregar notícias:', err.message)
     mostrarMensagem('Falha ao carregar notícias', 'erro')
+  } finally {
+    carregando.value = false
   }
 }
 
-// Abrir modal
+// Modal
 const abrirModal = (noticia = null) => {
-  noticiaSelecionada.value = noticia ? noticia : null
-  noticiaForm.value = noticia ? { ...noticia } : { titulo: '', resumo: '', conteudo: '', data: '' }
+  noticiaSelecionada.value = noticia || null
+  noticiaForm.value = noticia ? { ...noticia } : { ...formVazio }
   imagemArquivo.value = null
+  previewImagem.value = noticia?.imagem && noticia.imagem.startsWith('http') ? noticia.imagem : null
   modalAberto.value = true
 }
-
-// Fechar modal
 const fecharModal = () => (modalAberto.value = false)
 
-// Upload de imagem
+// Upload
 const handleFileUpload = (event) => {
-  imagemArquivo.value = event.target.files[0]
+  const file = event.target.files[0]
+  if (!file) return
+  if (!file.type.startsWith('image/')) {
+    mostrarMensagem('Por favor, selecione um arquivo de imagem válido.', 'erro')
+    return
+  }
+  imagemArquivo.value = file
+  previewImagem.value = URL.createObjectURL(file)
 }
 
-// Salvar notícia
+// Salvar
 const salvarNoticia = async () => {
   try {
     const formData = new FormData()
     for (const campo in noticiaForm.value) formData.append(campo, noticiaForm.value[campo] || '')
     if (imagemArquivo.value) formData.append('imagem', imagemArquivo.value)
 
+    const res = noticiaSelecionada.value?._id
+      ? await axios.put(`${API_URL}/${noticiaSelecionada.value._id}`, formData)
+      : await axios.post(API_URL, formData)
+
     if (noticiaSelecionada.value?._id) {
-      const res = await axios.put(`${API_URL}/${noticiaSelecionada.value._id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
       const index = noticias.value.findIndex(n => n._id === noticiaSelecionada.value._id)
       noticias.value[index] = res.data
       mostrarMensagem('Notícia atualizada com sucesso')
     } else {
-      const res = await axios.post(API_URL, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
       noticias.value.push(res.data)
       mostrarMensagem('Notícia criada com sucesso')
     }
+
     fecharModal()
   } catch (err) {
     console.error('[ERRO] Falha ao salvar notícia:', err.message)
@@ -169,7 +226,7 @@ const salvarNoticia = async () => {
   }
 }
 
-// Remover notícia
+// Remover
 const removerNoticia = async (_id) => {
   if (!confirm('Tem certeza que deseja remover esta notícia?')) return
   try {
@@ -189,17 +246,16 @@ onMounted(fetchNoticias)
 .noticias-container { max-width: 95%; margin: auto; border-radius: 8px; }
 .titulo-pagina { font-size: 1.3rem; color: #6B46C1; }
 
-/* Grid de cards pequenos */
+/* Grid */
 .noticias-grid-admin {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   justify-content: center;
 }
-
-/* Card pequeno */
 .card-admin {
-  flex: 0 0 180px;
+  flex: 1 1 180px;
+  min-width: 180px;
   aspect-ratio: 1/1;
   border-radius: 12px;
   overflow: hidden;
@@ -211,8 +267,6 @@ onMounted(fetchNoticias)
   transform: translateY(-5px);
   box-shadow: 0 8px 20px rgba(107,70,193,0.2);
 }
-
-/* Imagem */
 .card-image img {
   width: 100%;
   height: 100%;
@@ -222,15 +276,12 @@ onMounted(fetchNoticias)
   transition: transform 0.3s ease;
 }
 .card-image img:hover { transform: scale(1.03); }
-
 .placeholder-image {
   width: 100%;
   height: 100%;
   background: #e0e0e0;
   border-radius: 12px;
 }
-
-/* Overlay do card */
 .card-overlay-admin {
   position: absolute;
   bottom: 0;
@@ -243,7 +294,6 @@ onMounted(fetchNoticias)
   justify-content: flex-end;
   color: #fff;
 }
-
 .card-resumo-admin {
   font-size: 0.65rem;
   line-height: 1.2;
@@ -252,16 +302,12 @@ onMounted(fetchNoticias)
   -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
-
 .card-footer-admin {
   display: flex;
   justify-content: space-between;
   margin-top: 4px;
 }
-
-/* Botões editar/deletar */
 .btn-edit, .btn-delete {
   font-size: 0.75rem;
   padding: 3px 6px;
@@ -274,8 +320,6 @@ onMounted(fetchNoticias)
 .btn-edit:hover { background: #553C9A; }
 .btn-delete { background: #e53e3e; color: #fff; }
 .btn-delete:hover { background: #c53030; }
-
-/* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -292,9 +336,23 @@ onMounted(fetchNoticias)
   border-radius: 8px;
   overflow-y: auto;
 }
-
-/* Feedbacks */
-.alert { padding: 8px 12px; border-radius: 6px; margin-bottom: 10px; font-size: 0.85rem; text-align: center; }
+.img-preview {
+  width: 100%;
+  border-radius: 6px;
+  max-height: 180px;
+  object-fit: cover;
+}
+.alert {
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  text-align: center;
+}
 .alert-success { background-color: #6B46C1; color: #fff; }
 .alert-danger { background-color: #e53e3e; color: #fff; }
+.paginacao button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 </style>
