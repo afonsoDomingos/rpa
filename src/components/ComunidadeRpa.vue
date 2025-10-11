@@ -1,4 +1,14 @@
-<template>
+CHAT TENHO ESSE COMPONENTE, QUE QUE AS CORES PREDOMINATES SEJAM ESSAS .borda-destacada {
+  border: 1px solid #66bb6a;
+  border-radius: 5px;
+  padding: 10px;
+  outline: none;
+}
+
+.borda-destacada:focus {
+  border-color: #800080;
+  box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
+} = <template> 
   <!-- Navbar fixo -->
   <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
     <div class="row gx-0">
@@ -280,49 +290,151 @@ onBeforeUnmount(() => {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
 
-.threads-feed { max-width: 680px; margin: 0 auto; padding: 24px 16px; font-family: 'Poppins', sans-serif; }
+.threads-feed { 
+  max-width: 680px; 
+  margin: 0 auto; 
+  padding: 24px 16px; 
+  font-family: 'Poppins', sans-serif; 
+}
 
 /* Header */
-.feed-header { text-align: center; margin-bottom: 32px; padding: 32px 24px; background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); border-radius: 24px; box-shadow: 0 20px 40px rgba(102,126,234,0.3); }
+.feed-header { 
+  text-align: center; 
+  margin-bottom: 32px; 
+  padding: 32px 24px; 
+  background: linear-gradient(135deg, #800080 0%, #2e7d32 100%); /* gradiente roxo e verde */
+  border-radius: 24px; 
+  box-shadow: 0 10px 20px rgba(128,0,128,0.15); /* shadow mais leve */
+}
 
 .feed-title {
   font-family: 'Poppins', sans-serif;
-  font-weight: 900; /* Black */
+  font-weight: 900; 
   font-size: 32px;
   color: white;
   margin: 0 0 8px 0;
   letter-spacing: -0.5px;
 }
 
-.feed-subtitle { font-size: 16px; color: rgba(255,255,255,0.9); margin: 0; }
+.feed-subtitle { 
+  font-size: 16px; 
+  color: rgba(255,255,255,0.9); 
+  margin: 0; 
+}
 
 /* Novo Post */
-.new-post-card { background: white; border-radius: 20px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(102,126,234,0.15); border: 2px solid rgba(102,126,234,0.1); transition: all 0.3s ease; }
-.new-post-card:hover { box-shadow:0 8px 30px rgba(102,126,234,0.25); border-color: rgba(102,126,234,0.3); }
-.new-post-header { display:flex; gap:16px; margin-bottom:16px; }
-.avatar { width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px; color:white; flex-shrink:0; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
-.avatar-small { width:36px; height:36px; font-size:13px; }
-.avatar-purple { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); }
-.avatar-blue { background: linear-gradient(135deg,#4facfe 0%,#00f2fe 100%); }
-.avatar-green { background: linear-gradient(135deg,#43e97b 0%,#38f9d7 100%); }
-.avatar-pink { background: linear-gradient(135deg,#fa709a 0%,#fee140 100%); }
-.avatar-orange { background: linear-gradient(135deg,#ff9a56 0%,#ff6a88 100%); }
+.new-post-card { 
+  background: white; 
+  border-radius: 20px; 
+  padding: 24px; 
+  margin-bottom: 24px; 
+  box-shadow: 0 4px 20px rgba(102,126,234,0.15); 
+  border: 2px solid rgba(102,126,234,0.1); 
+  transition: all 0.3s ease; 
+}
+.new-post-card:hover { 
+  box-shadow:0 8px 30px rgba(102,126,234,0.25); 
+  border-color: rgba(102,126,234,0.3); 
+}
 
-.post-textarea { flex:1; border:2px solid #e5e7eb; border-radius:16px; padding:14px 18px; font-size:15px; resize:none; font-family:inherit; transition:all 0.3s ease; background:#f9fafb; }
-.post-textarea:focus { outline:none; border-color:#667eea; background:white; box-shadow:0 0 0 4px rgba(102,126,234,0.1); }
+.new-post-header { display:flex; gap:16px; margin-bottom:16px; }
+
+/* Avatares */
+.avatar { 
+  width:48px; 
+  height:48px; 
+  border-radius:50%; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  font-weight:700; 
+  font-size:16px; 
+  color:white; 
+  flex-shrink:0; 
+  box-shadow:0 4px 12px rgba(0,0,0,0.15); 
+}
+
+.avatar-small { width:36px; height:36px; font-size:13px; }
+
+.avatar-purple { 
+  background: linear-gradient(135deg, #800080 0%, #2e7d32 100%); /* gradiente roxo e verde */
+}
+
+.avatar-blue, .avatar-green, .avatar-pink, .avatar-orange { background: #e5e7eb; } /* neutro */
+
+.post-textarea { 
+  flex:1; 
+  border:2px solid #e5e7eb; 
+  border-radius:16px; 
+  padding:14px 18px; 
+  font-size:15px; 
+  resize:none; 
+  font-family:inherit; 
+  transition:all 0.3s ease; 
+  background:#f9fafb; 
+}
+.post-textarea:focus { 
+  outline: none; 
+  border-color: #9b59b6; /* roxo suave */
+  background: white; 
+  box-shadow: 0 0 0 4px rgba(128,0,128,0.15); /* shadow leve roxo */
+}
+
 
 .new-post-footer { display:flex; justify-content:space-between; align-items:center; }
 .post-actions { display:flex; gap:8px; }
-.action-btn { width:40px; height:40px; border-radius:12px; border:none; background:#f3f4f6; color:#6b7280; cursor:pointer; display:flex; align-items:center; justify-content:center; transition: all 0.2s ease; }
-.action-btn:hover { background:#e5e7eb; color:#667eea; transform:translateY(-2px); }
-.post-btn { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border:none; padding:12px 32px; border-radius:12px; font-weight:600; font-size:15px; cursor:pointer; transition: all 0.3s ease; box-shadow:0 4px 12px rgba(102,126,234,0.3); }
-.post-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 6px 20px rgba(102,126,234,0.4); }
+.action-btn { 
+  width:40px; height:40px; border-radius:12px; border:none; 
+  background:#f3f4f6; color:#6b7280; cursor:pointer; 
+  display:flex; align-items:center; justify-content:center; 
+  transition: all 0.2s ease; 
+}
+.action-btn:hover { 
+  background:#e5e7eb; 
+  color:#667eea; 
+  transform:translateY(-2px); 
+}
+
+.post-btn { 
+  background: linear-gradient(135deg, #9b59b6 0%, #4caf50 100%); /* gradiente roxo-verde suave */
+  color: white; 
+  border: none; 
+  padding: 12px 32px; 
+  border-radius: 12px; 
+  font-weight: 600; 
+  font-size: 15px; 
+  cursor: pointer; 
+  transition: all 0.3s ease; 
+  box-shadow: 0 2px 6px rgba(128,0,128,0.15); /* shadow mais leve */
+}
+
+.post-btn:hover:not(:disabled) { 
+  transform: translateY(-2px); 
+  box-shadow: 0 4px 10px rgba(128,0,128,0.2); /* leve efeito hover */
+}
+
+.post-btn:hover:not(:disabled) { 
+  transform:translateY(-2px); 
+  box-shadow:0 6px 20px rgba(102,126,234,0.4); 
+}
 .post-btn:disabled { opacity:0.5; cursor:not-allowed; }
 
 /* Posts */
 .posts-container { display:flex; flex-direction:column; gap:20px; }
-.post-card { background:white; border-radius:20px; padding:24px; box-shadow:0 4px 20px rgba(102,126,234,0.12); border:2px solid rgba(102,126,234,0.08); transition:all 0.3s ease; }
-.post-card:hover { box-shadow:0 8px 30px rgba(102,126,234,0.2); border-color: rgba(102,126,234,0.2); transform:translateY(-2px); }
+.post-card { 
+  background:white; 
+  border-radius:20px; 
+  padding:24px; 
+  box-shadow:0 4px 20px rgba(102,126,234,0.12); 
+  border:2px solid rgba(102,126,234,0.08); 
+  transition:all 0.3s ease; 
+}
+.post-card:hover { 
+  box-shadow:0 8px 30px rgba(102,126,234,0.2); 
+  border-color: rgba(102,126,234,0.2); 
+  transform:translateY(-2px); 
+}
+
 .post-header { display:flex; gap:12px; margin-bottom:16px; }
 .post-user-info { display:flex; flex-direction:column; justify-content:center; }
 .user-name { font-weight:700; font-size:15px; color:#1f2937; }
@@ -359,4 +471,5 @@ onBeforeUnmount(() => {
   .post-content { font-size: 14px; }
   .action-button { font-size: 13px; padding:8px 12px; }
 }
+
 </style>

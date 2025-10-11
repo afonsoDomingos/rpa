@@ -1,34 +1,24 @@
 <script setup>
-import { ref, onMounted } from 'vue';  // Importar 'ref' e 'onMounted' do Vue
-import axios from 'axios';  // Importar axios
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 import DefaultCounterCard from "../../../examples/cards/counterCards/DefaultCounterCard.vue";
 
-// Variável reativa para armazenar a contagem de documentos
-const documentCount = ref(0);           // Documentos encontrados
-const solicitacoesCount = ref(0);       // Solicitações
-// Função para buscar a contagem de documentos da API
+const documentCount = ref(0);
+const solicitacoesCount = ref(0);
+
 onMounted(() => {
-  // Requisição para pegar a contagem dos documentos
   axios.get('https://apirpa.onrender.com/api/documentos/count')
     .then(response => {
-      documentCount.value = response.data.count;  // Atualiza a contagem com o valor da resposta
+      documentCount.value = response.data.count;
     })
-    .catch(error => {
-      console.error('Erro ao carregar contagem de documentos', error);  // Log de erro
-    });
+    .catch(error => console.error('Erro ao carregar contagem de documentos', error));
 
-
-     // Requisição para pegar a contagem dos documentos
   axios.get('https://apirpa.onrender.com/api/solicitacoes/count')
     .then(response => {
-      solicitacoesCount.value = response.data.count;  // Atualiza a contagem com o valor da resposta
+      solicitacoesCount.value = response.data.count;
     })
-    .catch(error => {
-      console.error('Erro ao carregar contagem de documentos', error);  // Log de erro
-    });
-    
+    .catch(error => console.error('Erro ao carregar contagem de solicitações', error));
 });
-
 </script>
 
 <template>
@@ -40,32 +30,35 @@ onMounted(() => {
             <div class="col-md-4 position-relative">
               <DefaultCounterCard 
                 color="success"
-                title="Documentos Encontrados"
+                title="Encontrados"
                 description="Detalhes"
                 :count="documentCount" 
                 suffix="+"
                 :duration="3000"
                 divider="vertical"
+                class="counter-black"
               />
             </div>
             <div class="col-md-4 position-relative">
               <DefaultCounterCard
                 color="success"
-                title="Documentos Solicitados"
+                title="Solicitados"
                 description="Detalhes"
                 :count="solicitacoesCount"
                 suffix="+"
                 :duration="3000"
                 divider="vertical"
+                class="counter-black"
               />
             </div>
             <div class="col-md-4">
               <DefaultCounterCard
                 color="success"
-                title="Documentos Entregues"
+                title="Entregues"
                 description="Detalhes"
                 :count="2"
                 :duration="3000"
+                class="counter-black"
               />
             </div>
           </div>
@@ -74,3 +67,20 @@ onMounted(() => {
     </div>
   </section>
 </template>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@900&display=swap');
+
+/* Aplica Poppins Black em todos os títulos e contadores dos cards */
+
+
+.counter-black {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 900 !important; /* Mais grosso */
+  font-size: 2rem; /* Aumenta o tamanho do contador */
+}
+.counter-black .description {
+  font-size: 1rem; /* Mantém descrição menor */
+}
+
+</style>
