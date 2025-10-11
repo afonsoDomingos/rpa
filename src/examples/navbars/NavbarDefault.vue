@@ -1,16 +1,18 @@
-<script setup>
+impmenta aqui = <script setup>
 import { RouterLink } from "vue-router";
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, nextTick } from "vue";
 import { useWindowsWidth } from "../../assets/js/useWindowsWidth";
 
 const dropdownMenu = ref(null);
+const navbarCollapse = ref(null);
 
-// Função para fechar o dropdown
+// Função para fechar dropdown e menu mobile
 function fecharDropdown() {
   const dropdown = bootstrap.Dropdown.getInstance(dropdownMenu.value?.parentElement);
-  if (dropdown) {
-    dropdown.hide();
-  }
+  if (dropdown) dropdown.hide();
+
+  const collapse = bootstrap.Collapse.getInstance(navbarCollapse.value);
+  if (collapse) collapse.hide();
 }
 
 // images
@@ -53,6 +55,19 @@ const buscarUsuario = async () => {
 
 onMounted(() => {
   buscarUsuario();
+
+  // Fecha menu ao clicar em qualquer link
+  nextTick(() => {
+    document.querySelectorAll('.nav-link, .dropdown-item, .btn-assinatura').forEach(el => {
+      el.addEventListener('click', () => {
+        const collapse = bootstrap.Collapse.getInstance(navbarCollapse.value);
+        if (collapse) collapse.hide();
+      });
+    });
+
+    // REMOVIDO: O listener customizado no toggler estava conflitando com o Bootstrap.
+    // O Bootstrap já gerencia o toggle (abrir/fechar) automaticamente.
+  });
 });
 
 const goToCadastrar = () => {
@@ -117,7 +132,7 @@ watch(() => type.value, (newValue) => {
     }">
     <div :class="props.transparent || props.light || props.dark ? 'container' : 'container-fluid px-0'">
 
-      <!-- Logo -->
+      <!-- Logo Desktop -->
       <RouterLink class="navbar-brand d-none d-md-block"
         :class="[(props.transparent && textDark.value) || !props.transparent ? 'text-dark font-weight-bolder ms-sm-3' : 'text-white font-weight-bolder ms-sm-3']"
         :to="{ name: 'presentation' }" rel="tooltip" title="Página inicial">
@@ -125,13 +140,18 @@ watch(() => type.value, (newValue) => {
           style="height:38px;width:auto;object-fit:contain;vertical-align:middle;" />
       </RouterLink>
 
+      <!-- Logo Mobile -->
       <RouterLink class="navbar-brand d-block d-md-none"
-        :class="props.transparent || props.dark ? 'text-white' : 'font-weight-bolder ms-sm-3'" to="/" rel="tooltip"
-        title="Menu">Menu</RouterLink>
+        :class="props.transparent || props.dark ? 'text-white' : 'font-weight-bolder ms-sm-3'"
+        :to="{ name: 'presentation' }" rel="tooltip" title="Página inicial">
+        <img src="@/assets/img/rPa.png" alt="Logo Rpa"
+          style="height:36px;width:auto;object-fit:contain;vertical-align:middle;" />
+      </RouterLink>
 
       <a @click="goToCadastrar" class="btn btn-sm bg-gradient-success mb-0 ms-auto d-lg-none d-block"
-        :class="action.color" role="button">{{ action.label }}</a>
+        :class="action.color" role="button"> {{ action.label }} </a>
 
+      <!-- Botão do menu -->
       <button class="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse"
         data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon mt-2">
@@ -141,7 +161,7 @@ watch(() => type.value, (newValue) => {
         </span>
       </button>
 
-      <div class="collapse navbar-collapse w-100 pt-3 pb-2 py-lg-0" id="navigation">
+      <div class="collapse navbar-collapse w-100 pt-3 pb-2 py-lg-0" id="navigation" ref="navbarCollapse">
         <ul class="navbar-nav navbar-nav-hover ms-auto ">
 
           <!-- Dropdown Páginas -->
@@ -152,33 +172,25 @@ watch(() => type.value, (newValue) => {
               Paginas
               <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-2 d-lg-block d-none" />
             </a>
-            <div class=" dropdown-menu dropdown-menu-animation ms-n3 dropdown-md p-3 border-radius-xl mt-0 mt-lg-3"
+            <div class="dropdown-menu dropdown-menu-animation ms-n3 dropdown-md p-3 border-radius-xl mt-0 mt-lg-3"
               aria-labelledby="dropdownMenuPages">
               <div class="row d-none d-lg-block">
                 <div class="col-12 px-4 py-2">
-                  <div class="row">
-                    <div class="position-relative">
-                      <div class="dropdown-header text-dark font-weight-bolder d-flex align-items-center px-1">
-                        Pagina Principal
-                      </div>
-                      <RouterLink :to="{ name: 'about' }" class="dropdown-item border-radius-md">Sobre nós</RouterLink>
-                      <RouterLink :to="{ name: 'contactus' }" class="dropdown-item border-radius-md">Contacte-nos
-                      </RouterLink>
-                      <RouterLink :to="{ name: 'author' }" class="dropdown-item border-radius-md">Autor</RouterLink>
+                  <div class="position-relative">
+                    <div class="dropdown-header text-dark font-weight-bolder px-1">Pagina Principal</div>
+                    <RouterLink :to="{ name: 'about' }" class="dropdown-item border-radius-md" @click="fecharDropdown">Sobre nós</RouterLink>
+                    <RouterLink :to="{ name: 'contactus' }" class="dropdown-item border-radius-md" @click="fecharDropdown">Contacte-nos</RouterLink>
+                    <RouterLink :to="{ name: 'author' }" class="dropdown-item border-radius-md" @click="fecharDropdown">Autor</RouterLink>
 
-                      <div class="dropdown-header text-dark font-weight-bolder d-flex align-items-center px-0 mt-3">
-                        Conta
-                      </div>
-                      <RouterLink :to="{ name: 'signin-basic' }" class="dropdown-item border-radius-md">Inscrever-se
-                      </RouterLink>
-                    </div>
+                    <div class="dropdown-header text-dark font-weight-bolder px-0 mt-3">Conta</div>
+                    <RouterLink :to="{ name: 'signin-basic' }" class="dropdown-item border-radius-md" @click="fecharDropdown">Inscrever-se</RouterLink>
                   </div>
                 </div>
               </div>
             </div>
           </li>
 
-          <!-- Dropdown Usuário -->
+          <!-- Usuário -->
           <li v-if="usuario" class="nav-item dropdown dropdown-hover mx-2">
             <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" :class="getTextColor()"
               id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
@@ -187,39 +199,34 @@ watch(() => type.value, (newValue) => {
               <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-2 d-lg-block d-none" />
             </a>
 
-            <div ref="dropdownMenu"
-              class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada"
+            <div ref="dropdownMenu" class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada"
               aria-labelledby="dropdownUser" style="min-width: 180px;">
 
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'MeusPagamentos' })">
+                @click="$router.push({ name: 'MeusPagamentos' }); fecharDropdown();">
                 <i class="bi bi-credit-card text-primary"></i> Meus Pagamentos
               </button>
 
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'MeusDocumentos' })">
+                @click="$router.push({ name: 'MeusDocumentos' }); fecharDropdown();">
                 <i class="bi bi-folder2-open text-info"></i> Meus Documentos
               </button>
 
-            
               <div class="dropdown-divider"></div>
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2 text-danger"
-                @click="logout">
+                @click="logout; fecharDropdown();">
                 <i class="bi bi-box-arrow-right"></i> Sair
               </button>
             </div>
           </li>
 
           <li v-else class="nav-item dropdown dropdown-hover mx-2">
-            <router-link to="/" class="nav-link d-flex cursor-pointer align-items-center">
+            <router-link to="/" class="nav-link d-flex cursor-pointer align-items-center" @click="fecharDropdown">
               <i class="material-icons opacity-6 me-2 text-md">person</i> Entrar
             </router-link>
           </li>
 
-
-
-
-          <!-- Dropdown Ferramentas -->
+          <!-- Ferramentas -->
           <li class="nav-item dropdown dropdown-hover mx-2">
             <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" :class="getTextColor()"
               id="dropdownTools" data-bs-toggle="dropdown" aria-expanded="false">
@@ -232,37 +239,35 @@ watch(() => type.value, (newValue) => {
               aria-labelledby="dropdownTools" style="min-width: 180px;">
              
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'ComunidadeRpa' })">
+                @click="$router.push({ name: 'ComunidadeRpa' }); fecharDropdown();">
                 <i class="bi bi-people-fill text-info"></i> Comunidade
               </button>
 
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'CVGenerator' })">
+                @click="$router.push({ name: 'CVGenerator' }); fecharDropdown();">
                 <i class="bi bi-file-earmark-person text-warning"></i> Gerar Cv
               </button>
 
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'GuardarDocumentos' })">
+                @click="$router.push({ name: 'GuardarDocumentos' }); fecharDropdown();">
                 <i class="bi bi-folder-plus text-success"></i> Guardar Docs
               </button>
 
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'Viaturas' })">
+                @click="$router.push({ name: 'Viaturas' }); fecharDropdown();">
                 <i class="bi bi-car-front text-success"></i> Recuperar Viaturas
               </button>
-
-
-
             </div>
           </li>
 
-          <!-- Assinaturas -->
+          <!-- Assinatura -->
           <li>
-            <a class="btn btn-sm mb-0 ms-2" role="button" @click="$router.push({ name: 'Assinaturas' })"
-              style="background-color: #6f42c1; color: white;">
+            <a class="btn btn-sm mb-0 ms-2 btn-assinatura" role="button"
+              @click="$router.push({ name: 'Assinaturas' }); fecharDropdown();">
               Assinatura
             </a>
           </li>
+
         </ul>
       </div>
     </div>
@@ -282,5 +287,19 @@ watch(() => type.value, (newValue) => {
   border-color: #800080;
   box-shadow: 0 8px 20px rgba(128, 0, 128, 0.25);
   transform: scale(1.02);
+}
+
+.btn-assinatura {
+  background: linear-gradient(135deg, #800080, #66bb6a);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-assinatura:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(128, 0, 128, 0.3);
 }
 </style>
