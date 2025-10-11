@@ -194,7 +194,9 @@ watch(() => type.value, (newValue) => {
           <li v-if="usuario" class="nav-item dropdown dropdown-hover mx-2">
             <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" :class="getTextColor()"
               id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="material-icons opacity-6 me-2 text-md" :class="getTextColor()">person</i>
+             
+              <i class="material-icons opacity-6 me-2 text-md rotatable-profile" :class="getTextColor()">person</i>
+
               {{ usuario?.nome || 'Usuário' }}
               <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-2 d-lg-block d-none" />
             </a>
@@ -308,11 +310,25 @@ watch(() => type.value, (newValue) => {
 
 
 .rotatable-icon {
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, color 0.3s ease;
+  color: inherit; /* mantém a cor do menu quando fechado */
 }
 
 #dropdownTools[aria-expanded="true"] .rotatable-icon {
   transform: rotate(90deg);
+  color: #800080; /* roxo só quando aberto */
+}
+
+
+
+.rotatable-profile {
+  transition: transform 0.3s ease, color 0.3s ease;
+  color: inherit; /* cor original quando fechado */
+}
+
+#dropdownUser[aria-expanded="true"] .rotatable-profile {
+  transform: scale(1.2);
+  color: #800080 !important; /* força o roxo mesmo com classes existentes */
 }
 
 </style>
