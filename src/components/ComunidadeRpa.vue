@@ -135,11 +135,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
-import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
-import FooterDefault from "../examples/footers/FooterDefault.vue";
+import { io } from 'socket.io-client'
+import NavbarDefault from "../examples/navbars/NavbarDefault.vue"
+import FooterDefault from "../examples/footers/FooterDefault.vue"
 
 const router = useRouter()
 const usuario = ref(null)
@@ -150,6 +151,51 @@ const carregando = ref(false)
 const API_URL = 'https://apirpa.onrender.com/api/posts'
 const token = localStorage.getItem('token')
 const headers = { Authorization: `Bearer ${token}` }
+
+// 🔌 Conexão com Socket.IO
+const socket = io('https://apirpa.onrender.com', {
+  transports: ['websocket'],
+  reconnection: true,
+})
+
+socket.on('connect', () => {
+  console.log('🟢 Conectado ao servidor Socket.IO:', socket.id)
+})
+
+socket.on('disconnect', () => {
+  console.log('🔴 Desconectado do servidor Socket.IO')
+})
+
+// 🆕 Novo post criado
+socket.on('novoPost', (post) => {
+  console.log('📩 Novo post recebido:', post)
+  posts.value.unshift({ ...post, showReplies: false, newReply: '' })
+})
+
+// 🆕 Curtida atualizada
+socket.on('postLiked', ({ postId, likes }) => {
+  const post = posts.value.find(p => p._id === postId)
+  if (post) post.likes = likes
+})
+
+// 🆕 Nova resposta
+socket.on('novaResposta', ({ postId, replies }) => {
+  const post = posts.value.find(p => p._id === postId)
+  if (post) post.replies = replies
+})
+
+// 🆕 Post deletado
+socket.on('postDeletado', ({ postId }) => {
+  posts.value = posts.value.filter(p => p._id !== postId)
+})
+
+// 🆕 Resposta deletada
+socket.on('respostaDeletada', ({ postId, replyId }) => {
+  const post = posts.value.find(p => p._id === postId)
+  if (post) post.replies = post.replies.filter(r => r._id !== replyId)
+})
+
+// --------------------------------------------------
 
 const buscarUsuario = async () => {
   try {
@@ -178,8 +224,7 @@ const carregarPosts = async () => {
 const criarPost = async () => {
   if (!newPostContent.value.trim() || !usuario.value) return
   try {
-    const { data } = await axios.post(API_URL, { conteudo: newPostContent.value }, { headers })
-    posts.value.unshift({ ...data, showReplies: false, newReply: '' })
+    await axios.post(API_URL, { conteudo: newPostContent.value }, { headers })
     newPostContent.value = ''
   } catch (err) {
     console.error(err)
@@ -188,8 +233,7 @@ const criarPost = async () => {
 
 const curtirPost = async post => {
   try {
-    const { data } = await axios.post(`${API_URL}/${post._id}/like`, {}, { headers })
-    post.likes = data.likes
+    await axios.put(`${API_URL}/${post._id}/like`, {}, { headers })
   } catch (err) {
     console.error(err)
   }
@@ -198,8 +242,7 @@ const curtirPost = async post => {
 const responderPost = async post => {
   if (!post.newReply?.trim()) return
   try {
-    const { data } = await axios.post(`${API_URL}/${post._id}/replies`, { conteudo: post.newReply }, { headers })
-    post.replies = data.replies
+    await axios.post(`${API_URL}/${post._id}/replies`, { conteudo: post.newReply }, { headers })
     post.newReply = ''
   } catch (err) {
     console.error(err)
@@ -222,6 +265,11 @@ const formatTime = timestamp => {
 onMounted(async () => {
   await buscarUsuario()
   await carregarPosts()
+})
+
+// Fechar conexão ao sair
+onBeforeUnmount(() => {
+  socket.disconnect()
 })
 </script>
 
