@@ -1,14 +1,4 @@
-CHAT TENHO ESSE COMPONENTE, QUE QUE AS CORES PREDOMINATES SEJAM ESSAS .borda-destacada {
-  border: 1px solid #66bb6a;
-  border-radius: 5px;
-  padding: 10px;
-  outline: none;
-}
-
-.borda-destacada:focus {
-  border-color: #800080;
-  box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
-} = <template> 
+<template> 
   <!-- Navbar fixo -->
   <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
     <div class="row gx-0">
@@ -22,19 +12,19 @@ CHAT TENHO ESSE COMPONENTE, QUE QUE AS CORES PREDOMINATES SEJAM ESSAS .borda-des
   <div class="threads-feed">
     <!-- Header -->
     <div class="feed-header">
-      <h2 class="feed-title">Comunidade RPA</h2>
-      <p class="feed-subtitle">Compartilhe e discuta sobre documentos</p>
+      <h2 class="feed-title">Comunidade Rpa</h2>
+      <p class="feed-subtitle">Um espaco para compartilhamentos</p>
     </div>
 
     <!-- New Post Form -->
     <div class="new-post-card">
       <div class="new-post-header">
         <div class="avatar avatar-purple">
-          <span>{{ usuario?.nome?.[0]?.toUpperCase() || 'VC' }}</span>
+          <span>{{ usuario?.nome?.[0]?.toUpperCase() || 'EU' }}</span>
         </div>
         <textarea
           v-model="newPostContent"
-          placeholder="Compartilhe algo sobre seus documentos..."
+          placeholder="Compartilhe algo sobre..."
           class="post-textarea"
           rows="3"
         ></textarea>

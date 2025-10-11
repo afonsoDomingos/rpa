@@ -174,7 +174,7 @@ const dadosDocumento = ref({
 const predefinidas = [
   { id: 1, pergunta: '🔐 1. Como criar uma conta na Rpa?', resposta: 'Para criar uma conta, preencha seu nome, e-mail e senha.<br>Depois é só fazer login e começar a usar a plataforma normalmente.<br><a href="/" style="color:#800080;text-decoration:underline;">Clique aqui para fazer login</a>.' },
   { id: 2, pergunta: '🔑 2. Como fazer login na Rpa?', resposta: 'Informe seu e-mail e senha cadastrados.<br>Você será direcionado(a) para a tela principal da plataforma.<br><a href="/" style="color:#800080;text-decoration:underline;">Ir para login</a>.' },
-  { id: 3, pergunta: '🔍 3. Como procurar um documento na Rpa?', resposta: 'Vá até a aba "Procurar", escolha o filtro desejado.<br>Clique em "Buscar" e veja se há algum resultado disponível, 🔍 Ou digite "QUERO PROCURAR MEU DOCUMENTO" no chat para iniciar a busca de forma automatica.' },
+  { id: 3, pergunta: '🔎 3. Perdi um documento. Como faço para recuperar?', resposta: 'Vou te ajudar a procurar seu documento! Primeiro preciso de algumas informações.' },
   { id: 4, pergunta: '📥 4. Como solicitar um documento na Rpa?', resposta: 'Se o documento for encontrado, clique em "Solicitar".<br>Será necessário ter uma assinatura ativa (Mensal ou Anual) para prosseguir.<br><a href="/assinaturas" style="color:#800080;text-decoration:underline;">Clique aqui para ver planos de assinatura</a> (opcional).' },
   { id: 5, pergunta: '💳 5. Como pagar uma assinatura na Rpa?', resposta: 'Escolha um dos planos disponíveis:\n– 📅 Mensal: 150 MZN\n– 📆 Anual: 650 MZN\nApós o pagamento, sua assinatura será ativada imediatamente.' },
   { id: 6, pergunta: '📢 6. Como reportar um documento na Rpa?', resposta: 'Se não encontrar o documento, vá à aba "Reportar".\nPreencha os dados do documento perdido e envie.\nVocê será notificado se alguém encontrá-lo.' },
@@ -182,7 +182,7 @@ const predefinidas = [
   { id: 8, pergunta: '📄 8. Como gerar um PDF na Rpa?', resposta: 'Após guardar um documento, clique em "Gerar PDF".\nUm arquivo será criado automaticamente com os dados preenchidos.' },
   { id: 9, pergunta: '🔁 9. Como renovar a assinatura na Rpa?', resposta: 'Quando sua assinatura expirar, clique em "Renovar" no painel.\nEscolha o plano desejado e continue acessando todos os recursos.' },
   { id: 10, pergunta: '❓ 10. Como posso receber ajuda na Rpa?', resposta: 'Você pode digitar perguntas como:\n"Assinar", "Reportar documento", "PDF", "Renovar" ou "Guardar".\nOu clique no botão "Ajuda" para ver todas as opções.' },
-  { id: 11, pergunta: '🔎 11. Perdi um documento. Como faço para recuperar?', resposta: 'Vou te ajudar a procurar seu documento! Primeiro preciso de algumas informações.' }
+  { id: 11, pergunta: '🔍 11. Como procurar um documento na Rpa?', resposta: 'Vá até a aba "Procurar", escolha o filtro desejado.<br>Clique em "Buscar" e veja se há algum resultado disponível, 🔍 Ou digite "QUERO PROCURAR MEU DOCUMENTO" no chat para iniciar a busca de forma automatica.' }
 ];
 
 const messages = ref([
@@ -610,7 +610,7 @@ function responderFaq(id) {
     messages.value.push({ from: 'user', text: pergunta.pergunta });
     
     // Se for a pergunta sobre documento perdido, iniciar fluxo
-    if (id === 11) {
+    if (id === 3) {
       buscandoDocumento.value = true;
       processarFluxoDocumento('perdi meu documento');
     } else {
@@ -964,8 +964,8 @@ onUpdated(() => {
   position: fixed;
   bottom: 18px;
   right: 18px;
-  width: 64px;
-  height: 64px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: linear-gradient(135deg, #800080 60%, #198754 100%);
   color: #fff;

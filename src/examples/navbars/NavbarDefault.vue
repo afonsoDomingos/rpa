@@ -201,12 +201,7 @@ watch(() => type.value, (newValue) => {
                 <i class="bi bi-folder2-open text-info"></i> Meus Documentos
               </button>
 
-              <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'ComunidadeRpa' })">
-                <i class="bi bi-people-fill text-info"></i> Comunidade RPA
-              </button>
-
-
+            
               <div class="dropdown-divider"></div>
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2 text-danger"
                 @click="logout">
@@ -235,6 +230,11 @@ watch(() => type.value, (newValue) => {
 
             <div class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 border-radius-lg"
               aria-labelledby="dropdownTools" style="min-width: 180px;">
+             
+              <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+                @click="$router.push({ name: 'ComunidadeRpa' })">
+                <i class="bi bi-people-fill text-info"></i> Comunidade
+              </button>
 
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="$router.push({ name: 'CVGenerator' })">
