@@ -1,4 +1,4 @@
-<template>
+eles ainda saiem do rosto. garanta que nao ssai e garanta que os olhos sejam grandes = <template>
   <div class="chat-assistente-fixed" v-show="open">
     <div class="chat-header" @click="toggle">
       <span class="chat-avatar">
@@ -134,11 +134,12 @@
   </div>
 
   <button v-show="!open" class="chat-fab" @click="toggle" aria-label="Falar com Assistente">
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="12" fill="#800080"/>
-      <path d="M12 17c2.8 0 5-2.2 5-5V9a5 5 0 0 0-10 0v3c0 2.8 2.2 5 5 5Zm-3-5V9a3 3 0 0 1 6 0v3a3 3 0 0 1-6 0Zm8 0a5.98 5.98 0 0 1-2 4.47V20h-4v-1.53A5.98 5.98 0 0 1 7 12" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </button>
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" fill="#fff"/>
+    <path d="M7 10h10M7 14h7" stroke="#800080" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</button>
+
 </template>
 
 <script setup>
@@ -668,6 +669,64 @@ onUpdated(() => {
     }
   });
 });
+
+
+
+onMounted(() => {
+  const avatar = document.querySelector('.chat-avatar svg');
+  const olhoEsq = avatar.querySelector('ellipse:nth-child(4)');
+  const olhoDir = avatar.querySelector('ellipse:nth-child(5)');
+
+  let mouseX = 0;
+  let mouseY = 0;
+  let olhoX = 13.5;
+  let olhoY = 12.5;
+  let olhoXDir = 18.5;
+  let olhoYDir = 12.5;
+
+  const limite = 2; // máximo de movimento dos olhos (em px)
+
+  function atualizarMouse(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  }
+
+  function animarOlhos() {
+    const rect = avatar.getBoundingClientRect();
+    const centroX = rect.left + rect.width / 2;
+    const centroY = rect.top + rect.height / 2;
+
+    // deslocamento proporcional
+    let offsetX = (mouseX - centroX) / 30;
+    let offsetY = (mouseY - centroY) / 30;
+
+    // limitar deslocamento
+    offsetX = Math.max(-limite, Math.min(limite, offsetX));
+    offsetY = Math.max(-limite, Math.min(limite, offsetY));
+
+    // interpolação suave
+    olhoX += (13.5 + offsetX - olhoX) * 0.2;
+    olhoY += (12.5 + offsetY - olhoY) * 0.2;
+    olhoXDir += (18.5 + offsetX - olhoXDir) * 0.2;
+    olhoYDir += (12.5 + offsetY - olhoYDir) * 0.2;
+
+    // aplicar posições
+    olhoEsq.setAttribute('cx', olhoX);
+    olhoEsq.setAttribute('cy', olhoY);
+    olhoDir.setAttribute('cx', olhoXDir);
+    olhoDir.setAttribute('cy', olhoYDir);
+
+    requestAnimationFrame(animarOlhos);
+  }
+
+  window.addEventListener('mousemove', atualizarMouse);
+  animarOlhos();
+
+  onUnmounted(() => {
+    window.removeEventListener('mousemove', atualizarMouse);
+  });
+});
+
 </script>
 
 <style scoped> 
