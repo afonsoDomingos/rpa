@@ -109,15 +109,14 @@ watch(() => type.value, (newValue) => {
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-lg top-0"
-    :class="{
+  <nav class="navbar navbar-expand-lg top-0" :class="{
       'z-index-3 w-100 shadow-none navbar-transparent position-absolute my-3': props.transparent,
       'my-3 blur border-radius-lg z-index-3 py-2 shadow py-2 start-0 end-0 mx-4 position-absolute  mt-4': props.sticky,
       'navbar-light bg-white py-3': props.light,
       ' navbar-dark bg-gradient-dark z-index-3 py-3': props.dark
     }">
     <div :class="props.transparent || props.light || props.dark ? 'container' : 'container-fluid px-0'">
-      
+
       <!-- Logo -->
       <RouterLink class="navbar-brand d-none d-md-block"
         :class="[(props.transparent && textDark.value) || !props.transparent ? 'text-dark font-weight-bolder ms-sm-3' : 'text-white font-weight-bolder ms-sm-3']"
@@ -127,8 +126,8 @@ watch(() => type.value, (newValue) => {
       </RouterLink>
 
       <RouterLink class="navbar-brand d-block d-md-none"
-        :class="props.transparent || props.dark ? 'text-white' : 'font-weight-bolder ms-sm-3'"
-        to="/" rel="tooltip" title="Menu">Menu</RouterLink>
+        :class="props.transparent || props.dark ? 'text-white' : 'font-weight-bolder ms-sm-3'" to="/" rel="tooltip"
+        title="Menu">Menu</RouterLink>
 
       <a @click="goToCadastrar" class="btn btn-sm bg-gradient-success mb-0 ms-auto d-lg-none d-block"
         :class="action.color" role="button">{{ action.label }}</a>
@@ -163,13 +162,15 @@ watch(() => type.value, (newValue) => {
                         Pagina Principal
                       </div>
                       <RouterLink :to="{ name: 'about' }" class="dropdown-item border-radius-md">Sobre nós</RouterLink>
-                      <RouterLink :to="{ name: 'contactus' }" class="dropdown-item border-radius-md">Contacte-nos</RouterLink>
+                      <RouterLink :to="{ name: 'contactus' }" class="dropdown-item border-radius-md">Contacte-nos
+                      </RouterLink>
                       <RouterLink :to="{ name: 'author' }" class="dropdown-item border-radius-md">Autor</RouterLink>
 
                       <div class="dropdown-header text-dark font-weight-bolder d-flex align-items-center px-0 mt-3">
                         Conta
                       </div>
-                      <RouterLink :to="{ name: 'signin-basic' }" class="dropdown-item border-radius-md">Inscrever-se</RouterLink>
+                      <RouterLink :to="{ name: 'signin-basic' }" class="dropdown-item border-radius-md">Inscrever-se
+                      </RouterLink>
                     </div>
                   </div>
                 </div>
@@ -189,7 +190,7 @@ watch(() => type.value, (newValue) => {
             <div ref="dropdownMenu"
               class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada"
               aria-labelledby="dropdownUser" style="min-width: 180px;">
-              
+
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="$router.push({ name: 'MeusPagamentos' })">
                 <i class="bi bi-credit-card text-primary"></i> Meus Pagamentos
@@ -200,16 +201,15 @@ watch(() => type.value, (newValue) => {
                 <i class="bi bi-folder2-open text-info"></i> Meus Documentos
               </button>
 
-              <button
-  class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-  @click="$router.push({ name: 'ComunidadeRpa' })"
->
-  <i class="bi bi-people-fill text-info"></i> Comunidade RPA
-</button>
+              <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+                @click="$router.push({ name: 'ComunidadeRpa' })">
+                <i class="bi bi-people-fill text-info"></i> Comunidade RPA
+              </button>
 
 
               <div class="dropdown-divider"></div>
-              <button class="dropdown-item border-radius-md d-flex align-items-center gap-2 text-danger" @click="logout">
+              <button class="dropdown-item border-radius-md d-flex align-items-center gap-2 text-danger"
+                @click="logout">
                 <i class="bi bi-box-arrow-right"></i> Sair
               </button>
             </div>
@@ -221,14 +221,13 @@ watch(() => type.value, (newValue) => {
             </router-link>
           </li>
 
-         
+
 
 
           <!-- Dropdown Ferramentas -->
           <li class="nav-item dropdown dropdown-hover mx-2">
-            <a role="button"
-              class="nav-link ps-2 d-flex cursor-pointer align-items-center"
-              :class="getTextColor()" id="dropdownTools" data-bs-toggle="dropdown" aria-expanded="false">
+            <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" :class="getTextColor()"
+              id="dropdownTools" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-gear-fill me-2"></i>
               Ferramentas
               <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-2 d-lg-block d-none" />
@@ -236,13 +235,13 @@ watch(() => type.value, (newValue) => {
 
             <div class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 border-radius-lg"
               aria-labelledby="dropdownTools" style="min-width: 180px;">
-              
+
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="$router.push({ name: 'CVGenerator' })">
                 <i class="bi bi-file-earmark-person text-warning"></i> Gerar Cv
               </button>
 
-               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+              <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="$router.push({ name: 'GuardarDocumentos' })">
                 <i class="bi bi-folder-plus text-success"></i> Guardar Docs
               </button>
@@ -252,7 +251,7 @@ watch(() => type.value, (newValue) => {
                 <i class="bi bi-car-front text-success"></i> Recuperar Viaturas
               </button>
 
-             
+
 
             </div>
           </li>

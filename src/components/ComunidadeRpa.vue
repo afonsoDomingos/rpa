@@ -1,14 +1,14 @@
 <template>
-
-      <!-- Navbar fixo -->
-    <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
-      <div class="row gx-0">
-        <div class="col-12">
-          <NavbarDefault :sticky="true" />
-        </div>
+  <!-- Navbar fixo -->
+  <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
+    <div class="row gx-0">
+      <div class="col-12">
+        <NavbarDefault :sticky="true" />
       </div>
     </div>
-    <br/><br/><br/><br/>
+  </div>
+  <br/><br/><br/><br/>
+
   <div class="threads-feed">
     <!-- Header -->
     <div class="feed-header">
@@ -20,7 +20,7 @@
     <div class="new-post-card">
       <div class="new-post-header">
         <div class="avatar avatar-purple">
-          <span>VC</span>
+          <span>{{ usuario?.nome?.[0]?.toUpperCase() || 'VC' }}</span>
         </div>
         <textarea
           v-model="newPostContent"
@@ -44,42 +44,40 @@
             </svg>
           </button>
         </div>
-        <button @click="createPost" class="post-btn" :disabled="!newPostContent.trim()">
-          Publicar
-        </button>
+        <button @click="criarPost" class="post-btn" :disabled="!newPostContent.trim()">Publicar</button>
       </div>
     </div>
 
     <!-- Posts Feed -->
     <div class="posts-container">
-      <div v-for="post in posts" :key="post.id" class="post-card">
+      <div v-if="carregando" class="text-center">Carregando posts...</div>
+
+      <div v-for="post in posts" :key="post._id" class="post-card">
         <div class="post-header">
-          <div class="avatar" :class="`avatar-${post.user.color}`">
-            <span>{{ post.user.initials }}</span>
+          <div class="avatar avatar-purple">
+            <span>{{ post.autor?.nome?.[0]?.toUpperCase() || 'U' }}</span>
           </div>
           <div class="post-user-info">
-            <div class="user-name">{{ post.user.name }}</div>
-            <div class="post-time">{{ formatTime(post.timestamp) }}</div>
+            <div class="user-name">{{ post.autor?.nome || 'Usuário' }}</div>
+            <div class="post-time">{{ formatTime(post.createdAt) }}</div>
           </div>
         </div>
 
-        <div class="post-content">
-          {{ post.content }}
-        </div>
+        <div class="post-content">{{ post.conteudo }}</div>
 
         <div class="post-actions-bar">
-          <button @click="toggleLike(post)" class="action-button">
+          <button @click="curtirPost(post)" class="action-button">
             <svg width="20" height="20" viewBox="0 0 24 24" :fill="post.liked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
             </svg>
-            <span>{{ post.likes }}</span>
+            <span>{{ post.likes?.length || 0 }}</span>
           </button>
 
-          <button @click="toggleReplies(post)" class="action-button">
+          <button @click="post.showReplies = !post.showReplies" class="action-button">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             </svg>
-            <span>{{ post.replies.length }}</span>
+            <span>{{ post.replies?.length || 0 }}</span>
           </button>
 
           <button class="action-button">
@@ -96,31 +94,31 @@
 
         <!-- Replies Section -->
         <div v-if="post.showReplies" class="replies-section">
-          <div v-for="reply in post.replies" :key="reply.id" class="reply-card">
-            <div class="avatar avatar-small" :class="`avatar-${reply.user.color}`">
-              <span>{{ reply.user.initials }}</span>
+          <div v-for="reply in post.replies" :key="reply._id" class="reply-card">
+            <div class="avatar avatar-small avatar-purple">
+              <span>{{ reply.autor?.nome?.[0]?.toUpperCase() || 'U' }}</span>
             </div>
             <div class="reply-content-wrapper">
               <div class="reply-header">
-                <span class="reply-user-name">{{ reply.user.name }}</span>
-                <span class="reply-time">{{ formatTime(reply.timestamp) }}</span>
+                <span class="reply-user-name">{{ reply.autor?.nome }}</span>
+                <span class="reply-time">{{ formatTime(reply.createdAt) }}</span>
               </div>
-              <div class="reply-content">{{ reply.content }}</div>
+              <div class="reply-content">{{ reply.conteudo }}</div>
             </div>
           </div>
 
           <!-- New Reply Form -->
           <div class="new-reply-form">
             <div class="avatar avatar-small avatar-purple">
-              <span>VC</span>
+              <span>{{ usuario?.nome?.[0]?.toUpperCase() || 'VC' }}</span>
             </div>
             <input
               v-model="post.newReply"
-              @keyup.enter="addReply(post)"
+              @keyup.enter="responderPost(post)"
               placeholder="Escreva uma resposta..."
               class="reply-input"
             />
-            <button @click="addReply(post)" class="reply-send-btn" :disabled="!post.newReply?.trim()">
+            <button @click="responderPost(post)" class="reply-send-btn" :disabled="!post.newReply?.trim()">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="22" y1="2" x2="11" y2="13"></line>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -132,96 +130,86 @@
     </div>
   </div>
 
-   <!-- Rodapé -->
-    <FooterDefault />
+  <!-- Rodapé -->
+  <FooterDefault />
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+import { useRouter } from 'vue-router'
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../examples/footers/FooterDefault.vue";
 
+const router = useRouter()
+const usuario = ref(null)
+const posts = ref([])
 const newPostContent = ref('')
-const posts = ref([
-  {
-    id: 1,
-    user: { name: 'Maria Silva', initials: 'MS', color: 'purple' },
-    content: 'Acabei de recuperar um documento importante! O sistema funcionou perfeitamente. Alguém mais teve sucesso recentemente?',
-    timestamp: new Date(Date.now() - 1000 * 60 * 30),
-    likes: 12,
-    liked: false,
-    showReplies: false,
-    newReply: '',
-    replies: [
-      { id: 101, user: { name: 'João Santos', initials: 'JS', color: 'blue' }, content: 'Sim! Recuperei 3 documentos ontem. Sistema está ótimo!', timestamp: new Date(Date.now() - 1000 * 60 * 20) }
-    ]
-  },
-  {
-    id: 2,
-    user: { name: 'Pedro Costa', initials: 'PC', color: 'green' },
-    content: 'Dica: sempre faça backup dos documentos recuperados. Aprendi isso da forma difícil...',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    likes: 24,
-    liked: true,
-    showReplies: false,
-    newReply: '',
-    replies: [
-      { id: 201, user: { name: 'Ana Lima', initials: 'AL', color: 'pink' }, content: 'Ótima dica! Uso o Google Drive para isso.', timestamp: new Date(Date.now() - 1000 * 60 * 60) },
-      { id: 202, user: { name: 'Carlos Mendes', initials: 'CM', color: 'orange' }, content: 'Eu prefiro backup local em HD externo.', timestamp: new Date(Date.now() - 1000 * 60 * 50) }
-    ]
-  },
-  {
-    id: 3,
-    user: { name: 'Lucia Ferreira', initials: 'LF', color: 'pink' },
-    content: 'Alguém sabe como recuperar documentos PDF corrompidos? Preciso de ajuda urgente!',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5),
-    likes: 8,
-    liked: false,
-    showReplies: false,
-    newReply: '',
-    replies: []
+const carregando = ref(false)
+
+const API_URL = 'https://apirpa.onrender.com/api/posts'
+const token = localStorage.getItem('token')
+const headers = { Authorization: `Bearer ${token}` }
+
+const buscarUsuario = async () => {
+  try {
+    const emailLogado = localStorage.getItem('email')
+    if (!emailLogado) return router.push('/')
+    const { data } = await axios.get('https://apirpa.onrender.com/api/auth/usuarios', { headers })
+    usuario.value = data.find(u => u.email === emailLogado)
+    if (!usuario.value) router.push('/')
+  } catch (err) {
+    console.error(err)
   }
-])
-
-const createPost = () => {
-  if (!newPostContent.value.trim()) return
-  posts.value.unshift({
-    id: Date.now(),
-    user: { name: 'Você', initials: 'VC', color: 'purple' },
-    content: newPostContent.value,
-    timestamp: new Date(),
-    likes: 0,
-    liked: false,
-    showReplies: false,
-    newReply: '',
-    replies: []
-  })
-  newPostContent.value = ''
 }
 
-const toggleLike = (post) => {
-  post.liked = !post.liked
-  post.likes += post.liked ? 1 : -1
+const carregarPosts = async () => {
+  try {
+    carregando.value = true
+    const { data } = await axios.get(API_URL, { headers })
+    posts.value = data.map(p => ({ ...p, showReplies: false, newReply: '' }))
+  } catch (err) {
+    console.error(err)
+  } finally {
+    carregando.value = false
+  }
 }
 
-const toggleReplies = (post) => {
-  post.showReplies = !post.showReplies
+const criarPost = async () => {
+  if (!newPostContent.value.trim() || !usuario.value) return
+  try {
+    const { data } = await axios.post(API_URL, { conteudo: newPostContent.value }, { headers })
+    posts.value.unshift({ ...data, showReplies: false, newReply: '' })
+    newPostContent.value = ''
+  } catch (err) {
+    console.error(err)
+  }
 }
 
-const addReply = (post) => {
+const curtirPost = async post => {
+  try {
+    const { data } = await axios.post(`${API_URL}/${post._id}/like`, {}, { headers })
+    post.likes = data.likes
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+const responderPost = async post => {
   if (!post.newReply?.trim()) return
-  post.replies.push({
-    id: Date.now(),
-    user: { name: 'Você', initials: 'VC', color: 'purple' },
-    content: post.newReply,
-    timestamp: new Date()
-  })
-  post.newReply = ''
+  try {
+    const { data } = await axios.post(`${API_URL}/${post._id}/replies`, { conteudo: post.newReply }, { headers })
+    post.replies = data.replies
+    post.newReply = ''
+  } catch (err) {
+    console.error(err)
+  }
 }
 
-const formatTime = (timestamp) => {
-  const now = new Date()
-  const diff = now - timestamp
+const formatTime = timestamp => {
+  if (!timestamp) return ''
+  const date = new Date(timestamp)
+  const diff = Date.now() - date
   const minutes = Math.floor(diff / 60000)
   const hours = Math.floor(diff / 3600000)
   const days = Math.floor(diff / 86400000)
@@ -230,7 +218,16 @@ const formatTime = (timestamp) => {
   if (hours < 24) return `${hours}h`
   return `${days}d`
 }
+
+onMounted(async () => {
+  await buscarUsuario()
+  await carregarPosts()
+})
 </script>
+
+
+
+
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
