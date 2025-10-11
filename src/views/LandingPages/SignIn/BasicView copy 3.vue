@@ -1,4 +1,4 @@
-<script setup lang="ts"> 
+<script setup lang="ts">
 import { ref, onMounted, computed, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
@@ -261,7 +261,7 @@ onMounted(async () => {
       </form>
     </transition>
 
-    <!-- Botão Google sem borda -->
+    <!-- Botão Google fixo -->
     <div class="google-login-btn">
       <div id="googleButton"></div>
     </div>
@@ -418,7 +418,7 @@ onMounted(async () => {
 }
 
 .google-login-btn > div {
-  border: none !important; /* sem borda */
+  border: 2px solid #800080 !important;
   border-radius: 8px !important;
   padding: 10px;
   width: 100% !important;
