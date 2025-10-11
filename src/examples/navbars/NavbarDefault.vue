@@ -1,4 +1,4 @@
-impmenta aqui = <script setup>
+<script setup>
 import { RouterLink } from "vue-router";
 import { ref, watch, onMounted, nextTick } from "vue";
 import { useWindowsWidth } from "../../assets/js/useWindowsWidth";
@@ -64,9 +64,6 @@ onMounted(() => {
         if (collapse) collapse.hide();
       });
     });
-
-    // REMOVIDO: O listener customizado no toggler estava conflitando com o Bootstrap.
-    // O Bootstrap já gerencia o toggle (abrir/fechar) automaticamente.
   });
 });
 
@@ -87,7 +84,7 @@ const props = defineProps({
     default: () => ({
       route: "https://docs.google.com/forms/d/e/1FAIpQLSdLO0mga6ygr6oVlCHQ6Hgt48baiZuQlXTzPRYynhXv0etD3g/viewform",
       color: "bg-gradient-success",
-      label: "DOCUMENTOS"
+      label: "ASSINATURAS"
     })
   },
   transparent: { type: Boolean, default: false },
@@ -148,8 +145,10 @@ watch(() => type.value, (newValue) => {
           style="height:36px;width:auto;object-fit:contain;vertical-align:middle;" />
       </RouterLink>
 
-      <a @click="goToCadastrar" class="btn btn-sm bg-gradient-success mb-0 ms-auto d-lg-none d-block"
-        :class="action.color" role="button"> {{ action.label }} </a>
+      <!-- Botão ASSINATURAS no lugar do antigo DOCUMENTOS -->
+      <a @click="$router.push({ name: 'Assinaturas' }); fecharDropdown()"
+         class="btn btn-sm mb-0 ms-auto d-lg-none d-block btn-assinatura"
+         role="button">ASSINATURAS</a>
 
       <!-- Botão do menu -->
       <button class="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse"
@@ -214,7 +213,7 @@ watch(() => type.value, (newValue) => {
 
               <div class="dropdown-divider"></div>
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2 text-danger"
-                @click="logout; fecharDropdown();">
+                @click="logout(); fecharDropdown();">
                 <i class="bi bi-box-arrow-right"></i> Sair
               </button>
             </div>
@@ -260,8 +259,8 @@ watch(() => type.value, (newValue) => {
             </div>
           </li>
 
-          <!-- Assinatura -->
-          <li>
+          <!-- Assinatura Desktop -->
+          <li class="d-none d-lg-block">
             <a class="btn btn-sm mb-0 ms-2 btn-assinatura" role="button"
               @click="$router.push({ name: 'Assinaturas' }); fecharDropdown();">
               Assinatura
