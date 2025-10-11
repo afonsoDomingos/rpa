@@ -173,7 +173,7 @@ watch(() => type.value, (newValue) => {
             </a>
             <div class="dropdown-menu dropdown-menu-animation ms-n3 dropdown-md p-3 border-radius-xl mt-0 mt-lg-3"
               aria-labelledby="dropdownMenuPages">
-              <div class="row d-none d-lg-block">
+              <div class="row ">
                 <div class="col-12 px-4 py-2">
                   <div class="position-relative">
                     <div class="dropdown-header text-dark font-weight-bolder px-1">Pagina Principal</div>
@@ -189,6 +189,7 @@ watch(() => type.value, (newValue) => {
             </div>
           </li>
 
+          
           <!-- Usuário -->
           <li v-if="usuario" class="nav-item dropdown dropdown-hover mx-2">
             <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" :class="getTextColor()"
@@ -226,15 +227,17 @@ watch(() => type.value, (newValue) => {
           </li>
 
           <!-- Ferramentas -->
-          <li class="nav-item dropdown dropdown-hover mx-2">
-            <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" :class="getTextColor()"
-              id="dropdownTools" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-gear-fill me-2"></i>
-              Ferramentas
-              <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-2 d-lg-block d-none" />
-            </a>
+          <li class="nav-item dropdown dropdown-hover mx-2 ">
+           <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center"
+   :class="getTextColor()"
+   id="dropdownTools" data-bs-toggle="dropdown" aria-expanded="false">
+  <i class="bi bi-gear-fill me-2 rotatable-icon"></i>
+  Ferramentas
+  <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-2 d-lg-block d-none" />
+</a>
 
-            <div class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 border-radius-lg"
+
+            <div class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada border-radius-lg"
               aria-labelledby="dropdownTools" style="min-width: 180px;">
              
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
@@ -301,4 +304,15 @@ watch(() => type.value, (newValue) => {
   transform: scale(1.05);
   box-shadow: 0 4px 15px rgba(128, 0, 128, 0.3);
 }
+
+
+
+.rotatable-icon {
+  transition: transform 0.3s ease;
+}
+
+#dropdownTools[aria-expanded="true"] .rotatable-icon {
+  transform: rotate(90deg);
+}
+
 </style>
