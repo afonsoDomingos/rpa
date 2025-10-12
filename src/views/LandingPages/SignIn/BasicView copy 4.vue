@@ -1,9 +1,9 @@
-<script setup lang="ts">  
+<script setup lang="ts"> 
 import { ref, onMounted, computed, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import NavbarDefault from "../../../examples/navbars/NavbarDefault.vue";
-
+import FooterDefault from "../../../examples/footers/FooterDefault.vue";
 
 // Interfaces
 interface UserCredentials {
@@ -199,11 +199,7 @@ onMounted(async () => {
     </div>
   </div>
 
-
-
-
   <div class="auth-container">
-      <br/> <br/> <br/>
     <transition name="fade">
       <div class="switcher">
         <button :class="{ active: modo === 'login' }" @click="modo = 'login'">
@@ -265,6 +261,7 @@ onMounted(async () => {
       </form>
     </transition>
 
+    <!-- Botão Google sem borda -->
     <div class="google-login-btn">
       <div id="googleButton"></div>
     </div>
@@ -272,60 +269,30 @@ onMounted(async () => {
     <p class="info">© 2025 RPA Moçambique</p>
   </div>
 
-
+  <FooterDefault />
 </template>
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
 @import url("https://use.fontawesome.com/releases/v5.8.2/css/all.css");
 
-/* --- Reset e configuração base --- */
-html, body {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-}
-
-:host, #app {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
-
 * {
   font-family: "Poppins", sans-serif;
   box-sizing: border-box;
 }
 
-/* --- Navbar fixo sem margens --- */
-.container-fluid {
-  margin: 0;
-  padding: 0;
-}
-
-/* --- Container principal (tela de login/registro) --- */
 .auth-container {
-  position: relative;
-  min-height: 100vh;
-  width: 100vw;
-  margin: 0;
-  padding: 2rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-              url('@/assets/img/mybanner3.jpg') no-repeat center center fixed;
-  background-size: cover;
-  background-attachment: fixed;
+  min-height: 100vh;
+  padding: 2rem;
+  margin-top: 50px;
+  background: linear-gradient(135deg, #ffffff, #f8f3fc);
   animation: fadeIn 0.8s ease;
 }
 
-/* --- Seletor de modo (login/register) --- */
 .switcher {
   display: flex;
   gap: 1rem;
@@ -357,7 +324,6 @@ html, body {
   margin-right: 5px;
 }
 
-/* --- Formulário --- */
 .form {
   display: flex;
   flex-direction: column;
@@ -397,7 +363,6 @@ html, body {
   color: #800080;
 }
 
-/* --- Botão principal --- */
 .btn {
   background: #800080;
   color: #fff;
@@ -419,17 +384,6 @@ html, body {
   cursor: not-allowed;
 }
 
-/* --- Animação do botão --- */
-.pulse {
-  animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(128, 0, 128, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(128, 0, 128, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(128, 0, 128, 0); }
-}
-
-/* --- Spinner de carregamento --- */
 .spinner {
   border: 3px solid rgba(255, 255, 255, 0.3);
   border-top: 3px solid #fff;
@@ -447,7 +401,6 @@ html, body {
   100% { transform: rotate(360deg); }
 }
 
-/* --- Esqueceu senha --- */
 .forgot {
   text-align: center;
   margin-top: 0.6rem;
@@ -456,7 +409,6 @@ html, body {
   text-decoration: none;
 }
 
-/* --- Botão do Google --- */
 .google-login-btn {
   margin-top: 1rem;
   display: flex;
@@ -466,7 +418,7 @@ html, body {
 }
 
 .google-login-btn > div {
-  border: none !important;
+  border: none !important; /* sem borda */
   border-radius: 8px !important;
   padding: 10px;
   width: 100% !important;
@@ -479,7 +431,6 @@ html, body {
   box-shadow: 0 4px 12px rgba(128, 0, 128, 0.4);
 }
 
-/* --- Mensagens de erro --- */
 .error-message {
   color: #d32f2f;
   background: #fdeded;
@@ -491,15 +442,13 @@ html, body {
   text-align: center;
 }
 
-/* --- Rodapé --- */
 .info {
   margin-top: 2rem;
   font-size: 12px;
-  color: #ddd;
+  color: #888;
   text-align: center;
 }
 
-/* --- Transições --- */
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition: all 0.5s ease;
@@ -514,12 +463,4 @@ html, body {
   opacity: 0;
   transform: translateX(-30px);
 }
-
-/* --- Animação de entrada --- */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-
 </style>
