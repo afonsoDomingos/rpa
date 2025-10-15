@@ -1,4 +1,4 @@
-eles ainda saiem do rosto. garanta que nao ssai e garanta que os olhos sejam grandes = <template>
+ <template>
   <div class="chat-assistente-fixed" v-show="open">
     <div class="chat-header" @click="toggle">
       <span class="chat-avatar">
@@ -139,7 +139,6 @@ eles ainda saiem do rosto. garanta que nao ssai e garanta que os olhos sejam gra
     <path d="M7 10h10M7 14h7" stroke="#800080" stroke-width="2" stroke-linecap="round"/>
   </svg>
 </button>
-
 </template>
 
 <script setup>
@@ -1018,6 +1017,7 @@ onMounted(() => {
   background: #198754;
 }
 
+
 /* Botão do chat no canto inferior direito */
 .chat-fab {
   position: fixed;
@@ -1050,10 +1050,14 @@ onMounted(() => {
     bottom: 70px;
   }
   .chat-fab {
-    right: 12px;
+    right: 16px;
+    bottom: 30px;
+    width: 36px;
+    height: 36px;
+    /*right: 12px;
     bottom: 70px;
     width: 56px;
-    height: 56px;
+    height: 56px;*/
   }
 }
 
