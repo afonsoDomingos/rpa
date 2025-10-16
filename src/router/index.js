@@ -35,6 +35,8 @@ import Viaturas from "../components/viaturas.vue";
 import NoticiasAdmin from "../components/NoticiasAdmin.vue";
 
 import ComunidadeRpa from "../components/ComunidadeRpa.vue";  // NOVO COMPONENTE
+import AdminAssinaturas from "../components/AdminAssinaturas.vue";
+
 
 
 // NOVO COMPONENTE
@@ -250,7 +252,14 @@ const router = createRouter({
     path: "/comunidade",
     name: "ComunidadeRpa",
     component: ComunidadeRpa
-  }
+  },
+  {
+  path: "/admin/assinaturas",
+  name: "AdminAssinaturas",
+  component: AdminAssinaturas,
+  meta: { requerAutenticacao: true }
+},
+
 
   ],
 });

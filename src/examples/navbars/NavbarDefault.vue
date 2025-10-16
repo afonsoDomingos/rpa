@@ -19,7 +19,7 @@ function fecharDropdown() {
 import ArrDark from "@/assets/img/down-arrow-dark.svg";
 import DownArrWhite from "@/assets/img/down-arrow-white.svg";
 
-import eventBus from '@/eventBus'; 
+import eventBus from '@/eventBus';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
@@ -122,11 +122,11 @@ watch(() => type.value, (newValue) => {
 
 <template>
   <nav class="navbar navbar-expand-lg top-0" :class="{
-      'z-index-3 w-100 shadow-none navbar-transparent position-absolute my-3': props.transparent,
-      'my-3 blur border-radius-lg z-index-3 py-2 shadow py-2 start-0 end-0 mx-4 position-absolute  mt-4': props.sticky,
-      'navbar-light bg-white py-3': props.light,
-      ' navbar-dark bg-gradient-dark z-index-3 py-3': props.dark
-    }">
+    'z-index-3 w-100 shadow-none navbar-transparent position-absolute my-3': props.transparent,
+    'my-3 blur border-radius-lg z-index-3 py-2 shadow py-2 start-0 end-0 mx-4 position-absolute  mt-4': props.sticky,
+    'navbar-light bg-white py-3': props.light,
+    ' navbar-dark bg-gradient-dark z-index-3 py-3': props.dark
+  }">
     <div :class="props.transparent || props.light || props.dark ? 'container' : 'container-fluid px-0'">
 
       <!-- Logo Desktop -->
@@ -147,8 +147,7 @@ watch(() => type.value, (newValue) => {
 
       <!-- Botão ASSINATURAS no lugar do antigo DOCUMENTOS -->
       <a @click="$router.push({ name: 'Assinaturas' }); fecharDropdown()"
-         class="btn btn-sm mb-0 ms-auto d-lg-none d-block btn-assinatura"
-         role="button">ASSINATURAS</a>
+        class="btn btn-sm mb-0 ms-auto d-lg-none d-block btn-assinatura" role="button">ASSINATURAS</a>
 
       <!-- Botão do menu -->
       <button class="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse"
@@ -177,32 +176,44 @@ watch(() => type.value, (newValue) => {
                 <div class="col-12 px-4 py-2">
                   <div class="position-relative">
                     <div class="dropdown-header text-dark font-weight-bolder px-1">Pagina Principal</div>
-                    <RouterLink :to="{ name: 'about' }" class="dropdown-item border-radius-md" @click="fecharDropdown">Sobre nós</RouterLink>
-                    <RouterLink :to="{ name: 'contactus' }" class="dropdown-item border-radius-md" @click="fecharDropdown">Contacte-nos</RouterLink>
-                    <RouterLink :to="{ name: 'author' }" class="dropdown-item border-radius-md" @click="fecharDropdown">Autor</RouterLink>
+                    <RouterLink :to="{ name: 'about' }" class="dropdown-item border-radius-md" @click="fecharDropdown">
+                      Sobre nós</RouterLink>
+                    <RouterLink :to="{ name: 'contactus' }" class="dropdown-item border-radius-md"
+                      @click="fecharDropdown">Contacte-nos</RouterLink>
+                    <RouterLink :to="{ name: 'author' }" class="dropdown-item border-radius-md" @click="fecharDropdown">
+                      Autor</RouterLink>
 
                     <div class="dropdown-header text-dark font-weight-bolder px-0 mt-3">Conta</div>
-                    <RouterLink :to="{ name: 'signin-basic' }" class="dropdown-item border-radius-md" @click="fecharDropdown">Inscrever-se</RouterLink>
+                    <RouterLink :to="{ name: 'signin-basic' }" class="dropdown-item border-radius-md"
+                      @click="fecharDropdown">Inscrever-se</RouterLink>
                   </div>
                 </div>
               </div>
             </div>
           </li>
 
-          
+
           <!-- Usuário -->
           <li v-if="usuario" class="nav-item dropdown dropdown-hover mx-2">
             <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" :class="getTextColor()"
               id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-             
+
               <i class="material-icons opacity-6 me-2 text-md rotatable-profile" :class="getTextColor()">person</i>
 
               {{ usuario?.nome || 'Usuário' }}
               <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-2 d-lg-block d-none" />
             </a>
 
-            <div ref="dropdownMenu" class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada"
+            <div ref="dropdownMenu"
+              class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada"
               aria-labelledby="dropdownUser" style="min-width: 180px;">
+
+               <!-- Botão Pagamentos (apenas Admin) -->
+  <button v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
+          class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+          @click="$router.push({ name: 'AdminAssinaturas' }); fecharDropdown();">
+    <i class="bi bi-wallet2 text-success"></i> Pagamentos
+  </button>
 
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="$router.push({ name: 'MeusPagamentos' }); fecharDropdown();">
@@ -230,18 +241,18 @@ watch(() => type.value, (newValue) => {
 
           <!-- Ferramentas -->
           <li class="nav-item dropdown dropdown-hover mx-2 ">
-           <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center"
-   :class="getTextColor()"
-   id="dropdownTools" data-bs-toggle="dropdown" aria-expanded="false">
-  <i class="bi bi-gear-fill me-2 rotatable-icon"></i>
-  Ferramentas
-  <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-2 d-lg-block d-none" />
-</a>
+            <a role="button" class="nav-link ps-2 d-flex cursor-pointer align-items-center" :class="getTextColor()"
+              id="dropdownTools" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-gear-fill me-2 rotatable-icon"></i>
+              Ferramentas
+              <img :src="getArrowColor()" alt="down-arrow" class="arrow ms-2 d-lg-block d-none" />
+            </a>
 
 
-            <div class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada border-radius-lg"
+            <div
+              class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada border-radius-lg"
               aria-labelledby="dropdownTools" style="min-width: 180px;">
-             
+
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="$router.push({ name: 'ComunidadeRpa' }); fecharDropdown();">
                 <i class="bi bi-people-fill text-info"></i> Comunidade
@@ -311,24 +322,27 @@ watch(() => type.value, (newValue) => {
 
 .rotatable-icon {
   transition: transform 0.3s ease, color 0.3s ease;
-  color: inherit; /* mantém a cor do menu quando fechado */
+  color: inherit;
+  /* mantém a cor do menu quando fechado */
 }
 
 #dropdownTools[aria-expanded="true"] .rotatable-icon {
   transform: rotate(90deg);
-  color: #800080; /* roxo só quando aberto */
+  color: #800080;
+  /* roxo só quando aberto */
 }
 
 
 
 .rotatable-profile {
   transition: transform 0.3s ease, color 0.3s ease;
-  color: inherit; /* cor original quando fechado */
+  color: inherit;
+  /* cor original quando fechado */
 }
 
 #dropdownUser[aria-expanded="true"] .rotatable-profile {
   transform: scale(1.2);
-  color: #800080 !important; /* força o roxo mesmo com classes existentes */
+  color: #800080 !important;
+  /* força o roxo mesmo com classes existentes */
 }
-
 </style>
