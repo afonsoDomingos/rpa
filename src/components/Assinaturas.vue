@@ -51,7 +51,9 @@
           <form v-if="selectedPaymentMethod" @submit.prevent="handleSubmit" class="form">
             <div v-if="['mpesa', 'emola'].includes(selectedPaymentMethod)" class="form-group">
               <label class="form-label">Número {{ selectedPaymentMethod === 'mpesa' ? 'M-Pesa' : 'Emola' }}</label>
-              <input v-model="mobileDetails.phone" type="tel" :placeholder="selectedPaymentMethod === 'mpesa' ? '+258 84 123 4567' : '+258 82 123 4567'" required class="form-input"/>
+             
+              <input v-model="mobileDetails.phone" type="tel" :placeholder="selectedPaymentMethod === 'mpesa' ? '84 123 4567' : '86 123 4567'" required  class="form-input"/>
+
             </div>
 
             <div v-if="selectedPaymentMethod === 'card'" class="form-group">
