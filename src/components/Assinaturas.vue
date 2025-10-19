@@ -148,8 +148,18 @@ const cardDetails = reactive({ number: '', expiry: '', cvv: '' })
 
 function normalizarTelefone(phone) {
   const cleaned = phone.replace(/[\s\-\(\)\+]/g, '')
-  if (!/^258\d{9}$/.test(cleaned)) return null
-  return cleaned
+
+  // Se o número começar com 84, 85, 86, 87 ou 82 → adiciona automaticamente o 258
+  if (/^(84|85|86|87|82)\d{7}$/.test(cleaned)) {
+    return '258' + cleaned
+  }
+
+  // Se já tiver o prefixo 258, aceita
+  if (/^258\d{9}$/.test(cleaned)) {
+    return cleaned
+  }
+
+  return null
 }
 
 // 🔹 Logs bonitos
