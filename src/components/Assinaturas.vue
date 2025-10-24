@@ -50,9 +50,7 @@
           <form v-if="selectedPaymentMethod" @submit.prevent="handleSubmit" class="form">
             <div v-if="['mpesa', 'emola'].includes(selectedPaymentMethod)" class="form-group">
               <label class="form-label">Número {{ selectedPaymentMethod === 'mpesa' ? 'M-Pesa' : 'Emola' }}</label>
-             
-              <input v-model="mobileDetails.phone" type="tel" :placeholder="selectedPaymentMethod === 'mpesa' ? '84 123 4567' : '86 123 4567'" required  class="form-input"/>
-
+              <input v-model="mobileDetails.phone" type="tel" :placeholder="selectedPaymentMethod === 'mpesa' ? '84 123 4567' : '86 123 4567'" required class="form-input"/>
             </div>
 
             <div v-if="selectedPaymentMethod === 'card'" class="form-group">
@@ -119,6 +117,7 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref, reactive } from 'vue'
 import mpesaIcon from '@/assets/img/Mpesa.png'
@@ -133,9 +132,9 @@ const showSuccess = ref(false)
 const errorMessage = ref("")
 
 const packages = [
-  { id: 'free', name: 'Gratuito', price: 0, benefits: ['Permite fazer pesquisas', 'Gerar CV', '1 GB de armazenamento'], recommended: false },
-  { id: 'mensal', name: 'Mensal', price: 150, benefits: ['Tudo do plano gratuito', 'Solicitar documentos', '3 GB de armazenamento', 'Suporte prioritário', 'Atualizações semanais'], recommended: true },
-  { id: 'anual', name: 'Anual', price: 1500, benefits: ['Tudo do plano mensal', 'Delivery de documentos', 'Atualizações diárias'], recommended: false }
+  { id: 'free', name: 'Gratuito', price: 0, period: '', benefits: ['Permite fazer pesquisas', 'Gerar CV', '1 GB de armazenamento'], recommended: false },
+  { id: 'mensal', name: 'Mensal', price: 150, period: '/mês', benefits: ['Tudo do plano gratuito', 'Solicitar documentos', '3 GB de armazenamento', 'Suporte prioritário', 'Atualizações semanais'], recommended: true },
+  { id: 'anual', name: 'Anual', price: 1500, period: '/ano', benefits: ['Tudo do plano mensal', 'Delivery de documentos', 'Atualizações diárias'], recommended: false }
 ]
 
 const paymentMethods = [
@@ -150,12 +149,10 @@ const cardDetails = reactive({ number: '', expiry: '', cvv: '' })
 function normalizarTelefone(phone) {
   const cleaned = phone.replace(/[\s\-\(\)\+]/g, '')
 
-  // Se o número começar com 84, 85, 86, 87 ou 82 → adiciona automaticamente o 258
   if (/^(84|85|86|87|82)\d{7}$/.test(cleaned)) {
     return '258' + cleaned
   }
 
-  // Se já tiver o prefixo 258, aceita
   if (/^258\d{9}$/.test(cleaned)) {
     return cleaned
   }
@@ -163,7 +160,6 @@ function normalizarTelefone(phone) {
   return null
 }
 
-// 🔹 Logs bonitos
 function logInfo(title, data) {
   console.groupCollapsed(`%cℹ️ INFO: ${title}`, 'background: #e0f7fa; color: #006064; font-weight: bold; padding: 2px 6px; border-radius: 4px;')
   console.log(data)
@@ -188,7 +184,6 @@ function logError(title, data) {
   console.groupEnd()
 }
 
-// Funções de seleção
 const selectPackage = (pkg) => {
   selectedPackage.value = pkg
   errorMessage.value = ""
@@ -201,21 +196,53 @@ const selectPaymentMethod = (id) => {
   logInfo("Método de pagamento selecionado", id)
 }
 
-// Navegação de passos
-const nextStep = () => {
+const ativarPlanoGratuito = async () => {
+  loading.value = true
+  try {
+    const token = localStorage.getItem("token") || ""
+    const payload = {
+      pacote: 'free',
+      method: 'gratuito',
+      amount: 0,
+      type: "assinatura"
+    }
+
+    const API_URL = "https://apirpa.onrender.com/api/pagamentos"
+    const response = await axios.post(`${API_URL}/processar`, payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+
+    if (response.data?.sucesso) {
+      showSuccess.value = true
+      logSuccess("Plano gratuito ativado com sucesso", response.data)
+    } else {
+      errorMessage.value = response.data?.mensagem || "Erro ao ativar plano gratuito."
+      logError("Falha ao ativar plano gratuito", response.data)
+    }
+  } catch (err) {
+    errorMessage.value = "Erro ao ativar plano gratuito."
+    logError("Erro ao ativar plano gratuito", err)
+  } finally {
+    loading.value = false
+    logInfo("Processamento finalizado", { loading: loading.value })
+  }
+}
+
+const nextStep = async () => {
   errorMessage.value = ""
   if (!selectedPackage.value) {
     errorMessage.value = "Por favor, selecione um pacote."
     logWarning("Tentativa de avançar sem pacote selecionado", null)
     return
   }
-  if (selectedPackage.value.price > 0) {
-    currentStep.value = 2
-    logInfo("Avançando para passo 2 - escolha do pagamento", selectedPaymentMethod.value)
-  } else {
-    showSuccess.value = true
-    logSuccess("Plano gratuito selecionado - exibindo sucesso direto", selectedPackage.value)
+
+  if (selectedPackage.value.price === 0) {
+    await ativarPlanoGratuito()
+    return
   }
+
+  currentStep.value = 2
+  logInfo("Avançando para passo 2 - escolha do pagamento", selectedPaymentMethod.value)
 }
 
 const previousStep = () => {
@@ -225,7 +252,7 @@ const previousStep = () => {
 }
 
 const goBack = () => {
-  if(currentStep.value === 2) {
+  if (currentStep.value === 2) {
     previousStep()
   } else {
     window.history.back()
@@ -233,7 +260,6 @@ const goBack = () => {
   }
 }
 
-// Submissão do pedido
 const handleSubmit = async () => {
   errorMessage.value = ""
   if (loading.value) {
@@ -250,7 +276,6 @@ const handleSubmit = async () => {
   loading.value = true
   logInfo("Iniciando submissão do pedido", { pacote: selectedPackage.value.id, metodo: selectedPaymentMethod.value })
 
-  // Normaliza telefone
   if (['mpesa', 'emola'].includes(selectedPaymentMethod.value)) {
     const telefoneValido = normalizarTelefone(mobileDetails.phone)
     if (!telefoneValido) {
@@ -311,22 +336,11 @@ const handleSubmit = async () => {
 }
 </script>
 
-
-
-
-
-
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap');
 
-
-
 .payment-method-icon-img { width: 48px; height: auto; }
-.title, .package-name, .summary-title, .section-title, .success-title {
-  font-family: 'Poppins', sans-serif !important;
-}
 .title, .package-name, .summary-title, .section-title, .success-title {
   font-family: 'Poppins', sans-serif !important;
 }
@@ -551,10 +565,6 @@ const handleSubmit = async () => {
   font-size: 0.875rem;
   font-weight: 600;
   color: #ffffff;
-}
-
-.payment-form {
-  margin-top: 2rem;
 }
 
 .form {
