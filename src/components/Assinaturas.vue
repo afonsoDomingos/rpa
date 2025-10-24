@@ -18,9 +18,9 @@
             <div v-if="pkg.recommended" class="recommended-badge">Recomendado</div>
             <h3 class="package-name">{{ pkg.name }}</h3>
             <div class="package-price">
-              <span class="currency">MZN</span>
-              <span class="amount">{{ pkg.price.toLocaleString('pt-MZ') }}</span>
-              <span class="period">{{ pkg.period }}</span>
+              <span v-if="pkg.price > 0" class="currency">MZN</span>
+              <span class="amount">{{ pkg.price > 0 ? pkg.price.toLocaleString('pt-MZ') : 'Gratuito' }}</span>
+              <span v-if="pkg.price > 0" class="period">{{ pkg.period }}</span>
             </div>
             <ul class="benefits-list">
               <li v-for="(benefit, index) in pkg.benefits" :key="index" class="benefit-item">
@@ -110,7 +110,7 @@
 
         <div class="summary-total">
           <span class="total-label">Total</span>
-          <span class="total-amount">MZN {{ selectedPackage?.price.toLocaleString('pt-MZ') }}</span>
+          <span class="total-amount">{{ selectedPackage?.price > 0 ? 'MZN ' + selectedPackage.price.toLocaleString('pt-MZ') : 'Gratuito' }}</span>
         </div>
 
         <button v-if="currentStep === 1 && selectedPackage" @click="nextStep" class="continue-button">Continuar para Pagamento</button>
@@ -133,8 +133,9 @@ const showSuccess = ref(false)
 const errorMessage = ref("")
 
 const packages = [
-  { id: 'mensal', name: 'Mensal', price: 150, period: '/mês', benefits: ['Permite fazer pesquisas', 'Gerar CV', 'Solicitar documentos', '3 GB de armazenamento', 'Suporte prioritário', 'Atualizações semanais'], recommended: true },
-  { id: 'anual', name: 'Anual', price: 1500, period: '/ano', benefits: ['Tudo do plano mensal', 'Delivery de documentos', 'Atualizações diárias'], recommended: false }
+  { id: 'free', name: 'Gratuito', price: 0, benefits: ['Permite fazer pesquisas', 'Gerar CV', '1 GB de armazenamento'], recommended: false },
+  { id: 'mensal', name: 'Mensal', price: 150, benefits: ['Tudo do plano gratuito', 'Solicitar documentos', '3 GB de armazenamento', 'Suporte prioritário', 'Atualizações semanais'], recommended: true },
+  { id: 'anual', name: 'Anual', price: 1500, benefits: ['Tudo do plano mensal', 'Delivery de documentos', 'Atualizações diárias'], recommended: false }
 ]
 
 const paymentMethods = [
@@ -208,8 +209,13 @@ const nextStep = () => {
     logWarning("Tentativa de avançar sem pacote selecionado", null)
     return
   }
-  currentStep.value = 2
-  logInfo("Avançando para passo 2 - escolha do pagamento", selectedPaymentMethod.value)
+  if (selectedPackage.value.price > 0) {
+    currentStep.value = 2
+    logInfo("Avançando para passo 2 - escolha do pagamento", selectedPaymentMethod.value)
+  } else {
+    showSuccess.value = true
+    logSuccess("Plano gratuito selecionado - exibindo sucesso direto", selectedPackage.value)
+  }
 }
 
 const previousStep = () => {
