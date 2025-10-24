@@ -1,4 +1,3 @@
-
 <template>
      <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
     <div class="row gx-0">
@@ -27,7 +26,7 @@
       <!-- Header -->
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h1 class="h3 mb-1 text-white">Gestão de Assinaturas</h1>
+          <h1 class="h3 mb-1 text-white">Gestão de Assinaturas.</h1>
           <p class="text-muted mb-0">Painel administrativo de controle</p>
         </div>
         <button class="btn btn-purple" @click="carregarPagamentos">
@@ -390,8 +389,6 @@ const detalhesPagamento = computed(() => {
 // Carregar ao montar
 onMounted(() => carregarPagamentos());
 </script>
-
-
 
 <style scoped>
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
