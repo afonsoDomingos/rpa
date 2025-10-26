@@ -407,8 +407,6 @@ watch(() => type.value, (newValue) => {
   </nav>
 </template>
 
-
-
 <style scoped>
 /* Logo/Olho */
 .logo-wrapper {
@@ -441,7 +439,6 @@ watch(() => type.value, (newValue) => {
   transform: scale(1);
 }
 
-/* Mantém todas as classes de navbar existentes */
 .borda-destacada {
   border: 2px solid #66bb6a;
   border-radius: 12px;
@@ -494,4 +491,20 @@ watch(() => type.value, (newValue) => {
 body {
   padding-top: 60px; /* ajuste conforme a altura real do navbar */
 }
+
+@media (max-width: 991px) {
+  .navbar {
+    width: 90%; /* ocupa 90% da tela no mobile */
+    max-width: 380px; /* evita que fique muito larga em tablets */
+    margin: 0 auto; /* centraliza horizontalmente */
+    border-radius: 12px;
+  }
+
+  .navbar .container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
 </style>
+
