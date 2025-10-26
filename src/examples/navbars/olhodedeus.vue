@@ -1,5 +1,6 @@
 <template>
   <div class="floating-eye" @click="changeColor">
+   
     <div class="eye" :class="{ blinking: isBlinking }">
       <div class="sclera">
         <div 

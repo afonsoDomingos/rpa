@@ -5,6 +5,7 @@ import axios from "axios";
 import NavbarDefault from "../../../examples/navbars/NavbarDefault.vue";
 
 
+
 // Interfaces
 interface UserCredentials {
   email: string;
