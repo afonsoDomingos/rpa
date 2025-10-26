@@ -36,6 +36,24 @@ const colors = [
   "radial-gradient(circle at 50% 55%, #34d399 0%, #047857 90%)"
 ]
 
+let targetIris = { x: 0, y: 0 }
+let lastMoveTime = Date.now()
+
+// Função para atualizar a posição suavemente
+const updateIris = () => {
+  const now = Date.now()
+  // Se passou mais de 1s sem movimento, centraliza suavemente
+  if (now - lastMoveTime > 1000) {
+    targetIris = { x: 0, y: 0 }
+  }
+
+  // Interpolação suave (lerp)
+  iris.value.x += (targetIris.x - iris.value.x) * 0.1
+  iris.value.y += (targetIris.y - iris.value.y) * 0.1
+
+  requestAnimationFrame(updateIris)
+}
+
 // Movimento do cursor
 const handleMouseMove = (event) => {
   if (!eyeElement) return
@@ -50,10 +68,11 @@ const handleMouseMove = (event) => {
   const distance = Math.min(Math.sqrt(dx * dx + dy * dy), maxDistance)
   const angle = Math.atan2(dy, dx)
 
-  iris.value = {
+  targetIris = {
     x: Math.cos(angle) * distance,
     y: Math.sin(angle) * distance
   }
+  lastMoveTime = Date.now()
 }
 
 // Movimento com giroscópio do dispositivo
@@ -64,10 +83,11 @@ const handleDeviceOrientation = (event) => {
   const x = (event.gamma || 0) / 30
   const y = (event.beta || 0) / 30
 
-  iris.value = {
+  targetIris = {
     x: Math.max(Math.min(x * maxDistance, maxDistance), -maxDistance),
     y: Math.max(Math.min(y * maxDistance, maxDistance), -maxDistance)
   }
+  lastMoveTime = Date.now()
 }
 
 // Piscar aleatoriamente
@@ -97,6 +117,7 @@ onMounted(() => {
   window.addEventListener("mousemove", handleMouseMove)
   document.addEventListener("click", handleGlobalButtonClick)
   blink()
+  updateIris()
 
   if (window.DeviceOrientationEvent) {
     window.addEventListener("deviceorientation", handleDeviceOrientation)
