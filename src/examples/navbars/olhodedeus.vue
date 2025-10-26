@@ -1,6 +1,5 @@
 <template>
   <div class="floating-eye" @click="changeColor">
-   
     <div class="eye" :class="{ blinking: isBlinking }">
       <div class="sclera">
         <div 
@@ -37,6 +36,7 @@ const colors = [
   "radial-gradient(circle at 50% 55%, #34d399 0%, #047857 90%)"
 ]
 
+// Movimento do cursor
 const handleMouseMove = (event) => {
   if (!eyeElement) return
   const rect = eyeElement.getBoundingClientRect()
@@ -56,6 +56,20 @@ const handleMouseMove = (event) => {
   }
 }
 
+// Movimento com giroscópio do dispositivo
+const handleDeviceOrientation = (event) => {
+  if (!eyeElement) return
+
+  const maxDistance = 6
+  const x = (event.gamma || 0) / 30
+  const y = (event.beta || 0) / 30
+
+  iris.value = {
+    x: Math.max(Math.min(x * maxDistance, maxDistance), -maxDistance),
+    y: Math.max(Math.min(y * maxDistance, maxDistance), -maxDistance)
+  }
+}
+
 // Piscar aleatoriamente
 const blink = () => {
   isBlinking.value = true
@@ -71,7 +85,7 @@ const changeColor = () => {
   irisColor.value = next
 }
 
-// Mudar cor sempre que QUALQUER botão for clicado
+// Mudar cor ao clicar em qualquer botão
 const handleGlobalButtonClick = (event) => {
   if (event.target.closest("button")) {
     changeColor()
@@ -83,11 +97,18 @@ onMounted(() => {
   window.addEventListener("mousemove", handleMouseMove)
   document.addEventListener("click", handleGlobalButtonClick)
   blink()
+
+  if (window.DeviceOrientationEvent) {
+    window.addEventListener("deviceorientation", handleDeviceOrientation)
+  }
 })
 
 onUnmounted(() => {
   window.removeEventListener("mousemove", handleMouseMove)
   document.removeEventListener("click", handleGlobalButtonClick)
+  if (window.DeviceOrientationEvent) {
+    window.removeEventListener("deviceorientation", handleDeviceOrientation)
+  }
 })
 </script>
 
@@ -149,7 +170,7 @@ onUnmounted(() => {
   position: relative;
   transition: 
     transform 0.15s ease-out,
-    background 1.2s ease-in-out,      /* suaviza a mudança de cor */
+    background 1.2s ease-in-out,
     box-shadow 1s ease-in-out;
   background: radial-gradient(circle at 50% 55%, #a855f7 0%, #6b21a8 90%);
   box-shadow:
@@ -158,7 +179,6 @@ onUnmounted(() => {
     inset 0 -2px 4px rgba(0, 0, 0, 0.6);
 }
 
-/* efeito leve de brilho quando muda de cor */
 .iris:active, 
 .iris:focus, 
 .iris-changing {
@@ -236,8 +256,6 @@ onUnmounted(() => {
   filter: blur(0.7px);
   opacity: 0.7;
 }
-
-
 
 @keyframes rotateFibers {
   0% { transform: rotate(0deg); }
