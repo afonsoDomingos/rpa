@@ -278,7 +278,15 @@ onBeforeUnmount(() => {
 
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+/*@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');*/
+
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+
+/* Para a fonte Poppins */
+@import '@fontsource/poppins/500.css';
+@import '@fontsource/poppins/600.css';
+@import '@fontsource/poppins/700.css';
 
 .threads-feed { 
   max-width: 680px; 

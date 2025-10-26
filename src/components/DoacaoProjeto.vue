@@ -58,8 +58,20 @@ function copiar(valor) {
 </script>
 
 <style scoped>
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+/*@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');*/
+
+
+/* Importando o Font Awesome localmente */
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+/* Importando a fonte Roboto localmente */
+@import '@fontsource/roboto/400.css';
+@import '@fontsource/roboto/500.css';
+@import '@fontsource/roboto/700.css';
+
+
 
 body, .doacao-container { font-family: 'Roboto', sans-serif; }
 

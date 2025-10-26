@@ -210,8 +210,17 @@ onUnmounted(pausarAutoScroll);
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+/*@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');*/
+
+/* Importando o Font Awesome localmente */
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+/* Para a fonte Poppins */
+@import '@fontsource/poppins/500.css';
+@import '@fontsource/poppins/600.css';
+@import '@fontsource/poppins/700.css';
+
 
 * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
 

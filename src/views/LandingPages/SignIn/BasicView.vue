@@ -276,8 +276,17 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
-@import url("https://use.fontawesome.com/releases/v5.8.2/css/all.css");
+/*@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
+@import url("https://use.fontawesome.com/releases/v5.8.2/css/all.css");*/
+
+
+/* Importando o Font Awesome localmente */
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+/* Para a fonte Poppins */
+@import '@fontsource/poppins/500.css';
+@import '@fontsource/poppins/600.css';
+@import '@fontsource/poppins/700.css';
 
 /* --- Reset e configuração base --- */
 html, body {
@@ -286,6 +295,14 @@ html, body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+}
+
+label, .form-label {
+    font-size: 0.875rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+    color: #800080;
+    margin-left: 0.25rem;
 }
 
 :host, #app {
@@ -452,7 +469,7 @@ html, body {
   text-align: center;
   margin-top: 0.6rem;
   font-size: 13px;
-  color: #800080;
+  color: #ffffff;
   text-decoration: none;
 }
 

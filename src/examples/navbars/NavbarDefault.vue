@@ -208,12 +208,12 @@ watch(() => type.value, (newValue) => {
               class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada"
               aria-labelledby="dropdownUser" style="min-width: 180px;">
 
-               <!-- Botão Pagamentos (apenas Admin) -->
-  <button v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
-          class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-          @click="$router.push({ name: 'AdminAssinaturas' }); fecharDropdown();">
-    <i class="bi bi-wallet2 text-success"></i> Pagamentos
-  </button>
+              <!-- Botão Pagamentos (apenas Admin) -->
+              <button v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
+                class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+                @click="$router.push({ name: 'AdminAssinaturas' }); fecharDropdown();">
+                <i class="bi bi-wallet2 text-success"></i> Pagamentos
+              </button>
 
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="$router.push({ name: 'MeusPagamentos' }); fecharDropdown();">
