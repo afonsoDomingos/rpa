@@ -36,6 +36,7 @@ import NoticiasAdmin from "../components/NoticiasAdmin.vue";
 
 import ComunidadeRpa from "../components/ComunidadeRpa.vue";  // NOVO COMPONENTE
 import AdminAssinaturas from "../components/AdminAssinaturas.vue";
+import olhodedeus from "../examples/navbars/olhodedeus.vue";
 
 
 
@@ -258,6 +259,12 @@ const router = createRouter({
   name: "AdminAssinaturas",
   component: AdminAssinaturas,
   meta: { requerAutenticacao: true }
+},
+
+{
+  path: '/olhodedeus',
+  name: 'olhodedeus',
+  component: olhodedeus,
 },
 
 

@@ -18,6 +18,7 @@ import CustomCursor from "./views/Presentation/CustomCursor.vue";
 import SocialIcons from "./components/SocialIcons.vue";
 import ChatAssistente from "./components/ChatAssistente.vue";
 
+import olhodedeus from "./examples/navbars/olhodedeus.vue";
 
 import { ref, onMounted, onUnmounted } from 'vue';
 
@@ -80,6 +81,7 @@ const props = defineProps({
       </div>
     </transition>
     <div v-show="!showIcon">
+      <olhodedeus />
       <router-view />
       <CustomCursor />
       <ChatAssistente v-if="!showScrollTop" />
