@@ -276,8 +276,8 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-/*@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
-@import url("https://use.fontawesome.com/releases/v5.8.2/css/all.css");*/
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
+@import url("https://use.fontawesome.com/releases/v5.8.2/css/all.css");
 
 
 /* Importando o Font Awesome localmente */

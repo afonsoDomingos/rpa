@@ -4,8 +4,9 @@ import App from "./App.vue";
 import router from "./router";
 import i18n from './i18n';
 
-// Bootstrap CSS
+// Bootstrap CSS + JS
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 // Font Awesome
 import '@fortawesome/fontawesome-free/css/all.css';
@@ -23,14 +24,11 @@ import materialKit from "./material-kit";
 
 // ====================
 // Fontes locais @fontsource v4
-// Roboto
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import '@fontsource/roboto/900.css';
-
-// Roboto Slab
 import '@fontsource/roboto-slab/400.css';
 import '@fontsource/roboto-slab/700.css';
 
