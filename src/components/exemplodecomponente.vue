@@ -1,4 +1,5 @@
 <template>
+  
   <div>
     <!-- Navbar fixo -->
     <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
@@ -26,4 +27,6 @@
 <script setup>
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../examples/footers/FooterDefault.vue";
+dggsg
 </script>
+

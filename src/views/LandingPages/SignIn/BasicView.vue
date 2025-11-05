@@ -204,7 +204,7 @@ onMounted(async () => {
 
 
   <div class="auth-container">
-      <br/> <br/> <br/>
+    <br /> <br /> <br />
     <transition name="fade">
       <div class="switcher">
         <button :class="{ active: modo === 'login' }" @click="modo = 'login'">
@@ -224,11 +224,18 @@ onMounted(async () => {
           <i class="far fa-envelope"></i>
           <input v-model="email" type="email" placeholder="E-mail" required />
         </label>
-        <label class="input-group">
-          <i class="fas fa-lock"></i>
-          <input :type="showPass ? 'text' : 'password'" v-model="password" placeholder="Senha" required />
-          <i :class="showPass ? 'fas fa-eye-slash' : 'fas fa-eye'" class="eye" @click="showPass = !showPass"></i>
-        </label>
+        
+       <label class="input-group">
+  <i class="fas fa-lock"></i>
+  <input :type="showPass ? 'text' : 'password'" v-model="password" placeholder="Senha" required />
+  <span class="eye" @click="showPass = !showPass">
+    <i :class="showPass ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+  </span>
+</label>
+
+
+    
+
         <button type="submit" class="btn pulse" :disabled="isLoading || !isLoginValid">
           <span v-if="isLoading">
             <span class="spinner"></span> Processando...
@@ -247,16 +254,20 @@ onMounted(async () => {
           <i class="far fa-envelope"></i>
           <input v-model="newEmail" type="email" placeholder="E-mail" required />
         </label>
+      <label class="input-group">
+  <i class="fas fa-lock"></i>
+  <input :type="showNewPass ? 'text' : 'password'" v-model="newPassword" placeholder="Senha" required />
+  <span class="eye" @click="showNewPass = !showNewPass">
+    <i :class="showNewPass ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+  </span>
+</label>
         <label class="input-group">
-          <i class="fas fa-lock"></i>
-          <input :type="showNewPass ? 'text' : 'password'" v-model="newPassword" placeholder="Senha" required />
-          <i :class="showNewPass ? 'fas fa-eye-slash' : 'fas fa-eye'" class="eye" @click="showNewPass = !showNewPass"></i>
-        </label>
-        <label class="input-group">
-          <i class="fas fa-lock"></i>
-          <input :type="showConfirmPass ? 'text' : 'password'" v-model="confirmPassword" placeholder="Confirmar senha" required />
-          <i :class="showConfirmPass ? 'fas fa-eye-slash' : 'fas fa-eye'" class="eye" @click="showConfirmPass = !showConfirmPass"></i>
-        </label>
+  <i class="fas fa-lock"></i>
+  <input :type="showConfirmPass ? 'text' : 'password'" v-model="confirmPassword" placeholder="Confirmar senha" required />
+  <span class="eye" @click="showConfirmPass = !showConfirmPass">
+    <i :class="showConfirmPass ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+  </span>
+</label>
         <button type="submit" class="btn pulse" :disabled="isLoading || !isRegisterValid">
           <span v-if="isLoading">
             <span class="spinner"></span> Processando...
@@ -413,7 +424,10 @@ label, .form-label {
   right: 12px;
   cursor: pointer;
   color: #800080;
+  z-index: 2;
+  pointer-events: auto;
 }
+
 
 /* --- Botão principal --- */
 .btn {
