@@ -426,7 +426,17 @@ label, .form-label {
   color: #800080;
   z-index: 2;
   pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
+
+.eye:hover {
+  color: #0f752f; /* cor ao passar o mouse */
+  transform: scale(1.2);
+}
+
 
 
 /* --- Botão principal --- */
