@@ -1,16 +1,15 @@
 <template>
   <div>
-   <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
-    <div class="row gx-0">
-      <div class="col-12">
-        <NavbarDefault :sticky="true" />
+    <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
+      <div class="row gx-0">
+        <div class="col-12">
+          <NavbarDefault :sticky="true" />
+        </div>
       </div>
     </div>
-  </div>
 
-    <br/> <br/> <br/>
+    <br /><br /><br />
     <div class="container py-5" style="min-height: 80vh; overflow-y: auto;">
-
       <!-- Cabeçalho -->
       <div class="titulo-pacotes-box mb-5 mx-auto">
         <h2 class="titulo-pacotes text-center m-0">
@@ -19,10 +18,10 @@
         </h2>
       </div>
 
-      <!-- Grid de Categorias -->
+      <!-- Grid -->
       <div class="row g-4 justify-content-center">
 
-        <!-- Documentos Solicitados -->
+        <!-- Solicitados -->
         <div class="col-lg-4 col-md-6">
           <div class="card h-100 p-3 shadow-sm borda-destacada">
             <h5 class="text-center text-primary fw-bold mb-3">📥 Solicitados</h5>
@@ -41,7 +40,7 @@
           </div>
         </div>
 
-        <!-- Documentos Guardados -->
+        <!-- Guardados -->
         <div class="col-lg-4 col-md-6">
           <div class="card h-100 p-3 shadow-sm borda-destacada">
             <h5 class="text-center text-success fw-bold mb-3">📁 Guardados</h5>
@@ -61,7 +60,7 @@
           </div>
         </div>
 
-        <!-- Documentos Cadastrados -->
+        <!-- Cadastrados -->
         <div class="col-lg-4 col-md-12">
           <div class="card h-100 p-3 shadow-sm borda-destacada">
             <h5 class="text-center text-dark fw-bold mb-3">📝 Cadastrados</h5>
@@ -90,9 +89,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import api from '../api';
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../examples/footers/FooterDefault.vue";
+
+const router = useRouter();
 
 const documentosSolicitados = ref([]);
 const documentosGuardados = ref([]);
@@ -132,39 +134,33 @@ function detalhesAdicionais(doc) {
   return extras;
 }
 
-async function fetchDocumentos() {
+// função genérica para carregar dados autenticados
+async function carregar(endpoint, target, loading) {
   const token = localStorage.getItem('token');
+  if (!token) {
+    router.push('/login');
+    return;
+  }
+
   const headers = { Authorization: `Bearer ${token}` };
 
   try {
-    loadingSolicitados.value = true;
-    const res = await api.get('/minhas-solicitacoes', { headers });
-    documentosSolicitados.value = res.data || [];
+    loading.value = true;
+    const res = await api.get(endpoint, { headers });
+    target.value = res.data || [];
   } catch (e) {
-    console.error('Erro ao buscar solicitados:', e);
+    console.error(`Erro ao buscar ${endpoint}:`, e);
   } finally {
-    loadingSolicitados.value = false;
+    loading.value = false;
   }
+}
 
-  try {
-    loadingGuardados.value = true;
-    const res = await api.get('/documentosguardados/meus-documentos', { headers });
-    documentosGuardados.value = res.data || [];
-  } catch (e) {
-    console.error('Erro ao buscar guardados:', e);
-  } finally {
-    loadingGuardados.value = false;
-  }
-
-  try {
-    loadingCadastrados.value = true;
-    const res = await api.get('/documentos/documentos/meus', { headers });
-    documentosCadastrados.value = res.data || [];
-  } catch (e) {
-    console.error('Erro ao buscar cadastrados:', e);
-  } finally {
-    loadingCadastrados.value = false;
-  }
+async function fetchDocumentos() {
+  await Promise.all([
+    carregar('/minhas-solicitacoes', documentosSolicitados, loadingSolicitados),
+    carregar('/documentosguardados/meus-documentos', documentosGuardados, loadingGuardados),
+    carregar('/documentos/meus-documentos', documentosCadastrados, loadingCadastrados)
+  ]);
 }
 
 onMounted(fetchDocumentos);
@@ -191,13 +187,7 @@ onMounted(fetchDocumentos);
   border-radius: 1rem;
   background-color: #ffffff;
 }
-.text-success {
-  color: #198754;
-}
-.text-warning {
-  color: #ffc107;
-}
-.text-secondary {
-  color: #6c757d;
-}
+.text-success { color: #198754; }
+.text-warning { color: #ffc107; }
+.text-secondary { color: #6c757d; }
 </style>

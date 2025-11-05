@@ -288,8 +288,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
-@import url("https://use.fontawesome.com/releases/v5.8.2/css/all.css");
 
 
 /* Importando o Font Awesome localmente */
@@ -348,7 +346,7 @@ label, .form-label {
   align-items: center;
 
   background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-              url('@/assets/img/mybanner3.jpg') no-repeat center center fixed;
+              url('@/assets/img/mybanner2.jpg') no-repeat center center fixed;
   background-size: cover;
   background-attachment: fixed;
   animation: fadeIn 0.8s ease;
