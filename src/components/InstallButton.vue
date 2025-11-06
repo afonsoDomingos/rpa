@@ -4,6 +4,7 @@
       <div class="toast-content">
         <p>🚀 Instale o app e tenha acesso rápido!</p>
         <button @click="installPWA">Instalar</button>
+        <div class="progress-bar" :style="{ width: progress + '%' }"></div>
       </div>
     </div>
   </transition>
@@ -13,18 +14,30 @@
 import { ref, onMounted } from 'vue'
 
 const showInstall = ref(false)
+const progress = ref(100)
 let deferredPrompt
+let timer
 
 onMounted(() => {
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault()
     deferredPrompt = e
     showInstall.value = true
+    progress.value = 100
 
-    // Desaparece automaticamente após 6 segundos
-    setTimeout(() => {
-      showInstall.value = false
-    }, 6000)
+    // Anima contagem regressiva
+    const duration = 6000 // 6 segundos
+    const interval = 50
+    let elapsed = 0
+
+    timer = setInterval(() => {
+      elapsed += interval
+      progress.value = 100 - (elapsed / duration) * 100
+      if (elapsed >= duration) {
+        clearInterval(timer)
+        showInstall.value = false
+      }
+    }, interval)
   })
 })
 
@@ -35,6 +48,7 @@ function installPWA() {
       deferredPrompt = null
     })
   }
+  clearInterval(timer)
   showInstall.value = false
 }
 </script>
@@ -46,10 +60,10 @@ function installPWA() {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 9999;
-  width: 300px;
+  width: 320px;
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.3);
   overflow: hidden;
   font-family: 'Inter', sans-serif;
 }
@@ -58,6 +72,7 @@ function installPWA() {
   padding: 20px;
   text-align: center;
   color: #333;
+  position: relative;
 }
 
 .toast-content p {
@@ -66,19 +81,18 @@ function installPWA() {
   font-weight: 500;
 }
 
-/* Botão moderno com opacidade */
 .toast-content button {
   background-color: #8000ff;
   color: #fff;
   border: none;
-  padding: 10px 24px;
+  padding: 10px 28px;
   border-radius: 12px;
   cursor: pointer;
   font-weight: bold;
   font-size: 14px;
-  opacity: 0.85;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  opacity: 0.9;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .toast-content button:hover {
@@ -87,12 +101,23 @@ function installPWA() {
   box-shadow: 0 6px 16px rgba(0,0,0,0.3);
 }
 
-/* Animação de entrada e saída do toast */
+/* Barra de contagem regressiva */
+.progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: #8000ff;
+  border-radius: 0 0 12px 12px;
+  transition: width 0.05s linear;
+}
+
+/* Animação do toast */
 .fade-scale-enter-active {
-  animation: fadeInScale 0.5s ease forwards;
+  animation: fadeInScale 0.4s ease forwards;
 }
 .fade-scale-leave-active {
-  animation: fadeOutScale 0.4s ease forwards;
+  animation: fadeOutScale 0.3s ease forwards;
 }
 
 @keyframes fadeInScale {
