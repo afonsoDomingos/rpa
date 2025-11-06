@@ -286,9 +286,9 @@ const selectPaymentMethod = (id) => {
 }
 
 // Ações finais
-const goToHome = () => router.push('/')
+const goToHome = () => router.push('/home')
 const retryPayment = () => { errorMessage.value = ''; loading.value = false }
-const contactSupport = () => window.location.href = 'tel:258841234567'
+const contactSupport = () => window.location.href = 'tel:258847877405'
 
 // Plano gratuito
 const ativarPlanoGratuito = async () => {
