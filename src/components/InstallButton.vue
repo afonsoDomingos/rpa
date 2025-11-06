@@ -80,9 +80,11 @@ const installPWA = async () => {
 .install-banner {
   position: fixed;
   top: 88px;
-  right: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 9999;
   pointer-events: none;
+  max-width: 100%;
 }
 
 .banner-card {
@@ -92,7 +94,8 @@ const installPWA = async () => {
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 20px;
   padding: 16px 18px;
-  width: 300px;
+  width: 100%;
+  max-width: 340px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -107,11 +110,13 @@ const installPWA = async () => {
 .icon {
   font-size: 28px;
   filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+  flex-shrink: 0;
 }
 
 .content {
   flex: 1;
   line-height: 1.3;
+  min-width: 0; /* Para evitar overflow */
 }
 
 .title {
@@ -119,6 +124,9 @@ const installPWA = async () => {
   font-size: 14.5px;
   font-weight: 600;
   color: #1a1a1a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .subtitle {
@@ -126,6 +134,9 @@ const installPWA = async () => {
   font-size: 12.5px;
   color: #555;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .install-btn {
@@ -141,6 +152,8 @@ const installPWA = async () => {
   overflow: hidden;
   transition: all 0.25s cubic-bezier(0.2, 0, 0.2, 1);
   box-shadow: 0 4px 12px rgba(128, 0, 255, 0.3);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .install-btn:hover:not(:disabled) {
@@ -193,22 +206,22 @@ const installPWA = async () => {
 @keyframes floatIn {
   0% {
     opacity: 0;
-    transform: translateY(-16px) scale(0.94);
+    transform: translateX(-50%) translateY(-16px) scale(0.94);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateX(-50%) translateY(0) scale(1);
   }
 }
 
 @keyframes floatOut {
   0% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateX(-50%) translateY(0) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translateY(-12px) scale(0.92);
+    transform: translateX(-50%) translateY(-12px) scale(0.92);
   }
 }
 
@@ -217,15 +230,49 @@ const installPWA = async () => {
   50% { opacity: 1; }
 }
 
-/* Responsivo */
+/* Responsivo - adapta-se automaticamente */
 @media (max-width: 480px) {
   .install-banner {
-    left: 16px;
-    right: 16px;
     top: 16px;
+    left: 0;
+    right: 0;
+    transform: none;
+    padding: 0 16px;
   }
+  
   .banner-card {
-    width: auto;
+    width: 100%;
+    max-width: none;
+    padding: 14px 16px;
+  }
+  
+  .title, .subtitle {
+    white-space: normal;
+  }
+}
+
+/* Para telas muito pequenas */
+@media (max-width: 360px) {
+  .banner-card {
+    gap: 8px;
+    padding: 12px 14px;
+  }
+  
+  .icon {
+    font-size: 24px;
+  }
+  
+  .title {
+    font-size: 14px;
+  }
+  
+  .subtitle {
+    font-size: 12px;
+  }
+  
+  .install-btn {
+    padding: 6px 12px;
+    font-size: 12px;
   }
 }
 </style>
