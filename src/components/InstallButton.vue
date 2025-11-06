@@ -81,7 +81,7 @@ const installPWA = async () => {
 </script>
 
 <style scoped>
-/* Overlay centralizado e 100% responsivo */
+/* Overlay centralizado e responsivo */
 .install-overlay {
   position: fixed;
   inset: 0;
@@ -94,39 +94,39 @@ const installPWA = async () => {
   box-sizing: border-box;
 }
 
-/* FUNDO MANTIDO: glassmorphism claro premium */
+/* FUNDO MAIS TRANSPARENTE: glassmorphism leve */
 .banner-card {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: clamp(20px, 4.5vw, 32px);
-  padding: clamp(18px, 4.5vw, 28px) clamp(22px, 5.5vw, 34px);
+  background: rgba(255, 255, 255, 0.78); /* mais transparente */
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: clamp(22px, 5vw, 34px);
+  padding: clamp(20px, 5vw, 30px) clamp(24px, 6vw, 36px);
   width: 100%;
   max-width: min(420px, 90vw);
   display: flex;
   align-items: center;
   gap: clamp(14px, 3.5vw, 20px);
   box-shadow: 
-    0 16px 40px rgba(0, 0, 0, 0.14),
-    0 6px 16px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    0 18px 48px rgba(0, 0, 0, 0.12),
+    0 6px 18px rgba(0, 0, 0, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
   pointer-events: auto;
   font-family: 'SF Pro Display', 'Inter', system-ui, sans-serif;
-  animation: modalIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: modalIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Ícone com gradiente premium */
+/* Ícone com gradiente vibrante */
 .icon {
   font-size: clamp(30px, 6.5vw, 40px);
   background: linear-gradient(135deg, #7000ff, #d946ef);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.14));
 }
 
-/* Textos legíveis em fundo claro */
+/* Textos com legibilidade reforçada */
 .content {
   flex: 1;
   line-height: 1.45;
@@ -140,11 +140,11 @@ const installPWA = async () => {
 .subtitle {
   margin: 4px 0 0;
   font-size: clamp(13px, 3.3vw, 14.5px);
-  color: #555555;
+  color: #444444;
   font-weight: 500;
 }
 
-/* Botão roxo com brilho */
+/* Botão com glow sutil */
 .install-btn {
   background: linear-gradient(135deg, #7000ff, #a855f7);
   color: white;
@@ -157,7 +157,7 @@ const installPWA = async () => {
   position: relative;
   overflow: hidden;
   transition: all 0.35s cubic-bezier(0.2, 0, 0.2, 1);
-  box-shadow: 0 8px 24px rgba(128, 0, 255, 0.4);
+  box-shadow: 0 8px 24px rgba(128, 0, 255, 0.38);
   min-width: clamp(88px, 22vw, 100px);
   text-align: center;
 }
@@ -166,7 +166,7 @@ const installPWA = async () => {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.3), transparent);
+  background: linear-gradient(135deg, rgba(255,255,255,0.32), transparent);
   border-radius: inherit;
   opacity: 0;
   transition: opacity 0.3s;
@@ -178,7 +178,7 @@ const installPWA = async () => {
 
 .install-btn:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 0 14px 36px rgba(128, 0, 255, 0.55);
+  box-shadow: 0 14px 36px rgba(128, 0, 255, 0.52);
 }
 
 .install-btn:active {
@@ -201,8 +201,8 @@ const installPWA = async () => {
   left: 0;
   height: 4px;
   width: 100%;
-  background: rgba(0, 0, 0, 0.12);
-  border-radius: 0 0 clamp(20px, 4.5vw, 32px) clamp(20px, 4.5vw, 32px);
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 clamp(22px, 5vw, 34px) clamp(22px, 5vw, 34px);
   overflow: hidden;
 }
 .progress-fill {
@@ -210,11 +210,11 @@ const installPWA = async () => {
   background: linear-gradient(90deg, #8000ff, #d946ef);
   border-radius: inherit;
   transition: width 0.12s ease-out;
-  box-shadow: 0 0 12px rgba(128, 0, 255, 0.5);
+  box-shadow: 0 0 12px rgba(128, 0, 255, 0.45);
 }
 
 /* Animações */
-.install-enter-active { animation: modalIn 0.65s cubic-bezier(0.16, 1, 0.3, 1); }
+.install-enter-active { animation: modalIn 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
 .install-leave-active { animation: modalOut 0.4s ease forwards; }
 
 @keyframes modalIn {
