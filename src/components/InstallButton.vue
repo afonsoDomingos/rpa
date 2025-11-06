@@ -55,7 +55,7 @@ function installPWA() {
 <style>
 .install-toast {
   position: fixed;
-  bottom: 20px;
+  top: 70px; /* ajusta a distância abaixo da navbar */
   right: 20px;
   z-index: 9999;
 }
