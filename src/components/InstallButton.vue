@@ -4,12 +4,12 @@
       <div class="banner-card">
         <div class="icon">🚀</div>
         <div class="content">
-          <p class="title">Acesse mais rápido</p>
-          <p class="subtitle">Instale o app na sua tela inicial</p>
+          <p class="title">Instale o app</p>
+          <p class="subtitle">Adicione à tela inicial em 1 toque</p>
         </div>
         <button @click="installPWA" class="install-btn" :disabled="installing">
           <span v-if="!installing">Instalar</span>
-          <span v-else class="loading">...</span>
+          <span v-else class="loading">⋯</span>
         </button>
         <div class="progress-track">
           <div class="progress-fill" :style="{ width: progress + '%' }"></div>
@@ -29,7 +29,7 @@ let deferredPrompt = null
 let timer = null
 
 const startProgress = () => {
-  const duration = 7000 // 7 segundos
+  const duration = 7000
   const startTime = Date.now()
 
   const tick = () => {
@@ -42,7 +42,6 @@ const startProgress = () => {
       showInstall.value = false
     }
   }
-
   timer = requestAnimationFrame(tick)
 }
 
@@ -65,214 +64,189 @@ const installPWA = async () => {
 
   installing.value = true
   deferredPrompt.prompt()
-
+  
   const { outcome } = await deferredPrompt.userChoice
   installing.value = false
   deferredPrompt = null
 
   if (outcome === 'accepted') {
     showInstall.value = false
+  } else {
+    progress.value = 0
+    setTimeout(() => showInstall.value = false, 400)
   }
+
+  if ('vibrate' in navigator) navigator.vibrate(30)
 }
 </script>
 
 <style scoped>
+/* CENTRALIZADO NO MEIO DA TELA */
 .install-banner {
   position: fixed;
-  top: 88px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   z-index: 9999;
   pointer-events: none;
-  max-width: 100%;
+  width: 100%;
+  max-width: 380px;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
+/* Card premium com glassmorphism */
 .banner-card {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 20px;
-  padding: 16px 18px;
-  width: 100%;
-  max-width: 340px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 26px;
+  padding: 20px 24px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.08);
+    0 16px 40px rgba(0, 0, 0, 0.16),
+    0 6px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
   pointer-events: auto;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  animation: floatIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  font-family: 'SF Pro Display', 'Inter', system-ui, sans-serif;
+  animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Ícone com gradiente */
 .icon {
-  font-size: 28px;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
-  flex-shrink: 0;
+  font-size: 36px;
+  background: linear-gradient(135deg, #7000ff, #d946ef);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
 }
 
+/* Textos */
 .content {
   flex: 1;
-  line-height: 1.3;
-  min-width: 0; /* Para evitar overflow */
+  line-height: 1.4;
 }
-
 .title {
   margin: 0;
-  font-size: 14.5px;
-  font-weight: 600;
-  color: #1a1a1a;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 16px;
+  font-weight: 700;
+  color: #000;
 }
-
 .subtitle {
-  margin: 2px 0 0 0;
-  font-size: 12.5px;
+  margin: 4px 0 0;
+  font-size: 13.5px;
   color: #555;
   font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
+/* Botão com efeito premium */
 .install-btn {
-  background: linear-gradient(135deg, #7000ff, #a033ff);
+  background: linear-gradient(135deg, #7000ff, #a855f7);
   color: white;
   border: none;
-  border-radius: 12px;
-  padding: 8px 16px;
-  font-size: 13px;
+  border-radius: 16px;
+  padding: 11px 20px;
+  font-size: 14.5px;
   font-weight: 600;
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: all 0.25s cubic-bezier(0.2, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(128, 0, 255, 0.3);
-  flex-shrink: 0;
-  white-space: nowrap;
+  transition: all 0.35s cubic-bezier(0.2, 0, 0.2, 1);
+  box-shadow: 0 8px 20px rgba(128, 0, 255, 0.4);
+  min-width: 88px;
+  text-align: center;
+}
+
+.install-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+  border-radius: 16px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.install-btn:hover:not(:disabled)::before {
+  opacity: 1;
 }
 
 .install-btn:hover:not(:disabled) {
-  transform: translateY(-1px) scale(1.03);
-  box-shadow: 0 6px 16px rgba(128, 0, 255, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(128, 0, 255, 0.5);
 }
 
 .install-btn:active {
-  transform: translateY(0) scale(0.98);
+  transform: translateY(-1px);
 }
 
 .install-btn:disabled {
-  opacity: 0.7;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
 .loading {
-  display: inline-block;
-  animation: pulse 1.5s infinite;
+  animation: pulse 1.4s infinite;
 }
 
+/* Barra de progresso */
 .progress-track {
   position: absolute;
   bottom: 0;
   left: 0;
-  height: 3px;
+  height: 4px;
   width: 100%;
-  background: rgba(0, 0, 0, 0.08);
-  border-radius: 0 0 20px 20px;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 0 0 26px 26px;
   overflow: hidden;
 }
-
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #8000ff, #a855f7);
-  border-radius: 0 0 20px 20px;
-  transition: width 0.1s linear;
-  transform-origin: left;
+  background: linear-gradient(90deg, #8000ff, #d946ef);
+  border-radius: 0 0 26px 26px;
+  transition: width 0.12s ease-out;
+  box-shadow: 0 0 8px rgba(128, 0, 255, 0.4);
 }
 
-/* Animações de entrada/saída */
-.install-enter-active {
-  animation: floatIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
+/* Animações */
+.install-enter-active { animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.install-leave-active { animation: scaleOut 0.4s ease forwards; }
 
-.install-leave-active {
-  animation: floatOut 0.35s cubic-bezier(0.4, 0, 1, 1) forwards;
-}
-
-@keyframes floatIn {
+@keyframes scaleIn {
   0% {
     opacity: 0;
-    transform: translateX(-50%) translateY(-16px) scale(0.94);
+    transform: translate(-50%, -50%) scale(0.88);
   }
   100% {
     opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
+    transform: translate(-50%, -50%) scale(1);
   }
 }
-
-@keyframes floatOut {
-  0% {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
-  }
-  100% {
+@keyframes scaleOut {
+  to {
     opacity: 0;
-    transform: translateX(-50%) translateY(-12px) scale(0.92);
+    transform: translate(-50%, -50%) scale(0.9);
   }
 }
-
 @keyframes pulse {
-  0%, 100% { opacity: 0.6; }
+  0%, 100% { opacity: 0.5; }
   50% { opacity: 1; }
 }
 
-/* Responsivo - adapta-se automaticamente */
+/* Mobile */
 @media (max-width: 480px) {
   .install-banner {
-    top: 16px;
-    left: 0;
-    right: 0;
-    transform: none;
     padding: 0 16px;
   }
-  
   .banner-card {
-    width: 100%;
-    max-width: none;
-    padding: 14px 16px;
+    padding: 18px 20px;
+    gap: 14px;
   }
-  
-  .title, .subtitle {
-    white-space: normal;
-  }
-}
-
-/* Para telas muito pequenas */
-@media (max-width: 360px) {
-  .banner-card {
-    gap: 8px;
-    padding: 12px 14px;
-  }
-  
-  .icon {
-    font-size: 24px;
-  }
-  
-  .title {
-    font-size: 14px;
-  }
-  
-  .subtitle {
-    font-size: 12px;
-  }
-  
-  .install-btn {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
+  .icon { font-size: 32px; }
+  .title { font-size: 15.5px; }
 }
 </style>
