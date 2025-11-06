@@ -102,6 +102,7 @@
             </button>
           </form>
 
+          <!-- Mensagem de erro com ações -->
           <div v-if="errorMessage" class="error-message">
             {{ errorMessage }}
             <div class="error-actions">
@@ -111,7 +112,7 @@
           </div>
         </div>
 
-        <!-- Sucesso -->
+        <!-- Tela de Sucesso -->
         <div v-if="showSuccess" class="success-message">
           <div class="success-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -125,7 +126,7 @@
         </div>
       </main>
 
-      <!-- RESUMO DESKTOP: SEMPRE VISÍVEL, FIXO, COMPLETO -->
+      <!-- RESUMO DESKTOP: SEMPRE VISÍVEL -->
       <aside class="order-summary-desktop" v-if="selectedPackage && currentStep < 3">
         <h3 class="summary-title">Resumo do Pedido</h3>
         <div class="summary-section">
@@ -146,11 +147,8 @@
       </aside>
     </div>
 
-    <!-- RESUMO MOBILE: SÓ APARECE SE NÃO ESTIVER DIGITANDO -->
-    <aside 
-      class="order-summary-mobile" 
-      v-if="selectedPackage && !inputFocused && currentStep < 3 && isMobile"
-    >
+    <!-- RESUMO MOBILE: SOME AO DIGITAR -->
+    <aside class="order-summary-mobile" v-if="selectedPackage && !inputFocused && currentStep < 3 && isMobile">
       <div class="summary-content">
         <div class="summary-row">
           <span class="summary-label">Plano</span>
@@ -178,22 +176,27 @@ import { ref, reactive, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import mpesaIcon from '@/assets/img/Mpesa.png'
 import emolaIcon from '@/assets/img/Emola.png'
-import axios from "axios"
+import axios from 'axios'
 
-axios.defaults.timeout = 8000
+// Configuração global
+axios.defaults.timeout = 12000
+axios.defaults.headers.common['Content-Type'] = 'application/json'
 
 const router = useRouter()
+
+// Estado
 const currentStep = ref(1)
 const selectedPackage = ref(null)
 const selectedPaymentMethod = ref(null)
 const loading = ref(false)
 const showSuccess = ref(false)
-const errorMessage = ref("")
+const errorMessage = ref('')
 const phoneInput = ref(null)
 const cardInput = ref(null)
 const inputFocused = ref(false)
 const isMobile = ref(false)
 
+// Detectar mobile
 onMounted(() => {
   isMobile.value = window.innerWidth <= 1024
   window.addEventListener('resize', () => {
@@ -201,6 +204,7 @@ onMounted(() => {
   })
 })
 
+// Pacotes
 const packages = [
   { id: 'free', name: 'Gratuito', price: 0, period: '', benefits: ['Permite fazer pesquisas', 'Gerar CV', '1 GB de armazenamento'], recommended: false },
   { id: 'mensal', name: 'Mensal', price: 150, period: '/mês', benefits: ['Tudo do plano gratuito', 'Solicitar documentos', '3 GB de armazenamento', 'Suporte prioritário', 'Atualizações semanais'], recommended: true },
@@ -216,6 +220,15 @@ const paymentMethods = [
 const mobileDetails = reactive({ phone: '' })
 const cardDetails = reactive({ number: '', expiry: '', cvv: '' })
 
+// Normalização de telefone
+function normalizarTelefone(phone) {
+  const cleaned = phone.replace(/[\s\-\(\)\+]/g, '')
+  if (/^(84|85|86|87|82)\d{7}$/.test(cleaned)) return '258' + cleaned
+  if (/^258\d{9}$/.test(cleaned)) return cleaned
+  return null
+}
+
+// Debounce para normalização
 let debounceTimer
 const debouncedNormalize = () => {
   clearTimeout(debounceTimer)
@@ -224,16 +237,10 @@ const debouncedNormalize = () => {
       const normalized = normalizarTelefone(mobileDetails.phone)
       if (normalized) mobileDetails.phone = normalized.slice(3)
     }
-  }, 300)
+  }, 400)
 }
 
-function normalizarTelefone(phone) {
-  const cleaned = phone.replace(/[\s\-\(\)\+]/g, '')
-  if (/^(84|85|86|87|82)\d{7}$/.test(cleaned)) return '258' + cleaned
-  if (/^258\d{9}$/.test(cleaned)) return cleaned
-  return null
-}
-
+// Foco no input (mobile)
 const onInputFocus = async () => {
   if (isMobile.value) {
     inputFocused.value = true
@@ -242,78 +249,184 @@ const onInputFocus = async () => {
     if (input) input.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 }
-
 const onInputBlur = () => { inputFocused.value = false }
 
-const selectPackage = (pkg) => { selectedPackage.value = pkg; errorMessage.value = "" }
-const selectPaymentMethod = (id) => { selectedPaymentMethod.value = id; errorMessage.value = "" }
+// Logs coloridos (como no script antigo)
+function logInfo(title, data) {
+  console.groupCollapsed(`%cℹ️ INFO: ${title}`, 'background: #e0f7fa; color: #006064; font-weight: bold; padding: 2px 6px; border-radius: 4px;')
+  console.log(data)
+  console.groupEnd()
+}
+function logSuccess(title, data) {
+  console.groupCollapsed(`%c✅ SUCCESS: ${title}`, 'background: #e8f5e9; color: #2e7d32; font-weight: bold; padding: 2px 6px; border-radius: 4px;')
+  console.log(data)
+  console.groupEnd()
+}
+function logWarning(title, data) {
+  console.groupCollapsed(`%c⚠️ WARNING: ${title}`, 'background: #fff8e1; color: #ff6f00; font-weight: bold; padding: 2px 6px; border-radius: 4px;')
+  console.warn(data)
+  console.groupEnd()
+}
+function logError(title, data) {
+  console.groupCollapsed(`%c❌ ERROR: ${title}`, 'background: #ffebee; color: #c62828; font-weight: bold; padding: 2px 6px; border-radius: 4px;')
+  console.error(data)
+  console.groupEnd()
+}
 
+// Seleções
+const selectPackage = (pkg) => {
+  selectedPackage.value = pkg
+  errorMessage.value = ''
+  logInfo('Pacote selecionado', pkg)
+}
+const selectPaymentMethod = (id) => {
+  selectedPaymentMethod.value = id
+  errorMessage.value = ''
+  logInfo('Método de pagamento selecionado', id)
+}
+
+// Ações finais
 const goToHome = () => router.push('/')
-const retryPayment = () => { errorMessage.value = ""; loading.value = false }
-const contactSupport = () => window.location.href = `tel:258841234567`
+const retryPayment = () => { errorMessage.value = ''; loading.value = false }
+const contactSupport = () => window.location.href = 'tel:258841234567'
 
+// Plano gratuito
 const ativarPlanoGratuito = async () => {
   loading.value = true
   try {
-    const token = localStorage.getItem("token") || ""
-    const { data } = await axios.post("https://apirpa.onrender.com/api/pagamentos/processar", 
-      { pacote: 'free', method: 'gratuito', amount: 0, type: "assinatura" },
-      { headers: { Authorization: `Bearer ${token}` } }
-    )
-    showSuccess.value = data?.sucesso || false
-    if (!data?.sucesso) errorMessage.value = data?.mensagem || "Erro ao ativar."
-  } catch {
-    errorMessage.value = "Sem conexão. Tente novamente."
+    const token = localStorage.getItem('token') || ''
+    const payload = { pacote: 'free', method: 'gratuito', amount: 0, type: 'assinatura' }
+    const API_URL = 'https://apirpa.onrender.com/api/pagamentos'
+    const response = await axios.post(`${API_URL}/processar`, payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+
+    if (response.data?.sucesso) {
+      showSuccess.value = true
+      logSuccess('Plano gratuito ativado com sucesso', response.data)
+    } else {
+      errorMessage.value = response.data?.mensagem || 'Erro ao ativar plano gratuito.'
+      logError('Falha ao ativar plano gratuito', response.data)
+    }
+  } catch (err) {
+    errorMessage.value = 'Erro ao ativar plano gratuito.'
+    logError('Erro ao ativar plano gratuito', err.response?.data || err)
   } finally {
     loading.value = false
+    logInfo('Processamento finalizado', { loading: loading.value })
   }
 }
 
+// Navegação
 const nextStep = async () => {
-  if (!selectedPackage.value) return (errorMessage.value = "Selecione um pacote.")
-  if (selectedPackage.value.price === 0) return await ativarPlanoGratuito()
+  errorMessage.value = ''
+  if (!selectedPackage.value) {
+    errorMessage.value = 'Por favor, selecione um pacote.'
+    logWarning('Tentativa de avançar sem pacote selecionado', null)
+    return
+  }
+  if (selectedPackage.value.price === 0) {
+    await ativarPlanoGratuito()
+    return
+  }
   currentStep.value = 2
+  logInfo('Avançando para passo 2 - escolha do pagamento', selectedPaymentMethod.value)
+}
+const previousStep = () => {
+  currentStep.value = 1
+  selectedPaymentMethod.value = null
+  logInfo('Voltando para passo 1 - seleção de pacote', null)
+}
+const goBack = () => {
+  if (currentStep.value === 2) {
+    previousStep()
+  } else {
+    window.history.back()
+    logInfo('Voltando na navegação do navegador', null)
+  }
 }
 
-const previousStep = () => { currentStep.value = 1; selectedPaymentMethod.value = null }
-const goBack = () => currentStep.value === 2 ? previousStep() : window.history.back()
-
+// Envio do pagamento
 const handleSubmit = async () => {
-  errorMessage.value = ""
-  if (loading.value || !selectedPackage.value || !selectedPaymentMethod.value) return
-  loading.value = true
+  errorMessage.value = ''
+  if (loading.value) {
+    logWarning('Tentativa de enviar pedido enquanto já processando', null)
+    return
+  }
+  if (!selectedPackage.value || !selectedPaymentMethod.value) {
+    errorMessage.value = 'Selecione um pacote e método de pagamento.'
+    logWarning('Envio falhou - pacote ou método não selecionado', {
+      pacote: selectedPackage.value,
+      metodo: selectedPaymentMethod.value
+    })
+    return
+  }
 
+  loading.value = true
+  logInfo('Iniciando submissão do pedido', {
+    pacote: selectedPackage.value.id,
+    metodo: selectedPaymentMethod.value
+  })
+
+  // Validação M-Pesa / Emola
   if (['mpesa', 'emola'].includes(selectedPaymentMethod.value)) {
     const telefoneValido = normalizarTelefone(mobileDetails.phone)
-    if (!telefoneValido) return (errorMessage.value = "Número inválido.", loading.value = false)
+    if (!telefoneValido) {
+      errorMessage.value = 'Número inválido. Formato: 258XXXXXXXX'
+      logError('Número de telefone inválido', mobileDetails.phone)
+      loading.value = false
+      return
+    }
     mobileDetails.phone = telefoneValido
+    logInfo('Telefone normalizado', mobileDetails.phone)
   }
 
-  if (selectedPaymentMethod.value === "card" && (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv)) {
-    return (errorMessage.value = "Preencha todos os dados do cartão.", loading.value = false)
+  // Validação Cartão
+  if (selectedPaymentMethod.value === 'card') {
+    if (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv) {
+      errorMessage.value = 'Preencha todos os dados do cartão.'
+      logError('Dados do cartão incompletos', cardDetails)
+      loading.value = false
+      return
+    }
   }
 
   try {
-    const token = localStorage.getItem("token") || ""
+    const token = localStorage.getItem('token') || ''
     const payload = {
       pacote: selectedPackage.value.id,
       method: selectedPaymentMethod.value,
       phone: mobileDetails.phone || null,
       amount: selectedPackage.value.price,
-      type: "assinatura",
-      dadosCartao: selectedPaymentMethod.value === "card" ? cardDetails : null
+      type: 'assinatura',
+      dadosCartao: selectedPaymentMethod.value === 'card' ? cardDetails : null
     }
 
-    const { data } = await axios.post("https://apirpa.onrender.com/api/pagamentos/processar", payload, {
+    console.groupCollapsed('%c📦 Payload a ser enviado para a API', 'background: #f3e5f5; color: #6a1b9a; font-weight: bold; padding: 2px 6px; border-radius: 4px;')
+    console.log(payload)
+    console.groupEnd()
+
+    const API_URL = 'https://apirpa.onrender.com/api/pagamentos'
+    const paymentResponse = await axios.post(`${API_URL}/processar`, payload, {
       headers: { Authorization: `Bearer ${token}` }
     })
 
-    if (data?.sucesso) showSuccess.value = true
-    else errorMessage.value = data?.mensagem || "Erro no pagamento."
-  } catch {
-    errorMessage.value = "Falha na conexão. Tente novamente."
+    logInfo('Resposta da API recebida', paymentResponse.data)
+
+    if (paymentResponse.data?.sucesso) {
+      showSuccess.value = true
+      logSuccess('Pagamento realizado com sucesso', paymentResponse.data)
+    } else {
+      errorMessage.value = paymentResponse.data?.mensagem || 'Erro desconhecido no pagamento.'
+      logError('Falha no pagamento', paymentResponse.data)
+    }
+  } catch (err) {
+    const serverMsg = err.response?.data?.mensagem
+    errorMessage.value = serverMsg ? `Erro: ${serverMsg}` : 'Erro de conexão. Por favor, tente novamente.'
+    logError('Erro de conexão com API', err.response?.data || err)
   } finally {
     loading.value = false
+    logInfo('Processamento finalizado', { loading: loading.value })
   }
 }
 </script>
@@ -456,30 +569,15 @@ const handleSubmit = async () => {
   cursor: pointer;
   transition: all 0.2s;
 }
-.retry-button {
-  background: #800080;
-  color: #ffffff;
-  border: none;
-}
+.retry-button { background: #800080; color: #ffffff; border: none; }
 .retry-button:hover { background: #9900cc; }
-.support-button {
-  background: transparent;
-  color: #ef4444;
-  border: 1px solid #ef4444;
-}
+.support-button { background: transparent; color: #ef4444; border: 1px solid #ef4444; }
 .support-button:hover { background: rgba(239, 68, 68, 0.1); }
 
-/* RESUMO DESKTOP: SEMPRE VISÍVEL */
+/* RESUMO DESKTOP */
 .order-summary-desktop { 
-  width: 350px; 
-  background: #1a1a1a; 
-  border: 1px solid rgba(255, 255, 255, 0.1); 
-  border-radius: 1rem; 
-  padding: 2rem; 
-  height: fit-content; 
-  position: sticky; 
-  top: 2rem; 
-  flex-shrink: 0;
+  width: 350px; background: #1a1a1a; border: 1px solid rgba(255, 255, 255, 0.1); 
+  border-radius: 1rem; padding: 2rem; height: fit-content; position: sticky; top: 2rem; flex-shrink: 0;
 }
 .summary-title { font-size: 1.25rem; font-weight: 700; margin: 0 0 1.5rem 0; color: #ffffff; }
 .summary-section { margin-bottom: 1.5rem; }
@@ -491,17 +589,10 @@ const handleSubmit = async () => {
 .total-amount { font-size: 1.5rem; font-weight: 700; color: #ffffff; }
 
 .order-summary-mobile {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #1a1a1a;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1rem;
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-  z-index: 1000;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease;
+  position: fixed; bottom: 0; left: 0; right: 0; background: #1a1a1a;
+  border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 1rem;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom)); z-index: 1000;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3); transition: transform 0.3s ease;
 }
 
 .summary-content { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem; }
