@@ -62,6 +62,7 @@
                 class="form-input"
                 @focus="onInputFocus"
                 @blur="onInputBlur"
+                @input="debouncedNormalize"
               />
             </div>
 
@@ -124,7 +125,7 @@
         </div>
       </main>
 
-      <!-- Resumo Desktop -->
+      <!-- RESUMO DESKTOP: SEMPRE VISÍVEL, FIXO, COMPLETO -->
       <aside class="order-summary-desktop" v-if="selectedPackage && currentStep < 3">
         <h3 class="summary-title">Resumo do Pedido</h3>
         <div class="summary-section">
@@ -145,10 +146,10 @@
       </aside>
     </div>
 
-    <!-- Resumo Mobile -->
+    <!-- RESUMO MOBILE: SÓ APARECE SE NÃO ESTIVER DIGITANDO -->
     <aside 
       class="order-summary-mobile" 
-      v-if="selectedPackage && !inputFocused && currentStep < 3"
+      v-if="selectedPackage && !inputFocused && currentStep < 3 && isMobile"
     >
       <div class="summary-content">
         <div class="summary-row">
@@ -173,14 +174,15 @@
 </template>
 
 <script setup>
-import { ref, reactive, nextTick } from 'vue'
+import { ref, reactive, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import mpesaIcon from '@/assets/img/Mpesa.png'
 import emolaIcon from '@/assets/img/Emola.png'
 import axios from "axios"
 
-const router = useRouter()
+axios.defaults.timeout = 8000
 
+const router = useRouter()
 const currentStep = ref(1)
 const selectedPackage = ref(null)
 const selectedPaymentMethod = ref(null)
@@ -190,6 +192,14 @@ const errorMessage = ref("")
 const phoneInput = ref(null)
 const cardInput = ref(null)
 const inputFocused = ref(false)
+const isMobile = ref(false)
+
+onMounted(() => {
+  isMobile.value = window.innerWidth <= 1024
+  window.addEventListener('resize', () => {
+    isMobile.value = window.innerWidth <= 1024
+  })
+})
 
 const packages = [
   { id: 'free', name: 'Gratuito', price: 0, period: '', benefits: ['Permite fazer pesquisas', 'Gerar CV', '1 GB de armazenamento'], recommended: false },
@@ -206,6 +216,17 @@ const paymentMethods = [
 const mobileDetails = reactive({ phone: '' })
 const cardDetails = reactive({ number: '', expiry: '', cvv: '' })
 
+let debounceTimer
+const debouncedNormalize = () => {
+  clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(() => {
+    if (mobileDetails.phone.length >= 9) {
+      const normalized = normalizarTelefone(mobileDetails.phone)
+      if (normalized) mobileDetails.phone = normalized.slice(3)
+    }
+  }, 300)
+}
+
 function normalizarTelefone(phone) {
   const cleaned = phone.replace(/[\s\-\(\)\+]/g, '')
   if (/^(84|85|86|87|82)\d{7}$/.test(cleaned)) return '258' + cleaned
@@ -214,10 +235,12 @@ function normalizarTelefone(phone) {
 }
 
 const onInputFocus = async () => {
-  inputFocused.value = true
-  await nextTick()
-  const input = phoneInput.value || cardInput.value
-  if (input) input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  if (isMobile.value) {
+    inputFocused.value = true
+    await nextTick()
+    const input = phoneInput.value || cardInput.value
+    if (input) input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
 }
 
 const onInputBlur = () => { inputFocused.value = false }
@@ -225,46 +248,36 @@ const onInputBlur = () => { inputFocused.value = false }
 const selectPackage = (pkg) => { selectedPackage.value = pkg; errorMessage.value = "" }
 const selectPaymentMethod = (id) => { selectedPaymentMethod.value = id; errorMessage.value = "" }
 
-// Voltar à página inicial
-const goToHome = () => {
-  router.push('/') // ou '/dashboard' se for o caso
-}
+const goToHome = () => router.push('/')
+const retryPayment = () => { errorMessage.value = ""; loading.value = false }
+const contactSupport = () => window.location.href = `tel:258841234567`
 
-// Tentar novamente
-const retryPayment = () => {
-  errorMessage.value = ""
-  loading.value = false
-}
-
-// Contactar suporte
-const contactSupport = () => {
-  const phone = "258841234567" // número do suporte
-  window.location.href = `tel:${phone}`
-}
-
-// Plano gratuito
 const ativarPlanoGratuito = async () => {
   loading.value = true
   try {
     const token = localStorage.getItem("token") || ""
-    const payload = { pacote: 'free', method: 'gratuito', amount: 0, type: "assinatura" }
-    const response = await axios.post("https://apirpa.onrender.com/api/pagamentos/processar", payload, { headers: { Authorization: `Bearer ${token}` } })
-    if (response.data?.sucesso) showSuccess.value = true
-    else errorMessage.value = response.data?.mensagem || "Erro ao ativar plano."
-  } catch { errorMessage.value = "Erro de conexão." }
-  finally { loading.value = false }
+    const { data } = await axios.post("https://apirpa.onrender.com/api/pagamentos/processar", 
+      { pacote: 'free', method: 'gratuito', amount: 0, type: "assinatura" },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    showSuccess.value = data?.sucesso || false
+    if (!data?.sucesso) errorMessage.value = data?.mensagem || "Erro ao ativar."
+  } catch {
+    errorMessage.value = "Sem conexão. Tente novamente."
+  } finally {
+    loading.value = false
+  }
 }
 
-// Navegação
 const nextStep = async () => {
-  if (!selectedPackage.value) { errorMessage.value = "Selecione um pacote."; return }
-  if (selectedPackage.value.price === 0) { await ativarPlanoGratuito(); return }
+  if (!selectedPackage.value) return (errorMessage.value = "Selecione um pacote.")
+  if (selectedPackage.value.price === 0) return await ativarPlanoGratuito()
   currentStep.value = 2
 }
-const previousStep = () => { currentStep.value = 1; selectedPaymentMethod.value = null }
-const goBack = () => { currentStep.value === 2 ? previousStep() : window.history.back() }
 
-// Envio
+const previousStep = () => { currentStep.value = 1; selectedPaymentMethod.value = null }
+const goBack = () => currentStep.value === 2 ? previousStep() : window.history.back()
+
 const handleSubmit = async () => {
   errorMessage.value = ""
   if (loading.value || !selectedPackage.value || !selectedPaymentMethod.value) return
@@ -272,12 +285,12 @@ const handleSubmit = async () => {
 
   if (['mpesa', 'emola'].includes(selectedPaymentMethod.value)) {
     const telefoneValido = normalizarTelefone(mobileDetails.phone)
-    if (!telefoneValido) { errorMessage.value = "Número inválido. Use: 258XXXXXXXX"; loading.value = false; return }
+    if (!telefoneValido) return (errorMessage.value = "Número inválido.", loading.value = false)
     mobileDetails.phone = telefoneValido
   }
 
   if (selectedPaymentMethod.value === "card" && (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv)) {
-    errorMessage.value = "Preencha todos os dados do cartão."; loading.value = false; return
+    return (errorMessage.value = "Preencha todos os dados do cartão.", loading.value = false)
   }
 
   try {
@@ -290,11 +303,18 @@ const handleSubmit = async () => {
       type: "assinatura",
       dadosCartao: selectedPaymentMethod.value === "card" ? cardDetails : null
     }
-    const response = await axios.post("https://apirpa.onrender.com/api/pagamentos/processar", payload, { headers: { Authorization: `Bearer ${token}` } })
-    if (response.data?.sucesso) showSuccess.value = true
-    else errorMessage.value = response.data?.mensagem || "Erro no pagamento."
-  } catch { errorMessage.value = "Erro de conexão." }
-  finally { loading.value = false }
+
+    const { data } = await axios.post("https://apirpa.onrender.com/api/pagamentos/processar", payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+
+    if (data?.sucesso) showSuccess.value = true
+    else errorMessage.value = data?.mensagem || "Erro no pagamento."
+  } catch {
+    errorMessage.value = "Falha na conexão. Tente novamente."
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -337,7 +357,6 @@ const handleSubmit = async () => {
 .main-content { flex: 1; min-width: 0; }
 
 .packages-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-.package-card:last-child { margin-bottom: 5rem; }
 
 .package-card { position: relative; background: #1a1a1a; border: 2px solid transparent; border-radius: 1rem; padding: 2rem; cursor: pointer; transition: all 0.3s ease; }
 .package-card:hover { border-color: #800080; transform: translateY(-4px); box-shadow: 0 8px 24px rgba(128, 0, 128, 0.2); }
@@ -450,7 +469,18 @@ const handleSubmit = async () => {
 }
 .support-button:hover { background: rgba(239, 68, 68, 0.1); }
 
-.order-summary-desktop { width: 350px; background: #1a1a1a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; padding: 2rem; height: fit-content; position: sticky; top: 2rem; flex-shrink: 0; }
+/* RESUMO DESKTOP: SEMPRE VISÍVEL */
+.order-summary-desktop { 
+  width: 350px; 
+  background: #1a1a1a; 
+  border: 1px solid rgba(255, 255, 255, 0.1); 
+  border-radius: 1rem; 
+  padding: 2rem; 
+  height: fit-content; 
+  position: sticky; 
+  top: 2rem; 
+  flex-shrink: 0;
+}
 .summary-title { font-size: 1.25rem; font-weight: 700; margin: 0 0 1.5rem 0; color: #ffffff; }
 .summary-section { margin-bottom: 1.5rem; }
 .summary-label { font-size: 0.875rem; color: #a0a0a0; margin-bottom: 0.25rem; }
