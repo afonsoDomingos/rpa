@@ -39,7 +39,6 @@ const startProgress = () => {
     if (progress.value > 0 && showInstall.value) {
       timer = requestAnimationFrame(tick)
     } else {
-      // Quando termina a contagem → fade + encolher
       showInstall.value = false
     }
   }
@@ -95,35 +94,35 @@ const installPWA = async () => {
   box-sizing: border-box;
 }
 
-/* Fundo transparente glassmorphism */
+/* FUNDO ULTRA-TRANSPARENTE + ZOOM IN */
 .banner-card {
-  background: rgba(255, 255, 255, 0.62);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: clamp(24px, 5.5vw, 36px);
-  padding: clamp(20px, 5vw, 30px) clamp(24px, 6vw, 36px);
+  background: rgba(255, 255, 255, 0.48); /* ainda mais transparente */
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: clamp(26px, 6vw, 38px);
+  padding: clamp(22px, 5.5vw, 32px) clamp(26px, 6.5vw, 38px);
   width: 100%;
   max-width: min(420px, 90vw);
   display: flex;
   align-items: center;
-  gap: clamp(14px, 3.5vw, 20px);
+  gap: clamp(16px, 4vw, 22px);
   box-shadow: 
-    0 20px 52px rgba(0, 0, 0, 0.1),
-    0 6px 20px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    0 22px 56px rgba(0, 0, 0, 0.09),
+    0 8px 22px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
   pointer-events: auto;
   font-family: 'SF Pro Display', 'Inter', system-ui, sans-serif;
 }
 
 /* Ícone */
 .icon {
-  font-size: clamp(30px, 6.5vw, 40px);
+  font-size: clamp(32px, 7vw, 42px);
   background: linear-gradient(135deg, #7000ff, #d946ef);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));
 }
 
 /* Textos */
@@ -133,14 +132,14 @@ const installPWA = async () => {
 }
 .title {
   margin: 0;
-  font-size: clamp(15.5px, 4.2vw, 17.5px);
+  font-size: clamp(16px, 4.5vw, 18px);
   font-weight: 700;
   color: #000000;
 }
 .subtitle {
   margin: 4px 0 0;
-  font-size: clamp(13px, 3.3vw, 14.5px);
-  color: #333333;
+  font-size: clamp(13.5px, 3.5vw, 15px);
+  color: #222222;
   font-weight: 500;
 }
 
@@ -149,16 +148,16 @@ const installPWA = async () => {
   background: linear-gradient(135deg, #7000ff, #a855f7);
   color: white;
   border: none;
-  border-radius: clamp(14px, 3.2vw, 18px);
-  padding: clamp(11px, 2.8vw, 15px) clamp(20px, 4.5vw, 26px);
-  font-size: clamp(14px, 3.6vw, 15.5px);
+  border-radius: clamp(15px, 3.5vw, 19px);
+  padding: clamp(12px, 3vw, 16px) clamp(22px, 5vw, 28px);
+  font-size: clamp(14.5px, 3.8vw, 16px);
   font-weight: 600;
   cursor: pointer;
   position: relative;
   overflow: hidden;
   transition: all 0.35s cubic-bezier(0.2, 0, 0.2, 1);
-  box-shadow: 0 8px 24px rgba(128, 0, 255, 0.35);
-  min-width: clamp(88px, 22vw, 100px);
+  box-shadow: 0 8px 26px rgba(128, 0, 255, 0.32);
+  min-width: clamp(92px, 24vw, 104px);
   text-align: center;
 }
 
@@ -166,7 +165,7 @@ const installPWA = async () => {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.35), transparent);
+  background: linear-gradient(135deg, rgba(255,255,255,0.38), transparent);
   border-radius: inherit;
   opacity: 0;
   transition: opacity 0.3s;
@@ -175,7 +174,7 @@ const installPWA = async () => {
 .install-btn:hover:not(:disabled)::before { opacity: 1; }
 .install-btn:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 0 14px 36px rgba(128, 0, 255, 0.5);
+  box-shadow: 0 16px 40px rgba(128, 0, 255, 0.48);
 }
 .install-btn:active { transform: translateY(-1px); }
 .install-btn:disabled { opacity: 0.7; cursor: not-allowed; }
@@ -189,8 +188,8 @@ const installPWA = async () => {
   left: 0;
   height: 4px;
   width: 100%;
-  background: rgba(0, 0, 0, 0.08);
-  border-radius: 0 0 clamp(24px, 5.5vw, 36px) clamp(24px, 5.5vw, 36px);
+  background: rgba(0, 0, 0, 0.07);
+  border-radius: 0 0 clamp(26px, 6vw, 38px) clamp(26px, 6vw, 38px);
   overflow: hidden;
 }
 .progress-fill {
@@ -198,27 +197,39 @@ const installPWA = async () => {
   background: linear-gradient(90deg, #8000ff, #d946ef);
   border-radius: inherit;
   transition: width 0.12s ease-out;
-  box-shadow: 0 0 14px rgba(128, 0, 255, 0.4);
+  box-shadow: 0 0 16px rgba(128, 0, 255, 0.38);
 }
 
-/* ANIMAÇÃO DE ENTRADA */
+/* FADE IN + ZOOM IN (entrada) */
 .install-enter-active {
-  animation: scaleIn 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: zoomInFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* ANIMAÇÃO DE SAÍDA: FADE + ENCOLHER SUAVE */
+/* FADE OUT + ENCOLHER (saída) */
 .install-leave-active {
-  animation: shrinkFadeOut 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: shrinkFadeOut 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-@keyframes scaleIn {
-  0% { opacity: 0; transform: scale(0.86); }
-  100% { opacity: 1; transform: scale(1); }
+@keyframes zoomInFade {
+  0% {
+    opacity: 0;
+    transform: scale(0.78);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes shrinkFadeOut {
-  0% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(0.82); }
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.78);
+  }
 }
 
 @keyframes pulse {
