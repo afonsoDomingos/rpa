@@ -17,6 +17,7 @@ import { RouterView } from "vue-router";
 import CustomCursor from "./views/Presentation/CustomCursor.vue";
 import SocialIcons from "./components/SocialIcons.vue";
 import ChatAssistente from "./components/ChatAssistente.vue";
+import InstallButton from "./components/InstallButton.vue";
 
 /*import olhodedeus from "./examples/navbars/olhodedeus.vue";*/
 
@@ -86,6 +87,8 @@ const props = defineProps({
       <CustomCursor />
       <ChatAssistente v-if="!showScrollTop" />
      <SocialIcons :size="14" />
+     <InstallButton />
+
     
 
      
