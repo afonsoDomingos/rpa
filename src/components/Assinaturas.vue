@@ -42,7 +42,7 @@
           <div class="payment-methods-grid">
             <button v-for="method in paymentMethods" :key="method.id" :class="['payment-method-card', { 'selected': selectedPaymentMethod === method.id }]" @click="selectPaymentMethod(method.id)">
               <img v-if="method.img" :src="method.img" class="payment-method-icon-img" />
-              <div v-else class="payment-method-icon">{{ method.icon }}</div>
+              <i v-else :class="method.iconClass" class="payment-method-icon"></i>
               <span class="payment-method-name">{{ method.name }}</span>
             </button>
           </div>
@@ -101,7 +101,13 @@
             </button>
           </form>
 
-          <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+          <div v-if="errorMessage" class="error-message">
+            {{ errorMessage }}
+            <div class="error-actions">
+              <button @click="retryPayment" class="retry-button">Tentar Novamente</button>
+              <button @click="contactSupport" class="support-button">Contactar Suporte</button>
+            </div>
+          </div>
         </div>
 
         <!-- Sucesso -->
@@ -114,11 +120,12 @@
           </div>
           <h2 class="success-title">Pagamento Confirmado!</h2>
           <p class="success-text">Sua assinatura foi ativada com sucesso.</p>
+          <button @click="goToHome" class="home-button">Voltar à Página Inicial</button>
         </div>
       </main>
 
       <!-- Resumo Desktop -->
-      <aside class="order-summary-desktop" v-if="selectedPackage">
+      <aside class="order-summary-desktop" v-if="selectedPackage && currentStep < 3">
         <h3 class="summary-title">Resumo do Pedido</h3>
         <div class="summary-section">
           <div class="summary-label">Plano Selecionado</div>
@@ -138,10 +145,10 @@
       </aside>
     </div>
 
-    <!-- Resumo Mobile - Só aparece se NÃO estiver digitando -->
+    <!-- Resumo Mobile -->
     <aside 
       class="order-summary-mobile" 
-      v-if="selectedPackage && !inputFocused"
+      v-if="selectedPackage && !inputFocused && currentStep < 3"
     >
       <div class="summary-content">
         <div class="summary-row">
@@ -167,9 +174,12 @@
 
 <script setup>
 import { ref, reactive, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import mpesaIcon from '@/assets/img/Mpesa.png'
 import emolaIcon from '@/assets/img/Emola.png'
 import axios from "axios"
+
+const router = useRouter()
 
 const currentStep = ref(1)
 const selectedPackage = ref(null)
@@ -179,7 +189,7 @@ const showSuccess = ref(false)
 const errorMessage = ref("")
 const phoneInput = ref(null)
 const cardInput = ref(null)
-const inputFocused = ref(false) // ← Controla visibilidade do resumo mobile
+const inputFocused = ref(false)
 
 const packages = [
   { id: 'free', name: 'Gratuito', price: 0, period: '', benefits: ['Permite fazer pesquisas', 'Gerar CV', '1 GB de armazenamento'], recommended: false },
@@ -188,15 +198,14 @@ const packages = [
 ]
 
 const paymentMethods = [
-  { id: 'mpesa', name: 'M-Pesa', icon: '', img: mpesaIcon },
-  { id: 'emola', name: 'Emola', icon: '', img: emolaIcon },
-  { id: 'card', name: 'Cartão', icon: 'Credit Card', img: null }
+  { id: 'mpesa', name: 'M-Pesa', img: mpesaIcon },
+  { id: 'emola', name: 'Emola', img: emolaIcon },
+  { id: 'card', name: 'Cartão', iconClass: 'bi bi-credit-card' }
 ]
 
 const mobileDetails = reactive({ phone: '' })
 const cardDetails = reactive({ number: '', expiry: '', cvv: '' })
 
-// Normalização
 function normalizarTelefone(phone) {
   const cleaned = phone.replace(/[\s\-\(\)\+]/g, '')
   if (/^(84|85|86|87|82)\d{7}$/.test(cleaned)) return '258' + cleaned
@@ -204,23 +213,34 @@ function normalizarTelefone(phone) {
   return null
 }
 
-// Foco / Blur
 const onInputFocus = async () => {
   inputFocused.value = true
   await nextTick()
   const input = phoneInput.value || cardInput.value
-  if (input) {
-    input.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }
+  if (input) input.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
-const onInputBlur = () => {
-  inputFocused.value = false
-}
+const onInputBlur = () => { inputFocused.value = false }
 
-// Seleção
 const selectPackage = (pkg) => { selectedPackage.value = pkg; errorMessage.value = "" }
 const selectPaymentMethod = (id) => { selectedPaymentMethod.value = id; errorMessage.value = "" }
+
+// Voltar à página inicial
+const goToHome = () => {
+  router.push('/') // ou '/dashboard' se for o caso
+}
+
+// Tentar novamente
+const retryPayment = () => {
+  errorMessage.value = ""
+  loading.value = false
+}
+
+// Contactar suporte
+const contactSupport = () => {
+  const phone = "258841234567" // número do suporte
+  window.location.href = `tel:${phone}`
+}
 
 // Plano gratuito
 const ativarPlanoGratuito = async () => {
@@ -285,6 +305,7 @@ const handleSubmit = async () => {
 @import '@fontsource/poppins/700.css';
 
 .payment-method-icon-img { width: 48px; height: auto; }
+.payment-method-icon { font-size: 2.5rem; color: #ffffff; }
 .title, .package-name, .summary-title, .section-title, .success-title { font-family: 'Poppins', sans-serif !important; }
 
 * { box-sizing: border-box; }
@@ -346,7 +367,6 @@ const handleSubmit = async () => {
 .payment-method-card:hover { border-color: #800080; }
 .payment-method-card.selected { border-color: #800080; background: rgba(128, 0, 128, 0.1); }
 
-.payment-method-icon { font-size: 2rem; }
 .payment-method-name { font-size: 0.875rem; font-weight: 600; color: #ffffff; }
 
 .form { display: flex; flex-direction: column; gap: 1.5rem; }
@@ -379,9 +399,56 @@ const handleSubmit = async () => {
 .success-icon { display: inline-flex; padding: 1.5rem; background: rgba(20, 184, 166, 0.1); border-radius: 50%; margin-bottom: 1.5rem; }
 .success-icon svg { color: #14b8a6; }
 .success-title { font-size: 2rem; font-weight: 700; margin: 0 0 0.5rem 0; color: #ffffff; }
-.success-text { font-size: 1.125rem; color: #a0a0a0; margin: 0; }
+.success-text { font-size: 1.125rem; color: #a0a0a0; margin: 0 0 1.5rem 0; }
 
-.error-message { padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 0.5rem; color: #ef4444; margin-top: 1rem; }
+.home-button {
+  padding: 0.875rem 2rem;
+  background: #14b8a6;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.home-button:hover { background: #0d9488; transform: scale(1.02); }
+
+.error-message {
+  padding: 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 0.5rem;
+  color: #ef4444;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+.error-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.retry-button, .support-button {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.retry-button {
+  background: #800080;
+  color: #ffffff;
+  border: none;
+}
+.retry-button:hover { background: #9900cc; }
+.support-button {
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+}
+.support-button:hover { background: rgba(239, 68, 68, 0.1); }
 
 .order-summary-desktop { width: 350px; background: #1a1a1a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; padding: 2rem; height: fit-content; position: sticky; top: 2rem; flex-shrink: 0; }
 .summary-title { font-size: 1.25rem; font-weight: 700; margin: 0 0 1.5rem 0; color: #ffffff; }
