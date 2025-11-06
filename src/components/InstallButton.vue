@@ -1,8 +1,8 @@
 <template>
-  <transition name="fade">
+  <transition name="fade-scale">
     <div v-if="showInstall" class="install-toast">
       <div class="toast-content">
-        <p>Instale o app no seu dispositivo!</p>
+        <p>🚀 Instale o app e tenha acesso rápido!</p>
         <button @click="installPWA">Instalar</button>
       </div>
     </div>
@@ -21,10 +21,10 @@ onMounted(() => {
     deferredPrompt = e
     showInstall.value = true
 
-    // Desaparece automaticamente após 8 segundos
+    // Desaparece automaticamente após 6 segundos
     setTimeout(() => {
       showInstall.value = false
-    }, 8000)
+    }, 6000)
   })
 })
 
@@ -40,65 +40,68 @@ function installPWA() {
 </script>
 
 <style>
-/* Container centralizado com efeito de pop */
 .install-toast {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 9999;
-  max-width: 90%;
-  width: 320px;
-  background: linear-gradient(135deg, #8000ff, #b347ff);
+  width: 300px;
+  background: #fff;
   border-radius: 16px;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.4);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
   overflow: hidden;
-  animation: pop 0.5s ease-out;
+  font-family: 'Inter', sans-serif;
 }
 
-/* Conteúdo do toast */
 .toast-content {
   padding: 20px;
   text-align: center;
-  color: #fff;
-  font-family: 'Segoe UI', sans-serif;
+  color: #333;
 }
 
 .toast-content p {
   font-size: 16px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   font-weight: 500;
 }
 
-/* Botão moderno */
+/* Botão moderno com opacidade */
 .toast-content button {
-  background-color: #fff;
-  color: #8000ff;
+  background-color: #8000ff;
+  color: #fff;
   border: none;
   padding: 10px 24px;
   border-radius: 12px;
   cursor: pointer;
   font-weight: bold;
   font-size: 14px;
+  opacity: 0.85;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
 .toast-content button:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
+  opacity: 1;
   box-shadow: 0 6px 16px rgba(0,0,0,0.3);
 }
 
-/* Efeitos de entrada e saída */
-@keyframes pop {
-  0% { transform: translate(-50%, -60%) scale(0.8); opacity: 0; }
-  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+/* Animação de entrada e saída do toast */
+.fade-scale-enter-active {
+  animation: fadeInScale 0.5s ease forwards;
+}
+.fade-scale-leave-active {
+  animation: fadeOutScale 0.4s ease forwards;
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s;
+@keyframes fadeInScale {
+  0% { opacity: 0; transform: translate(-50%, -60%) scale(0.8); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
+
+@keyframes fadeOutScale {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -60%) scale(0.8); }
 }
 </style>
