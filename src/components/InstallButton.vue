@@ -1,11 +1,10 @@
 <template>
-  <transition name="fade-scale">
+  <transition name="fade">
     <div v-if="showInstall" class="install-toast">
-      <div class="toast-content">
-        <p>🚀 Instale o app e tenha acesso rápido!</p>
-        <button @click="installPWA">Instalar</button>
-        <div class="progress-bar" :style="{ width: progress + '%' }"></div>
-      </div>
+      <button @click="installPWA">
+        Instalar App
+        <span class="progress-bar" :style="{ width: progress + '%' }"></span>
+      </button>
     </div>
   </transition>
 </template>
@@ -25,7 +24,7 @@ onMounted(() => {
     showInstall.value = true
     progress.value = 100
 
-    // Anima contagem regressiva
+    // Contagem regressiva
     const duration = 6000 // 6 segundos
     const interval = 50
     let elapsed = 0
@@ -56,77 +55,46 @@ function installPWA() {
 <style>
 .install-toast {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  bottom: 20px;
+  right: 20px;
   z-index: 9999;
-  width: 320px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.3);
-  overflow: hidden;
-  font-family: 'Inter', sans-serif;
 }
 
-.toast-content {
-  padding: 20px;
-  text-align: center;
-  color: #333;
+.install-toast button {
   position: relative;
-}
-
-.toast-content p {
-  font-size: 16px;
-  margin-bottom: 16px;
-  font-weight: 500;
-}
-
-.toast-content button {
   background-color: #8000ff;
   color: #fff;
   border: none;
-  padding: 10px 28px;
-  border-radius: 12px;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 14px;
+  opacity: 0.5;
   cursor: pointer;
   font-weight: bold;
-  font-size: 14px;
-  opacity: 0.9;
-  transition: all 0.25s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+  overflow: hidden;
 }
 
-.toast-content button:hover {
+.install-toast button:hover {
+  opacity: 0.8;
   transform: scale(1.05);
-  opacity: 1;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
 }
 
-/* Barra de contagem regressiva */
 .progress-bar {
   position: absolute;
   bottom: 0;
   left: 0;
-  height: 4px;
-  background: #8000ff;
-  border-radius: 0 0 12px 12px;
+  height: 3px;
+  background-color: #fff;
+  border-radius: 0 0 10px 10px;
   transition: width 0.05s linear;
 }
 
-/* Animação do toast */
-.fade-scale-enter-active {
-  animation: fadeInScale 0.4s ease forwards;
+/* Fade animation */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.4s;
 }
-.fade-scale-leave-active {
-  animation: fadeOutScale 0.3s ease forwards;
-}
-
-@keyframes fadeInScale {
-  0% { opacity: 0; transform: translate(-50%, -60%) scale(0.8); }
-  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-}
-
-@keyframes fadeOutScale {
-  0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -60%) scale(0.8); }
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
 }
 </style>
