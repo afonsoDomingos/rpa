@@ -62,53 +62,54 @@
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  background: transparent; /* container transparente */
-  pointer-events: none; /* evita que container bloqueie clicks se houver padding extra */
+  gap: 8px;
+  background: transparent;
+  pointer-events: none;
 }
 
 .icon-link {
-  pointer-events: auto; /* permite clique apenas nos links */
+  pointer-events: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: transparent; /* transparente conforme pedido */
-  box-shadow: none;
-  transition: transform 0.12s ease;
+  transition: transform 0.25s cubic-bezier(0.25, 1.25, 0.5, 1);
   -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
 }
 
-.icon-link:active,
 .icon-link:hover {
-  transform: scale(1.06);
+  transform: scale(1.6);
 }
 
 .icon-link svg {
-  width: 12px;
-  height: 12px;
+  width: 18px;
+  height: 18px;
   display: block;
+  transition: transform 0.25s cubic-bezier(0.25, 1.25, 0.5, 1);
 }
 
-/* redução extra para telas muito pequenas */
+.icon-link:hover svg {
+  transform: scale(1.25);
+}
+
+/* Responsividade */
 @media (max-width: 420px) {
   .social-icons-fixed {
     bottom: 6px;
-    left: -2px;
+    left: 0;
     gap: 5px;
   }
 
   .icon-link {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
   }
 
   .icon-link svg {
-    width: 10px;
-    height: 10px;
+    width: 14px;
+    height: 14px;
   }
 }
 </style>
