@@ -10,7 +10,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       manifest: {
         name: 'RecuperaAqui',
-        short_name: 'RPA',
+        short_name: 'Rpa',
         start_url: '/',
         display: 'standalone',
         background_color: '#ffffff',
