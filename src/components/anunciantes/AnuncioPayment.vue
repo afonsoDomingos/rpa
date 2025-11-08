@@ -7,7 +7,7 @@
         <i class="bi bi-arrow-left"></i>
         Voltar
       </button>
-      <h1 class="title">Pagamento do Anúncio</h1>
+      
     </header>
 
     <!-- CONTEÚDO -->
@@ -44,7 +44,7 @@
 
       <!-- PAGAMENTO -->
       <div v-else class="payment-section">
-        <h2 class="section-title">Método de Pagamento</h2>
+        <h2 class="section-title">Pagar com</h2>
 
         <div class="payment-methods-grid">
           <button

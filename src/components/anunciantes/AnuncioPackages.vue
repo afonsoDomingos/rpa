@@ -1,7 +1,7 @@
 <!-- src/components/anunciantes/AnuncioPackages.vue -->
 <template>
   <div class="packages">
-    <h2>Escolha a duração</h2>
+    
     <div class="grid">
       <button v-for="n in 4" :key="n" :class="['pkg', { active: selected === n }]" @click="$emit('select', n)">
         <strong>{{ n }} {{ n === 1 ? 'semana' : 'semanas' }}</strong>

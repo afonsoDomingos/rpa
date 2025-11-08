@@ -5,7 +5,7 @@
       <button @click="$router.go(-1)" class="btn-back">
         <i class="bi bi-arrow-left"></i> Voltar
       </button>
-      <h1 class="title">Meus Anúncios</h1>
+
     </header>
 
     <!-- EMPTY STATE -->

@@ -1,99 +1,97 @@
 <!-- src/components/anunciantes/AnuncieForm.vue -->
 <template>
-  <form @submit.prevent="$emit('next', form)" class="anuncie-form">
-    <div class="form-group">
-      <label class="form-label">Nome do Produto/Serviço</label>
-      <input
-        v-model="form.name"
-        type="text"
-        class="form-input"
-        placeholder="Ex: Apartamento T3 - Matola"
-        required
-      />
-    </div>
+  <div class="container">
+    
 
-    <div class="form-group">
-      <label class="form-label">Preço</label>
-      <div class="price-input">
-        <span class="currency">MZN</span>
-        <input
-          v-model.number="form.price"
-          type="number"
-          min="0"
-          step="1000"
-          class="form-input"
-          placeholder="2500000"
-          required
-        />
-      </div>
-    </div>
+    <main class="form-wrapper">
+      <form @submit.prevent="handleSubmit" class="grid">
+        <!-- Dados -->
+        <section class="section">
+          <h2 class="section-title">
+            <span class="num num-purple">1</span> Info
+          </h2>
 
-    <div class="form-group">
-      <label class="form-label">Link do WhatsApp</label>
-      <input
-        v-model="form.ctaLink"
-        type="url"
-        class="form-input"
-        placeholder="https://wa.me/258841234567"
-        required
-      />
-    </div>
+          <div class="group">
+            <input v-model="form.name" type="text" class="input" placeholder="Nome" required />
+          </div>
 
-    <div class="form-group">
-      <label class="form-label">Imagem do Anúncio (máx. 2MB)</label>
-      <div class="file-input-wrapper">
-        <input
-          type="file"
-          accept="image/*"
-          @change="onFileChange"
-          id="file-upload"
-          class="file-input"
-          required
-        />
-        <label for="file-upload" class="file-label">
-          <i class="bi bi-cloud-upload"></i>
-          Escolher imagem
-        </label>
-      </div>
-      <transition name="fade">
-        <div v-if="previewUrl" class="image-preview">
-          <img :src="previewUrl" alt="Preview" />
-          <button @click="removeImage" class="remove-img">
-            <i class="bi bi-x-circle-fill"></i>
-          </button>
-        </div>
-      </transition>
-    </div>
+          <div class="group">
+            <textarea v-model="form.description" class="input textarea" rows="2" placeholder="Descrição" required></textarea>
+          </div>
 
-    <button type="submit" class="submit-btn">
-      <span>Avançar</span>
-      <i class="bi bi-arrow-right"></i>
-    </button>
-  </form>
+          <div class="group">
+            <div class="price">
+              <span class="currency">MZN</span>
+              <input v-model.number="form.price" type="number" class="input price-input" placeholder="Preço" required />
+            </div>
+          </div>
+
+          <div class="group">
+            <input v-model="form.ctaLink" type="url" class="input" placeholder="wa.me/..." required />
+          </div>
+        </section>
+
+        <!-- Imagem -->
+        <section class="section">
+          <h2 class="section-title">
+            <span class="num num-green">2</span> Foto
+          </h2>
+
+          <div class="group">
+            <input type="file" accept="image/*" @change="onFileChange" id="file" class="hidden" :required="!previewUrl" />
+            <label for="file" class="upload-label">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+              </svg>
+            </label>
+
+            <transition name="fade">
+              <div v-if="previewUrl" class="preview">
+                <img :src="previewUrl" alt="" class="preview-img" />
+                <button @click="removeImage" type="button" class="remove">
+                  <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                  </svg>
+                </button>
+              </div>
+            </transition>
+          </div>
+        </section>
+
+        <!-- Botão (sempre visível) -->
+        <button type="submit" class="btn">
+          Publicar Anúncio
+          <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M13 7l5 5m0 0l-5 5m5-5H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+          </svg>
+        </button>
+      </form>
+    </main>
+  </div>
 </template>
 
 <script setup>
 import { reactive, ref } from 'vue'
-
 const emit = defineEmits(['next'])
+
 const form = reactive({
   name: '',
+  description: '',
   price: 0,
   ctaLink: '',
   image: null
 })
+
 const previewUrl = ref('')
 
 const onFileChange = (e) => {
   const file = e.target.files[0]
   if (!file) return
-
   if (file.size > 2 * 1024 * 1024) {
-    alert('Imagem muito grande. Máximo: 2MB.')
+    alert('Máx. 2MB')
     e.target.value = ''
     return
   }
-
   form.image = file
   previewUrl.value = URL.createObjectURL(file)
 }
@@ -101,214 +99,192 @@ const onFileChange = (e) => {
 const removeImage = () => {
   form.image = null
   previewUrl.value = ''
-  document.getElementById('file-upload').value = ''
+  const input = document.getElementById('file')
+  if (input) input.value = ''
+}
+
+const handleSubmit = () => {
+  console.log('Anúncio:', form)
+  alert('Adicionado!')
+  emit('next', form) // AVANÇA
 }
 </script>
 
 <style scoped>
-/* === IMPORTS === */
-@import 'bootstrap-icons/font/bootstrap-icons.css';
-@import '@fontsource/poppins/500.css';
-@import '@fontsource/poppins/600.css';
-@import '@fontsource/poppins/700.css';
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
-/* === POPPINS GLOBAL === */
-* {
-  font-family: 'Poppins', sans-serif !important;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
-/* === FORMULÁRIO === */
-.anuncie-form {
+.container {
+  height: 100vh;
+  width: 100vw;
+  background: #0a0a0a; /* FUNDO PRETO TOTAL */
+  color: white;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  max-width: 420px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: #1a1a1a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
-  color: #ffffff;
+  overflow: hidden;
 }
 
-/* === LABELS === */
-.form-label {
+.header {
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+}
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.form-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.section {
+  background: rgba(30, 30, 30, 0.9);
+  padding: 0.75rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.section-title {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #d0d0d0;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
 }
+.num {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.num-purple { background: #7c3aed; }
+.num-green { background: #10b981; }
 
-/* === INPUTS === */
-.form-input {
-  padding: 0.875rem;
-  background: #0a0a0a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  color: #ffffff;
-  font-size: 1rem;
-  transition: all 0.2s ease;
+.group { margin-bottom: 0.5rem; }
+.group:last-child { margin-bottom: 0; }
+
+.input {
+  width: 100%;
+  padding: 0.5rem;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 0.4rem;
+  color: white;
+  font-size: 0.85rem;
   outline: none;
 }
+.input::placeholder { color: #777; }
+.input:focus { border-color: #7c3aed; }
 
-.form-input::placeholder {
-  color: #a0a0a0;
-  font-style: italic;
-}
+.textarea { resize: none; min-height: 60px; }
 
-.form-input:focus {
-  border-color: #800080;
-  box-shadow: 0 0 0 3px rgba(128, 0, 128, 0.1);
-}
-
-/* === PREÇO COM MZN === */
-.price-input {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.price-input .currency {
+.price { position: relative; }
+.currency {
   position: absolute;
-  left: 1rem;
-  color: #66bb6a;
-  font-weight: 600;
-  font-size: 1rem;
+  left: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #10b981;
+  font-weight: 700;
+  font-size: 0.75rem;
   pointer-events: none;
-  z-index: 1;
 }
+.price-input { padding-left: 2.75rem !important; }
 
-.price-input .form-input {
-  padding-left: 3.5rem !important;
-}
-
-/* === UPLOAD DE IMAGEM === */
-.file-input-wrapper {
-  position: relative;
-}
-
-.file-input {
-  opacity: 0;
-  position: absolute;
-  z-index: -1;
-}
-
-.file-label {
+.hidden { display: none; }
+.upload-label {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  padding: 0.875rem;
-  background: rgba(128, 0, 128, 0.1);
-  border: 1px dashed rgba(128, 0, 128, 0.4);
+  gap: 0.2rem;
+  padding: 1rem 0.7rem;
+  background: rgba(124,58,237,0.1);
+  border: 1.5px dashed rgba(124,58,237,0.35);
   border-radius: 0.5rem;
-  color: #c29bff;
-  font-weight: 600;
-  font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
-
-.file-label:hover {
-  background: rgba(128, 0, 128, 0.15);
-  border-color: #800080;
-  color: #e0c3ff;
+.upload-label:hover {
+  background: rgba(124,58,237,0.15);
+  border-color: #7c3aed;
 }
+.icon { width: 1.75rem; height: 1.75rem; color: #a78bfa; }
+.upload-label:hover .icon { color: #c4b5fd; }
 
-.file-label i {
-  font-size: 1.1rem;
-}
-
-/* === PREVIEW DA IMAGEM === */
-.image-preview {
+.preview {
   position: relative;
-  margin-top: 1rem;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  border: 1.5px solid rgba(124,58,237,0.35);
+  margin-top: 0.4rem;
 }
-
-.image-preview img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  display: block;
-}
-
-.remove-img {
+.preview-img { width: 100%; height: 10rem; object-fit: cover; }
+.remove {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: rgba(239, 68, 68, 0.9);
+  top: 0.3rem;
+  right: 0.3rem;
+  background: #ef4444;
   border: none;
   border-radius: 50%;
-  width: 34px;
-  height: 34px;
-  color: #fff;
-  font-size: 1rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
 }
+.remove:hover { background: #dc2626; }
+.icon-x { width: 1rem; height: 1rem; }
 
-.remove-img:hover {
-  background: #ef4444;
-  transform: scale(1.1);
-}
-
-/* === BOTÃO AVANÇAR === */
-.submit-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+.btn {
+  grid-column: 1 / -1;
   margin-top: 0.5rem;
-  padding: 1rem;
-  background: linear-gradient(135deg, #800080, #66bb6a);
-  color: #ffffff;
+  width: 100%;
+  padding: 0.65rem;
+  background: linear-gradient(135deg, #7c3aed 0%, #10b981 100%);
+  color: white;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.4rem;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+.btn:hover {
+  background: linear-gradient(135deg, #10b981 0%, #7c3aed 100%);
+}
+.arrow { width: 0.9rem; height: 0.9rem; }
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.15s; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+/* RESPONSIVO */
+@media (min-width: 768px) {
+  .grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .preview-img { height: 12rem; }
 }
 
-.submit-btn:hover {
-  background: linear-gradient(135deg, #66bb6a, #800080);
-  transform: scale(1.02);
-}
-
-.submit-btn i {
-  font-size: 1.1rem;
-  transition: transform 0.2s ease;
-}
-
-.submit-btn:hover i {
-  transform: translateX(3px);
-}
-
-/* === ANIMAÇÃO === */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-/* === RESPONSIVO === */
-@media (max-width: 480px) {
-  .anuncie-form {
-    padding: 1.5rem;
-    margin: 1.5rem auto;
-  }
-  .image-preview img {
-    height: 160px;
-  }
+@media (min-width: 1024px) {
+  .header { padding: 0.75rem 1rem; text-align: left; }
+  .form-wrapper { padding: 0.75rem 1rem; }
 }
 </style>
