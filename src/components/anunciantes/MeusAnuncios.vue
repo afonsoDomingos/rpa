@@ -1,20 +1,17 @@
 <!-- src/components/anunciantes/MeusAnuncios.vue -->
 <template>
   <div class="meus-anuncios">
-    <!-- Loading -->
     <div v-if="loading" class="loading-state">
       <i class="bi bi-hourglass-split"></i>
       <p>Carregando seus anúncios...</p>
     </div>
 
-    <!-- Error -->
     <div v-else-if="error" class="error-state">
       <i class="bi bi-exclamation-triangle"></i>
       <p>{{ error }}</p>
       <button @click="recarregar" class="retry-btn">Tentar novamente</button>
     </div>
 
-    <!-- Empty State -->
     <div v-else-if="!anuncios.length" class="empty-state">
       <i class="bi bi-megaphone-fill"></i>
       <p>Ainda não existem anúncios publicados.</p>
@@ -23,7 +20,6 @@
       </button>
     </div>
 
-    <!-- Anúncios -->
     <div v-else>
       <header class="header">
         <button @click="$router.go(-1)" class="back-btn" aria-label="Voltar à página anterior">
@@ -39,12 +35,10 @@
           class="anuncio-card"
           :style="{ '--i': i }"
         >
-          <!-- Status Badge -->
           <div class="anuncio-status" :class="ad.status">
             {{ ad.status === 'active' ? 'Ativo' : 'Pausado' }}
           </div>
 
-          <!-- Imagem com fallback -->
           <img
             :src="ad.image"
             :alt="`Anúncio: ${ad.name}`"
@@ -91,7 +85,11 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
-// Mock data (substitua por API real)
+const router = useRouter()
+const anuncios = ref([])
+const loading = ref(true)
+const error = ref('')
+
 const mockData = [
   {
     id: 1,
@@ -122,12 +120,6 @@ const mockData = [
   }
 ]
 
-const router = useRouter()
-const anuncios = ref([])
-const loading = ref(true)
-const error = ref('')
-
-// Formatação de preço (reutilizável)
 const formatPrice = (value) => {
   return new Intl.NumberFormat('pt-MZ', {
     style: 'currency',
@@ -136,12 +128,10 @@ const formatPrice = (value) => {
   }).format(value)
 }
 
-// Fallback de imagem
 const handleImageError = (e) => {
   e.target.src = '/img/placeholder-ad.jpg'
 }
 
-// Ações
 const editarAnuncio = (id) => {
   router.push(`/anuncie/editar/${id}`)
 }
@@ -149,7 +139,6 @@ const editarAnuncio = (id) => {
 const confirmarRemocao = (id) => {
   if (confirm('Tem certeza que deseja remover este anúncio?')) {
     anuncios.value = anuncios.value.filter(a => a.id !== id)
-    // TODO: Chamar API para deletar
   }
 }
 
@@ -159,11 +148,8 @@ const recarregar = () => {
   carregarAnuncios()
 }
 
-// Simulação de carregamento (substitua por API)
 const carregarAnuncios = async () => {
   try {
-    // const response = await fetch('/api/meus-anuncios')
-    // anuncios.value = await response.json()
     await new Promise(resolve => setTimeout(resolve, 800))
     anuncios.value = mockData
   } catch (err) {
@@ -190,31 +176,25 @@ onMounted(() => {
   color: #fff;
 }
 
-/* Estados */
-.loading-state,
-.error-state,
-.empty-state {
+.loading-state, .error-state, .empty-state {
   text-align: center;
   margin-top: 6rem;
   opacity: 0.9;
 }
 
-.loading-state i,
-.error-state i,
-.empty-state i {
+.loading-state i, .error-state i, .empty-state i {
   font-size: 2.5rem;
   margin-bottom: 1rem;
   display: block;
 }
 
-.loading-state i { color: #800080; }
+.loading-state i { color: #7c3aed; }
 .error-state i { color: #ff6b6b; }
 .empty-state i { color: #66bb6a; }
 
-.retry-btn,
-.new-btn {
+.retry-btn, .new-btn {
   margin-top: 1rem;
-  background: #800080;
+  background: #7c3aed;
   color: #fff;
   padding: 0.7rem 1.4rem;
   border-radius: 10px;
@@ -224,12 +204,8 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.retry-btn:hover,
-.new-btn:hover {
-  background: #4caf50;
-}
+.retry-btn:hover, .new-btn:hover { background: #6d28d9; }
 
-/* Header */
 .header {
   display: flex;
   align-items: center;
@@ -237,10 +213,7 @@ onMounted(() => {
   margin-bottom: 2rem;
 }
 
-.header h1 {
-  font-size: 1.6rem;
-  font-weight: 700;
-}
+.header h1 { font-size: 1.6rem; font-weight: 700; }
 
 .back-btn {
   background: none;
@@ -255,18 +228,14 @@ onMounted(() => {
   gap: 0.5rem;
 }
 
-.back-btn:hover {
-  background: rgba(255,255,255,0.1);
-}
+.back-btn:hover { background: rgba(255,255,255,0.1); }
 
-/* Grid */
 .grid-anuncios {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.8rem;
 }
 
-/* Card */
 .anuncio-card {
   position: relative;
   background: rgba(255,255,255,0.05);
@@ -286,7 +255,6 @@ onMounted(() => {
   box-shadow: 0 12px 32px rgba(0,0,0,0.35);
 }
 
-/* Status Badge */
 .anuncio-status {
   position: absolute;
   top: 0.8rem;
@@ -299,17 +267,9 @@ onMounted(() => {
   letter-spacing: 0.5px;
 }
 
-.anuncio-status.active {
-  background: #4caf50;
-  color: #fff;
-}
+.anuncio-status.active { background: #4caf50; color: #fff; }
+.anuncio-status.paused { background: #ff9800; color: #fff; }
 
-.anuncio-status.paused {
-  background: #ff9800;
-  color: #fff;
-}
-
-/* Imagem */
 .anuncio-img {
   width: 100%;
   height: 180px;
@@ -320,11 +280,8 @@ onMounted(() => {
   transition: opacity 0.4s ease;
 }
 
-.anuncio-img.loaded {
-  opacity: 1;
-}
+.anuncio-img.loaded { opacity: 1; }
 
-/* Info */
 .anuncio-titulo {
   font-size: 1.1rem;
   font-weight: 600;
@@ -354,15 +311,13 @@ onMounted(() => {
   margin-bottom: 1rem;
 }
 
-/* Ações */
 .anuncio-acoes {
   display: flex;
   justify-content: space-between;
   gap: 0.5rem;
 }
 
-.anuncio-acoes button,
-.anuncio-acoes a {
+.anuncio-acoes button, .anuncio-acoes a {
   flex: 1;
   padding: 0.55rem 0.7rem;
   border-radius: 8px;
@@ -378,33 +333,26 @@ onMounted(() => {
 }
 
 .btn-contato {
-  background: #800080;
+  background: #7c3aed;
   color: #fff;
 }
 
-.btn-contato:hover {
-  background: #4caf50;
-}
+.btn-contato:hover { background: #25d366; }
 
 .btn-editar {
   background: rgba(255,255,255,0.1);
   color: #fff;
 }
 
-.btn-editar:hover {
-  background: rgba(255,255,255,0.2);
-}
+.btn-editar:hover { background: rgba(255,255,255,0.2); }
 
 .btn-remover {
   background: rgba(239,68,68,0.2);
   color: #ff6666;
 }
 
-.btn-remover:hover {
-  background: rgba(239,68,68,0.35);
-}
+.btn-remover:hover { background: rgba(239,68,68,0.35); }
 
-/* Acessibilidade */
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -417,11 +365,7 @@ onMounted(() => {
   border: 0;
 }
 
-/* Animação */
 @keyframes fadeUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>

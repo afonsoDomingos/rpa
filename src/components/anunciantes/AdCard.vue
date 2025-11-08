@@ -1,58 +1,80 @@
-<!-- src/components/anunciantes/AdCard.vue -->
 <template>
   <transition name="slide-slow">
     <div v-if="showAd" class="ad-card-container" @click.self="closeAd">
-      <!-- Placeholder -->
-      <div v-if="!activeAd" class="ad-placeholder">
+      <div v-if="!activeAds.length" class="ad-placeholder">
         <div class="placeholder-icon">
-          <i class="bi bi-megaphone-fill"></i>
+          <i class="bi bi-megaphone-fill" aria-hidden="true"></i>
         </div>
         <p class="placeholder-title">Anuncie aqui</p>
         <span class="placeholder-subtitle">Produtos & Serviços...</span>
-
-        <button @click.stop="$router.push('/anuncie')" class="ad-announce-btn">
-          <i class="bi bi-plus-circle"></i>
+        <button
+          @click.stop="$router.push('/anuncie')"
+          class="ad-announce-btn"
+          aria-label="Criar um novo anúncio"
+        >
+          <i class="bi bi-plus-circle" aria-hidden="true"></i>
           Anuncie Aqui
         </button>
       </div>
 
-      <!-- Anúncio Real -->
       <transition name="fade-ad" mode="out-in">
         <div v-if="activeAd" :key="currentIndex" class="ad-content">
-          <button @click="closeAd" class="close-btn" aria-label="Fechar anúncio">
-            <i class="bi bi-x-lg"></i>
+          <button
+            @click="closeAd"
+            class="close-btn"
+            aria-label="Fechar anúncio"
+          >
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
           </button>
 
-          <img :src="activeAd.image" :alt="activeAd.name" class="ad-image" @error="handleImageError" />
+          <img
+            :src="activeAd.image"
+            :alt="activeAd.name || 'Imagem do anúncio'"
+            class="ad-image"
+            loading="lazy"
+            @error="handleImageError"
+          />
 
           <div class="ad-body">
-            <h3 class="ad-title">{{ activeAd.name }}</h3>
-            <p class="ad-description">{{ activeAd.description }}</p>
+            <h3 class="ad-title">{{ activeAd.name || 'Anúncio sem título' }}</h3>
+            <p class="ad-description">{{ activeAd.description || 'Sem descrição disponível' }}</p>
 
             <div class="ad-price">
-              <i class="bi bi-currency-exchange"></i>
-              <strong>{{ formatPrice(activeAd.price) }}</strong>
+              <i class="bi bi-currency-exchange" aria-hidden="true"></i>
+              <strong>{{ formatPrice(activeAd.price || 0) }}</strong>
             </div>
 
-            <a :href="activeAd.ctaLink" target="_blank" rel="noopener" class="ad-cta-button" @click.stop>
-              <i class="bi bi-whatsapp"></i>
-            Contactar
+            <a
+              :href="activeAd.ctaLink || '#'"
+              target="_blank"
+              class="ad-cta-button"
+              @click.stop
+              :aria-label="`Contactar via WhatsApp sobre ${activeAd.name || 'o anúncio'}`"
+            >
+              <i class="bi bi-whatsapp" aria-hidden="true"></i> Contactar
             </a>
 
             <div class="ad-timer">
-              <i class="bi bi-clock-history"></i>
-              <span v-if="!userInteracted">Desaparece em <strong>{{ countdown }}s</strong></span>
-              <span v-else>Próximo em <strong>{{ countdown }}s</strong></span>
+              <i class="bi bi-clock-history" aria-hidden="true"></i>
+              <span>Desaparece em <strong>{{ countdown }}s</strong></span>
             </div>
 
-            <!-- Botão para avançar manualmente -->
-            <button @click="nextAd" class="ad-next-btn">
-              <i class="bi bi-arrow-right-circle"></i>
+            <button
+              @click="debouncedNextAd"
+              class="ad-next-btn"
+              aria-label="Ver próximo anúncio"
+              v-if="activeAds.length > 1"
+            >
+              <i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
               <span>Ver próximo anúncio</span>
             </button>
 
-            <button @click.stop="$router.push('/anuncie')" class="ad-announce-btn">
-              <i class="bi bi-plus-circle"></i>
+            <button
+              @click.stop="$router.push('/anuncie')"
+              class="ad-announce-btn"
+              aria-label="Criar um novo anúncio"
+            >
+              <i class="bi bi-plus-circle" aria-hidden="true"></i>
               <span>Anuncie Aqui</span>
             </button>
           </div>
@@ -65,116 +87,105 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { debounce } from 'lodash'
+import api from '@/api'
 
 const router = useRouter()
 const showAd = ref(false)
 const activeAd = ref(null)
+const activeAds = ref([])
 const countdown = ref(0)
 const userInteracted = ref(false)
+const currentIndex = ref(0)
 let timeoutId = null
 let intervalId = null
-let currentIndex = 0
+let pollingInterval = null
+let reappearTimeout = null
 
-const ads = [
-  {
-    name: "Apartamento T3 - Matola",
-    description: "Centro, perto do mercado",
-    price: 2500000,
-    image: "/img/anuncio-exemplo01.jpg",
-    ctaLink: "https://wa.me/258841234567"
-  },
-  {
-    name: "Toyota Corolla 2020",
-    description: "Baixa km, revisado, garantia",
-    price: 850000,
-    image: "/img/anuncio-exemplo02.jpg",
-    ctaLink: "https://wa.me/258851234567"
-  },
-  {
-    name: "Pintura Residencial",
-    description: "Orçamento grátis em 24h",
-    price: 12000,
-    image: "/img/anuncio-exemplo03.jpg",
-    ctaLink: "https://wa.me/258861234567"
+const ONE_HOUR_MS = 60 * 60 * 1000 // 1 hora em milissegundos
+
+const fetchActiveAds = async () => {
+  console.log('Iniciando fetchActiveAds')
+  try {
+    const res = await api.get('/anuncios/ativos', { timeout: 10000 })
+    console.log('Resposta da API /anuncios/ativos:', res.data)
+    activeAds.value = res.data.filter(ad => ad.status === 'active' && ad.image && ad.name) || []
+    console.log('Anúncios filtrados:', activeAds.value)
+    if (activeAds.value.length > 0) {
+      currentIndex.value = Math.min(currentIndex.value, activeAds.value.length - 1)
+      activeAd.value = activeAds.value[currentIndex.value]
+    } else {
+      activeAd.value = null
+    }
+    localStorage.setItem('cachedAds', JSON.stringify(activeAds.value))
+    // Exibe sempre no refresh
+    showAd.value = true
+    startCountdown()
+  } catch (err) {
+    console.error('Erro ao carregar anúncios:', err)
+    activeAds.value = JSON.parse(localStorage.getItem('cachedAds') || '[]')
+    console.log('Anúncios do cache:', activeAds.value)
+    if (activeAds.value.length > 0) {
+      currentIndex.value = Math.min(currentIndex.value, activeAds.value.length - 1)
+      activeAd.value = activeAds.value[currentIndex.value]
+    } else {
+      activeAd.value = null
+    }
+    // Exibe sempre no refresh, mesmo com erro
+    showAd.value = true
+    startCountdown()
   }
-]
-
-onMounted(() => {
-  fetchAd()
-})
-
-onUnmounted(() => {
-  clearTimers()
-})
-
-const fetchAd = () => {
-  activeAd.value = ads[currentIndex]
-  showAd.value = true
-  startCountdown()
 }
 
 const startCountdown = () => {
-  const totalSeconds = 30 + Math.floor(Math.random() * 16) // 30-45 segundos
+  const totalSeconds = 30 // Fixo em 30 segundos
   countdown.value = totalSeconds
-
   clearTimers()
 
-  // Atualiza o countdown a cada segundo
   intervalId = setInterval(() => {
     if (countdown.value > 0) {
       countdown.value--
     } else {
       clearInterval(intervalId)
-      // Se o usuário NÃO interagiu, desaparece o anúncio
-      if (!userInteracted.value) {
-        closeAd()
-      } else {
-        // Se interagiu, mostra o próximo
-        nextAd()
-      }
+      closeAd()
     }
   }, 1000)
 
-  // Timeout de segurança
   timeoutId = setTimeout(() => {
-    if (!userInteracted.value) {
-      closeAd()
-    } else {
-      nextAd()
-    }
+    closeAd()
   }, totalSeconds * 1000)
 }
 
 const nextAd = () => {
+  if (activeAds.value.length <= 1) return
   clearTimers()
-  
-  // Marca que o usuário interagiu (clicou em "Ver próximo")
   userInteracted.value = true
-  
-  // Avança para o próximo anúncio (ciclo)
-  currentIndex = (currentIndex + 1) % ads.length
-  activeAd.value = ads[currentIndex]
-  
-  // Reinicia o countdown para o novo anúncio
+  currentIndex.value = (currentIndex.value + 1) % activeAds.value.length
+  activeAd.value = activeAds.value[currentIndex.value]
   startCountdown()
 }
+
+const debouncedNextAd = debounce(nextAd, 300)
 
 const closeAd = () => {
   showAd.value = false
   activeAd.value = null
-  userInteracted.value = false // Reseta a flag
+  userInteracted.value = false
   clearTimers()
+  localStorage.setItem('adLastClosed', Date.now().toString())
+  // Agenda reaparecimento após 1 hora
+  clearTimeout(reappearTimeout)
+  reappearTimeout = setTimeout(() => {
+    showAd.value = true
+    startCountdown()
+  }, ONE_HOUR_MS)
 }
 
 const clearTimers = () => {
-  if (timeoutId) {
-    clearTimeout(timeoutId)
-    timeoutId = null
-  }
-  if (intervalId) {
-    clearInterval(intervalId)
-    intervalId = null
-  }
+  if (timeoutId) clearTimeout(timeoutId)
+  if (intervalId) clearInterval(intervalId)
+  timeoutId = null
+  intervalId = null
 }
 
 const handleImageError = (e) => {
@@ -186,21 +197,43 @@ const formatPrice = (value) => {
     style: 'currency',
     currency: 'MZN',
     minimumFractionDigits: 0
-  }).format(value)
+  }).format(value || 0)
 }
+
+onMounted(() => {
+  console.log('AdCard montado, chamando fetchActiveAds')
+  fetchActiveAds()
+  pollingInterval = setInterval(() => {
+    if (!showAd.value) {
+      const lastClosed = localStorage.getItem('adLastClosed')
+      const now = Date.now()
+      if (!lastClosed || now - parseInt(lastClosed) >= ONE_HOUR_MS) {
+        fetchActiveAds()
+      }
+    }
+  }, 5 * 60 * 1000) // Polling a cada 5 minutos
+  window.addEventListener('newAdCreated', fetchActiveAds)
+})
+
+onUnmounted(() => {
+  clearTimers()
+  if (pollingInterval) clearInterval(pollingInterval)
+  if (reappearTimeout) clearTimeout(reappearTimeout)
+  window.removeEventListener('newAdCreated', fetchActiveAds)
+})
 </script>
 
-<style scoped>
-/* === IMPORTS === */
-@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
 
-/* === POPPINS EM TUDO === */
+
+<style scoped>
+/* Estilos originais mantidos */
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css') fallback;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap') fallback;
+
 .ad-card-container * {
   font-family: 'Poppins', sans-serif;
 }
 
-/* === CONTAINER === */
 .ad-card-container {
   position: fixed;
   right: 1.2rem;
@@ -212,7 +245,6 @@ const formatPrice = (value) => {
   pointer-events: auto;
 }
 
-/* === RESPONSIVO === */
 @media (max-width: 1024px) {
   .ad-card-container {
     right: 50%;
@@ -237,26 +269,18 @@ const formatPrice = (value) => {
   50% { transform: translateY(-50%) translateY(-10px); }
 }
 
-/* === VIDRO ULTRA TRANSPARENTE === */
 .ad-placeholder,
 .ad-content {
-  background: linear-gradient(
-    135deg,
-    rgba(15, 10, 35, 0.12),
-    rgba(252, 24, 24, 0.15)
-  );
+  background: linear-gradient(135deg, rgba(15, 10, 35, 0.12), rgba(252, 24, 24, 0.15));
   background-size: 200% 200%;
   background-position: 0% 0%;
-
   backdrop-filter: blur(26px);
   -webkit-backdrop-filter: blur(26px);
-
   border: 1px solid rgba(120, 180, 240, 0.18);
   border-radius: 1.4rem;
   padding: 1.3rem;
   text-align: center;
   cursor: default;
-
   transition: background 0.7s ease, border-color 0.4s ease, box-shadow 0.5s ease;
   box-shadow: 0 16px 44px rgba(0, 0, 0, 0.32);
   position: relative;
@@ -265,17 +289,12 @@ const formatPrice = (value) => {
 
 .ad-placeholder:hover,
 .ad-content:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(5, 25, 35, 0.52),
-    rgba(15, 10, 35, 0.45)
-  );
+  background: linear-gradient(135deg, rgba(5, 25, 35, 0.52), rgba(15, 10, 35, 0.45));
   background-position: 100% 100%;
   border-color: rgba(120, 180, 240, 0.38);
   box-shadow: 0 24px 60px rgba(15, 10, 35, 0.38);
 }
 
-/* === PLACEHOLDER === */
 .placeholder-icon {
   width: 48px;
   height: 48px;
@@ -305,7 +324,6 @@ const formatPrice = (value) => {
   letter-spacing: 0.01em;
 }
 
-/* === BOTÃO FECHAR === */
 .close-btn {
   position: absolute;
   top: 0.6rem;
@@ -331,7 +349,6 @@ const formatPrice = (value) => {
   transform: scale(1.1);
 }
 
-/* === IMAGEM === */
 .ad-image {
   width: 100%;
   height: 130px;
@@ -342,7 +359,6 @@ const formatPrice = (value) => {
   box-shadow: 0 5px 14px rgba(0, 0, 0, 0.3);
 }
 
-/* === CONTEÚDO === */
 .ad-title {
   font-weight: 500;
   font-size: 1.1rem;
@@ -377,7 +393,6 @@ const formatPrice = (value) => {
   color: #66bb6a;
 }
 
-/* === BOTÃO WHATSAPP === */
 .ad-cta-button {
   display: flex;
   align-items: center;
@@ -405,7 +420,6 @@ const formatPrice = (value) => {
   font-size: 1.1rem;
 }
 
-/* === TIMER === */
 .ad-timer {
   font-weight: 600;
   font-size: 0.82rem;
@@ -432,7 +446,6 @@ const formatPrice = (value) => {
   color: #ffffff;
 }
 
-/* === BOTÃO VER PRÓXIMO === */
 .ad-next-btn {
   background: none;
   border: none;
@@ -463,7 +476,6 @@ const formatPrice = (value) => {
   transform: translateX(3px);
 }
 
-/* === BOTÃO ANUNCIE AQUI === */
 .ad-announce-btn {
   font-weight: 600;
   font-size: 0.82rem;
@@ -491,13 +503,11 @@ const formatPrice = (value) => {
   font-size: 0.95rem;
 }
 
-/* === ANIMAÇÕES === */
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.85; }
 }
 
-/* Transição do container principal */
 .slide-slow-enter-active,
 .slide-slow-leave-active {
   transition: all 1.2s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -509,7 +519,6 @@ const formatPrice = (value) => {
   transform: translateY(-50%) translateX(120px);
 }
 
-/* Transição entre anúncios */
 .fade-ad-enter-active,
 .fade-ad-leave-active {
   transition: all 0.5s ease;
@@ -525,7 +534,6 @@ const formatPrice = (value) => {
   transform: scale(0.95) translateY(-10px);
 }
 
-/* === AJUSTES MOBILE === */
 @media (max-width: 768px) {
   .ad-placeholder,
   .ad-content {

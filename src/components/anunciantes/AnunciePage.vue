@@ -1,59 +1,107 @@
-<!-- src/components/anunciantes/AnunciePage.vue -->
 <template>
   <div class="anuncie-page">
     <header class="header">
-      <button @click="$router.go(-1)" class="back-btn">
+      <button @click="goBack" class="back-btn" aria-label="Voltar para a página anterior">
         <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
         </svg>
         Voltar
       </button>
-     
     </header>
 
-    <AnuncieForm @next="onFormSubmit" v-if="!showPackages" />
-    <br/>
-    <AnuncioPackages v-if="showPackages" :selected="selectedWeeks" @select="selectedWeeks = $event" @pay="goToPayment" />
+    <AnuncieForm v-if="step === 1" @next="onFormSubmit" />
+    <AnuncioPackages
+      v-if="step === 2"
+      :selected="selectedWeeks"
+      @select="onSelectWeeks"
+      @pay="goToPayment"
+    />
+    <AnuncioPayment
+      v-if="step === 3"
+      :weeks="selectedWeeks"
+      :amount="getPrice(selectedWeeks)"
+      :formData="formData"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { AnuncieForm, AnuncioPackages } from '@/components/anunciantes'
+import { getPrice } from '@/utils/prices'
+import { AnuncieForm, AnuncioPackages, AnuncioPayment } from '@/components/anunciantes'
 
 const router = useRouter()
-const showPackages = ref(false)
+const step = ref(1)
 const selectedWeeks = ref(null)
-let formData = null
+const formData = ref(null)
+
+onMounted(() => {
+  const savedState = localStorage.getItem('anuncieState')
+  if (savedState) {
+    const { step: savedStep, formData: savedFormData, selectedWeeks: savedWeeks } = JSON.parse(savedState)
+    step.value = savedStep || 1
+    formData.value = savedFormData || null
+    selectedWeeks.value = savedWeeks || null
+  }
+})
 
 const onFormSubmit = (data) => {
-  formData = data
-  showPackages.value = true
+  formData.value = data
+  step.value = 2
+  saveState()
+}
+
+const onSelectWeeks = (weeks) => {
+  selectedWeeks.value = weeks
+  saveState()
 }
 
 const goToPayment = () => {
-  const prices = [500, 900, 1200, 1500]
-  router.push({
-    path: '/pagamento-anuncio',
-    query: {
-      weeks: selectedWeeks.value,
-      amount: prices[selectedWeeks.value - 1],
-      ...formData
-    }
-  })
+  if (!selectedWeeks.value || selectedWeeks.value < 1 || selectedWeeks.value > 4) {
+    alert('Selecione um pacote válido (1 a 4 semanas).')
+    return
+  }
+  if (!formData.value) {
+    alert('Preencha o formulário primeiro.')
+    step.value = 1
+    return
+  }
+  step.value = 3
+  saveState()
 }
+
+const goBack = () => {
+  if (step.value > 1) {
+    step.value--
+    saveState()
+  } else {
+    router.go(-1)
+  }
+}
+
+const saveState = () => {
+  localStorage.setItem('anuncieState', JSON.stringify({
+    step: step.value,
+    formData: formData.value,
+    selectedWeeks: selectedWeeks.value
+  }))
+}
+
+onUnmounted(() => {
+  // Opcional: limpar estado ao sair
+  // localStorage.removeItem('anuncieState')
+})
 </script>
 
 <style scoped>
-/* === CONTAINER PRINCIPAL - SEM MAX-WIDTH === */
+/* Estilos originais mantidos */
 .anuncie-page {
   width: 100%;
   min-height: 100vh;
   background: #0a0a0a;
 }
 
-/* === HEADER === */
 .header {
   display: flex;
   align-items: center;
@@ -91,37 +139,7 @@ const goToPayment = () => {
   transform: translateX(-2px);
 }
 
-h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #fff;
-  margin: 0;
-}
-
-/* === RESPONSIVO === */
-@media (min-width: 768px) {
-  .header {
-    padding: 2rem 3rem;
-  }
-
-  h1 {
-    font-size: 1.8rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .header {
-    padding: 2rem 4rem;
-  }
-
-  h1 {
-    font-size: 2rem;
-  }
-}
-
-@media (min-width: 1536px) {
-  .header {
-    padding: 2rem 6rem;
-  }
-}
+@media (min-width: 768px) { .header { padding: 2rem 3rem; } }
+@media (min-width: 1024px) { .header { padding: 2rem 4rem; } }
+@media (min-width: 1536px) { .header { padding: 2rem 6rem; } }
 </style>

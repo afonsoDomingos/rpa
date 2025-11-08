@@ -1,541 +1,520 @@
-<!-- src/components/anunciantes/AnuncioPayment.vue -->
 <template>
-  <div class="payment-container">
-    <!-- HEADER -->
-    <header class="header">
-      <button @click="$router.go(-1)" class="back-button">
-        <i class="bi bi-arrow-left"></i>
-        Voltar
-      </button>
-      
-    </header>
-
-    <!-- CONTEÚDO -->
-    <div class="content-wrapper">
-      <!-- RESUMO DO ANÚNCIO -->
-      <div class="summary-card">
-        <img :src="adImage" alt="Anúncio" class="summary-image" @error="handleImageError" />
-        <div class="summary-info">
-          <h3 class="package-name">{{ adName }}</h3>
-          <p class="package-description">{{ adDescription }}</p>
-          <div class="summary-meta">
-            <span class="duration">
-              <i class="bi bi-clock"></i>
-              {{ weeks }} {{ weeks === 1 ? 'semana' : 'semanas' }}
-            </span>
-            <span class="price">
-              MZN {{ amount.toLocaleString('pt-MZ') }}
-            </span>
+  <div class="container">
+    <main class="form-wrapper">
+      <form @submit.prevent="handlePayment" class="grid">
+        <!-- Pacote Escolhido -->
+        <section class="section">
+          <h2 class="section-title">
+            <span class="num num-purple">1</span> Pacote
+          </h2>
+          <div class="package-info">
+            <p class="package-name">{{ formData.name || 'Anúncio Sem Nome' }}</p>
+            <p class="package-details">
+              {{ weeks }} semana(s) × 500 MZN = 
+              <strong class="amount">{{ props.weeks * 500 }} MZN</strong>
+            </p>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <!-- SUCESSO -->
-      <div v-if="success" class="success-message">
-        <div class="success-icon">
-          <i class="bi bi-check-circle-fill"></i>
-        </div>
-        <h2 class="success-title">Anúncio Ativado!</h2>
-        <p class="success-text">Seu anúncio já está no ar e visível para milhares de usuários.</p>
-        <button @click="$router.push('/meus-anuncios')" class="home-button">
-          Ver Meus Anúncios
-        </button>
-      </div>
-
-      <!-- PAGAMENTO -->
-      <div v-else class="payment-section">
-        <h2 class="section-title">Pagar com</h2>
-
-        <div class="payment-methods-grid">
-          <button
-            :class="['payment-method-card', { selected: selectedMethod === 'mpesa' }]"
-            @click="selectedMethod = 'mpesa'"
-          >
-            <img src="/img/Mpesa.png" alt="M-Pesa" class="payment-method-icon-img" />
-            <span class="payment-method-name">M-Pesa</span>
-          </button>
-
-          <button
-            :class="['payment-method-card', { selected: selectedMethod === 'emola' }]"
-            @click="selectedMethod = 'emola'"
-          >
-            <img src="/img/Emola.png" alt="Emola" class="payment-method-icon-img" />
-            <span class="payment-method-name">Emola</span>
-          </button>
-        </div>
-
-        <!-- FORMULÁRIO DE PAGAMENTO -->
-        <form v-if="selectedMethod" @submit.prevent="handlePayment" class="payment-form">
-          <div class="form-group">
-            <label class="form-label">
-              Número {{ selectedMethod === 'mpesa' ? 'M-Pesa' : 'Emola' }}
+        <!-- Método de Pagamento -->
+        <section class="section">
+          <h2 class="section-title">
+            <span class="num num-green">2</span> Método
+          </h2>
+          <div class="payment-methods">
+            <label class="method-label" :class="{ active: selectedMethod === 'mpesa' }">
+              <input
+                type="radio"
+                v-model="selectedMethod"
+                value="mpesa"
+                class="hidden"
+                aria-label="Pagar com M-Pesa"
+              />
+              <div class="method-card mpesa">
+                <img :src="mpesaIcon" alt="M-Pesa" class="method-logo" />
+                <span>M-Pesa</span>
+              </div>
             </label>
-            <input
-              v-model="phone"
-              type="tel"
-              class="form-input"
-              :placeholder="selectedMethod === 'mpesa' ? '84 123 4567' : '86 123 4567'"
-              required
-            />
-            <p class="form-hint">Você receberá um pedido de confirmação no seu telemóvel.</p>
+            <label class="method-label" :class="{ active: selectedMethod === 'emola' }">
+              <input
+                type="radio"
+                v-model="selectedMethod"
+                value="emola"
+                class="hidden"
+                aria-label="Pagar com Emola"
+              />
+              <div class="method-card emola">
+                <img :src="emolaIcon" alt="Emola" class="method-logo" />
+                <span>Emola</span>
+              </div>
+            </label>
           </div>
+        </section>
 
-          <button type="submit" :disabled="loading" class="submit-button">
-            <span v-if="!loading">Pagar Agora</span>
-            <span v-else>Processando...</span>
-            <i v-if="!loading" class="bi bi-arrow-right"></i>
-            <div v-else class="spinner"></div>
-          </button>
-        </form>
-
-        <!-- ERRO -->
-        <div v-if="error" class="error-message">
-          {{ error }}
-          <div class="error-actions">
-            <button @click="handlePayment" class="retry-button">Tentar Novamente</button>
-            <button @click="openSupport" class="support-button">Falar com Suporte</button>
+        <!-- Número de Telefone -->
+        <section class="section">
+          <h2 class="section-title">
+            <span class="num num-blue">3</span> Telefone
+          </h2>
+          <div class="group">
+            <label for="phone" class="sr-only">Número de telefone para pagamento</label>
+            <div class="input-group">
+              <span class="country-code">+258</span>
+              <input
+                v-model="phone"
+                id="phone"
+                type="tel"
+                class="input"
+                :placeholder="selectedMethod === 'mpesa' ? '84/85 XXXXXXX' : '86/87 XXXXXXX'"
+                required
+                @input="formatPhone"
+              />
+            </div>
+            <p v-if="phoneError" class="error-text">{{ phoneError }}</p>
           </div>
+        </section>
+
+        <!-- Botão Pagar -->
+        <button
+          type="submit"
+          class="btn"
+          :disabled="loading || phoneError || !phone"
+          aria-label="Iniciar pagamento"
+        >
+          <span v-if="!loading">Pagar {{ props.weeks * 500 }} MZN</span>
+          <span v-else>Processando...</span>
+          <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M13 7l5 5m0 0l-5 5m5-5H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+          </svg>
+        </button>
+
+        <!-- Mensagens -->
+        <div v-if="success" class="success-msg">
+          <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+          </svg>
+          <p>Pagamento iniciado! Aguarde a confirmação no seu telemóvel.</p>
         </div>
-      </div>
-    </div>
+        <p v-if="error" class="error-text">{{ error }}</p>
+      </form>
+    </main>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
+import api from '@/api'
+import mpesaIcon from '@/assets/img/Mpesa.png'
+import emolaIcon from '@/assets/img/Emola.png'
 
-const route = useRoute()
-const router = useRouter()
-
-const weeks = ref(1)
-const amount = ref(500)
-const adName = ref('Recuperação de BI em 24h')
-const adDescription = ref('Entrega rápida e segura')
-const adImage = ref('/img/anuncio-exemplo.jpg')
-
-const selectedMethod = ref(null)
-const phone = ref('')
-const loading = ref(false)
-const error = ref('')
-const success = ref(false)
-
-onMounted(() => {
-  weeks.value = Number(route.query.weeks) || 1
-  amount.value = Number(route.query.amount) || 500
-  adName.value = route.query.name || adName.value
-  adDescription.value = route.query.description || adDescription.value
-  adImage.value = route.query.image || adImage.value
+const props = defineProps({
+  weeks: { type: Number, required: true, validator: (value) => value > 0 },
+  amount: { type: Number, required: true, validator: (value) => value >= 0 },
+  formData: {
+    type: Object,
+    required: true,
+    validator: (formData) => {
+      return (
+        typeof formData.name === 'string' &&
+        formData.name.trim() !== '' &&
+        typeof formData.description === 'string' &&
+        typeof formData.price === 'number' &&
+        formData.price >= 0 &&
+        typeof formData.ctaLink === 'string' &&
+        formData.ctaLink.trim() !== '' &&
+        (typeof formData.image === 'string' || formData.image instanceof File)
+      )
+    }
+  }
 })
 
+const router = useRouter()
+const selectedMethod = ref('mpesa')
+const phone = ref('')
+const phoneError = ref('')
+const loading = ref(false)
+const success = ref(false)
+const error = ref('')
+
+onMounted(() => {
+  console.log('Props recebidas em AnuncioPayment:', {
+    weeks: props.weeks,
+    amount: props.amount,
+    formData: props.formData,
+    imageDetails: props.formData.image instanceof File ? {
+      name: props.formData.image.name,
+      size: props.formData.image.size,
+      type: props.formData.image.type
+    } : props.formData.image
+  })
+  // Verificar consistência entre amount e weeks
+  if (props.amount !== props.weeks * 500) {
+    console.warn(`Inconsistência: amount (${props.amount}) não corresponde a weeks (${props.weeks}) * 500`);
+  }
+  const savedPhone = localStorage.getItem('paymentPhone')
+  if (savedPhone) {
+    phone.value = savedPhone.replace(/^258/, '') // Remover 258 se presente
+    validatePhone()
+  }
+})
+
+const formatPhone = () => {
+  phone.value = phone.value.replace(/\D/g, '').slice(0, 9)
+  validatePhone()
+}
+
+const validatePhone = () => {
+  const num = phone.value
+  phoneError.value = ''
+  if (!num) return
+  if (selectedMethod.value === 'mpesa' && !/^8[45]/.test(num)) {
+    phoneError.value = 'M-Pesa: use 84 ou 85'
+  } else if (selectedMethod.value === 'emola' && !/^8[67]/.test(num)) {
+    phoneError.value = 'Emola: use 86 ou 87'
+  } else if (num.length !== 9) {
+    phoneError.value = 'Número deve ter 9 dígitos'
+  }
+}
+
 const handlePayment = async () => {
+  validatePhone()
+  if (phoneError.value || !phone.value) {
+    error.value = 'Corrija o número de telefone antes de prosseguir.'
+    return
+  }
+
+  if (!props.formData.name || !props.formData.price || !props.formData.ctaLink) {
+    error.value = 'Dados do anúncio incompletos: nome, preço ou link de contato ausentes.'
+    return
+  }
+
   loading.value = true
   error.value = ''
-  await new Promise(r => setTimeout(r, 2000))
-  if (Math.random() > 0.2) {
-    success.value = true
-  } else {
-    error.value = 'Pagamento recusado. Verifique o número ou saldo.'
+  success.value = false
+
+  try {
+    // Criar o anúncio
+    const anuncioPayload = new FormData()
+    anuncioPayload.append('name', props.formData.name.trim())
+    anuncioPayload.append('description', props.formData.description || '')
+    anuncioPayload.append('price', props.formData.price.toString())
+    anuncioPayload.append('ctaLink', props.formData.ctaLink.trim())
+    anuncioPayload.append('weeks', props.weeks.toString())
+    anuncioPayload.append('amount', (props.weeks * 500).toString()) // Enviar amount no payload do anúncio
+    if (props.formData.image instanceof File) {
+      anuncioPayload.append('image', props.formData.image)
+    } else if (typeof props.formData.image === 'string' && props.formData.image.trim()) {
+      anuncioPayload.append('imageUrl', props.formData.image.trim())
+    } else {
+      error.value = 'Imagem do anúncio não fornecida.'
+      return
+    }
+
+    console.log('Enviando POST /anuncios com payload:', {
+      name: props.formData.name,
+      description: props.formData.description,
+      price: props.formData.price,
+      ctaLink: props.formData.ctaLink,
+      weeks: props.weeks,
+      amount: props.weeks * 500,
+      image: props.formData.image instanceof File ? props.formData.image.name : props.formData.image
+    })
+
+    const anuncioResponse = await api.post('/anuncios', anuncioPayload, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      },
+      timeout: 15000
+    })
+
+    console.log('Resposta de POST /anuncios:', anuncioResponse.data)
+
+    if (!anuncioResponse.data.sucesso || !anuncioResponse.data.anuncioId) {
+      throw new Error(anuncioResponse.data.mensagem || 'Falha ao criar anúncio.')
+    }
+
+    const anuncioId = anuncioResponse.data.anuncioId
+
+    // Processar pagamento
+    const pagamentoPayload = {
+      amount: props.weeks * 500, // Dinâmico: weeks * 500
+      dadosCartao: null,
+      method: selectedMethod.value,
+      pacote: 'anuncio',
+      phone: `258${phone.value}`,
+      type: 'anuncio',
+      anuncioId
+    }
+
+    console.log('Enviando POST /pagamentos/processar com payload:', pagamentoPayload)
+
+    const pagamentoResponse = await api.post('/pagamentos/processar', pagamentoPayload, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      },
+      timeout: 15000
+    })
+
+    console.log('Resposta de POST /pagamentos/processar:', pagamentoResponse.data)
+
+    if (pagamentoResponse.data.sucesso) {
+      success.value = true
+      localStorage.setItem('paymentPhone', `258${phone.value}`)
+      localStorage.removeItem('anuncieState')
+      localStorage.removeItem('anuncieForm')
+      window.dispatchEvent(new Event('newAdCreated'))
+      setTimeout(() => {
+        router.push('/meus-anuncios')
+      }, 3000)
+    } else {
+      throw new Error(pagamentoResponse.data.mensagem || 'Erro ao processar pagamento.')
+    }
+  } catch (err) {
+    console.error('Erro no pagamento:', err.response?.data || err)
+    error.value = err.response?.data?.mensagem || `Erro ao processar: ${err.message}`
+  } finally {
+    loading.value = false
   }
-  loading.value = false
-}
-
-const handleImageError = (e) => {
-  e.target.src = '/img/placeholder-ad.jpg'
-}
-
-const openSupport = () => {
-  window.open('https://wa.me/258841234567', '_blank')
 }
 </script>
 
 <style scoped>
-/* === IMPORTS === */
-@import 'bootstrap-icons/font/bootstrap-icons.css';
-@import '@fontsource/poppins/500.css';
-@import '@fontsource/poppins/600.css';
-@import '@fontsource/poppins/700.css';
+/* Estilos atualizados para suportar +258 */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
-/* === GLOBAL === */
-* { box-sizing: border-box; }
-.payment-container {
-  min-height: 100vh;
-  background: linear-gradient(to bottom, #0a0a0a, #1a1a1a);
-  color: #ffffff;
-  font-family: 'Poppins', sans-serif;
-  padding: 2rem;
-  padding-bottom: calc(140px + env(safe-area-inset-bottom));
-}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
-/* === HEADER === */
-.header {
+.container {
+  height: 100vh;
+  width: 100vw;
+  background: #0a0a0a;
+  color: white;
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.back-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: transparent;
-  border: none;
-  color: #a0a0a0;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 600;
-  padding: 0.5rem 0;
-  transition: color 0.2s;
+.form-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem;
 }
 
-.back-button:hover {
-  color: #ffffff;
-}
-
-.back-button i {
-  font-size: 1.1rem;
-}
-
-.title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0;
-  background: linear-gradient(to right, #ffffff, #a0a0a0);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* === CONTENT === */
-.content-wrapper {
-  max-width: 600px;
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  max-width: 900px;
   margin: 0 auto;
 }
 
-/* === RESUMO DO ANÚNCIO === */
-.summary-card {
-  background: #1a1a1a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  transition: all 0.3s ease;
-}
-
-.summary-card:hover {
-  border-color: #800080;
-  box-shadow: 0 8px 24px rgba(128, 0, 128, 0.15);
-}
-
-.summary-image {
-  width: 90px;
-  height: 90px;
-  object-fit: cover;
-  border-radius: 0.75rem;
-  flex-shrink: 0;
-}
-
-.summary-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.package-name {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem 0;
-  color: #ffffff;
-}
-
-.package-description {
-  font-size: 0.875rem;
-  color: #a0a0a0;
-  margin: 0 0 1rem 0;
-}
-
-.summary-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.875rem;
-}
-
-.duration {
-  color: #a0a0a0;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.duration i {
-  color: #66bb6a;
-}
-
-.price {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-/* === MÉTODOS DE PAGAMENTO === */
-.payment-section {
-  margin-top: 1rem;
+.section {
+  background: rgba(30, 30, 30, 0.9);
+  padding: 0.75rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
 .section-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0 0 1.5rem 0;
-  color: #ffffff;
-}
-
-.payment-methods-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.payment-method-card {
+  font-size: 0.875rem;
+  font-weight: 600;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1.5rem;
-  background: #1a1a1a;
-  border: 2px solid transparent;
-  border-radius: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
 }
 
-.payment-method-card:hover {
-  border-color: #800080;
-  transform: translateY(-2px);
-}
-
-.payment-method-card.selected {
-  border-color: #800080;
-  background: rgba(128, 0, 128, 0.1);
-}
-
-.payment-method-icon-img {
-  width: 48px;
-  height: auto;
-}
-
-.payment-method-name {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #ffffff;
-}
-
-/* === FORMULÁRIO === */
-.payment-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.form-label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #d0d0d0;
-}
-
-.form-input {
-  padding: 0.875rem;
-  background: #0a0a0a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  color: #ffffff;
-  font-size: 1.1rem;
-  transition: all 0.2s ease;
-  outline: none;
-}
-
-.form-input::placeholder {
-  color: #a0a0a0;
-}
-
-.form-input:focus {
-  border-color: #800080;
-  box-shadow: 0 0 0 3px rgba(128, 0, 128, 0.1);
-}
-
-.form-hint {
-  font-size: 0.8rem;
-  color: #a0a0a0;
-  margin: 0;
-}
-
-/* === BOTÃO PAGAR === */
-.submit-button {
+.num {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  background: linear-gradient(135deg, #800080, #66bb6a);
-  color: #ffffff;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 0.5rem;
 }
 
-.submit-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #66bb6a, #800080);
+.num-purple { background: #7c3aed; }
+.num-green { background: #10b981; }
+.num-blue { background: #3b82f6; }
+
+.package-info {
+  padding: 0.75rem;
+  background: rgba(124,58,237,0.1);
+  border-radius: 0.5rem;
+  border: 1.5px dashed rgba(124,58,237,0.35);
+}
+
+.package-name {
+  font-weight: 600;
+  color: #c4b5fd;
+}
+
+.package-details {
+  margin-top: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.amount {
+  color: #10b981;
+  font-weight: 700;
+}
+
+.payment-methods {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.method-label {
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.method-label.active {
+  transform: scale(1.03);
+}
+
+.method-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 0.6rem;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  transition: all 0.3s;
+}
+
+.method-card.mpesa { border-color: #10b981; }
+.method-card.emola { border-color: #f59e0b; }
+
+.method-label.active .method-card.mpesa { background: rgba(16,185,129,0.15); }
+.method-label.active .method-card.emola { background: rgba(251,146,60,0.15); }
+
+.method-logo {
+  width: 2.5rem;
+  height: 2.5rem;
+  object-fit: contain;
+}
+
+.group { margin-bottom: 0.5rem; }
+
+.input-group {
+  display: flex;
+  align-items: center;
+  background: rgba(0,0,0,0.6);
+  border: 1.25px solid rgba(255,255,255,0.12);
+  border-radius: 0.4rem;
+  overflow: hidden;
+}
+
+.country-code {
+  padding: 0.5rem 0.75rem;
+  color: #777;
+  font-size: 0.85rem;
+  border-right: 1px solid rgba(255,255,255,0.12);
+}
+
+.input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0.5rem;
+  color: white;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.input::placeholder { color: #777; }
+.input:focus { box-shadow: none; }
+
+.input-group:focus-within {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 2px rgba(124,58,237,0.1);
+}
+
+.hidden { display: none; }
+
+.btn {
+  grid-column: 1 / -1;
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.65rem;
+  background: linear-gradient(135deg, #7c3aed 0%, #10b981 100%);
+  color: white;
+  border: none;
+  border-radius: 0.4rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  transition: all 0.3s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #10b981 0%, #7c3aed 100%);
   transform: scale(1.02);
 }
 
-.submit-button:disabled {
+.btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.submit-button i {
-  font-size: 1.1rem;
-  transition: transform 0.2s ease;
-}
+.arrow { width: 0.9rem; height: 0.9rem; transition: transform 0.3s; }
+.btn:hover .arrow { transform: translateX(3px); }
 
-.submit-button:hover i {
-  transform: translateX(3px);
-}
-
-.spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* === SUCESSO === */
-.success-message {
-  text-align: center;
-  padding: 3rem 1rem;
-}
-
-.success-icon {
-  display: inline-flex;
-  padding: 1.5rem;
-  background: rgba(20, 184, 166, 0.1);
-  border-radius: 50%;
-  margin-bottom: 1.5rem;
-}
-
-.success-icon i {
-  font-size: 3rem;
-  color: #14b8a6;
-}
-
-.success-title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem 0;
-  color: #ffffff;
-}
-
-.success-text {
-  font-size: 1.125rem;
-  color: #a0a0a0;
-  margin: 0 0 1.5rem 0;
-}
-
-.home-button {
-  padding: 0.875rem 2rem;
-  background: #14b8a6;
-  color: #ffffff;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.home-button:hover {
-  background: #0d9488;
-  transform: scale(1.02);
-}
-
-/* === ERRO === */
-.error-message {
+.success-msg {
+  grid-column: 1 / -1;
+  margin-top: 1rem;
   padding: 1rem;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 0.5rem;
-  color: #ef4444;
-  margin-top: 1rem;
-  font-size: 0.875rem;
-  text-align: center;
-}
-
-.error-actions {
+  background: rgba(16,185,129,0.15);
+  border: 1.5px solid #10b981;
+  border-radius: 0.6rem;
   display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
+  align-items: center;
+  gap: 0.5rem;
+  color: #10b981;
+  font-weight: 500;
 }
 
-.retry-button,
-.support-button {
-  flex: 1;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.icon-check {
+  width: 1.5rem;
+  height: 1.5rem;
+  stroke: #10b981;
 }
 
-.retry-button {
-  background: #800080;
-  color: #ffffff;
-  border: none;
-}
-
-.retry-button:hover {
-  background: #9900cc;
-}
-
-.support-button {
-  background: transparent;
+.error-text {
   color: #ef4444;
-  border: 1px solid #ef4444;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  font-weight: 500;
 }
 
-.support-button:hover {
-  background: rgba(239, 68, 68, 0.1);
+@media (min-width: 768px) {
+  .grid { grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+  .section { grid-column: span 1; }
+  .btn, .success-msg { grid-column: 1 / -1; }
 }
 
-/* === RESPONSIVO === */
-@media (max-width: 640px) {
-  .payment-container { padding: 1.5rem; }
-  .title { font-size: 1.5rem; }
-  .summary-card { padding: 1.25rem; }
-  .summary-image { width: 70px; height: 70px; }
-  .payment-methods-grid { grid-template-columns: 1fr; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
 </style>

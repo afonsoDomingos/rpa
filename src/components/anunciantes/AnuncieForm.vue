@@ -1,56 +1,109 @@
-<!-- src/components/anunciantes/AnuncieForm.vue -->
 <template>
   <div class="container">
-    
-
     <main class="form-wrapper">
       <form @submit.prevent="handleSubmit" class="grid">
-        <!-- Dados -->
         <section class="section">
           <h2 class="section-title">
             <span class="num num-purple">1</span> Info
           </h2>
 
           <div class="group">
-            <input v-model="form.name" type="text" class="input" placeholder="Nome" required />
+            <label for="name" class="sr-only">Nome do anúncio</label>
+            <input
+              v-model="form.name"
+              id="name"
+              type="text"
+              class="input"
+              placeholder="Nome"
+              required
+              maxlength="100"
+            />
           </div>
 
           <div class="group">
-            <textarea v-model="form.description" class="input textarea" rows="2" placeholder="Descrição" required></textarea>
+            <label for="description" class="sr-only">Descrição do anúncio</label>
+            <textarea
+              v-model="form.description"
+              id="description"
+              class="input textarea"
+              rows="2"
+              placeholder="Descrição"
+              required
+              maxlength="500"
+            ></textarea>
           </div>
 
           <div class="group">
             <div class="price">
               <span class="currency">MZN</span>
-              <input v-model.number="form.price" type="number" class="input price-input" placeholder="Preço" required />
+              <label for="price" class="sr-only">Preço do anúncio</label>
+              <input
+                v-model.number="form.price"
+                id="price"
+                type="number"
+                min="0"
+                class="input price-input"
+                placeholder="Preço"
+                required
+              />
             </div>
           </div>
 
           <div class="group">
-            <input v-model="form.ctaLink" type="url" class="input" placeholder="wa.me/..." required />
+            <label for="ctaLink" class="sr-only">Link do WhatsApp</label>
+            <input
+              v-model="form.ctaLink"
+              id="ctaLink"
+              type="url"
+              class="input"
+              placeholder="wa.me/..."
+              required
+            />
+            <p v-if="ctaError" class="error-text">{{ ctaError }}</p>
           </div>
         </section>
 
-        <!-- Imagem -->
         <section class="section">
           <h2 class="section-title">
             <span class="num num-green">2</span> Foto
           </h2>
 
           <div class="group">
-            <input type="file" accept="image/*" @change="onFileChange" id="file" class="hidden" :required="!previewUrl" />
-            <label for="file" class="upload-label">
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              @change="onFileChange"
+              id="file"
+              class="hidden"
+              required
+            />
+            <label for="file" class="upload-label" aria-label="Enviar imagem do anúncio">
               <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                <path
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                />
               </svg>
             </label>
 
             <transition name="fade">
               <div v-if="previewUrl" class="preview">
-                <img :src="previewUrl" alt="" class="preview-img" />
-                <button @click="removeImage" type="button" class="remove">
+                <img :src="previewUrl" :alt="`Pré-visualização de ${form.name || 'anúncio'}`" class="preview-img" />
+                <button
+                  @click="removeImage"
+                  type="button"
+                  class="remove"
+                  aria-label="Remover imagem"
+                >
                   <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                    <path
+                      d="M6 18L18 6M6 6l12 12"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                    />
                   </svg>
                 </button>
               </div>
@@ -58,11 +111,15 @@
           </div>
         </section>
 
-        <!-- Botão (sempre visível) -->
-        <button type="submit" class="btn">
-          Publicar Anúncio
+        <button type="submit" class="btn" :disabled="!form.name || !form.description || !form.price || !form.ctaLink || !form.image">
+          Continuar
           <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M13 7l5 5m0 0l-5 5m5-5H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+            <path
+              d="M13 7l5 5m0 0l-5 5m5-5H6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            />
           </svg>
         </button>
       </form>
@@ -71,7 +128,8 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted, onUnmounted } from 'vue'
+
 const emit = defineEmits(['next'])
 
 const form = reactive({
@@ -83,34 +141,96 @@ const form = reactive({
 })
 
 const previewUrl = ref('')
+const ctaError = ref('')
+
+onMounted(() => {
+  const savedForm = localStorage.getItem('anuncieForm')
+  if (savedForm) {
+    const parsed = JSON.parse(savedForm)
+    Object.assign(form, parsed)
+    if (form.image) {
+      previewUrl.value = URL.createObjectURL(form.image)
+    }
+  }
+})
 
 const onFileChange = (e) => {
   const file = e.target.files[0]
   if (!file) return
-  if (file.size > 2 * 1024 * 1024) {
-    alert('Máx. 2MB')
-    e.target.value = ''
+
+  if (!file.type.match('image/(jpeg|png|webp)')) {
+    alert('Apenas imagens JPG, PNG ou WebP são permitidas.')
     return
   }
+  if (file.size > 2 * 1024 * 1024) {
+    alert('A imagem deve ter no máximo 2MB.')
+    return
+  }
+
   form.image = file
   previewUrl.value = URL.createObjectURL(file)
+  saveForm()
 }
 
 const removeImage = () => {
   form.image = null
   previewUrl.value = ''
-  const input = document.getElementById('file')
-  if (input) input.value = ''
+  document.getElementById('file').value = ''
+  saveForm()
+}
+
+const validateWhatsApp = () => {
+  const url = form.ctaLink.trim()
+  const regex = /^https?:\/\/(wa\.me|api\.whatsapp\.com|whatsapp\.com)\/.+$/
+  if (!regex.test(url)) {
+    ctaError.value = 'Use apenas links do WhatsApp (ex.: wa.me/...)'
+    return false
+  }
+  ctaError.value = ''
+  return true
 }
 
 const handleSubmit = () => {
-  console.log('Anúncio:', form)
-  alert('Adicionado!')
-  emit('next', form) // AVANÇA
+  if (!validateWhatsApp()) return
+  if (!form.image) {
+    alert('Adicione uma imagem para o anúncio.')
+    return
+  }
+  if (!form.name || form.name.length > 100) {
+    alert('O nome do anúncio é obrigatório e deve ter até 100 caracteres.')
+    return
+  }
+  if (!form.description || form.description.length > 500) {
+    alert('A descrição é obrigatória e deve ter até 500 caracteres.')
+    return
+  }
+  if (!form.price || form.price < 0) {
+    alert('O preço deve ser um valor positivo.')
+    return
+  }
+
+  emit('next', { ...form })
+  saveForm()
 }
+
+const saveForm = () => {
+  localStorage.setItem('anuncieForm', JSON.stringify({
+    name: form.name,
+    description: form.description,
+    price: form.price,
+    ctaLink: form.ctaLink
+  }))
+}
+
+onUnmounted(() => {
+  if (previewUrl.value) {
+    URL.revokeObjectURL(previewUrl.value)
+  }
+})
 </script>
 
 <style scoped>
+/* Estilos originais mantidos */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
@@ -118,20 +238,11 @@ const handleSubmit = () => {
 .container {
   height: 100vh;
   width: 100vw;
-  background: #0a0a0a; /* FUNDO PRETO TOTAL */
+  background: #0a0a0a;
   color: white;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-.header {
-  padding: 0.5rem 0.75rem;
-  text-align: center;
-}
-.title {
-  font-size: 1.25rem;
-  font-weight: 600;
 }
 
 .form-wrapper {
@@ -139,6 +250,7 @@ const handleSubmit = () => {
   overflow-y: auto;
   padding: 0.5rem;
 }
+
 .grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -162,6 +274,7 @@ const handleSubmit = () => {
   gap: 0.3rem;
   margin-bottom: 0.5rem;
 }
+
 .num {
   width: 1.25rem;
   height: 1.25rem;
@@ -173,6 +286,7 @@ const handleSubmit = () => {
   align-items: center;
   justify-content: center;
 }
+
 .num-purple { background: #7c3aed; }
 .num-green { background: #10b981; }
 
@@ -189,6 +303,7 @@ const handleSubmit = () => {
   font-size: 0.85rem;
   outline: none;
 }
+
 .input::placeholder { color: #777; }
 .input:focus { border-color: #7c3aed; }
 
@@ -208,6 +323,7 @@ const handleSubmit = () => {
 .price-input { padding-left: 2.75rem !important; }
 
 .hidden { display: none; }
+
 .upload-label {
   display: flex;
   flex-direction: column;
@@ -219,10 +335,12 @@ const handleSubmit = () => {
   border-radius: 0.5rem;
   cursor: pointer;
 }
+
 .upload-label:hover {
   background: rgba(124,58,237,0.15);
   border-color: #7c3aed;
 }
+
 .icon { width: 1.75rem; height: 1.75rem; color: #a78bfa; }
 .upload-label:hover .icon { color: #c4b5fd; }
 
@@ -233,7 +351,9 @@ const handleSubmit = () => {
   border: 1.5px solid rgba(124,58,237,0.35);
   margin-top: 0.4rem;
 }
+
 .preview-img { width: 100%; height: 10rem; object-fit: cover; }
+
 .remove {
   position: absolute;
   top: 0.3rem;
@@ -249,6 +369,7 @@ const handleSubmit = () => {
   align-items: center;
   justify-content: center;
 }
+
 .remove:hover { background: #dc2626; }
 .icon-x { width: 1rem; height: 1rem; }
 
@@ -269,22 +390,40 @@ const handleSubmit = () => {
   justify-content: center;
   gap: 0.35rem;
 }
-.btn:hover {
+
+.btn:hover:not(:disabled) {
   background: linear-gradient(135deg, #10b981 0%, #7c3aed 100%);
 }
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .arrow { width: 0.9rem; height: 0.9rem; }
+
+.error-text {
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
 
 .fade-enter-active, .fade-leave-active { transition: opacity 0.15s; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 
-/* RESPONSIVO */
 @media (min-width: 768px) {
   .grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
   .preview-img { height: 12rem; }
 }
 
-@media (min-width: 1024px) {
-  .header { padding: 0.75rem 1rem; text-align: left; }
-  .form-wrapper { padding: 0.75rem 1rem; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
 </style>
