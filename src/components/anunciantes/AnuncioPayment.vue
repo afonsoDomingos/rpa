@@ -10,8 +10,7 @@
           <div class="package-info">
             <p class="package-name">{{ formData.name || 'Anúncio Sem Nome' }}</p>
             <p class="package-details">
-              {{ weeks }} semana(s) × 500 MZN = 
-              <strong class="amount">{{ props.weeks * 500 }} MZN</strong>
+              {{ weeks * 500 }} MZN
             </p>
           </div>
         </section>
@@ -201,7 +200,6 @@ const handlePayment = async () => {
     anuncioPayload.append('price', props.formData.price.toString())
     anuncioPayload.append('ctaLink', props.formData.ctaLink.trim())
     anuncioPayload.append('weeks', props.weeks.toString())
-    anuncioPayload.append('amount', (props.weeks * 500).toString()) // Enviar amount no payload do anúncio
     if (props.formData.image instanceof File) {
       anuncioPayload.append('image', props.formData.image)
     } else if (typeof props.formData.image === 'string' && props.formData.image.trim()) {
@@ -217,7 +215,6 @@ const handlePayment = async () => {
       price: props.formData.price,
       ctaLink: props.formData.ctaLink,
       weeks: props.weeks,
-      amount: props.weeks * 500,
       image: props.formData.image instanceof File ? props.formData.image.name : props.formData.image
     })
 
