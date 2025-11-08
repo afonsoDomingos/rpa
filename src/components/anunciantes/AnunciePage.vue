@@ -12,6 +12,7 @@
     </header>
 
     <AnuncieForm @next="onFormSubmit" v-if="!showPackages" />
+    <br/>
     <AnuncioPackages v-if="showPackages" :selected="selectedWeeks" @select="selectedWeeks = $event" @pay="goToPayment" />
   </div>
 </template>

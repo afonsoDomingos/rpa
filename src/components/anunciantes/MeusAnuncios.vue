@@ -1,188 +1,427 @@
+<!-- src/components/anunciantes/MeusAnuncios.vue -->
 <template>
   <div class="meus-anuncios">
-    <!-- HEADER -->
-    <header class="meus-anuncios__header">
-      <button @click="$router.go(-1)" class="btn-back">
-        <i class="bi bi-arrow-left"></i> Voltar
-      </button>
-
-    </header>
-
-    <!-- EMPTY STATE -->
-    <div v-if="!anuncios.length" class="empty-state">
-      <p>Ainda não tem anúncios.</p>
-      <button @click="$router.push('/anuncie')" class="btn-cta">Criar Anúncio</button>
+    <!-- Loading -->
+    <div v-if="loading" class="loading-state">
+      <i class="bi bi-hourglass-split"></i>
+      <p>Carregando seus anúncios...</p>
     </div>
 
-    <!-- GRID DE ANÚNCIOS -->
-    <div v-else class="ad-grid">
-      <div v-for="ad in anuncios" :key="ad.id" class="ad-card">
-        <img
-          :src="ad.image || '/img/placeholder-ad.jpg'"
-          alt="Anúncio"
-          class="ad-card__img"
-          @error="e => e.target.src = '/img/placeholder-ad.jpg'"
-        />
-        <div class="ad-card__info">
-          <h3>{{ ad.name }}</h3>
-          <span :class="['status', ad.status]">{{ ad.status === 'ativo' ? 'Ativo' : 'Expirado' }}</span>
-        </div>
-        <button
-          v-if="ad.status === 'expirado'"
-          @click="$emit('renovar', ad)"
-          class="btn-renew"
-        >
-          Renovar
+    <!-- Error -->
+    <div v-else-if="error" class="error-state">
+      <i class="bi bi-exclamation-triangle"></i>
+      <p>{{ error }}</p>
+      <button @click="recarregar" class="retry-btn">Tentar novamente</button>
+    </div>
+
+    <!-- Empty State -->
+    <div v-else-if="!anuncios.length" class="empty-state">
+      <i class="bi bi-megaphone-fill"></i>
+      <p>Ainda não existem anúncios publicados.</p>
+      <button @click="$router.push('/anuncie')" class="new-btn">
+        <i class="bi bi-plus-circle"></i> Criar Anúncio
+      </button>
+    </div>
+
+    <!-- Anúncios -->
+    <div v-else>
+      <header class="header">
+        <button @click="$router.go(-1)" class="back-btn" aria-label="Voltar à página anterior">
+          <i class="bi bi-arrow-left" aria-hidden="true"></i> Voltar
         </button>
+        <h1>Meus Anúncios</h1>
+      </header>
+
+      <div class="grid-anuncios">
+        <div
+          v-for="(ad, i) in anuncios"
+          :key="ad.id"
+          class="anuncio-card"
+          :style="{ '--i': i }"
+        >
+          <!-- Status Badge -->
+          <div class="anuncio-status" :class="ad.status">
+            {{ ad.status === 'active' ? 'Ativo' : 'Pausado' }}
+          </div>
+
+          <!-- Imagem com fallback -->
+          <img
+            :src="ad.image"
+            :alt="`Anúncio: ${ad.name}`"
+            class="anuncio-img"
+            @error="handleImageError"
+            @load="$event.target.classList.add('loaded')"
+          />
+
+          <div class="anuncio-info">
+            <h3 class="anuncio-titulo">{{ ad.name }}</h3>
+            <p class="anuncio-desc">{{ ad.description }}</p>
+            <div class="anuncio-preco">
+              <i class="bi bi-currency-exchange"></i>
+              <span>{{ formatPrice(ad.price) }}</span>
+            </div>
+          </div>
+
+          <div class="anuncio-acoes">
+            <a
+              :href="ad.ctaLink"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn-contato"
+              aria-label="Contactar via WhatsApp"
+            >
+              <i class="bi bi-whatsapp" aria-hidden="true"></i>
+              <span class="visually-hidden">Contactar via WhatsApp</span>
+              Contactar
+            </a>
+            <button @click="editarAnuncio(ad.id)" class="btn-editar" aria-label="Editar anúncio">
+              <i class="bi bi-pencil" aria-hidden="true"></i> Editar
+            </button>
+            <button @click="confirmarRemocao(ad.id)" class="btn-remover" aria-label="Remover anúncio">
+              <i class="bi bi-trash" aria-hidden="true"></i> Remover
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-defineProps({ anuncios: { type: Array, default: () => [] } })
-defineEmits(['renovar'])
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+// Mock data (substitua por API real)
+const mockData = [
+  {
+    id: 1,
+    name: "Apartamento T3 - Matola",
+    description: "Centro, perto do mercado",
+    price: 2500000,
+    image: "/img/anuncio-exemplo01.jpg",
+    ctaLink: "https://wa.me/258841234567",
+    status: 'active'
+  },
+  {
+    id: 2,
+    name: "Toyota Corolla 2020",
+    description: "Baixa km, revisado, garantia",
+    price: 850000,
+    image: "/img/anuncio-exemplo02.jpg",
+    ctaLink: "https://wa.me/258851234567",
+    status: 'active'
+  },
+  {
+    id: 3,
+    name: "iPhone 14 Pro Max",
+    description: "128GB, como novo, com caixa",
+    price: 75000,
+    image: "/img/anuncio-exemplo03.jpg",
+    ctaLink: "https://wa.me/258861234567",
+    status: 'paused'
+  }
+]
+
+const router = useRouter()
+const anuncios = ref([])
+const loading = ref(true)
+const error = ref('')
+
+// Formatação de preço (reutilizável)
+const formatPrice = (value) => {
+  return new Intl.NumberFormat('pt-MZ', {
+    style: 'currency',
+    currency: 'MZN',
+    minimumFractionDigits: 0
+  }).format(value)
+}
+
+// Fallback de imagem
+const handleImageError = (e) => {
+  e.target.src = '/img/placeholder-ad.jpg'
+}
+
+// Ações
+const editarAnuncio = (id) => {
+  router.push(`/anuncie/editar/${id}`)
+}
+
+const confirmarRemocao = (id) => {
+  if (confirm('Tem certeza que deseja remover este anúncio?')) {
+    anuncios.value = anuncios.value.filter(a => a.id !== id)
+    // TODO: Chamar API para deletar
+  }
+}
+
+const recarregar = () => {
+  loading.value = true
+  error.value = ''
+  carregarAnuncios()
+}
+
+// Simulação de carregamento (substitua por API)
+const carregarAnuncios = async () => {
+  try {
+    // const response = await fetch('/api/meus-anuncios')
+    // anuncios.value = await response.json()
+    await new Promise(resolve => setTimeout(resolve, 800))
+    anuncios.value = mockData
+  } catch (err) {
+    error.value = 'Não foi possível carregar os anúncios. Verifique sua conexão.'
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  carregarAnuncios()
+})
 </script>
 
 <style scoped>
-@import 'bootstrap-icons/font/bootstrap-icons.css';
-@import '@fontsource/poppins/500.css';
-@import '@fontsource/poppins/600.css';
-@import '@fontsource/poppins/700.css';
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 .meus-anuncios {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-  color: #fff;
   font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  padding: 2rem;
+  background: radial-gradient(circle at top left, #120024, #000);
+  color: #fff;
 }
 
-.meus-anuncios__header {
+/* Estados */
+.loading-state,
+.error-state,
+.empty-state {
+  text-align: center;
+  margin-top: 6rem;
+  opacity: 0.9;
+}
+
+.loading-state i,
+.error-state i,
+.empty-state i {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.loading-state i { color: #800080; }
+.error-state i { color: #ff6b6b; }
+.empty-state i { color: #66bb6a; }
+
+.retry-btn,
+.new-btn {
+  margin-top: 1rem;
+  background: #800080;
+  color: #fff;
+  padding: 0.7rem 1.4rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: 600;
+}
+
+.retry-btn:hover,
+.new-btn:hover {
+  background: #4caf50;
+}
+
+/* Header */
+.header {
   display: flex;
   align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
 }
 
-.btn-back {
-  background: transparent;
-  border: none;
-  color: #a0a0a0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  font-weight: 600;
-  transition: color 0.2s;
-}
-
-.btn-back:hover {
-  color: #fff;
-}
-
-.title {
-  font-size: 2rem;
+.header h1 {
+  font-size: 1.6rem;
   font-weight: 700;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: #a0a0a0;
-}
-
-.btn-cta {
-  margin-top: 1rem;
-  padding: 0.875rem 2rem;
-  background: #800080;
+.back-btn {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
   color: #fff;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-cta:hover {
-  background: #9900cc;
-  transform: scale(1.05);
-}
-
-.ad-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1.5rem;
-}
-
-.ad-card {
+  transition: 0.3s;
   display: flex;
   align-items: center;
-  gap: 1rem;
-  background: #1a1a1a;
+  gap: 0.5rem;
+}
+
+.back-btn:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* Grid */
+.grid-anuncios {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.8rem;
+}
+
+/* Card */
+.anuncio-card {
+  position: relative;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,0.15);
   border-radius: 1rem;
-  padding: 1.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem;
   transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.6s ease forwards;
+  animation-delay: calc(0.1s * var(--i));
 }
 
-.ad-card:hover {
-  border-color: #800080;
-  box-shadow: 0 8px 24px rgba(128, 0, 128, 0.15);
-  transform: translateY(-2px);
+.anuncio-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.35);
 }
 
-.ad-card__img {
-  width: 70px;
-  height: 70px;
-  object-fit: cover;
-  border-radius: 0.75rem;
-  flex-shrink: 0;
-}
-
-.ad-card__info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.ad-card__info h3 {
-  margin: 0 0 0.25rem;
-  font-size: 1.1rem;
-}
-
-.status {
+/* Status Badge */
+.anuncio-status {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 1rem;
+  font-size: 0.7rem;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.status.ativo {
-  color: #14b8a6;
+.anuncio-status.active {
+  background: #4caf50;
+  color: #fff;
 }
 
-.status.expirado {
-  color: #ef4444;
+.anuncio-status.paused {
+  background: #ff9800;
+  color: #fff;
 }
 
-.btn-renew {
-  padding: 0.5rem 1rem;
+/* Imagem */
+.anuncio-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 0.8rem;
+  margin-bottom: 1rem;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.anuncio-img.loaded {
+  opacity: 1;
+}
+
+/* Info */
+.anuncio-titulo {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.anuncio-desc {
+  font-size: 0.9rem;
+  color: #d9d9d9;
+  margin-bottom: 0.6rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.anuncio-preco {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #81c784;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+}
+
+/* Ações */
+.anuncio-acoes {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.anuncio-acoes button,
+.anuncio-acoes a {
+  flex: 1;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-weight: 500;
+}
+
+.btn-contato {
   background: #800080;
   color: #fff;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.btn-renew:hover {
-  background: #9900cc;
-  transform: scale(1.05);
+.btn-contato:hover {
+  background: #4caf50;
 }
 
-@media (max-width: 640px) {
-  .title { font-size: 1.5rem; }
-  .ad-card { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-  .ad-card__img { width: 100%; height: auto; }
+.btn-editar {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+.btn-editar:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.btn-remover {
+  background: rgba(239,68,68,0.2);
+  color: #ff6666;
+}
+
+.btn-remover:hover {
+  background: rgba(239,68,68,0.35);
+}
+
+/* Acessibilidade */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Animação */
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>
