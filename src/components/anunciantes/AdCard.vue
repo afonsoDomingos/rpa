@@ -344,7 +344,7 @@ const formatPrice = (value) => {
 
 /* === CONTEÚDO === */
 .ad-title {
-  font-weight: 700;
+  font-weight: 500;
   font-size: 1.1rem;
   color: #ffffff;
   margin: 0 0 0.4rem;
@@ -353,7 +353,7 @@ const formatPrice = (value) => {
 }
 
 .ad-description {
-  font-weight: 500;
+  font-weight: 300;
   font-size: 0.85rem;
   color: #e0f2e0;
   margin: 0 0 0.7rem;
@@ -384,7 +384,7 @@ const formatPrice = (value) => {
   justify-content: center;
   gap: 0.45rem;
   padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, #66bb6a, #66bb6a);
+  background: linear-gradient(135deg, #800080, #800080);
   color: #ffffff;
   border-radius: 0.8rem;
   font-weight: 700;
@@ -436,7 +436,7 @@ const formatPrice = (value) => {
 .ad-next-btn {
   background: none;
   border: none;
-  color: #a0d6a0;
+  color: #ffffff;
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
@@ -450,7 +450,7 @@ const formatPrice = (value) => {
 }
 
 .ad-next-btn:hover {
-  color: #66bb6a;
+  color: #800080;
   transform: translateX(3px);
 }
 
