@@ -495,7 +495,7 @@ const formatPrice = (value) => {
 
 /* MOBILE */
 @media (max-width: 1024px) {
-  .ad-card-container { display: none !important; }
+  /*.ad-card-container { display: none !important; }*/
 }
 
 </style>
