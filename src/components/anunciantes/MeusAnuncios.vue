@@ -28,14 +28,14 @@
         <button @click="$router.go(-1)" class="back-btn">
           <i class="bi bi-arrow-left"></i> Voltar
         </button>
-        <h1>Meus Anúncios</h1>
+        <h1 class="page-title">Meus Anúncios</h1>
       </header>
 
       <div class="grid-anuncios">
         <div v-for="(ad, i) in anuncios" :key="ad._id" class="anuncio-card" :style="{ '--i': i }">
           <!-- STATUS -->
           <div class="anuncio-status" :class="ad.status">
-            {{ ad.status === 'active' ? 'Ativo' : ad.status === 'pending' ? 'Pendente' : 'Pausado' }}
+            {{ getStatusText(ad.status) }}
           </div>
 
           <!-- IMAGEM -->
@@ -62,7 +62,7 @@
             <a :href="ad.ctaLink" target="_blank" class="btn-contato">
               <i class="bi bi-whatsapp"></i> Contactar
             </a>
-            <button @click="editarAnuncio(ad._id)" class="btn-editar">
+            <button @click="editarAnuncio(ad)" class="btn-editar">
               <i class="bi bi-pencil"></i> Editar
             </button>
             <button @click="confirmarRemocao(ad._id)" class="btn-remover">
@@ -94,6 +94,16 @@ const formatPrice = (value) => {
   }).format(value)
 }
 
+// Status traduzido
+const getStatusText = (status) => {
+  switch (status) {
+    case 'active': return 'Ativo'
+    case 'pending': return 'Pendente'
+    case 'paused': return 'Pausado'
+    default: return 'Indefinido'
+  }
+}
+
 // Imagem fallback
 const handleImageError = (e) => {
   e.target.src = '/img/placeholder-ad.jpg'
@@ -104,9 +114,19 @@ const onImageLoad = (e) => {
   e.target.classList.add('loaded')
 }
 
-// Editar
-const editarAnuncio = (id) => {
-  router.push(`/anuncie/editar/${id}`)
+// EDITAR ANÚNCIO (PASSA DADOS COMPLETOS)
+const editarAnuncio = (ad) => {
+  // Salva no localStorage para o formulário carregar
+  localStorage.setItem('anuncioParaEditar', JSON.stringify({
+    id: ad._id,
+    name: ad.name,
+    description: ad.description,
+    price: ad.price,
+    ctaLink: ad.ctaLink,
+    imageUrl: ad.image // para pré-visualização
+  }))
+
+  router.push('/anuncie/editar')
 }
 
 // Remover
@@ -130,17 +150,13 @@ const recarregar = () => {
   carregarAnuncios()
 }
 
-// Carregar anúncios do backend
+// Carregar anúncios
 const carregarAnuncios = async () => {
   try {
-    console.log('Carregando anúncios do usuário...')
     const res = await api.get('/anuncios/meus', {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     })
 
-    console.log('Anúncios recebidos:', res.data)
-
-    // Garantir que é array
     anuncios.value = Array.isArray(res.data) ? res.data : res.data.anuncios || []
 
   } catch (err) {
@@ -155,8 +171,6 @@ onMounted(() => {
   carregarAnuncios()
 })
 </script>
-
-
 
 <style scoped>
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
@@ -182,9 +196,14 @@ onMounted(() => {
   display: block;
 }
 
-.loading-state i { color: #7c3aed; }
+.loading-state i { color: #7c3aed; animation: spin 1.5s linear infinite; }
 .error-state i { color: #ff6b6b; }
 .empty-state i { color: #66bb6a; }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 
 .retry-btn, .new-btn {
   margin-top: 1rem;
@@ -198,7 +217,10 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.retry-btn:hover, .new-btn:hover { background: #6d28d9; }
+.retry-btn:hover, .new-btn:hover { 
+  background: #6d28d9; 
+  transform: translateY(-1px);
+}
 
 .header {
   display: flex;
@@ -207,7 +229,13 @@ onMounted(() => {
   margin-bottom: 2rem;
 }
 
-.header h1 { font-size: 1.6rem; font-weight: 700; }
+.page-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #ffffff !important; /* BRANCO */
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+}
 
 .back-btn {
   background: none;
@@ -262,7 +290,8 @@ onMounted(() => {
 }
 
 .anuncio-status.active { background: #4caf50; color: #fff; }
-.anuncio-status.paused { background: #ff9800; color: #fff; }
+.anuncio-status.pending { background: #ff9800; color: #fff; }
+.anuncio-status.paused { background: #9e9e9e; color: #fff; }
 
 .anuncio-img {
   width: 100%;
@@ -272,9 +301,11 @@ onMounted(() => {
   margin-bottom: 1rem;
   opacity: 0;
   transition: opacity 0.4s ease;
+  background: #1a1a1a;
 }
 
 .anuncio-img.loaded { opacity: 1; }
+.anuncio-img.error { opacity: 0.7; }
 
 .anuncio-titulo {
   font-size: 1.1rem;
@@ -283,6 +314,7 @@ onMounted(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #fff;
 }
 
 .anuncio-desc {
@@ -347,19 +379,13 @@ onMounted(() => {
 
 .btn-remover:hover { background: rgba(239,68,68,0.35); }
 
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 @keyframes fadeUp {
   to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .grid-anuncios { grid-template-columns: 1fr; }
+  .anuncio-acoes { flex-direction: column; }
+  .page-title { font-size: 1.4rem; }
 }
 </style>

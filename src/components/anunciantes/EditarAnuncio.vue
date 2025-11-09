@@ -5,7 +5,7 @@
         <!-- === INFO === -->
         <section class="section">
           <h2 class="section-title">
-            <span class="num num-purple">1</span> Info
+            <span class="num num-purple">1</span> Editar Anúncio
           </h2>
 
           <div class="group">
@@ -53,7 +53,7 @@
             <p v-if="priceError" class="error-text">{{ priceError }}</p>
           </div>
 
-          <!-- CAMPO WHATSAPP (COM CONVERSÃO AUTOMÁTICA) -->
+          <!-- CAMPO WHATSAPP (COM CONVERSÃO) -->
           <div class="group">
             <div class="input-with-icon">
               <input 
@@ -61,7 +61,7 @@
                 id="ctaLink" 
                 type="text" 
                 class="input" 
-                placeholder="Seu número ou wa.me/..." 
+                placeholder="Número ou wa.me/..." 
                 required 
                 @blur="formatAndValidateCta"
                 :class="{ 'error': ctaError, 'valid': !ctaError && rawCta }"
@@ -71,7 +71,7 @@
             <p v-if="ctaError" class="error-text">{{ ctaError }}</p>
             <p v-else-if="form.ctaLink" class="success-text">
               <i class="bi bi-whatsapp"></i> 
-              Link gerado: <a :href="form.ctaLink" target="_blank">{{ form.ctaLink }}</a>
+              Link: <a :href="form.ctaLink" target="_blank">{{ form.ctaLink }}</a>
             </p>
           </div>
         </section>
@@ -83,26 +83,33 @@
           </h2>
 
           <div class="group">
+            <!-- IMAGEM ATUAL -->
+            <div v-if="previewUrl" class="current-image">
+              <p class="current-label">Imagem atual:</p>
+              <img :src="previewUrl" :alt="form.name" class="preview-img" />
+            </div>
+
+            <!-- NOVO UPLOAD -->
             <input 
               type="file" 
               accept="image/jpeg,image/png,image/webp" 
               @change="onFileChange" 
               id="file" 
               class="hidden" 
-              :required="!form.image"
             />
             <label for="file" class="upload-label" :class="{ 'has-image': form.image }">
               <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
               </svg>
-              <span v-if="!form.image" class="upload-text">Adicionar foto(Máx 2Mb)</span>
-              <span v-else class="upload-text">Foto adicionada</span>
+              <span v-if="!form.image" class="upload-text">Alterar foto</span>
+              <span v-else class="upload-text">Nova foto adicionada</span>
             </label>
 
+            <!-- PRÉ-VISUALIZAÇÃO NOVA IMAGEM -->
             <transition name="fade">
-              <div v-if="previewUrl" class="preview">
-                <img :src="previewUrl" :alt="form.name" class="preview-img" />
-                <button @click="removeImage" type="button" class="remove" aria-label="Remover">
+              <div v-if="newPreviewUrl" class="preview">
+                <img :src="newPreviewUrl" :alt="form.name" class="preview-img" />
+                <button @click="removeNewImage" type="button" class="remove" aria-label="Remover">
                   <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
                   </svg>
@@ -119,10 +126,10 @@
           :disabled="loading || !isFormValid"
           :class="{ 'btn-active': isFormValid && !loading }"
         >
-          <span v-if="!loading">Criar Anúncio</span>
-          <span v-else>Enviando...</span>
+          <span v-if="!loading">Salvar Alterações</span>
+          <span v-else>Salvando...</span>
           <svg v-if="!loading" class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M13 7l5 5m0 0l-5 5m5-5H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+            <path d="M5 12h14m-7-7v14" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
           </svg>
         </button>
 
@@ -134,30 +141,33 @@
 
 <script setup>
 import { reactive, ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '@/api'
 
-const emit = defineEmits(['created'])
+const router = useRouter()
 
 const form = reactive({
+  id: '',
   name: '',
   description: '',
   price: 0,
   ctaLink: '',
-  image: null
+  image: null, // nova imagem (File)
+  imageUrl: '' // imagem atual (URL)
 })
 
-const rawCta = ref('') // Entrada bruta do usuário
-const previewUrl = ref('')
+const rawCta = ref('')
+const previewUrl = ref('')    // imagem atual
+const newPreviewUrl = ref('') // nova imagem
 const ctaError = ref('')
 const submitError = ref('')
 const loading = ref(false)
 
-// Validações individuais
+// Validações
 const nameError = ref('')
 const descError = ref('')
 const priceError = ref('')
 
-// Validação em tempo real
 watch(() => form.name, (val) => {
   nameError.value = val.trim().length < 3 ? 'Mínimo 3 caracteres' : ''
 })
@@ -170,35 +180,29 @@ watch(() => form.price, (val) => {
   priceError.value = val < 1 ? 'Preço deve ser maior que 0' : ''
 })
 
-// === CONVERSÃO E VALIDAÇÃO DO LINK ===
+// === CONVERSÃO DE NÚMERO PARA LINK ===
 const formatAndValidateCta = () => {
   const input = rawCta.value.trim()
 
-  // 1. Se já for link válido
   const urlRegex = /^https?:\/\/(wa\.me|api\.whatsapp\.com|chat\.whatsapp\.com)\//i
   if (urlRegex.test(input)) {
     form.ctaLink = input
     ctaError.value = ''
-    saveForm()
     return
   }
 
-  // 2. Se for número (com ou sem +)
   const clean = input.replace(/[\s\-\(\)]/g, '')
   const phoneRegex = /^(\+?258)?[0-9]{9,12}$/
 
   if (phoneRegex.test(clean)) {
     let phone = clean
     if (!phone.startsWith('+')) phone = '+258' + phone.replace(/^258/, '')
-    
     form.ctaLink = `https://wa.me/${phone}`
     ctaError.value = ''
-    saveForm()
     return
   }
 
-  // 3. Inválido
-  ctaError.value = 'Digite um número válido (ex: 84 123 4567) ou link wa.me/...'
+  ctaError.value = 'Número ou link inválido'
 }
 
 // Validação completa
@@ -207,24 +211,35 @@ const isFormValid = computed(() => {
     form.name?.trim().length >= 3 &&
     form.description?.trim().length >= 10 &&
     form.price >= 1 &&
-    /^https?:\/\/wa\.me\/\+/.test(form.ctaLink) &&
-    form.image
+    /^https?:\/\/wa\.me\/\+/.test(form.ctaLink)
   )
 })
 
-// Carregar do localStorage
+// === CARREGAR DADOS DO ANÚNCIO ===
 onMounted(() => {
-  const saved = localStorage.getItem('anuncieForm')
-  if (saved) {
-    const data = JSON.parse(saved)
-    Object.assign(form, data)
-    rawCta.value = form.ctaLink || ''
-    if (form.image) {
-      previewUrl.value = URL.createObjectURL(form.image)
-    }
+  const saved = localStorage.getItem('anuncioParaEditar')
+  if (!saved) {
+    alert('Nenhum anúncio selecionado para edição.')
+    router.push('/meus-anuncios')
+    return
   }
+
+  const data = JSON.parse(saved)
+  form.id = data.id
+  form.name = data.name
+  form.description = data.description
+  form.price = data.price
+  form.ctaLink = data.ctaLink
+  form.imageUrl = data.imageUrl
+
+  rawCta.value = data.ctaLink
+  previewUrl.value = data.imageUrl
+
+  // Limpa após carregar
+  localStorage.removeItem('anuncioParaEditar')
 })
 
+// === UPLOAD DE NOVA IMAGEM ===
 const onFileChange = (e) => {
   const file = e.target.files[0]
   if (!file) return
@@ -239,26 +254,16 @@ const onFileChange = (e) => {
   }
 
   form.image = file
-  previewUrl.value = URL.createObjectURL(file)
-  saveForm()
+  newPreviewUrl.value = URL.createObjectURL(file)
 }
 
-const removeImage = () => {
+const removeNewImage = () => {
   form.image = null
-  previewUrl.value = ''
+  newPreviewUrl.value = ''
   document.getElementById('file').value = ''
-  saveForm()
 }
 
-const saveForm = () => {
-  localStorage.setItem('anuncieForm', JSON.stringify({
-    name: form.name,
-    description: form.description,
-    price: form.price,
-    ctaLink: form.ctaLink
-  }))
-}
-
+// === ENVIO (PUT) ===
 const handleSubmit = async () => {
   if (!isFormValid.value) {
     submitError.value = 'Preencha todos os campos corretamente.'
@@ -273,34 +278,32 @@ const handleSubmit = async () => {
   formData.append('description', form.description.trim())
   formData.append('price', form.price)
   formData.append('ctaLink', form.ctaLink.trim())
-  formData.append('weeks', 1)
-  formData.append('image', form.image)
+
+  if (form.image) {
+    formData.append('image', form.image)
+  }
 
   try {
-    const res = await api.post('/anuncios', formData, {
+    const res = await api.put(`/anuncios/${form.id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     })
 
-    if (res.data.sucesso) {
-      localStorage.removeItem('anuncieForm')
-      emit('created', {
-        anuncioId: res.data.anuncioId,
-        formData: res.data.anuncio,
-        weeks: 1
-      })
-    }
+    alert('Anúncio atualizado com sucesso!')
+    router.push('/meus-anuncios')
+
   } catch (err) {
-    submitError.value = err.response?.data?.mensagem || 'Erro ao criar anúncio.'
+    submitError.value = err.response?.data?.mensagem || 'Erro ao salvar alterações.'
+    console.error(err)
   } finally {
     loading.value = false
   }
 }
 
 onUnmounted(() => {
-  if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
+  if (newPreviewUrl.value) URL.revokeObjectURL(newPreviewUrl.value)
 })
 </script>
 
@@ -348,7 +351,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 0.3rem;
   margin-bottom: 0.5rem;
-  color: whitesmoke;
+  color: #fff;
 }
 
 .num {
@@ -403,6 +406,23 @@ onUnmounted(() => {
 
 .hidden { display: none; }
 
+.current-image {
+  margin-bottom: 0.7rem;
+  text-align: center;
+}
+.current-label {
+  font-size: 0.8rem;
+  color: #aaa;
+  margin-bottom: 0.3rem;
+}
+.current-image .preview-img {
+  width: 100%;
+  height: 10rem;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  border: 1.5px solid rgba(124,58,237,0.35);
+}
+
 .upload-label {
   display: flex;
   flex-direction: column;
@@ -429,7 +449,7 @@ onUnmounted(() => {
   position: relative;
   border-radius: 0.5rem;
   overflow: hidden;
-  border: 1.5px solid rgba(124,58,237,0.35);
+  border: 1.5px solid rgba(16,185,129,0.35);
   margin-top: 0.4rem;
 }
 .preview-img { width: 100%; height: 10rem; object-fit: cover; }
@@ -500,9 +520,6 @@ onUnmounted(() => {
   text-align: center;
 }
 
-.fade-enter-active, .fade-leave-active { transition: opacity 0.15s; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
-
 /* NOVOS ESTILOS */
 .input-with-icon {
   position: relative;
@@ -530,10 +547,11 @@ onUnmounted(() => {
   font-weight: 500;
 }
 
+.fade-enter-active, .fade-leave-active { transition: opacity 0.15s; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
 @media (min-width: 768px) {
   .grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
-  .preview-img { height: 12rem; }
+  .preview-img, .current-image .preview-img { height: 12rem; }
 }
 </style>
-
-

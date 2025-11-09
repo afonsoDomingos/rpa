@@ -89,23 +89,31 @@ const router = createRouter({
     { path: "/termsconditions", name: "termsconditions", component: TermsConditions },
     { path: "/privacypolicy", name: "privacypolicy", component: PrivacyPolicy },
 
-    // === ROTAS DO SISTEMA DE ANÚNCIOS (CORRETAS E ORGANIZADAS) ===
-    {
-      path: "/anuncie",
-      name: "AnunciePage",
-      component: AnunciePage,
-    },
-    {
-      path: "/pagamento-anuncio",
-      name: "AnuncioPayment",
-      component: AnuncioPayment,
-    },
-    {
-      path: "/meus-anuncios",
-      name: "MeusAnuncios",
-      component: MeusAnuncios,
-      meta: { requerAutenticacao: true },
-    },
+   // === ROTAS DO SISTEMA DE ANÚNCIOS (CORRETAS E ORGANIZADAS) ===
+{
+  path: "/anuncie",
+  name: "AnunciePage",
+  component: AnunciePage,
+},
+{
+  path: "/anuncie/editar",
+  name: "EditarAnuncio",
+  component: () => import('@/components/anunciantes/EditarAnuncio.vue'),
+  meta: { requerAutenticacao: true },
+},
+{
+  path: "/pagamento-anuncio",
+  name: "AnuncioPayment",
+  component: AnuncioPayment,
+},
+{
+  path: "/meus-anuncios",
+  name: "MeusAnuncios",
+  component: MeusAnuncios,
+  meta: { requerAutenticacao: true },
+},
+
+    
   ],
 });
 

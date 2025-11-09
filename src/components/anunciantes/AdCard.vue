@@ -1,6 +1,7 @@
 <template>
   <transition name="slide-slow">
     <div v-if="showAd" class="ad-card-container" @click.self="closeAd">
+      <!-- PLACEHOLDER (SEM ANÚNCIOS) -->
       <div v-if="!activeAds.length" class="ad-placeholder">
         <div class="placeholder-icon">
           <i class="bi bi-megaphone-fill" aria-hidden="true"></i>
@@ -17,16 +18,15 @@
         </button>
       </div>
 
+      <!-- ANÚNCIO ATIVO -->
       <transition name="fade-ad" mode="out-in">
         <div v-if="activeAd" :key="currentIndex" class="ad-content">
-          <button
-            @click="closeAd"
-            class="close-btn"
-            aria-label="Fechar anúncio"
-          >
+          <!-- FECHAR -->
+          <button @click="closeAd" class="close-btn" aria-label="Fechar anúncio">
             <i class="bi bi-x-lg" aria-hidden="true"></i>
           </button>
 
+          <!-- IMAGEM -->
           <img
             :src="activeAd.image"
             :alt="activeAd.name || 'Imagem do anúncio'"
@@ -35,6 +35,7 @@
             @error="handleImageError"
           />
 
+          <!-- CONTEÚDO -->
           <div class="ad-body">
             <h3 class="ad-title">{{ activeAd.name || 'Anúncio sem título' }}</h3>
             <p class="ad-description">{{ activeAd.description || 'Sem descrição disponível' }}</p>
@@ -44,6 +45,7 @@
               <strong>{{ formatPrice(activeAd.price || 0) }}</strong>
             </div>
 
+            <!-- CONTACTAR -->
             <a
               :href="activeAd.ctaLink || '#'"
               target="_blank"
@@ -54,21 +56,24 @@
               <i class="bi bi-whatsapp" aria-hidden="true"></i> Contactar
             </a>
 
+            <!-- CONTADOR -->
             <div class="ad-timer">
               <i class="bi bi-clock-history" aria-hidden="true"></i>
               <span>Desaparece em <strong>{{ countdown }}s</strong></span>
             </div>
 
+            <!-- PRÓXIMO ANÚNCIO -->
             <button
+              v-if="activeAds.length > 1"
               @click="debouncedNextAd"
               class="ad-next-btn"
               aria-label="Ver próximo anúncio"
-              v-if="activeAds.length > 1"
             >
-              <i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
-              <span>Ver próximo anúncio</span>
+              <i class="bi bi-arrow-right-circle-fill" aria-hidden="true"></i>
+              <span>Próximo Anúncio</span>
             </button>
 
+            <!-- ANUNCIE AQUI -->
             <button
               @click.stop="$router.push('/anuncie')"
               class="ad-announce-btn"
@@ -102,43 +107,48 @@ let intervalId = null
 let pollingInterval = null
 let reappearTimeout = null
 
-const ONE_HOUR_MS = 60 * 60 * 1000 // 1 hora em milissegundos
+const ONE_HOUR_MS = 60 * 60 * 1000 // 1 hora
 
+// BUSCAR ANÚNCIOS ATIVOS
 const fetchActiveAds = async () => {
-  console.log('Iniciando fetchActiveAds')
+  console.log('Buscando anúncios ativos...')
   try {
     const res = await api.get('/anuncios/ativos', { timeout: 10000 })
-    console.log('Resposta da API /anuncios/ativos:', res.data)
-    activeAds.value = res.data.filter(ad => ad.status === 'active' && ad.image && ad.name) || []
-    console.log('Anúncios filtrados:', activeAds.value)
+    console.log('Anúncios recebidos:', res.data)
+
+    activeAds.value = (res.data || [])
+      .filter(ad => ad.status === 'active' && ad.image && ad.name && ad.price >= 0)
+      .slice(0, 10) // Máximo 10 anúncios
+
     if (activeAds.value.length > 0) {
       currentIndex.value = Math.min(currentIndex.value, activeAds.value.length - 1)
       activeAd.value = activeAds.value[currentIndex.value]
     } else {
       activeAd.value = null
     }
+
     localStorage.setItem('cachedAds', JSON.stringify(activeAds.value))
-    // Exibe sempre no refresh
     showAd.value = true
     startCountdown()
   } catch (err) {
     console.error('Erro ao carregar anúncios:', err)
-    activeAds.value = JSON.parse(localStorage.getItem('cachedAds') || '[]')
-    console.log('Anúncios do cache:', activeAds.value)
-    if (activeAds.value.length > 0) {
-      currentIndex.value = Math.min(currentIndex.value, activeAds.value.length - 1)
-      activeAd.value = activeAds.value[currentIndex.value]
-    } else {
-      activeAd.value = null
+    // Fallback: cache
+    const cached = localStorage.getItem('cachedAds')
+    if (cached) {
+      activeAds.value = JSON.parse(cached).filter(ad => ad.status === 'active')
+      if (activeAds.value.length > 0) {
+        currentIndex.value = Math.min(currentIndex.value, activeAds.value.length - 1)
+        activeAd.value = activeAds.value[currentIndex.value]
+      }
     }
-    // Exibe sempre no refresh, mesmo com erro
     showAd.value = true
     startCountdown()
   }
 }
 
+// CONTADOR
 const startCountdown = () => {
-  const totalSeconds = 30 // Fixo em 30 segundos
+  const totalSeconds = 30
   countdown.value = totalSeconds
   clearTimers()
 
@@ -151,29 +161,32 @@ const startCountdown = () => {
     }
   }, 1000)
 
-  timeoutId = setTimeout(() => {
-    closeAd()
-  }, totalSeconds * 1000)
+  timeoutId = setTimeout(closeAd, totalSeconds * 1000)
 }
 
+// PRÓXIMO ANÚNCIO
 const nextAd = () => {
   if (activeAds.value.length <= 1) return
+
   clearTimers()
   userInteracted.value = true
+
   currentIndex.value = (currentIndex.value + 1) % activeAds.value.length
   activeAd.value = activeAds.value[currentIndex.value]
+
+  console.log('Próximo anúncio:', activeAd.value.name)
   startCountdown()
 }
 
 const debouncedNextAd = debounce(nextAd, 300)
 
+// FECHAR
 const closeAd = () => {
   showAd.value = false
   activeAd.value = null
-  userInteracted.value = false
   clearTimers()
   localStorage.setItem('adLastClosed', Date.now().toString())
-  // Agenda reaparecimento após 1 hora
+
   clearTimeout(reappearTimeout)
   reappearTimeout = setTimeout(() => {
     showAd.value = true
@@ -188,10 +201,12 @@ const clearTimers = () => {
   intervalId = null
 }
 
+// IMAGEM ERRO
 const handleImageError = (e) => {
   e.target.src = '/img/placeholder-ad.jpg'
 }
 
+// FORMATAR PREÇO
 const formatPrice = (value) => {
   return new Intl.NumberFormat('pt-MZ', {
     style: 'currency',
@@ -200,9 +215,11 @@ const formatPrice = (value) => {
   }).format(value || 0)
 }
 
+// MONTAGEM
 onMounted(() => {
-  console.log('AdCard montado, chamando fetchActiveAds')
   fetchActiveAds()
+
+  // Polling a cada 5 min
   pollingInterval = setInterval(() => {
     if (!showAd.value) {
       const lastClosed = localStorage.getItem('adLastClosed')
@@ -211,7 +228,8 @@ onMounted(() => {
         fetchActiveAds()
       }
     }
-  }, 5 * 60 * 1000) // Polling a cada 5 minutos
+  }, 5 * 60 * 1000)
+
   window.addEventListener('newAdCreated', fetchActiveAds)
 })
 
@@ -223,12 +241,9 @@ onUnmounted(() => {
 })
 </script>
 
-
-
 <style scoped>
-/* Estilos originais mantidos */
-@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css') fallback;
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap') fallback;
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
 
 .ad-card-container * {
   font-family: 'Poppins', sans-serif;
@@ -273,7 +288,6 @@ onUnmounted(() => {
 .ad-content {
   background: linear-gradient(135deg, rgba(15, 10, 35, 0.12), rgba(252, 24, 24, 0.15));
   background-size: 200% 200%;
-  background-position: 0% 0%;
   backdrop-filter: blur(26px);
   -webkit-backdrop-filter: blur(26px);
   border: 1px solid rgba(120, 180, 240, 0.18);
@@ -281,7 +295,7 @@ onUnmounted(() => {
   padding: 1.3rem;
   text-align: center;
   cursor: default;
-  transition: background 0.7s ease, border-color 0.4s ease, box-shadow 0.5s ease;
+  transition: all 0.7s ease;
   box-shadow: 0 16px 44px rgba(0, 0, 0, 0.32);
   position: relative;
   overflow: hidden;
@@ -289,7 +303,6 @@ onUnmounted(() => {
 
 .ad-placeholder:hover,
 .ad-content:hover {
-  background: linear-gradient(135deg, rgba(5, 25, 35, 0.52), rgba(15, 10, 35, 0.45));
   background-position: 100% 100%;
   border-color: rgba(120, 180, 240, 0.38);
   box-shadow: 0 24px 60px rgba(15, 10, 35, 0.38);
@@ -313,7 +326,6 @@ onUnmounted(() => {
   font-size: 1.2rem;
   color: #ffffff;
   margin: 0 0 0.3rem;
-  letter-spacing: -0.03em;
 }
 
 .placeholder-subtitle {
@@ -321,7 +333,6 @@ onUnmounted(() => {
   font-size: 0.82rem;
   color: #b8e6b8;
   margin-bottom: 0.9rem;
-  letter-spacing: 0.01em;
 }
 
 .close-btn {
@@ -344,8 +355,8 @@ onUnmounted(() => {
 }
 
 .close-btn:hover {
-  background: rgba(239, 68, 68, 0.55);
-  color: #ff4444;
+  background: rgba(46, 241, 7, 0.55);
+  color: #ffffff;
   transform: scale(1.1);
 }
 
@@ -364,7 +375,6 @@ onUnmounted(() => {
   font-size: 1.1rem;
   color: #ffffff;
   margin: 0 0 0.4rem;
-  letter-spacing: -0.03em;
   line-height: 1.2;
 }
 
@@ -373,7 +383,6 @@ onUnmounted(() => {
   font-size: 0.85rem;
   color: #e0f2e0;
   margin: 0 0 0.7rem;
-  letter-spacing: -0.01em;
 }
 
 .ad-price {
@@ -385,12 +394,6 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  letter-spacing: -0.02em;
-}
-
-.ad-price i {
-  font-size: 1.3rem;
-  color: #66bb6a;
 }
 
 .ad-cta-button {
@@ -416,10 +419,6 @@ onUnmounted(() => {
   box-shadow: 0 8px 20px rgba(102, 187, 106, 0.48);
 }
 
-.ad-cta-button i {
-  font-size: 1.1rem;
-}
-
 .ad-timer {
   font-weight: 600;
   font-size: 0.82rem;
@@ -436,39 +435,37 @@ onUnmounted(() => {
   animation: pulse 2s infinite;
 }
 
-.ad-timer i {
-  font-size: 0.95rem;
-  color: #faf9f9;
-}
-
-.ad-timer strong {
-  font-weight: 700;
-  color: #ffffff;
-}
-
 .ad-next-btn {
-  background: none;
+  background: linear-gradient(135deg, #800080, #10b981);
+  color: white;
   border: none;
-  color: #ffffff;
-  font-size: 0.78rem;
+  border-radius: 2rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  margin: 0.4rem auto 0.5rem;
-  padding: 0.25rem 0;
+  gap: 0.4rem;
+  margin: 0.6rem auto 0.3rem;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
   transition: all 0.3s ease;
+  min-width: 160px;
 }
 
 .ad-next-btn:hover {
-  color: #800080;
-  transform: translateX(3px);
+  background: linear-gradient(135deg, #10b981, #800080);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+}
+
+.ad-next-btn:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .ad-next-btn i {
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   transition: transform 0.3s ease;
 }
 
@@ -497,10 +494,6 @@ onUnmounted(() => {
   background: rgba(0, 0, 0, 0.45);
   border-color: rgba(102, 187, 106, 0.6);
   transform: scale(1.05);
-}
-
-.ad-announce-btn i {
-  font-size: 0.95rem;
 }
 
 @keyframes pulse {
@@ -534,132 +527,26 @@ onUnmounted(() => {
   transform: scale(0.95) translateY(-10px);
 }
 
+/* RESPONSIVO */
 @media (max-width: 768px) {
-  .ad-placeholder,
-  .ad-content {
-    padding: 1rem;
-  }
-
-  .ad-image {
-    height: 160px;
-  }
-
-  .ad-title {
-    font-size: 1rem;
-  }
-
-  .ad-description {
-    font-size: 0.8rem;
-  }
-
-  .ad-price {
-    font-size: 1.1rem;
-  }
-
-  .ad-cta-button {
-    padding: 0.7rem 1.2rem;
-    font-size: 0.85rem;
-  }
+  .ad-image { height: 160px; }
+  .ad-title { font-size: 1rem; }
+  .ad-price { font-size: 1.1rem; }
 }
 
 @media (max-width: 480px) {
-  .ad-image {
-    height: 90px;
-    border-radius: 0.6rem;
-  }
-
-  .placeholder-icon {
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
-    margin: 0 auto 0.4rem;
-  }
-
-  .placeholder-title {
-    font-size: 0.85rem;
-    margin-bottom: 0.2rem;
-  }
-
-  .placeholder-subtitle {
-    font-size: 0.65rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .ad-placeholder,
-  .ad-content {
-    padding: 0.7rem;
-    border-radius: 1rem;
-  }
-
-  .ad-title {
-    font-size: 0.8rem;
-    margin-bottom: 0.2rem;
-    line-height: 1.1;
-  }
-
-  .ad-description {
-    font-size: 0.65rem;
-    margin-bottom: 0.4rem;
-  }
-
-  .ad-price {
-    font-size: 0.9rem;
-    margin: 0.3rem 0 0.4rem;
-    gap: 0.25rem;
-  }
-
-  .ad-price i {
-    font-size: 0.95rem;
-  }
-
-  .ad-cta-button {
-    padding: 0.5rem 0.7rem;
-    font-size: 0.7rem;
-    gap: 0.3rem;
-    margin-bottom: 0.4rem;
-  }
-
-  .ad-cta-button i {
-    font-size: 0.9rem;
-  }
-
-  .ad-timer {
-    font-size: 0.62rem;
-    padding: 0.25rem 0.5rem;
-    gap: 0.25rem;
-    margin: 0.3rem 0;
-  }
-
-  .ad-timer i {
-    font-size: 0.75rem;
-  }
-
-  .ad-next-btn {
-    font-size: 0.62rem;
-    gap: 0.25rem;
-    margin: 0.2rem auto 0.3rem;
-  }
-
-  .ad-next-btn i {
-    font-size: 0.75rem;
-  }
-
-  .ad-announce-btn {
-    font-size: 0.62rem;
-    padding: 0.25rem 0.9rem;
-    gap: 0.25rem;
-  }
-
-  .ad-announce-btn i {
-    font-size: 0.75rem;
-  }
-
-  .close-btn {
-    width: 24px;
-    height: 24px;
-    top: 0.4rem;
-    right: 0.4rem;
-    font-size: 0.75rem;
-  }
+  .ad-image { height: 90px; border-radius: 0.6rem; }
+  .placeholder-icon { width: 32px; height: 32px; font-size: 1rem; }
+  .placeholder-title { font-size: 0.85rem; }
+  .placeholder-subtitle { font-size: 0.65rem; }
+  .ad-placeholder, .ad-content { padding: 0.7rem; border-radius: 1rem; }
+  .ad-title { font-size: 0.8rem; }
+  .ad-description { font-size: 0.65rem; }
+  .ad-price { font-size: 0.9rem; }
+  .ad-cta-button { padding: 0.5rem 0.7rem; font-size: 0.7rem; }
+  .ad-timer { font-size: 0.62rem; }
+  .ad-next-btn { font-size: 0.62rem; padding: 0.4rem 0.8rem; min-width: auto; }
+  .ad-announce-btn { font-size: 0.62rem; padding: 0.25rem 0.9rem; }
+  .close-btn { width: 24px; height: 24px; top: 0.4rem; right: 0.4rem; font-size: 0.75rem; }
 }
 </style>

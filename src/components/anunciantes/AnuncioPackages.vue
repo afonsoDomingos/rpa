@@ -104,7 +104,7 @@ const prices = AD_PRICES || [500, 1000, 1500, 2000]
 .pay-btn {
   width: 100%;
   padding: 1rem;
-  background: #7c3aed;
+  background: #800080;
   color: #fff;
   border: none;
   border-radius: 0.5rem;
@@ -119,7 +119,7 @@ const prices = AD_PRICES || [500, 1000, 1500, 2000]
 }
 
 .pay-btn:hover:not(:disabled) {
-  background: #6d28d9;
+  background: #10b981;
 }
 
 .pay-btn:disabled {
