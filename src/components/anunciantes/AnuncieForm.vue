@@ -2,108 +2,101 @@
   <div class="container">
     <main class="form-wrapper">
       <form @submit.prevent="handleSubmit" class="grid">
+        <!-- === INFO === -->
         <section class="section">
           <h2 class="section-title">
             <span class="num num-purple">1</span> Info
           </h2>
 
           <div class="group">
-            <label for="name" class="sr-only">Nome do anúncio</label>
-            <input
-              v-model="form.name"
-              id="name"
-              type="text"
-              class="input"
-              placeholder="Nome"
-              required
-              maxlength="100"
+            <input 
+              v-model.trim="form.name" 
+              id="name" 
+              type="text" 
+              class="input" 
+              placeholder="Nome do anúncio" 
+              required 
+              maxlength="100" 
+              :class="{ 'error': nameError }"
             />
+            <p v-if="nameError" class="error-text">{{ nameError }}</p>
           </div>
 
           <div class="group">
-            <label for="description" class="sr-only">Descrição do anúncio</label>
-            <textarea
-              v-model="form.description"
-              id="description"
-              class="input textarea"
-              rows="2"
-              placeholder="Descrição"
-              required
+            <textarea 
+              v-model.trim="form.description" 
+              id="description" 
+              class="input textarea" 
+              rows="3" 
+              placeholder="Descrição detalhada" 
+              required 
               maxlength="500"
+              :class="{ 'error': descError }"
             ></textarea>
+            <p v-if="descError" class="error-text">{{ descError }}</p>
           </div>
 
           <div class="group">
             <div class="price">
               <span class="currency">MZN</span>
-              <label for="price" class="sr-only">Preço do anúncio</label>
-              <input
-                v-model.number="form.price"
-                id="price"
-                type="number"
-                min="0"
-                class="input price-input"
-                placeholder="Preço"
-                required
+              <input 
+                v-model.number="form.price" 
+                id="price" 
+                type="number" 
+                min="1" 
+                class="input price-input" 
+                placeholder="Preço" 
+                required 
+                :class="{ 'error': priceError }"
               />
             </div>
+            <p v-if="priceError" class="error-text">{{ priceError }}</p>
           </div>
 
           <div class="group">
-            <label for="ctaLink" class="sr-only">Link do WhatsApp</label>
-            <input
-              v-model="form.ctaLink"
-              id="ctaLink"
-              type="url"
-              class="input"
-              placeholder="wa.me/..."
-              required
+            <input 
+              v-model.trim="form.ctaLink" 
+              id="ctaLink" 
+              type="url" 
+              class="input" 
+              placeholder="wa.me/..." 
+              required 
+              @blur="validateCta"
+              :class="{ 'error': ctaError }"
             />
             <p v-if="ctaError" class="error-text">{{ ctaError }}</p>
           </div>
         </section>
 
+        <!-- === FOTO === -->
         <section class="section">
           <h2 class="section-title">
             <span class="num num-green">2</span> Foto
           </h2>
 
           <div class="group">
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              @change="onFileChange"
-              id="file"
-              class="hidden"
-              required
+            <input 
+              type="file" 
+              accept="image/jpeg,image/png,image/webp" 
+              @change="onFileChange" 
+              id="file" 
+              class="hidden" 
+              :required="!form.image"
             />
-            <label for="file" class="upload-label" aria-label="Enviar imagem do anúncio">
+            <label for="file" class="upload-label" :class="{ 'has-image': form.image }">
               <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                />
+                <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
               </svg>
+              <span v-if="!form.image" class="upload-text">Adicionar foto</span>
+              <span v-else class="upload-text">Foto adicionada</span>
             </label>
 
             <transition name="fade">
               <div v-if="previewUrl" class="preview">
-                <img :src="previewUrl" :alt="`Pré-visualização de ${form.name || 'anúncio'}`" class="preview-img" />
-                <button
-                  @click="removeImage"
-                  type="button"
-                  class="remove"
-                  aria-label="Remover imagem"
-                >
+                <img :src="previewUrl" :alt="form.name" class="preview-img" />
+                <button @click="removeImage" type="button" class="remove" aria-label="Remover">
                   <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path
-                      d="M6 18L18 6M6 6l12 12"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                    />
+                    <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
                   </svg>
                 </button>
               </div>
@@ -111,26 +104,31 @@
           </div>
         </section>
 
-        <button type="submit" class="btn" :disabled="!form.name || !form.description || !form.price || !form.ctaLink || !form.image">
-          Continuar
-          <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path
-              d="M13 7l5 5m0 0l-5 5m5-5H6"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-            />
+        <!-- === BOTÃO === -->
+        <button 
+          type="submit" 
+          class="btn" 
+          :disabled="loading || !isFormValid"
+          :class="{ 'btn-active': isFormValid && !loading }"
+        >
+          <span v-if="!loading">Criar Anúncio</span>
+          <span v-else>Enviando...</span>
+          <svg v-if="!loading" class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M13 7l5 5m0 0l-5 5m5-5H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
           </svg>
         </button>
+
+        <p v-if="submitError" class="error-text global-error">{{ submitError }}</p>
       </form>
     </main>
   </div>
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, onUnmounted } from 'vue'
+import { reactive, ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import api from '@/api'
 
-const emit = defineEmits(['next'])
+const emit = defineEmits(['created'])
 
 const form = reactive({
   name: '',
@@ -142,15 +140,55 @@ const form = reactive({
 
 const previewUrl = ref('')
 const ctaError = ref('')
+const submitError = ref('')
+const loading = ref(false)
 
+// Validações individuais
+const nameError = ref('')
+const descError = ref('')
+const priceError = ref('')
+
+// Validação em tempo real
+watch(() => form.name, (val) => {
+  nameError.value = val.trim().length < 3 ? 'Mínimo 3 caracteres' : ''
+})
+
+watch(() => form.description, (val) => {
+  descError.value = val.trim().length < 10 ? 'Mínimo 10 caracteres' : ''
+})
+
+watch(() => form.price, (val) => {
+  priceError.value = val < 1 ? 'Preço deve ser maior que 0' : ''
+})
+
+const validateCta = () => {
+  const url = form.ctaLink.trim()
+  const regex = /^https?:\/\/(wa\.me|api\.whatsapp\.com|chat\.whatsapp\.com)\//i
+  ctaError.value = regex.test(url) ? '' : 'Use um link válido do WhatsApp (ex: wa.me/...)'
+}
+
+// Validação completa
+const isFormValid = computed(() => {
+  return (
+    form.name?.trim().length >= 3 &&
+    form.description?.trim().length >= 10 &&
+    form.price >= 1 &&
+    /^https?:\/\/(wa\.me|api\.whatsapp\.com|chat\.whatsapp\.com)\//i.test(form.ctaLink?.trim()) &&
+    form.image
+  )
+})
+
+// Carregar do localStorage
 onMounted(() => {
-  const savedForm = localStorage.getItem('anuncieForm')
-  if (savedForm) {
-    const parsed = JSON.parse(savedForm)
-    Object.assign(form, parsed)
+  const saved = localStorage.getItem('anuncieForm')
+  if (saved) {
+    const data = JSON.parse(saved)
+    Object.assign(form, data)
     if (form.image) {
       previewUrl.value = URL.createObjectURL(form.image)
     }
+    // Revalidar
+    validateCta()
   }
 })
 
@@ -159,11 +197,11 @@ const onFileChange = (e) => {
   if (!file) return
 
   if (!file.type.match('image/(jpeg|png|webp)')) {
-    alert('Apenas imagens JPG, PNG ou WebP são permitidas.')
+    alert('Apenas JPG, PNG ou WebP.')
     return
   }
   if (file.size > 2 * 1024 * 1024) {
-    alert('A imagem deve ter no máximo 2MB.')
+    alert('Máximo 2MB.')
     return
   }
 
@@ -179,40 +217,6 @@ const removeImage = () => {
   saveForm()
 }
 
-const validateWhatsApp = () => {
-  const url = form.ctaLink.trim()
-  const regex = /^https?:\/\/(wa\.me|api\.whatsapp\.com|whatsapp\.com)\/.+$/
-  if (!regex.test(url)) {
-    ctaError.value = 'Use apenas links do WhatsApp (ex.: wa.me/...)'
-    return false
-  }
-  ctaError.value = ''
-  return true
-}
-
-const handleSubmit = () => {
-  if (!validateWhatsApp()) return
-  if (!form.image) {
-    alert('Adicione uma imagem para o anúncio.')
-    return
-  }
-  if (!form.name || form.name.length > 100) {
-    alert('O nome do anúncio é obrigatório e deve ter até 100 caracteres.')
-    return
-  }
-  if (!form.description || form.description.length > 500) {
-    alert('A descrição é obrigatória e deve ter até 500 caracteres.')
-    return
-  }
-  if (!form.price || form.price < 0) {
-    alert('O preço deve ser um valor positivo.')
-    return
-  }
-
-  emit('next', { ...form })
-  saveForm()
-}
-
 const saveForm = () => {
   localStorage.setItem('anuncieForm', JSON.stringify({
     name: form.name,
@@ -222,12 +226,63 @@ const saveForm = () => {
   }))
 }
 
-onUnmounted(() => {
-  if (previewUrl.value) {
-    URL.revokeObjectURL(previewUrl.value)
+const handleSubmit = async () => {
+  if (!isFormValid.value) {
+    submitError.value = 'Preencha todos os campos corretamente.'
+    return
   }
+
+  loading.value = true
+  submitError.value = ''
+
+  const formData = new FormData()
+  formData.append('name', form.name.trim())
+  formData.append('description', form.description.trim())
+  formData.append('price', form.price)
+  formData.append('ctaLink', form.ctaLink.trim())
+  formData.append('weeks', 1)
+  formData.append('image', form.image)
+
+  console.log('ENVIANDO ANÚNCIO:', {
+    name: form.name,
+    price: form.price,
+    image: form.image.name
+  })
+
+  try {
+    const res = await api.post('/anuncios', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+
+    console.log('ANÚNCIO CRIADO:', res.data)
+
+    if (res.data.sucesso) {
+      localStorage.removeItem('anuncieForm')
+      emit('created', {
+        anuncioId: res.data.anuncioId,
+        formData: res.data.anuncio,
+        weeks: 1
+      })
+    }
+  } catch (err) {
+    submitError.value = err.response?.data?.mensagem || 'Erro ao criar anúncio.'
+    console.error('ERRO:', err.response?.data || err)
+  } finally {
+    loading.value = false
+  }
+}
+
+onUnmounted(() => {
+  if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
 })
 </script>
+
+
+
+
 
 <style scoped>
 /* Estilos originais mantidos */

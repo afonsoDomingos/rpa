@@ -2,46 +2,32 @@
   <div class="container">
     <main class="form-wrapper">
       <form @submit.prevent="handlePayment" class="grid">
-        <!-- Pacote Escolhido -->
+        <!-- PACOTE -->
         <section class="section">
           <h2 class="section-title">
             <span class="num num-purple">1</span> Pacote
           </h2>
           <div class="package-info">
-            <p class="package-name">{{ formData.name || 'Anúncio Sem Nome' }}</p>
-            <p class="package-details">
-              {{ weeks * 500 }} MZN
-            </p>
+            <p class="package-name">{{ formData.name || 'Anúncio' }}</p>
+            <p class="package-details">{{ weeks * 500 }} MZN</p>
           </div>
         </section>
 
-        <!-- Método de Pagamento -->
+        <!-- MÉTODO -->
         <section class="section">
           <h2 class="section-title">
             <span class="num num-green">2</span> Método
           </h2>
           <div class="payment-methods">
             <label class="method-label" :class="{ active: selectedMethod === 'mpesa' }">
-              <input
-                type="radio"
-                v-model="selectedMethod"
-                value="mpesa"
-                class="hidden"
-                aria-label="Pagar com M-Pesa"
-              />
+              <input type="radio" v-model="selectedMethod" value="mpesa" class="hidden" />
               <div class="method-card mpesa">
                 <img :src="mpesaIcon" alt="M-Pesa" class="method-logo" />
                 <span>M-Pesa</span>
               </div>
             </label>
             <label class="method-label" :class="{ active: selectedMethod === 'emola' }">
-              <input
-                type="radio"
-                v-model="selectedMethod"
-                value="emola"
-                class="hidden"
-                aria-label="Pagar com Emola"
-              />
+              <input type="radio" v-model="selectedMethod" value="emola" class="hidden" />
               <div class="method-card emola">
                 <img :src="emolaIcon" alt="Emola" class="method-logo" />
                 <span>Emola</span>
@@ -50,82 +36,47 @@
           </div>
         </section>
 
-        <!-- Número de Telefone -->
+        <!-- TELEFONE -->
         <section class="section">
           <h2 class="section-title">
             <span class="num num-blue">3</span> Telefone
           </h2>
           <div class="group">
-            <label for="phone" class="sr-only">Número de telefone para pagamento</label>
-            <div class="input-group">
+            <div class="input-group" :class="{ 'error-border': phoneError }">
               <span class="country-code">+258</span>
-              <input
-                v-model="phone"
-                id="phone"
-                type="tel"
-                class="input"
-                :placeholder="selectedMethod === 'mpesa' ? '84/85 XXXXXXX' : '86/87 XXXXXXX'"
-                required
-                @input="formatPhone"
-              />
+              <input v-model="phone" @input="formatPhone" @blur="validatePhone" type="tel" class="input" :placeholder="placeholder" required />
             </div>
             <p v-if="phoneError" class="error-text">{{ phoneError }}</p>
           </div>
         </section>
 
-        <!-- Botão Pagar -->
-        <button
-          type="submit"
-          class="btn"
-          :disabled="loading || phoneError || !phone"
-          aria-label="Iniciar pagamento"
-        >
-          <span v-if="!loading">Pagar {{ props.weeks * 500 }} MZN</span>
+        <!-- BOTÃO -->
+        <button type="submit" class="btn" :disabled="loading || !isPhoneValid || !props.anuncioId">
+          <span v-if="!loading">Pagar {{ weeks * 500 }} MZN</span>
           <span v-else>Processando...</span>
-          <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M13 7l5 5m0 0l-5 5m5-5H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
-          </svg>
         </button>
 
-        <!-- Mensagens -->
-        <div v-if="success" class="success-msg">
-          <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
-          </svg>
-          <p>Pagamento iniciado! Aguarde a confirmação no seu telemóvel.</p>
+        <!-- MENSAGENS -->
+        <div v-if="successMessage" class="success-msg">
+          <p>{{ successMessage }}</p>
         </div>
-        <p v-if="error" class="error-text">{{ error }}</p>
+        <p v-if="errorMessage" class="error-text global-error">{{ errorMessage }}</p>
       </form>
     </main>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import mpesaIcon from '@/assets/img/Mpesa.png'
 import emolaIcon from '@/assets/img/Emola.png'
 
 const props = defineProps({
-  weeks: { type: Number, required: true, validator: (value) => value > 0 },
-  amount: { type: Number, required: true, validator: (value) => value >= 0 },
-  formData: {
-    type: Object,
-    required: true,
-    validator: (formData) => {
-      return (
-        typeof formData.name === 'string' &&
-        formData.name.trim() !== '' &&
-        typeof formData.description === 'string' &&
-        typeof formData.price === 'number' &&
-        formData.price >= 0 &&
-        typeof formData.ctaLink === 'string' &&
-        formData.ctaLink.trim() !== '' &&
-        (typeof formData.image === 'string' || formData.image instanceof File)
-      )
-    }
-  }
+  weeks: { type: Number, required: true },
+  formData: { type: Object, required: true },
+  anuncioId: { type: String, required: true }
 })
 
 const router = useRouter()
@@ -133,150 +84,108 @@ const selectedMethod = ref('mpesa')
 const phone = ref('')
 const phoneError = ref('')
 const loading = ref(false)
-const success = ref(false)
-const error = ref('')
+const successMessage = ref('')
+const errorMessage = ref('')
+const isPhoneValid = ref(false)
+
+const placeholder = computed(() => 
+  selectedMethod.value === 'mpesa' ? '84/85 XXXXXXX' : '86/87 XXXXXXX'
+)
 
 onMounted(() => {
-  console.log('Props recebidas em AnuncioPayment:', {
-    weeks: props.weeks,
-    amount: props.amount,
-    formData: props.formData,
-    imageDetails: props.formData.image instanceof File ? {
-      name: props.formData.image.name,
-      size: props.formData.image.size,
-      type: props.formData.image.type
-    } : props.formData.image
-  })
-  // Verificar consistência entre amount e weeks
-  if (props.amount !== props.weeks * 500) {
-    console.warn(`Inconsistência: amount (${props.amount}) não corresponde a weeks (${props.weeks}) * 500`);
-  }
-  const savedPhone = localStorage.getItem('paymentPhone')
-  if (savedPhone) {
-    phone.value = savedPhone.replace(/^258/, '') // Remover 258 se presente
+  const saved = localStorage.getItem('paymentPhone')
+  if (saved) {
+    phone.value = saved.replace(/^258/, '')
     validatePhone()
   }
+  console.log('AnuncioPayment carregado:', { 
+    anuncioId: props.anuncioId,
+    weeks: props.weeks,
+    formName: props.formData.name
+  })
 })
 
 const formatPhone = () => {
   phone.value = phone.value.replace(/\D/g, '').slice(0, 9)
-  validatePhone()
 }
 
 const validatePhone = () => {
-  const num = phone.value
+  const num = phone.value.trim()
   phoneError.value = ''
+  isPhoneValid.value = false
+
   if (!num) return
-  if (selectedMethod.value === 'mpesa' && !/^8[45]/.test(num)) {
-    phoneError.value = 'M-Pesa: use 84 ou 85'
-  } else if (selectedMethod.value === 'emola' && !/^8[67]/.test(num)) {
-    phoneError.value = 'Emola: use 86 ou 87'
-  } else if (num.length !== 9) {
-    phoneError.value = 'Número deve ter 9 dígitos'
+  if (num.length !== 9) {
+    phoneError.value = '9 dígitos obrigatórios'
+    return
   }
+  if (selectedMethod.value === 'mpesa' && !/^8[45]\d{7}$/.test(num)) {
+    phoneError.value = 'M-Pesa: use 84 ou 85'
+    return
+  }
+  if (selectedMethod.value === 'emola' && !/^8[67]\d{7}$/.test(num)) {
+    phoneError.value = 'Emola: use 86 ou 87'
+    return
+  }
+  isPhoneValid.value = true
 }
+
+watch(selectedMethod, validatePhone)
 
 const handlePayment = async () => {
   validatePhone()
-  if (phoneError.value || !phone.value) {
-    error.value = 'Corrija o número de telefone antes de prosseguir.'
+  if (!isPhoneValid.value) {
+    errorMessage.value = 'Corrija o número de telefone.'
+    return
+  }
+  if (!props.anuncioId) {
+    errorMessage.value = 'Erro: Anúncio não foi criado.'
     return
   }
 
-  if (!props.formData.name || !props.formData.price || !props.formData.ctaLink) {
-    error.value = 'Dados do anúncio incompletos: nome, preço ou link de contato ausentes.'
-    return
+  const payload = {
+    amount: props.weeks * 500,
+    method: selectedMethod.value,
+    phone: `258${phone.value}`,
+    type: 'anuncio',
+    pacote: 'anuncio',
+    anuncioId: props.anuncioId,
+    dadosCartao: null
   }
+
+  if (payload.amount === 0) {
+    payload.method = 'gratuito'
+    payload.pacote = 'free'
+  }
+
+  console.log('ENVIANDO PAGAMENTO:', payload)
 
   loading.value = true
-  error.value = ''
-  success.value = false
+  errorMessage.value = ''
+  successMessage.value = ''
 
   try {
-    // Criar o anúncio
-    const anuncioPayload = new FormData()
-    anuncioPayload.append('name', props.formData.name.trim())
-    anuncioPayload.append('description', props.formData.description || '')
-    anuncioPayload.append('price', props.formData.price.toString())
-    anuncioPayload.append('ctaLink', props.formData.ctaLink.trim())
-    anuncioPayload.append('weeks', props.weeks.toString())
-    if (props.formData.image instanceof File) {
-      anuncioPayload.append('image', props.formData.image)
-    } else if (typeof props.formData.image === 'string' && props.formData.image.trim()) {
-      anuncioPayload.append('imageUrl', props.formData.image.trim())
-    } else {
-      error.value = 'Imagem do anúncio não fornecida.'
-      return
-    }
-
-    console.log('Enviando POST /anuncios com payload:', {
-      name: props.formData.name,
-      description: props.formData.description,
-      price: props.formData.price,
-      ctaLink: props.formData.ctaLink,
-      weeks: props.weeks,
-      image: props.formData.image instanceof File ? props.formData.image.name : props.formData.image
+    const res = await api.post('/pagamentos/processar', payload, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     })
 
-    const anuncioResponse = await api.post('/anuncios', anuncioPayload, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      },
-      timeout: 15000
-    })
+    console.log('RESPOSTA DO PAGAMENTO:', res.data)
 
-    console.log('Resposta de POST /anuncios:', anuncioResponse.data)
-
-    if (!anuncioResponse.data.sucesso || !anuncioResponse.data.anuncioId) {
-      throw new Error(anuncioResponse.data.mensagem || 'Falha ao criar anúncio.')
-    }
-
-    const anuncioId = anuncioResponse.data.anuncioId
-
-    // Processar pagamento
-    const pagamentoPayload = {
-      amount: props.weeks * 500, // Dinâmico: weeks * 500
-      dadosCartao: null,
-      method: selectedMethod.value,
-      pacote: 'anuncio',
-      phone: `258${phone.value}`,
-      type: 'anuncio',
-      anuncioId
-    }
-
-    console.log('Enviando POST /pagamentos/processar com payload:', pagamentoPayload)
-
-    const pagamentoResponse = await api.post('/pagamentos/processar', pagamentoPayload, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      },
-      timeout: 15000
-    })
-
-    console.log('Resposta de POST /pagamentos/processar:', pagamentoResponse.data)
-
-    if (pagamentoResponse.data.sucesso) {
-      success.value = true
+    if (res.data.sucesso) {
+      successMessage.value = 'Pagamento iniciado! Aguarde confirmação no seu telemóvel.'
       localStorage.setItem('paymentPhone', `258${phone.value}`)
       localStorage.removeItem('anuncieState')
-      localStorage.removeItem('anuncieForm')
-      window.dispatchEvent(new Event('newAdCreated'))
-      setTimeout(() => {
-        router.push('/meus-anuncios')
-      }, 3000)
-    } else {
-      throw new Error(pagamentoResponse.data.mensagem || 'Erro ao processar pagamento.')
+      setTimeout(() => router.push('/meus-anuncios'), 3000)
     }
   } catch (err) {
-    console.error('Erro no pagamento:', err.response?.data || err)
-    error.value = err.response?.data?.mensagem || `Erro ao processar: ${err.message}`
+    errorMessage.value = err.response?.data?.mensagem || 'Erro ao processar pagamento.'
+    console.error('ERRO NO PAGAMENTO:', err.response?.data || err)
   } finally {
     loading.value = false
   }
 }
 </script>
+
 
 <style scoped>
 /* Estilos atualizados para suportar +258 */
@@ -284,6 +193,22 @@ const handlePayment = async () => {
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
+
+
+.input-group.error-border {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.global-error {
+  grid-column: 1 / -1;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1.5px solid #ef4444;
+  border-radius: 0.6rem;
+  text-align: center;
+}
 .container {
   height: 100vh;
   width: 100vw;

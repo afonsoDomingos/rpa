@@ -1,17 +1,19 @@
-<!-- src/components/anunciantes/MeusAnuncios.vue -->
 <template>
   <div class="meus-anuncios">
+    <!-- LOADING -->
     <div v-if="loading" class="loading-state">
       <i class="bi bi-hourglass-split"></i>
       <p>Carregando seus anúncios...</p>
     </div>
 
+    <!-- ERRO -->
     <div v-else-if="error" class="error-state">
       <i class="bi bi-exclamation-triangle"></i>
       <p>{{ error }}</p>
       <button @click="recarregar" class="retry-btn">Tentar novamente</button>
     </div>
 
+    <!-- VAZIO -->
     <div v-else-if="!anuncios.length" class="empty-state">
       <i class="bi bi-megaphone-fill"></i>
       <p>Ainda não existem anúncios publicados.</p>
@@ -20,33 +22,32 @@
       </button>
     </div>
 
+    <!-- LISTA -->
     <div v-else>
       <header class="header">
-        <button @click="$router.go(-1)" class="back-btn" aria-label="Voltar à página anterior">
-          <i class="bi bi-arrow-left" aria-hidden="true"></i> Voltar
+        <button @click="$router.go(-1)" class="back-btn">
+          <i class="bi bi-arrow-left"></i> Voltar
         </button>
         <h1>Meus Anúncios</h1>
       </header>
 
       <div class="grid-anuncios">
-        <div
-          v-for="(ad, i) in anuncios"
-          :key="ad.id"
-          class="anuncio-card"
-          :style="{ '--i': i }"
-        >
+        <div v-for="(ad, i) in anuncios" :key="ad._id" class="anuncio-card" :style="{ '--i': i }">
+          <!-- STATUS -->
           <div class="anuncio-status" :class="ad.status">
-            {{ ad.status === 'active' ? 'Ativo' : 'Pausado' }}
+            {{ ad.status === 'active' ? 'Ativo' : ad.status === 'pending' ? 'Pendente' : 'Pausado' }}
           </div>
 
-          <img
-            :src="ad.image"
-            :alt="`Anúncio: ${ad.name}`"
-            class="anuncio-img"
-            @error="handleImageError"
-            @load="$event.target.classList.add('loaded')"
+          <!-- IMAGEM -->
+          <img 
+            :src="ad.image" 
+            :alt="ad.name" 
+            class="anuncio-img" 
+            @error="handleImageError" 
+            @load="onImageLoad"
           />
 
+          <!-- INFO -->
           <div class="anuncio-info">
             <h3 class="anuncio-titulo">{{ ad.name }}</h3>
             <p class="anuncio-desc">{{ ad.description }}</p>
@@ -56,23 +57,16 @@
             </div>
           </div>
 
+          <!-- AÇÕES -->
           <div class="anuncio-acoes">
-            <a
-              :href="ad.ctaLink"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="btn-contato"
-              aria-label="Contactar via WhatsApp"
-            >
-              <i class="bi bi-whatsapp" aria-hidden="true"></i>
-              <span class="visually-hidden">Contactar via WhatsApp</span>
-              Contactar
+            <a :href="ad.ctaLink" target="_blank" class="btn-contato">
+              <i class="bi bi-whatsapp"></i> Contactar
             </a>
-            <button @click="editarAnuncio(ad.id)" class="btn-editar" aria-label="Editar anúncio">
-              <i class="bi bi-pencil" aria-hidden="true"></i> Editar
+            <button @click="editarAnuncio(ad._id)" class="btn-editar">
+              <i class="bi bi-pencil"></i> Editar
             </button>
-            <button @click="confirmarRemocao(ad.id)" class="btn-remover" aria-label="Remover anúncio">
-              <i class="bi bi-trash" aria-hidden="true"></i> Remover
+            <button @click="confirmarRemocao(ad._id)" class="btn-remover">
+              <i class="bi bi-trash"></i> Remover
             </button>
           </div>
         </div>
@@ -84,42 +78,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '@/api'
 
 const router = useRouter()
 const anuncios = ref([])
 const loading = ref(true)
 const error = ref('')
 
-const mockData = [
-  {
-    id: 1,
-    name: "Apartamento T3 - Matola",
-    description: "Centro, perto do mercado",
-    price: 2500000,
-    image: "/img/anuncio-exemplo01.jpg",
-    ctaLink: "https://wa.me/258841234567",
-    status: 'active'
-  },
-  {
-    id: 2,
-    name: "Toyota Corolla 2020",
-    description: "Baixa km, revisado, garantia",
-    price: 850000,
-    image: "/img/anuncio-exemplo02.jpg",
-    ctaLink: "https://wa.me/258851234567",
-    status: 'active'
-  },
-  {
-    id: 3,
-    name: "iPhone 14 Pro Max",
-    description: "128GB, como novo, com caixa",
-    price: 75000,
-    image: "/img/anuncio-exemplo03.jpg",
-    ctaLink: "https://wa.me/258861234567",
-    status: 'paused'
-  }
-]
-
+// Formatar preço
 const formatPrice = (value) => {
   return new Intl.NumberFormat('pt-MZ', {
     style: 'currency',
@@ -128,32 +94,58 @@ const formatPrice = (value) => {
   }).format(value)
 }
 
+// Imagem fallback
 const handleImageError = (e) => {
   e.target.src = '/img/placeholder-ad.jpg'
+  e.target.classList.add('error')
 }
 
+const onImageLoad = (e) => {
+  e.target.classList.add('loaded')
+}
+
+// Editar
 const editarAnuncio = (id) => {
   router.push(`/anuncie/editar/${id}`)
 }
 
-const confirmarRemocao = (id) => {
-  if (confirm('Tem certeza que deseja remover este anúncio?')) {
-    anuncios.value = anuncios.value.filter(a => a.id !== id)
+// Remover
+const confirmarRemocao = async (id) => {
+  if (!confirm('Tem certeza que deseja remover este anúncio?')) return
+
+  try {
+    await api.delete(`/anuncios/${id}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    })
+    anuncios.value = anuncios.value.filter(a => a._id !== id)
+  } catch (err) {
+    alert(err.response?.data?.mensagem || 'Erro ao remover anúncio.')
   }
 }
 
+// Recarregar
 const recarregar = () => {
   loading.value = true
   error.value = ''
   carregarAnuncios()
 }
 
+// Carregar anúncios do backend
 const carregarAnuncios = async () => {
   try {
-    await new Promise(resolve => setTimeout(resolve, 800))
-    anuncios.value = mockData
+    console.log('Carregando anúncios do usuário...')
+    const res = await api.get('/anuncios/meus', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    })
+
+    console.log('Anúncios recebidos:', res.data)
+
+    // Garantir que é array
+    anuncios.value = Array.isArray(res.data) ? res.data : res.data.anuncios || []
+
   } catch (err) {
-    error.value = 'Não foi possível carregar os anúncios. Verifique sua conexão.'
+    console.error('Erro ao carregar anúncios:', err)
+    error.value = err.response?.data?.mensagem || 'Não foi possível carregar os anúncios.'
   } finally {
     loading.value = false
   }
@@ -163,6 +155,8 @@ onMounted(() => {
   carregarAnuncios()
 })
 </script>
+
+
 
 <style scoped>
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
