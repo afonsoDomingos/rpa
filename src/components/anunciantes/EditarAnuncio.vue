@@ -10,22 +10,22 @@
     <div v-else-if="error" class="error-state">
       <i class="bi bi-exclamation-triangle"></i>
       <p>{{ error }}</p>
-      <button @click="recarregar" class="retry-btn">Tentar novamente</button>
+      <button @click="recarregar" class="retry-btn" type="button">Tentar novamente</button>
     </div>
 
     <!-- VAZIO -->
     <div v-else-if="!anuncios.length" class="empty-state">
       <i class="bi bi-megaphone-fill"></i>
       <p>Ainda não existem anúncios publicados.</p>
-      <button @click="$router.push('/anuncie')" class="new-btn">
+      <button @click="$router.push('/anuncie')" class="new-btn" type="button">
         <i class="bi bi-plus-circle"></i> Criar Anúncio
       </button>
     </div>
 
     <!-- LISTA -->
-    <div v-else>
+    <div v-else class="lista-container">
       <header class="header">
-        <button @click="$router.go(-1)" class="back-btn">
+        <button @click="$router.go(-1)" class="back-btn" type="button" aria-label="Voltar">
           <i class="bi bi-arrow-left"></i> Voltar
         </button>
         <h1 class="page-title">Meus Anúncios</h1>
@@ -33,21 +33,19 @@
 
       <div class="grid-anuncios">
         <div v-for="(ad, i) in anuncios" :key="ad._id" class="anuncio-card" :style="{ '--i': i }">
-          <!-- STATUS -->
           <div class="anuncio-status" :class="ad.status">
             {{ getStatusText(ad.status) }}
           </div>
 
-          <!-- IMAGEM -->
           <img 
             :src="ad.image" 
             :alt="ad.name" 
             class="anuncio-img" 
             @error="handleImageError" 
             @load="onImageLoad"
+            loading="lazy"
           />
 
-          <!-- INFO -->
           <div class="anuncio-info">
             <h3 class="anuncio-titulo">{{ ad.name }}</h3>
             <p class="anuncio-desc">{{ ad.description }}</p>
@@ -57,15 +55,14 @@
             </div>
           </div>
 
-          <!-- AÇÕES -->
           <div class="anuncio-acoes">
-            <a :href="ad.ctaLink" target="_blank" class="btn-contato">
+            <a :href="ad.ctaLink" target="_blank" rel="noopener" class="btn-contato">
               <i class="bi bi-whatsapp"></i> Contactar
             </a>
-            <button @click="abrirEdicao(ad)" class="btn-editar">
+            <button @click="abrirEdicao(ad)" class="btn-editar" type="button">
               <i class="bi bi-pencil"></i> Editar
             </button>
-            <button @click="confirmarRemocao(ad._id)" class="btn-remover">
+            <button @click="confirmarRemocao(ad._id)" class="btn-remover" type="button">
               <i class="bi bi-trash"></i> Remover
             </button>
           </div>
@@ -73,15 +70,15 @@
       </div>
     </div>
 
-    <!-- MODAL DE EDIÇÃO (INTEGRADO) -->
-    <div v-if="editAd" class="modal-overlay" @click.self="fecharEdicao">
-      <div class="modal-content">
-        <button class="modal-close" @click="fecharEdicao">
+    <!-- MODAL DE EDIÇÃO -->
+    <div v-if="editAd" class="modal-overlay" @click.self="fecharEdicao" @keyup.esc="fecharEdicao" tabindex="0" ref="modal">
+      <div class="modal-content" @click.stop>
+        <button class="modal-close" @click="fecharEdicao" type="button" aria-label="Fechar">
           <i class="bi bi-x-lg"></i>
         </button>
 
         <form @submit.prevent="salvarEdicao" class="grid">
-          <!-- === INFO === -->
+          <!-- INFO -->
           <section class="section">
             <h2 class="section-title">
               <span class="num num-purple">1</span> Editar Anúncio
@@ -90,7 +87,6 @@
             <div class="group">
               <input 
                 v-model.trim="editForm.name" 
-                id="name" 
                 type="text" 
                 class="input" 
                 placeholder="Nome do anúncio" 
@@ -104,7 +100,6 @@
             <div class="group">
               <textarea 
                 v-model.trim="editForm.description" 
-                id="description" 
                 class="input textarea" 
                 rows="3" 
                 placeholder="Descrição detalhada" 
@@ -120,7 +115,6 @@
                 <span class="currency">MZN</span>
                 <input 
                   v-model.number="editForm.price" 
-                  id="price" 
                   type="number" 
                   min="1" 
                   class="input price-input" 
@@ -132,12 +126,10 @@
               <p v-if="priceError" class="error-text">{{ priceError }}</p>
             </div>
 
-            <!-- CAMPO WHATSAPP (COM CONVERSÃO) -->
             <div class="group">
               <div class="input-with-icon">
                 <input 
                   v-model="rawCta" 
-                  id="ctaLink" 
                   type="text" 
                   class="input" 
                   placeholder="Número ou wa.me/..." 
@@ -150,33 +142,31 @@
               <p v-if="ctaError" class="error-text">{{ ctaError }}</p>
               <p v-else-if="editForm.ctaLink" class="success-text">
                 <i class="bi bi-whatsapp"></i> 
-                Link: <a :href="editForm.ctaLink" target="_blank">{{ editForm.ctaLink }}</a>
+                Link: <a :href="editForm.ctaLink" target="_blank" rel="noopener">{{ editForm.ctaLink }}</a>
               </p>
             </div>
           </section>
 
-          <!-- === FOTO === -->
+          <!-- FOTO -->
           <section class="section">
             <h2 class="section-title">
               <span class="num num-green">2</span> Foto
             </h2>
 
             <div class="group">
-              <!-- IMAGEM ATUAL -->
               <div v-if="previewUrl" class="current-image">
                 <p class="current-label">Imagem atual:</p>
                 <img :src="previewUrl" :alt="editForm.name" class="preview-img" />
               </div>
 
-              <!-- NOVO UPLOAD -->
               <input 
                 type="file" 
                 accept="image/jpeg,image/png,image/webp" 
                 @change="onFileChange" 
-                id="file" 
+                id="file-edit" 
                 class="hidden" 
               />
-              <label for="file" class="upload-label" :class="{ 'has-image': editForm.image }">
+              <label for="file-edit" class="upload-label" :class="{ 'has-image': editForm.image }">
                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
                 </svg>
@@ -184,7 +174,6 @@
                 <span v-else class="upload-text">Nova foto adicionada</span>
               </label>
 
-              <!-- PRÉ-VISUALIZAÇÃO NOVA IMAGEM -->
               <transition name="fade">
                 <div v-if="newPreviewUrl" class="preview">
                   <img :src="newPreviewUrl" :alt="editForm.name" class="preview-img" />
@@ -198,7 +187,6 @@
             </div>
           </section>
 
-          <!-- === BOTÃO === -->
           <button 
             type="submit" 
             class="btn" 
@@ -220,7 +208,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, onUnmounted } from 'vue'
+import { ref, onMounted, computed, watch, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 
@@ -228,8 +216,9 @@ const router = useRouter()
 const anuncios = ref([])
 const loading = ref(true)
 const error = ref('')
+const modal = ref(null)
 
-// Formatar preço
+// Formatar preço (MZN - Moçambique)
 const formatPrice = (value) => {
   return new Intl.NumberFormat('pt-MZ', {
     style: 'currency',
@@ -238,17 +227,11 @@ const formatPrice = (value) => {
   }).format(value)
 }
 
-// Status traduzido
 const getStatusText = (status) => {
-  switch (status) {
-    case 'active': return 'Ativo'
-    case 'pending': return 'Pendente'
-    case 'paused': return 'Pausado'
-    default: return 'Indefinido'
-  }
+  const map = { active: 'Ativo', pending: 'Pendente', paused: 'Pausado' }
+  return map[status] || 'Indefinido'
 }
 
-// Imagem fallback
 const handleImageError = (e) => {
   e.target.src = '/img/placeholder-ad.jpg'
   e.target.classList.add('error')
@@ -258,7 +241,32 @@ const onImageLoad = (e) => {
   e.target.classList.add('loaded')
 }
 
-// Remover
+// === CARREGAR ANÚNCIOS ===
+const carregarAnuncios = async () => {
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) throw new Error('Token não encontrado')
+
+    const res = await api.get('/anuncios/meus', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+
+    anuncios.value = Array.isArray(res.data) ? res.data : res.data.anuncios || []
+  } catch (err) {
+    console.error('Erro ao carregar anúncios:', err)
+    error.value = err.response?.data?.mensagem || 'Falha ao carregar anúncios. Verifique sua conexão.'
+  } finally {
+    loading.value = false
+  }
+}
+
+const recarregar = () => {
+  loading.value = true
+  error.value = ''
+  carregarAnuncios()
+}
+
+// === REMOÇÃO ===
 const confirmarRemocao = async (id) => {
   if (!confirm('Tem certeza que deseja remover este anúncio?')) return
 
@@ -272,73 +280,36 @@ const confirmarRemocao = async (id) => {
   }
 }
 
-// Recarregar
-const recarregar = () => {
-  loading.value = true
-  error.value = ''
-  carregarAnuncios()
-}
-
-// Carregar anúncios
-const carregarAnuncios = async () => {
-  try {
-    const res = await api.get('/anuncios/meus', {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    })
-
-    anuncios.value = Array.isArray(res.data) ? res.data : res.data.anuncios || []
-
-  } catch (err) {
-    console.error('Erro ao carregar anúncios:', err)
-    error.value = err.response?.data?.mensagem || 'Não foi possível carregar os anúncios.'
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(() => {
-  carregarAnuncios()
-})
-
-// === LÓGICA DE EDIÇÃO INTEGRADA ===
-const editAd = ref(null) // Anúncio sendo editado
+// === EDIÇÃO (MODAL) ===
+const editAd = ref(null)
 const editForm = ref({
-  id: '',
-  name: '',
-  description: '',
-  price: 0,
-  ctaLink: '',
-  image: null, // nova imagem (File)
-  imageUrl: '' // imagem atual (URL)
+  id: '', name: '', description: '', price: 0, ctaLink: '', image: null, imageUrl: ''
 })
 const rawCta = ref('')
-const previewUrl = ref('')    // imagem atual
-const newPreviewUrl = ref('') // nova imagem
+const previewUrl = ref('')
+const newPreviewUrl = ref('')
 const ctaError = ref('')
 const submitError = ref('')
 const editLoading = ref(false)
 
-// Validações
 const nameError = ref('')
 const descError = ref('')
 const priceError = ref('')
 
 watch(() => editForm.value.name, (val) => {
-  nameError.value = val.trim().length < 3 ? 'Mínimo 3 caracteres' : ''
+  nameError.value = val?.trim().length < 3 ? 'Mínimo 3 caracteres' : ''
 })
 
 watch(() => editForm.value.description, (val) => {
-  descError.value = val.trim().length < 10 ? 'Mínimo 10 caracteres' : ''
+  descError.value = val?.trim().length < 10 ? 'Mínimo 10 caracteres' : ''
 })
 
 watch(() => editForm.value.price, (val) => {
   priceError.value = val < 1 ? 'Preço deve ser maior que 0' : ''
 })
 
-// === CONVERSÃO DE NÚMERO PARA LINK ===
 const formatAndValidateCta = () => {
   const input = rawCta.value.trim()
-
   const urlRegex = /^https?:\/\/(wa\.me|api\.whatsapp\.com|chat\.whatsapp\.com)\//i
   if (urlRegex.test(input)) {
     editForm.value.ctaLink = input
@@ -348,10 +319,8 @@ const formatAndValidateCta = () => {
 
   const clean = input.replace(/[\s\-\(\)]/g, '')
   const phoneRegex = /^(\+?258)?[0-9]{9,12}$/
-
   if (phoneRegex.test(clean)) {
-    let phone = clean
-    if (!phone.startsWith('+')) phone = '+258' + phone.replace(/^258/, '')
+    let phone = clean.startsWith('+') ? clean : '+258' + clean.replace(/^258/, '')
     editForm.value.ctaLink = `https://wa.me/${phone}`
     ctaError.value = ''
     return
@@ -360,7 +329,6 @@ const formatAndValidateCta = () => {
   ctaError.value = 'Número ou link inválido'
 }
 
-// Validação completa
 const isFormValid = computed(() => {
   return (
     editForm.value.name?.trim().length >= 3 &&
@@ -370,35 +338,41 @@ const isFormValid = computed(() => {
   )
 })
 
-// Abrir modal de edição
 const abrirEdicao = (ad) => {
+  // Clonar para evitar mutação
+  const anuncio = { ...ad }
   editForm.value = {
-    id: ad._id,
-    name: ad.name,
-    description: ad.description,
-    price: ad.price,
-    ctaLink: ad.ctaLink,
+    id: anuncio._id,
+    name: anuncio.name,
+    description: anuncio.description,
+    price: anuncio.price,
+    ctaLink: anuncio.ctaLink,
     image: null,
-    imageUrl: ad.image
+    imageUrl: anuncio.image
   }
-  rawCta.value = ad.ctaLink
-  previewUrl.value = ad.image
+  rawCta.value = anuncio.ctaLink
+  previewUrl.value = anuncio.image
   newPreviewUrl.value = ''
-  nameError.value = ''
-  descError.value = ''
-  priceError.value = ''
-  ctaError.value = ''
-  submitError.value = ''
-  editAd.value = ad
+  
+  // Limpar erros
+  nameError.value = descError.value = priceError.value = ctaError.value = submitError.value = ''
+  
+  editAd.value = true
+
+  nextTick(() => {
+    modal.value?.focus()
+  })
 }
 
-// Fechar modal
 const fecharEdicao = () => {
   editAd.value = null
-  if (newPreviewUrl.value) URL.revokeObjectURL(newPreviewUrl.value)
+  if (newPreviewUrl.value) {
+    URL.revokeObjectURL(newPreviewUrl.value)
+    newPreviewUrl.value = ''
+  }
+  document.getElementById('file-edit')?.value && (document.getElementById('file-edit').value = '')
 }
 
-// === UPLOAD DE NOVA IMAGEM ===
 const onFileChange = (e) => {
   const file = e.target.files[0]
   if (!file) return
@@ -418,11 +392,11 @@ const onFileChange = (e) => {
 
 const removeNewImage = () => {
   editForm.value.image = null
+  if (newPreviewUrl.value) URL.revokeObjectURL(newPreviewUrl.value)
   newPreviewUrl.value = ''
-  document.getElementById('file').value = ''
+  document.getElementById('file-edit').value = ''
 }
 
-// === ENVIO (PUT) ===
 const salvarEdicao = async () => {
   if (!isFormValid.value) {
     submitError.value = 'Preencha todos os campos corretamente.'
@@ -437,10 +411,7 @@ const salvarEdicao = async () => {
   formData.append('description', editForm.value.description.trim())
   formData.append('price', editForm.value.price)
   formData.append('ctaLink', editForm.value.ctaLink.trim())
-
-  if (editForm.value.image) {
-    formData.append('image', editForm.value.image)
-  }
+  if (editForm.value.image) formData.append('image', editForm.value.image)
 
   try {
     const res = await api.put(`/anuncios/${editForm.value.id}`, formData, {
@@ -450,34 +421,38 @@ const salvarEdicao = async () => {
       }
     })
 
-    // Atualizar lista localmente
     const index = anuncios.value.findIndex(a => a._id === editForm.value.id)
     if (index !== -1) {
+      const novaImagem = editForm.value.image && res.data?.image ? res.data.image : anuncios.value[index].image
       anuncios.value[index] = {
         ...anuncios.value[index],
         name: editForm.value.name,
         description: editForm.value.description,
         price: editForm.value.price,
         ctaLink: editForm.value.ctaLink,
-        image: editForm.value.image ? res.data.image : anuncios.value[index].image // Atualiza imagem se nova
+        image: novaImagem
       }
     }
 
     alert('Anúncio atualizado com sucesso!')
     fecharEdicao()
-
   } catch (err) {
-    submitError.value = err.response?.data?.mensagem || 'Erro ao salvar alterações.'
-    console.error(err)
+    submitError.value = err.response?.data?.mensagem || 'Erro ao salvar. Tente novamente.'
   } finally {
     editLoading.value = false
   }
 }
 
+onMounted(() => {
+  carregarAnuncios()
+})
+
 onUnmounted(() => {
   if (newPreviewUrl.value) URL.revokeObjectURL(newPreviewUrl.value)
 })
 </script>
+
+
 
 <style scoped>
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');

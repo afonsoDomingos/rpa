@@ -1,5 +1,6 @@
 <template>
   <div class="packages">
+    <!-- TÍTULO COM POPPINS FORÇADO -->
     <h2 class="title">Escolha a duração</h2>
 
     <div class="grid">
@@ -9,6 +10,7 @@
         :class="['pkg', { active: selected === n }]"
         @click="$emit('select', n)"
         :aria-label="`Selecionar pacote de ${n} ${n === 1 ? 'semana' : 'semanas'} por ${prices[n-1]} MZN`"
+        type="button"
       >
         <div class="header">
           <strong>{{ n }} {{ n === 1 ? 'semana' : 'semanas' }}</strong>
@@ -25,8 +27,12 @@
       class="pay-btn"
       :disabled="!selected"
       aria-label="Prosseguir para o pagamento"
+      type="button"
     >
-      Ir para Pagamento
+      <span>Ir para Pagamento</span>
+      <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M5 12h14m-7-7v14" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      </svg>
     </button>
   </div>
 </template>
@@ -40,20 +46,36 @@ const prices = AD_PRICES || [500, 1000, 1500, 2000]
 </script>
 
 <style scoped>
-/* Estilos originais mantidos */
+/* === IMPORT POPPINS === */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* === FORÇA POPPINS NO COMPONENTE INTEIRO === */
 .packages {
+  font-family: 'Poppins', sans-serif !important;
   padding: 1.5rem;
   color: white;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
-.title {
-  font-size: 1.35rem;
-  font-weight: 600;
+/* === TÍTULO H2 COM POPPINS 100% GARANTIDO === */
+.packages .title,
+h2.title {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 1.35rem !important;
   text-align: center;
-  margin-bottom: 1.5rem;
-  color: #e4e4e7;
+  margin: 0 0 1.5rem 0;
+  color: #e4e4e7 !important;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
 }
 
+/* === RESTANTE DO CSS === */
 .grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -72,14 +94,18 @@ const prices = AD_PRICES || [500, 1000, 1500, 2000]
   border-radius: 1rem;
   color: #fff;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
 }
 
-.pkg.active,
-.pkg:hover {
+.pkg:hover,
+.pkg.active {
   border-color: #7c3aed;
-  background: rgba(124, 58, 237, 0.1);
-  transform: translateY(-2px);
+  background: rgba(124, 58, 237, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.2);
 }
 
 .header {
@@ -87,18 +113,25 @@ const prices = AD_PRICES || [500, 1000, 1500, 2000]
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.header strong {
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .check {
-  width: 1.2rem;
-  height: 1.2rem;
+  width: 1.3rem;
+  height: 1.3rem;
   color: #7c3aed;
 }
 
 .price {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #10b981;
+  letter-spacing: -0.02em;
 }
 
 .pay-btn {
@@ -107,23 +140,34 @@ const prices = AD_PRICES || [500, 1000, 1500, 2000]
   background: #800080;
   color: #fff;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 1.05rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  transition: all 0.2s ease;
+  gap: 0.6rem;
+  transition: all 0.25s ease;
+  margin-top: 0.5rem;
+  letter-spacing: -0.01em;
 }
 
 .pay-btn:hover:not(:disabled) {
   background: #10b981;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
 }
 
 .pay-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.arrow {
+  width: 1.3rem;
+  height: 1.3rem;
+  stroke: currentColor;
+  stroke-width: 2.2;
 }
 </style>
