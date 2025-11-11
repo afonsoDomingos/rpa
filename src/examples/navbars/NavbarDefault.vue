@@ -233,16 +233,20 @@ watch(() => type.value, (newValue) => {
                 <i class="bi bi-wallet2 text-success"></i> Pagamentos
               </button>
 
+              <!-- Meus Pagamentos -->
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="$router.push({ name: 'MeusPagamentos' }); fecharDropdown();">
                 <i class="bi bi-credit-card text-primary"></i> Meus Pagamentos
               </button>
+
+
 
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="$router.push({ name: 'MeusDocumentos' }); fecharDropdown();">
                 <i class="bi bi-folder2-open text-info"></i> Meus Documentos
               </button>
 
+            
               <div class="dropdown-divider"></div>
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2 text-danger"
                 @click="logout(); fecharDropdown();">
@@ -271,24 +275,34 @@ watch(() => type.value, (newValue) => {
             <div
               class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada border-radius-lg"
               aria-labelledby="dropdownTools" style="min-width: 180px;">
+
+               <!-- NOVO: Meus Anúncios -->
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'ComunidadeRpa' }); fecharDropdown();">
-                <i class="bi bi-people-fill text-info"></i> Comunidade
+                @click="$router.push({ name: 'MeusAnuncios' }); fecharDropdown();">
+                <i class="bi bi-megaphone text-purple"></i> Meus Anúncios
               </button>
 
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'CVGenerator' }); fecharDropdown();">
-                <i class="bi bi-file-earmark-person text-warning"></i> Gerar CV
+                @click="$router.push({ name: 'ComunidadeRpa' }); fecharDropdown();">
+                <i class="bi bi-people-fill text-info"></i> Feed de publicações
               </button>
+
+              <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+  @click="$router.push({ name: 'CVGenerator' }); fecharDropdown();">
+  <i class="bi bi-file-earmark-person text-warning"></i> Gerador de Currículo
+</button>
+
 
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="$router.push({ name: 'GuardarDocumentos' }); fecharDropdown();">
-                <i class="bi bi-folder-plus text-success"></i> Guardar Docs
+                <i class="bi bi-folder-plus text-success"></i> Armazenar Documentos
               </button>
+
+               
 
               <button class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="$router.push({ name: 'Viaturas' }); fecharDropdown();">
-                <i class="bi bi-car-front text-success"></i> Recuperar Viaturas
+                <i class="bi bi-car-front text-success"></i> Rastreador de Viaturas
               </button>
             </div>
           </li>
