@@ -1,3 +1,4 @@
+<!-- AnuncieForm.vue -->
 <template>
   <div class="container">
     <main class="form-wrapper">
@@ -53,7 +54,7 @@
             <p v-if="priceError" class="error-text">{{ priceError }}</p>
           </div>
 
-          <!-- CAMPO WHATSAPP (COM CONVERSÃO AUTOMÁTICA) -->
+          <!-- CAMPO WHATSAPP -->
           <div class="group">
             <div class="input-with-icon">
               <input 
@@ -70,7 +71,6 @@
             </div>
             <p v-if="ctaError" class="error-text">{{ ctaError }}</p>
             <p v-else-if="form.ctaLink" class="success-text">
-              <i class="bi bi-whatsapp"></i> 
               Link gerado: <a :href="form.ctaLink" target="_blank">{{ form.ctaLink }}</a>
             </p>
           </div>
@@ -95,7 +95,7 @@
               <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
               </svg>
-              <span v-if="!form.image" class="upload-text">Adicionar foto(Máx 2Mb)</span>
+              <span v-if="!form.image" class="upload-text">Adicionar foto (Máx 2Mb)</span>
               <span v-else class="upload-text">Foto adicionada</span>
             </label>
 
@@ -146,18 +146,16 @@ const form = reactive({
   image: null
 })
 
-const rawCta = ref('') // Entrada bruta do usuário
+const rawCta = ref('')
 const previewUrl = ref('')
 const ctaError = ref('')
 const submitError = ref('')
 const loading = ref(false)
 
-// Validações individuais
 const nameError = ref('')
 const descError = ref('')
 const priceError = ref('')
 
-// Validação em tempo real
 watch(() => form.name, (val) => {
   nameError.value = val.trim().length < 3 ? 'Mínimo 3 caracteres' : ''
 })
@@ -170,11 +168,8 @@ watch(() => form.price, (val) => {
   priceError.value = val < 1 ? 'Preço deve ser maior que 0' : ''
 })
 
-// === CONVERSÃO E VALIDAÇÃO DO LINK ===
 const formatAndValidateCta = () => {
   const input = rawCta.value.trim()
-
-  // 1. Se já for link válido
   const urlRegex = /^https?:\/\/(wa\.me|api\.whatsapp\.com|chat\.whatsapp\.com)\//i
   if (urlRegex.test(input)) {
     form.ctaLink = input
@@ -183,25 +178,20 @@ const formatAndValidateCta = () => {
     return
   }
 
-  // 2. Se for número (com ou sem +)
   const clean = input.replace(/[\s\-\(\)]/g, '')
   const phoneRegex = /^(\+?258)?[0-9]{9,12}$/
-
   if (phoneRegex.test(clean)) {
     let phone = clean
     if (!phone.startsWith('+')) phone = '+258' + phone.replace(/^258/, '')
-    
     form.ctaLink = `https://wa.me/${phone}`
     ctaError.value = ''
     saveForm()
     return
   }
 
-  // 3. Inválido
   ctaError.value = 'Digite um número válido (ex: 84 123 4567) ou link wa.me/...'
 }
 
-// Validação completa
 const isFormValid = computed(() => {
   return (
     form.name?.trim().length >= 3 &&
@@ -212,23 +202,19 @@ const isFormValid = computed(() => {
   )
 })
 
-// Carregar do localStorage
 onMounted(() => {
   const saved = localStorage.getItem('anuncieForm')
   if (saved) {
     const data = JSON.parse(saved)
     Object.assign(form, data)
     rawCta.value = form.ctaLink || ''
-    if (form.image) {
-      previewUrl.value = URL.createObjectURL(form.image)
-    }
+    if (form.image) previewUrl.value = URL.createObjectURL(form.image)
   }
 })
 
 const onFileChange = (e) => {
   const file = e.target.files[0]
   if (!file) return
-
   if (!file.type.match('image/(jpeg|png|webp)')) {
     alert('Apenas JPG, PNG ou WebP.')
     return
@@ -237,7 +223,6 @@ const onFileChange = (e) => {
     alert('Máximo 2MB.')
     return
   }
-
   form.image = file
   previewUrl.value = URL.createObjectURL(file)
   saveForm()
@@ -273,8 +258,8 @@ const handleSubmit = async () => {
   formData.append('description', form.description.trim())
   formData.append('price', form.price)
   formData.append('ctaLink', form.ctaLink.trim())
-  formData.append('weeks', 1)
   formData.append('image', form.image)
+  // REMOVIDO: weeks (será definido no pagamento)
 
   try {
     const res = await api.post('/anuncios', formData, {
@@ -288,8 +273,7 @@ const handleSubmit = async () => {
       localStorage.removeItem('anuncieForm')
       emit('created', {
         anuncioId: res.data.anuncioId,
-        formData: res.data.anuncio,
-        weeks: 1
+        formData: res.data.anuncio
       })
     }
   } catch (err) {
@@ -305,82 +289,26 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* === MESMO CSS DO ORIGINAL (mantido) === */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
-.container {
-  height: 100vh;
-  width: 100vw;
-  background: #0a0a0a;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
+.container { height: 100vh; width: 100vw; background: #0a0a0a; color: white; display: flex; flex-direction: column; overflow: hidden; }
+.form-wrapper { flex: 1; overflow-y: auto; padding: 0.5rem; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 0.75rem; max-width: 900px; margin: 0 auto; }
 
-.form-wrapper {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0.5rem;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.section {
-  background: rgba(30, 30, 30, 0.9);
-  padding: 0.75rem;
-  border-radius: 0.6rem;
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-.section-title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  margin-bottom: 0.5rem;
-  color: whitesmoke;
-}
-
-.num {
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: 0.3rem;
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
+.section { background: rgba(30, 30, 30, 0.9); padding: 0.75rem; border-radius: 0.6rem; border: 1px solid rgba(255,255,255,0.08); }
+.section-title { font-size: 0.875rem; font-weight: 600; display: flex; align-items: center; gap: 0.3rem; margin-bottom: 0.5rem; color: whitesmoke; }
+.num { width: 1.25rem; height: 1.25rem; border-radius: 0.3rem; font-size: 0.65rem; font-weight: 700; color: white; display: flex; align-items: center; justify-content: center; }
 .num-purple { background: #7c3aed; }
 .num-green { background: #10b981; }
 
 .group { margin-bottom: 0.5rem; }
 .group:last-child { margin-bottom: 0; }
 
-.input {
-  width: 100%;
-  padding: 0.5rem;
-  background: rgba(0,0,0,0.6);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 0.4rem;
-  color: white;
-  font-size: 0.85rem;
-  outline: none;
-  transition: all 0.2s;
-}
-
+.input { width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.12); border-radius: 0.4rem; color: white; font-size: 0.85rem; outline: none; transition: all 0.2s; }
 .input::placeholder { color: #777; }
 .input:focus { border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124,58,237,0.2); }
 .input.error { border-color: #ef4444; box-shadow: 0 0 0 2px rgba(239,68,68,0.2); }
@@ -389,32 +317,12 @@ onUnmounted(() => {
 .textarea { resize: none; min-height: 60px; }
 
 .price { position: relative; }
-.currency {
-  position: absolute;
-  left: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #10b981;
-  font-weight: 700;
-  font-size: 0.75rem;
-  pointer-events: none;
-}
+.currency { position: absolute; left: 0.5rem; top: 50%; transform: translateY(-50%); color: #10b981; font-weight: 700; font-size: 0.75rem; pointer-events: none; }
 .price-input { padding-left: 2.75rem !important; }
 
 .hidden { display: none; }
 
-.upload-label {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 1rem;
-  background: rgba(124,58,237,0.1);
-  border: 1.5px dashed rgba(124,58,237,0.35);
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.3s;
-}
+.upload-label { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; padding: 1rem; background: rgba(124,58,237,0.1); border: 1.5px dashed rgba(124,58,237,0.35); border-radius: 0.5rem; cursor: pointer; transition: all 0.3s; }
 .upload-label:hover { background: rgba(124,58,237,0.15); border-color: #7c3aed; }
 .upload-label.has-image { border-style: solid; background: rgba(16,185,129,0.1); border-color: #10b981; }
 
@@ -425,115 +333,31 @@ onUnmounted(() => {
 .upload-text { font-size: 0.8rem; color: #a0a0a0; }
 .upload-label.has-image .upload-text { color: #10b981; font-weight: 600; }
 
-.preview {
-  position: relative;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  border: 1.5px solid rgba(124,58,237,0.35);
-  margin-top: 0.4rem;
-}
+.preview { position: relative; border-radius: 0.5rem; overflow: hidden; border: 1.5px solid rgba(124,58,237,0.35); margin-top: 0.4rem; }
 .preview-img { width: 100%; height: 10rem; object-fit: cover; }
 
-.remove {
-  position: absolute;
-  top: 0.3rem;
-  right: 0.3rem;
-  background: #ef4444;
-  border: none;
-  border-radius: 50%;
-  width: 1.6rem;
-  height: 1.6rem;
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: 0.2s;
-}
+.remove { position: absolute; top: 0.3rem; right: 0.3rem; background: #ef4444; border: none; border-radius: 50%; width: 1.6rem; height: 1.6rem; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
 .remove:hover { background: #dc2626; transform: scale(1.1); }
 .icon-x { width: 1rem; height: 1rem; }
 
-.btn {
-  grid-column: 1 / -1;
-  margin-top: 0.5rem;
-  width: 100%;
-  padding: 0.65rem;
-  background: #374151;
-  color: #9ca3af;
-  border: none;
-  border-radius: 0.4rem;
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: not-allowed;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  transition: all 0.3s;
-}
-.btn.btn-active {
-  background: linear-gradient(135deg, #7c3aed 0%, #10b981 100%);
-  color: white;
-  cursor: pointer;
-}
-.btn.btn-active:hover {
-  background: linear-gradient(135deg, #10b981 0%, #7c3aed 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(124,58,237,0.3);
-}
+.btn { grid-column: 1 / -1; margin-top: 0.5rem; width: 100%; padding: 0.65rem; background: #374151; color: #9ca3af; border: none; border-radius: 0.4rem; font-weight: 600; font-size: 0.85rem; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 0.35rem; transition: all 0.3s; }
+.btn.btn-active { background: linear-gradient(135deg, #7c3aed 0%, #10b981 100%); color: white; cursor: pointer; }
+.btn.btn-active:hover { background: linear-gradient(135deg, #10b981 0%, #7c3aed 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
 .arrow { width: 0.9rem; height: 0.9rem; }
 
-.error-text {
-  color: #ef4444;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
-  font-weight: 500;
-}
-
-.global-error {
-  grid-column: 1 / -1;
-  margin-top: 0.5rem;
-  padding: 0.75rem;
-  background: rgba(239,68,68,0.15);
-  border: 1.5px solid #ef4444;
-  border-radius: 0.6rem;
-  text-align: center;
-}
+.error-text { color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem; font-weight: 500; }
+.global-error { grid-column: 1 / -1; margin-top: 0.5rem; padding: 0.75rem; background: rgba(239,68,68,0.15); border: 1.5px solid #ef4444; border-radius: 0.6rem; text-align: center; }
 
 .fade-enter-active, .fade-leave-active { transition: opacity 0.15s; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 
-/* NOVOS ESTILOS */
-.input-with-icon {
-  position: relative;
-}
-.valid-icon {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #10b981;
-  font-size: 1.1rem;
-  pointer-events: none;
-}
-.success-text {
-  color: #10b981;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-.success-text a {
-  color: #10b981;
-  text-decoration: underline;
-  font-weight: 500;
-}
+.input-with-icon { position: relative; }
+.valid-icon { position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); color: #10b981; font-size: 1.1rem; pointer-events: none; }
+.success-text { color: #10b981; font-size: 0.75rem; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.3rem; }
+.success-text a { color: #10b981; text-decoration: underline; font-weight: 500; }
 
 @media (min-width: 768px) {
   .grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
   .preview-img { height: 12rem; }
 }
 </style>
-
-
