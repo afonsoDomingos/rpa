@@ -48,7 +48,6 @@
           </div>
 
           <form v-if="selectedPaymentMethod" @submit.prevent="handleSubmit" class="form">
-            <!-- M-Pesa / Emola -->
             <div v-if="['mpesa', 'emola'].includes(selectedPaymentMethod)" class="form-group phone-input-group">
               <label class="form-label">Número {{ selectedPaymentMethod === 'mpesa' ? 'M-Pesa' : 'Emola' }}</label>
               <input
@@ -66,22 +65,10 @@
               />
             </div>
 
-            <!-- Cartão -->
             <div v-if="selectedPaymentMethod === 'card'">
               <div class="form-group">
                 <label class="form-label">Número do Cartão</label>
-                <input
-                  ref="cardInput"
-                  v-model="cardDetails.number"
-                  type="text"
-                  inputmode="numeric"
-                  autocomplete="cc-number"
-                  placeholder="0000 0000 0000 0000"
-                  required
-                  class="form-input"
-                  @focus="onInputFocus"
-                  @blur="onInputBlur"
-                />
+                <input ref="cardInput" v-model="cardDetails.number" type="text" inputmode="numeric" autocomplete="cc-number" placeholder="0000 0000 0000 0000" required class="form-input" @focus="onInputFocus" @blur="onInputBlur" />
               </div>
               <div class="form-row">
                 <div class="form-group">
@@ -102,7 +89,6 @@
             </button>
           </form>
 
-          <!-- Mensagem de erro com ações -->
           <div v-if="errorMessage" class="error-message">
             {{ errorMessage }}
             <div class="error-actions">
@@ -120,13 +106,15 @@
               <path d="m9 11 3 3L22 4"/>
             </svg>
           </div>
-          <h2 class="success-title">Pagamento Confirmado!</h2>
-          <p class="success-text">Sua assinatura foi ativada com sucesso.</p>
+          <h2 class="success-title">Ativado!</h2>
+          <p class="success-text">
+            {{ selectedPackage?.id === 'teste' ? 'Seu período de teste de 5 dias foi ativado!' : 'Sua assinatura foi ativada com sucesso.' }}
+          </p>
           <button @click="goToHome" class="home-button">Voltar à Página Inicial</button>
         </div>
       </main>
 
-      <!-- RESUMO DESKTOP: SEMPRE VISÍVEL -->
+      <!-- RESUMO DESKTOP -->
       <aside class="order-summary-desktop" v-if="selectedPackage && currentStep < 3">
         <h3 class="summary-title">Resumo do Pedido</h3>
         <div class="summary-section">
@@ -140,14 +128,14 @@
         <div class="summary-divider"></div>
         <div class="summary-total">
           <span class="total-label">Total</span>
-          <span class="total-amount">{{ selectedPackage.price > 0 ? 'MZN ' + selectedPackage.price.toLocaleString('pt-MZ') : 'Gratuito' }}</span>
+          <span class="total-amount">MZN {{ selectedPackage.price.toLocaleString('pt-MZ') }}</span>
         </div>
-        <button v-if="currentStep === 1" @click="nextStep" class="continue-button">Continuar para Pagamento</button>
-        <button v-if="currentStep === 2" @click="previousStep" class="back-step-button">Voltar aos Planos</button>
+        <button v-if="currentStep === 1" @click="nextStep" class="continue-button">Continuar</button>
+        <button v-if="currentStep === 2" @click="previousStep" class="back-step-button">Voltar</button>
       </aside>
     </div>
 
-    <!-- RESUMO MOBILE: SOME AO DIGITAR -->
+    <!-- RESUMO MOBILE -->
     <aside class="order-summary-mobile" v-if="selectedPackage && !inputFocused && currentStep < 3 && isMobile">
       <div class="summary-content">
         <div class="summary-row">
@@ -160,7 +148,7 @@
         </div>
         <div class="summary-total">
           <span class="total-label">Total</span>
-          <span class="total-amount">{{ selectedPackage.price > 0 ? 'MZN ' + selectedPackage.price.toLocaleString('pt-MZ') : 'Gratuito' }}</span>
+          <span class="total-amount">MZN {{ selectedPackage.price.toLocaleString('pt-MZ') }}</span>
         </div>
       </div>
       <div class="summary-actions">
@@ -176,15 +164,10 @@ import { ref, reactive, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import mpesaIcon from '@/assets/img/Mpesa.png'
 import emolaIcon from '@/assets/img/Emola.png'
-import axios from 'axios'
-
-// Configuração global
-axios.defaults.timeout = 60000
-axios.defaults.headers.common['Content-Type'] = 'application/json'
+import api from '@/api'
 
 const router = useRouter()
 
-// Estado
 const currentStep = ref(1)
 const selectedPackage = ref(null)
 const selectedPaymentMethod = ref(null)
@@ -196,7 +179,6 @@ const cardInput = ref(null)
 const inputFocused = ref(false)
 const isMobile = ref(false)
 
-// Detectar mobile
 onMounted(() => {
   isMobile.value = window.innerWidth <= 1024
   window.addEventListener('resize', () => {
@@ -204,11 +186,31 @@ onMounted(() => {
   })
 })
 
-// Pacotes
 const packages = [
-  { id: 'free', name: 'Gratuito', price: 0, period: '', benefits: ['Permite fazer pesquisas', 'Gerar CV', '1 GB de armazenamento'], recommended: false },
-  { id: 'mensal', name: 'Mensal', price: 150, period: '/mês', benefits: ['Tudo do plano gratuito', 'Solicitar documentos', '3 GB de armazenamento', 'Suporte prioritário', 'Atualizações semanais'], recommended: true },
-  { id: 'anual', name: 'Anual', price: 1500, period: '/ano', benefits: ['Tudo do plano mensal', 'Delivery de documentos', 'Atualizações diárias'], recommended: false }
+  { 
+    id: 'teste', 
+    name: 'Teste', 
+    price: 25, 
+    period: '/5 dias', 
+    benefits: ['Acesso total por 5 dias', 'Gerar CV', '1 GB de armazenamento'], 
+    recommended: true 
+  },
+  { 
+    id: 'mensal', 
+    name: 'Mensal', 
+    price: 150, 
+    period: '/mês', 
+    benefits: ['Tudo do teste', 'Solicitar documentos', '3 GB', 'Suporte prioritário'], 
+    recommended: false 
+  },
+  { 
+    id: 'anual', 
+    name: 'Anual', 
+    price: 1500, 
+    period: '/ano', 
+    benefits: ['Tudo do mensal', 'Delivery', 'Atualizações diárias'], 
+    recommended: false 
+  }
 ]
 
 const paymentMethods = [
@@ -220,15 +222,13 @@ const paymentMethods = [
 const mobileDetails = reactive({ phone: '' })
 const cardDetails = reactive({ number: '', expiry: '', cvv: '' })
 
-// Normalização de telefone
 function normalizarTelefone(phone) {
   const cleaned = phone.replace(/[\s\-\(\)\+]/g, '')
-  if (/^(84|85|86|87|82)\d{7}$/.test(cleaned)) return '258' + cleaned
+  if (/^(84|85|86|87)\d{7}$/.test(cleaned)) return '258' + cleaned
   if (/^258\d{9}$/.test(cleaned)) return cleaned
   return null
 }
 
-// Debounce para normalização
 let debounceTimer
 const debouncedNormalize = () => {
   clearTimeout(debounceTimer)
@@ -240,7 +240,6 @@ const debouncedNormalize = () => {
   }, 400)
 }
 
-// Foco no input (mobile)
 const onInputFocus = async () => {
   if (isMobile.value) {
     inputFocused.value = true
@@ -251,141 +250,88 @@ const onInputFocus = async () => {
 }
 const onInputBlur = () => { inputFocused.value = false }
 
-// Logs coloridos (como no script antigo)
-function logInfo(title, data) {
-  console.groupCollapsed(`%cℹ️ INFO: ${title}`, 'background: #e0f7fa; color: #006064; font-weight: bold; padding: 2px 6px; border-radius: 4px;')
-  console.log(data)
-  console.groupEnd()
-}
-function logSuccess(title, data) {
-  console.groupCollapsed(`%c✅ SUCCESS: ${title}`, 'background: #e8f5e9; color: #2e7d32; font-weight: bold; padding: 2px 6px; border-radius: 4px;')
-  console.log(data)
-  console.groupEnd()
-}
-function logWarning(title, data) {
-  console.groupCollapsed(`%c⚠️ WARNING: ${title}`, 'background: #fff8e1; color: #ff6f00; font-weight: bold; padding: 2px 6px; border-radius: 4px;')
-  console.warn(data)
-  console.groupEnd()
-}
-function logError(title, data) {
-  console.groupCollapsed(`%c❌ ERROR: ${title}`, 'background: #ffebee; color: #c62828; font-weight: bold; padding: 2px 6px; border-radius: 4px;')
-  console.error(data)
-  console.groupEnd()
-}
-
-// Seleções
 const selectPackage = (pkg) => {
   selectedPackage.value = pkg
   errorMessage.value = ''
-  logInfo('Pacote selecionado', pkg)
 }
 const selectPaymentMethod = (id) => {
   selectedPaymentMethod.value = id
   errorMessage.value = ''
-  logInfo('Método de pagamento selecionado', id)
 }
 
-// Ações finais
 const goToHome = () => router.push('/home')
 const retryPayment = () => { errorMessage.value = ''; loading.value = false }
 const contactSupport = () => window.location.href = 'tel:258847877405'
 
-// Plano gratuito
-const ativarPlanoGratuito = async () => {
+const ativarPlanoTeste = async () => {
   loading.value = true
   try {
-    const token = localStorage.getItem('token') || ''
-    const payload = { pacote: 'free', method: 'gratuito', amount: 0, type: 'assinatura' }
-    const API_URL = 'https://apirpa.onrender.com/api/pagamentos'
-    const response = await axios.post(`${API_URL}/processar`, payload, {
-      headers: { Authorization: `Bearer ${token}` }
+    const payload = { 
+      pacote: 'teste', 
+      method: 'teste', 
+      amount: 25, 
+      type: 'assinatura' 
+    }
+    const res = await api.post('/pagamentos/processar', payload, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     })
 
-    if (response.data?.sucesso) {
+    if (res.data.sucesso) {
       showSuccess.value = true
-      logSuccess('Plano gratuito ativado com sucesso', response.data)
     } else {
-      errorMessage.value = response.data?.mensagem || 'Erro ao ativar plano gratuito.'
-      logError('Falha ao ativar plano gratuito', response.data)
+      errorMessage.value = res.data.mensagem || 'Erro ao ativar teste.'
     }
   } catch (err) {
-    errorMessage.value = 'Erro ao ativar plano gratuito.'
-    logError('Erro ao ativar plano gratuito', err.response?.data || err)
+    errorMessage.value = 'Erro de conexão.'
   } finally {
     loading.value = false
-    logInfo('Processamento finalizado', { loading: loading.value })
   }
 }
 
-// Navegação
 const nextStep = async () => {
   errorMessage.value = ''
   if (!selectedPackage.value) {
-    errorMessage.value = 'Por favor, selecione um pacote.'
-    logWarning('Tentativa de avançar sem pacote selecionado', null)
+    errorMessage.value = 'Selecione um pacote.'
     return
   }
-  if (selectedPackage.value.price === 0) {
-    await ativarPlanoGratuito()
+  if (selectedPackage.value.id === 'teste') {
+    await ativarPlanoTeste()
     return
   }
   currentStep.value = 2
-  logInfo('Avançando para passo 2 - escolha do pagamento', selectedPaymentMethod.value)
 }
 const previousStep = () => {
   currentStep.value = 1
   selectedPaymentMethod.value = null
-  logInfo('Voltando para passo 1 - seleção de pacote', null)
 }
 const goBack = () => {
-  if (currentStep.value === 2) {
-    previousStep()
-  } else {
-    window.history.back()
-    logInfo('Voltando na navegação do navegador', null)
-  }
+  if (currentStep.value === 2) previousStep()
+  else window.history.back()
 }
 
-// Envio do pagamento
 const handleSubmit = async () => {
   errorMessage.value = ''
-  if (loading.value) {
-    logWarning('Tentativa de enviar pedido enquanto já processando', null)
-    return
-  }
+  if (loading.value) return
   if (!selectedPackage.value || !selectedPaymentMethod.value) {
-    errorMessage.value = 'Selecione um pacote e método de pagamento.'
-    logWarning('Envio falhou - pacote ou método não selecionado', {
-      pacote: selectedPackage.value,
-      metodo: selectedPaymentMethod.value
-    })
+    errorMessage.value = 'Selecione pacote e método.'
     return
   }
 
   loading.value = true
-  logInfo('Iniciando submissão do pedido', {
-    pacote: selectedPackage.value.id,
-    metodo: selectedPaymentMethod.value
-  })
 
-  // Validação M-Pesa / Emola
   if (['mpesa', 'emola'].includes(selectedPaymentMethod.value)) {
     const telefoneValido = normalizarTelefone(mobileDetails.phone)
     if (!telefoneValido) {
-      errorMessage.value = 'Número inválido. Formato: 258XXXXXXXX'
-      logError('Número de telefone inválido', mobileDetails.phone)
+      errorMessage.value = 'Número inválido.'
       loading.value = false
       return
     }
     mobileDetails.phone = telefoneValido
-    logInfo('Telefone normalizado', mobileDetails.phone)
   }
 
-  // Validação Cartão
   if (selectedPaymentMethod.value === 'card') {
     if (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv) {
       errorMessage.value = 'Preencha todos os dados do cartão.'
-      logError('Dados do cartão incompletos', cardDetails)
       loading.value = false
       return
     }
@@ -402,31 +348,19 @@ const handleSubmit = async () => {
       dadosCartao: selectedPaymentMethod.value === 'card' ? cardDetails : null
     }
 
-    console.groupCollapsed('%c📦 Payload a ser enviado para a API', 'background: #f3e5f5; color: #6a1b9a; font-weight: bold; padding: 2px 6px; border-radius: 4px;')
-    console.log(payload)
-    console.groupEnd()
-
-    const API_URL = 'https://apirpa.onrender.com/api/pagamentos'
-    const paymentResponse = await axios.post(`${API_URL}/processar`, payload, {
+    const res = await api.post('/pagamentos/processar', payload, {
       headers: { Authorization: `Bearer ${token}` }
     })
 
-    logInfo('Resposta da API recebida', paymentResponse.data)
-
-    if (paymentResponse.data?.sucesso) {
+    if (res.data.sucesso) {
       showSuccess.value = true
-      logSuccess('Pagamento realizado com sucesso', paymentResponse.data)
     } else {
-      errorMessage.value = paymentResponse.data?.mensagem || 'Erro desconhecido no pagamento.'
-      logError('Falha no pagamento', paymentResponse.data)
+      errorMessage.value = res.data.mensagem || 'Erro no pagamento.'
     }
   } catch (err) {
-    const serverMsg = err.response?.data?.mensagem
-    errorMessage.value = serverMsg ? `Erro: ${serverMsg}` : 'Erro de conexão. Por favor, tente novamente.'
-    logError('Erro de conexão com API', err.response?.data || err)
+    errorMessage.value = 'Erro de conexão.'
   } finally {
     loading.value = false
-    logInfo('Processamento finalizado', { loading: loading.value })
   }
 }
 </script>
