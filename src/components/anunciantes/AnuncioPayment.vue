@@ -9,7 +9,7 @@
           </h2>
           <div class="package-info">
             <p class="package-name">{{ formData.name || 'Anúncio' }}</p>
-            <p class="package-details">{{ weeks * 500 }} MZN</p>
+            <p class="package-details">{{ totalPrice }} MZN</p>
           </div>
         </section>
 
@@ -44,7 +44,15 @@
           <div class="group">
             <div class="input-group" :class="{ 'error-border': phoneError }">
               <span class="country-code">+258</span>
-              <input v-model="phone" @input="formatPhone" @blur="validatePhone" type="tel" class="input" :placeholder="placeholder" required />
+              <input
+                v-model="phone"
+                @input="formatPhone"
+                @blur="validatePhone"
+                type="tel"
+                class="input"
+                :placeholder="placeholder"
+                required
+              />
             </div>
             <p v-if="phoneError" class="error-text">{{ phoneError }}</p>
           </div>
@@ -52,7 +60,7 @@
 
         <!-- BOTÃO -->
         <button type="submit" class="btn" :disabled="loading || !isPhoneValid || !props.anuncioId">
-          <span v-if="!loading">Pagar {{ weeks * 500 }} MZN</span>
+          <span v-if="!loading">Pagar {{ totalPrice }} MZN</span>
           <span v-else>Processando...</span>
         </button>
 
@@ -80,6 +88,16 @@ const props = defineProps({
 })
 
 const router = useRouter()
+
+// PREÇOS FIXOS (sem utils)
+const PRICES = [500, 1000, 1500, 2000]
+
+const totalPrice = computed(() => {
+  const index = props.weeks - 1
+  return (index >= 0 && index < PRICES.length) ? PRICES[index] : 500
+})
+
+// Estado
 const selectedMethod = ref('mpesa')
 const phone = ref('')
 const phoneError = ref('')
@@ -88,27 +106,31 @@ const successMessage = ref('')
 const errorMessage = ref('')
 const isPhoneValid = ref(false)
 
-const placeholder = computed(() => 
+// Placeholder dinâmico
+const placeholder = computed(() =>
   selectedMethod.value === 'mpesa' ? '84/85 XXXXXXX' : '86/87 XXXXXXX'
 )
 
+// Carregar telefone salvo + debug
 onMounted(() => {
   const saved = localStorage.getItem('paymentPhone')
   if (saved) {
     phone.value = saved.replace(/^258/, '')
     validatePhone()
   }
-  console.log('AnuncioPayment carregado:', { 
-    anuncioId: props.anuncioId,
+  console.log('AnuncioPayment carregado:', {
     weeks: props.weeks,
-    formName: props.formData.name
+    amount: totalPrice.value,
+    anuncioId: props.anuncioId
   })
 })
 
+// Formatação do telefone
 const formatPhone = () => {
   phone.value = phone.value.replace(/\D/g, '').slice(0, 9)
 }
 
+// Validação do telefone
 const validatePhone = () => {
   const num = phone.value.trim()
   phoneError.value = ''
@@ -130,8 +152,10 @@ const validatePhone = () => {
   isPhoneValid.value = true
 }
 
+// Revalidar ao mudar método
 watch(selectedMethod, validatePhone)
 
+// Processar pagamento
 const handlePayment = async () => {
   validatePhone()
   if (!isPhoneValid.value) {
@@ -144,7 +168,7 @@ const handlePayment = async () => {
   }
 
   const payload = {
-    amount: props.weeks * 500,
+    amount: Number(totalPrice.value),     // GARANTE NÚMERO
     method: selectedMethod.value,
     phone: `258${phone.value}`,
     type: 'anuncio',
@@ -153,6 +177,7 @@ const handlePayment = async () => {
     dadosCartao: null
   }
 
+  // Plano gratuito (se aplicável)
   if (payload.amount === 0) {
     payload.method = 'gratuito'
     payload.pacote = 'free'
@@ -175,7 +200,7 @@ const handlePayment = async () => {
       successMessage.value = 'Pagamento iniciado! Aguarde confirmação no seu telemóvel.'
       localStorage.setItem('paymentPhone', `258${phone.value}`)
       localStorage.removeItem('anuncieState')
-      setTimeout(() => router.push('/meus-anuncios'), 3000)
+      setTimeout(() => router.push('/meus-anuncios'), 30000)
     }
   } catch (err) {
     errorMessage.value = err.response?.data?.mensagem || 'Erro ao processar pagamento.'
@@ -186,14 +211,10 @@ const handlePayment = async () => {
 }
 </script>
 
-
 <style scoped>
-/* Estilos atualizados para suportar +258 */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-
-
 
 .input-group.error-border {
   border-color: #ef4444;
@@ -209,6 +230,7 @@ const handlePayment = async () => {
   border-radius: 0.6rem;
   text-align: center;
 }
+
 .container {
   height: 100vh;
   width: 100vw;
@@ -280,11 +302,6 @@ const handlePayment = async () => {
 .package-details {
   margin-top: 0.3rem;
   font-size: 0.9rem;
-}
-
-.amount {
-  color: #10b981;
-  font-weight: 700;
 }
 
 .payment-methods {
@@ -393,9 +410,6 @@ const handlePayment = async () => {
   cursor: not-allowed;
 }
 
-.arrow { width: 0.9rem; height: 0.9rem; transition: transform 0.3s; }
-.btn:hover .arrow { transform: translateX(3px); }
-
 .success-msg {
   grid-column: 1 / -1;
   margin-top: 1rem;
@@ -410,12 +424,6 @@ const handlePayment = async () => {
   font-weight: 500;
 }
 
-.icon-check {
-  width: 1.5rem;
-  height: 1.5rem;
-  stroke: #10b981;
-}
-
 .error-text {
   color: #ef4444;
   font-size: 0.8rem;
@@ -427,16 +435,5 @@ const handlePayment = async () => {
   .grid { grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
   .section { grid-column: span 1; }
   .btn, .success-msg { grid-column: 1 / -1; }
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
 }
 </style>

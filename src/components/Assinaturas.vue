@@ -179,7 +179,7 @@ import emolaIcon from '@/assets/img/Emola.png'
 import axios from 'axios'
 
 // Configuração global
-axios.defaults.timeout = 12000
+axios.defaults.timeout = 60000
 axios.defaults.headers.common['Content-Type'] = 'application/json'
 
 const router = useRouter()
