@@ -113,6 +113,16 @@ const router = createRouter({
   meta: { requerAutenticacao: true },
 },
 
+{
+  path: "/admin/anuncios",
+  name: "AdminAnuncios",
+  component: () => import('@/components/anunciantes/AdminAnuncios.vue'),
+  meta: { 
+    requerAutenticacao: true,
+    requerAdmin: true  // opcional: use no guard para verificar perfil
+  }
+},
+
     
   ],
 });

@@ -26,6 +26,9 @@
             <i class="bi bi-x-lg" aria-hidden="true"></i>
           </button>
 
+          <!-- PATROCINADO (PEQUENO) -->
+          <div class="ad-sponsored">Patrocinado</div>
+
           <!-- IMAGEM -->
           <img
             :src="activeAd.image"
@@ -46,34 +49,32 @@
             </div>
 
             <!-- CONTACTAR -->
-            <a
-              :href="activeAd.ctaLink || '#'"
-              target="_blank"
+            <button
+              @click.stop="handleWhatsAppClick(activeAd._id, activeAd.ctaLink)"
               class="ad-cta-button"
-              @click.stop
               :aria-label="`Contactar via WhatsApp sobre ${activeAd.name || 'o anúncio'}`"
             >
               <i class="bi bi-whatsapp" aria-hidden="true"></i> Contactar
-            </a>
+            </button>
 
-            <!-- CONTADOR -->
-            <div class="ad-timer">
+            <!-- CONTADOR (MESMO ESTILO) -->
+            <div class="ad-announce-btn ad-timer-btn">
               <i class="bi bi-clock-history" aria-hidden="true"></i>
-              <span>Desaparece em <strong>{{ countdown }}s</strong></span>
+              <span>Faltam <strong>{{ countdown }}s</strong></span>
             </div>
 
-            <!-- PRÓXIMO ANÚNCIO -->
+            <!-- PRÓXIMO ANÚNCIO (MESMO ESTILO) -->
             <button
               v-if="activeAds.length > 1"
               @click="debouncedNextAd"
-              class="ad-next-btn"
+              class="ad-announce-btn ad-next-btn"
               aria-label="Ver próximo anúncio"
             >
               <i class="bi bi-arrow-right-circle-fill" aria-hidden="true"></i>
-              <span>Próximo Anúncio</span>
+              <span>Próximo Ads</span>
             </button>
 
-            <!-- ANUNCIE AQUI -->
+            <!-- ANUNCIE AQUI (ORIGINAL) -->
             <button
               @click.stop="$router.push('/anuncie')"
               class="ad-announce-btn"
@@ -109,7 +110,7 @@ let reappearTimeout = null
 
 const ONE_HOUR_MS = 60 * 60 * 1000 // 1 hora
 
-// BUSCAR ANÚNCIOS ATIVOS
+// === BUSCAR ANÚNCIOS ATIVOS ===
 const fetchActiveAds = async () => {
   console.log('Buscando anúncios ativos...')
   try {
@@ -117,8 +118,8 @@ const fetchActiveAds = async () => {
     console.log('Anúncios recebidos:', res.data)
 
     activeAds.value = (res.data || [])
-      .filter(ad => ad.status === 'active' && ad.image && ad.name && ad.price >= 0)
-      .slice(0, 10) // Máximo 10 anúncios
+      .filter(ad => ad.status === 'active' && ad.image && ad.name && ad.price >= 0 && ad._id)
+      .slice(0, 10)
 
     if (activeAds.value.length > 0) {
       currentIndex.value = Math.min(currentIndex.value, activeAds.value.length - 1)
@@ -132,7 +133,6 @@ const fetchActiveAds = async () => {
     startCountdown()
   } catch (err) {
     console.error('Erro ao carregar anúncios:', err)
-    // Fallback: cache
     const cached = localStorage.getItem('cachedAds')
     if (cached) {
       activeAds.value = JSON.parse(cached).filter(ad => ad.status === 'active')
@@ -146,7 +146,7 @@ const fetchActiveAds = async () => {
   }
 }
 
-// CONTADOR
+// === CONTADOR ===
 const startCountdown = () => {
   const totalSeconds = 30
   countdown.value = totalSeconds
@@ -164,7 +164,7 @@ const startCountdown = () => {
   timeoutId = setTimeout(closeAd, totalSeconds * 1000)
 }
 
-// PRÓXIMO ANÚNCIO
+// === PRÓXIMO ANÚNCIO ===
 const nextAd = () => {
   if (activeAds.value.length <= 1) return
 
@@ -180,7 +180,19 @@ const nextAd = () => {
 
 const debouncedNextAd = debounce(nextAd, 300)
 
-// FECHAR
+// === CLIQUE NO WHATSAPP ===
+const handleWhatsAppClick = async (id, link) => {
+  try {
+    await api.post(`/anuncios/${id}/clique`)
+    console.log('Clique registrado:', id)
+  } catch (err) {
+    console.error('Erro ao registrar clique:', err)
+  } finally {
+    window.open(link, '_blank')
+  }
+}
+
+// === FECHAR ===
 const closeAd = () => {
   showAd.value = false
   activeAd.value = null
@@ -201,12 +213,12 @@ const clearTimers = () => {
   intervalId = null
 }
 
-// IMAGEM ERRO
+// === IMAGEM ERRO ===
 const handleImageError = (e) => {
   e.target.src = '/img/placeholder-ad.jpg'
 }
 
-// FORMATAR PREÇO
+// === FORMATAR PREÇO ===
 const formatPrice = (value) => {
   return new Intl.NumberFormat('pt-MZ', {
     style: 'currency',
@@ -215,11 +227,10 @@ const formatPrice = (value) => {
   }).format(value || 0)
 }
 
-// MONTAGEM
+// === MONTAGEM ===
 onMounted(() => {
   fetchActiveAds()
 
-  // Polling a cada 5 min
   pollingInterval = setInterval(() => {
     if (!showAd.value) {
       const lastClosed = localStorage.getItem('adLastClosed')
@@ -260,6 +271,73 @@ onUnmounted(() => {
   pointer-events: auto;
 }
 
+/* === PATROCINADO (PEQUENO) === */
+.ad-sponsored {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 0.58rem;
+  font-weight: 500;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.8rem;
+  z-index: 5;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* === BOTÃO PADRÃO (TODOS IGUAIS) === */
+.ad-announce-btn {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.35rem 2.2rem;
+  border-radius: 2rem;
+  border: 1px solid rgba(102, 187, 106, 0.4);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 0.3rem auto 0;
+  width: 100%;
+  max-width: 200px;
+}
+
+.ad-announce-btn:hover {
+  background: rgba(0, 0, 0, 0.973);
+  border-color: rgba(102, 187, 106, 0.6);
+  transform: scale(1.05);
+}
+
+/* === CONTADOR (MESMO ESTILO) === */
+.ad-timer-btn {
+  background: rgba(255, 138, 101, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  animation: pulse 2s infinite;
+  cursor: default;
+}
+
+/* === PRÓXIMO ANÚNCIO (MESMO ESTILO) === */
+.ad-next-btn {
+  background: linear-gradient(135deg, #ffffff, #ffffff);
+  color: #800080;
+  border: 1px solid rgba(102, 187, 106, 0.4);
+}
+
+.ad-next-btn:hover {
+  background: #f0f0f0;
+  transform: scale(1.05);
+}
+
+/* === RESTANTE DO CSS === */
 @media (max-width: 1024px) {
   .ad-card-container {
     right: 50%;
@@ -411,89 +489,15 @@ onUnmounted(() => {
   transition: all 0.4s ease;
   box-shadow: 0 4px 12px rgba(102, 187, 106, 0.35);
   margin-bottom: 0.7rem;
+  border: none;
+  cursor: pointer;
+  width: 100%;
 }
 
 .ad-cta-button:hover {
   background: linear-gradient(135deg, #4caf50, #4caf50);
   transform: scale(1.03);
   box-shadow: 0 8px 20px rgba(102, 187, 106, 0.48);
-}
-
-.ad-timer {
-  font-weight: 600;
-  font-size: 0.82rem;
-  color: #ffffff;
-  margin: 0.5rem 0 0.4rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  background: rgba(255, 138, 101, 0.15);
-  padding: 0.35rem 0.7rem;
-  border-radius: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  animation: pulse 2s infinite;
-}
-
-.ad-next-btn {
-  background: linear-gradient(135deg, #800080, #10b981);
-  color: white;
-  border: none;
-  border-radius: 2rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  margin: 0.6rem auto 0.3rem;
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
-  transition: all 0.3s ease;
-  min-width: 160px;
-}
-
-.ad-next-btn:hover {
-  background: linear-gradient(135deg, #10b981, #800080);
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
-}
-
-.ad-next-btn:active {
-  transform: translateY(0) scale(0.98);
-}
-
-.ad-next-btn i {
-  font-size: 1.1rem;
-  transition: transform 0.3s ease;
-}
-
-.ad-next-btn:hover i {
-  transform: translateX(3px);
-}
-
-.ad-announce-btn {
-  font-weight: 600;
-  font-size: 0.82rem;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  background: rgba(0, 0, 0, 0.25);
-  padding: 0.35rem 2.2rem;
-  border-radius: 2rem;
-  border: 1px solid rgba(102, 187, 106, 0.4);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin: 0.3rem auto 0;
-}
-
-.ad-announce-btn:hover {
-  background: rgba(0, 0, 0, 0.45);
-  border-color: rgba(102, 187, 106, 0.6);
-  transform: scale(1.05);
 }
 
 @keyframes pulse {
@@ -544,9 +548,18 @@ onUnmounted(() => {
   .ad-description { font-size: 0.65rem; }
   .ad-price { font-size: 0.9rem; }
   .ad-cta-button { padding: 0.5rem 0.7rem; font-size: 0.7rem; }
-  .ad-timer { font-size: 0.62rem; }
-  .ad-next-btn { font-size: 0.62rem; padding: 0.4rem 0.8rem; min-width: auto; }
-  .ad-announce-btn { font-size: 0.62rem; padding: 0.25rem 0.9rem; }
+  .ad-announce-btn, .ad-timer-btn, .ad-next-btn {
+    font-size: 0.62rem;
+    padding: 0.25rem 0.9rem;
+    gap: 0.25rem;
+  }
   .close-btn { width: 24px; height: 24px; top: 0.4rem; right: 0.4rem; font-size: 0.75rem; }
+  .ad-sponsored {
+    top: 0.4rem;
+    left: 0.4rem;
+    font-size: 0.52rem;
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.6rem;
+  }
 }
 </style>
