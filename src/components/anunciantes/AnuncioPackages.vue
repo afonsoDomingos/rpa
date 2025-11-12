@@ -1,6 +1,5 @@
 <template>
   <div class="packages">
-    <!-- TÍTULO COM POPPINS FORÇADO -->
     <h2 class="title">Escolha a duração</h2>
 
     <div class="grid">
@@ -25,7 +24,7 @@
     <button
       @click="$emit('pay')"
       class="pay-btn"
-      :disabled="!selected"
+      :disabled="!selected || selected < 1 || selected > 4"
       aria-label="Prosseguir para o pagamento"
       type="button"
     >

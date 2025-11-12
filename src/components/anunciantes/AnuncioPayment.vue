@@ -89,15 +89,13 @@ const props = defineProps({
 
 const router = useRouter()
 
-// PREÇOS FIXOS (sem utils)
 const PRICES = [500, 1000, 1500, 2000]
 
 const totalPrice = computed(() => {
-  const index = props.weeks - 1
+  const index = Number(props.weeks) - 1
   return (index >= 0 && index < PRICES.length) ? PRICES[index] : 500
 })
 
-// Estado
 const selectedMethod = ref('mpesa')
 const phone = ref('')
 const phoneError = ref('')
@@ -106,31 +104,22 @@ const successMessage = ref('')
 const errorMessage = ref('')
 const isPhoneValid = ref(false)
 
-// Placeholder dinâmico
 const placeholder = computed(() =>
   selectedMethod.value === 'mpesa' ? '84/85 XXXXXXX' : '86/87 XXXXXXX'
 )
 
-// Carregar telefone salvo + debug
 onMounted(() => {
   const saved = localStorage.getItem('paymentPhone')
   if (saved) {
     phone.value = saved.replace(/^258/, '')
     validatePhone()
   }
-  console.log('AnuncioPayment carregado:', {
-    weeks: props.weeks,
-    amount: totalPrice.value,
-    anuncioId: props.anuncioId
-  })
 })
 
-// Formatação do telefone
 const formatPhone = () => {
   phone.value = phone.value.replace(/\D/g, '').slice(0, 9)
 }
 
-// Validação do telefone
 const validatePhone = () => {
   const num = phone.value.trim()
   phoneError.value = ''
@@ -152,10 +141,8 @@ const validatePhone = () => {
   isPhoneValid.value = true
 }
 
-// Revalidar ao mudar método
 watch(selectedMethod, validatePhone)
 
-// Processar pagamento
 const handlePayment = async () => {
   validatePhone()
   if (!isPhoneValid.value) {
@@ -167,20 +154,19 @@ const handlePayment = async () => {
     return
   }
 
+  const weeks = Number(props.weeks)
+  if (!weeks || weeks < 1 || weeks > 4 || !Number.isInteger(weeks)) {
+    errorMessage.value = 'Duração inválida: selecione 1 a 4 semanas.'
+    return
+  }
+
   const payload = {
-    amount: Number(totalPrice.value),     // GARANTE NÚMERO
+    amount: Number(totalPrice.value),
     method: selectedMethod.value,
     phone: `258${phone.value}`,
     type: 'anuncio',
-    pacote: 'anuncio',
     anuncioId: props.anuncioId,
-    dadosCartao: null
-  }
-
-  // Plano gratuito (se aplicável)
-  if (payload.amount === 0) {
-    payload.method = 'gratuito'
-    payload.pacote = 'free'
+    weeks: weeks  // GARANTE NÚMERO INTEIRO
   }
 
   console.log('ENVIANDO PAGAMENTO:', payload)
@@ -193,8 +179,6 @@ const handlePayment = async () => {
     const res = await api.post('/pagamentos/processar', payload, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     })
-
-    console.log('RESPOSTA DO PAGAMENTO:', res.data)
 
     if (res.data.sucesso) {
       successMessage.value = 'Pagamento iniciado! Aguarde confirmação no seu telemóvel.'
@@ -210,7 +194,6 @@ const handlePayment = async () => {
   }
 }
 </script>
-
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 

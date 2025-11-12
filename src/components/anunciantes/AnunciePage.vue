@@ -50,13 +50,11 @@ onMounted(() => {
     selectedWeeks.value = data.selectedWeeks || 1
     anuncioId.value = data.anuncioId || ''
     anuncioData.value = data.anuncioData || null
-    console.log('Estado carregado:', data)
   }
 })
 
 // 1. Anúncio criado → vai para pacotes
 const onAnuncioCreated = (data) => {
-  console.log('Anúncio criado! Redirecionando para pacotes...', data)
   anuncioId.value = data.anuncioId
   anuncioData.value = data.formData
   step.value = 2
@@ -69,12 +67,19 @@ const onSelectWeeks = (weeks) => {
   saveState()
 }
 
-// 3. Ir para pagamento
+// 3. Ir para pagamento COM VALIDAÇÃO
 const goToPayment = () => {
   if (!anuncioId.value) {
     alert('Erro: Anúncio não foi criado.')
     return
   }
+
+  const weeks = Number(selectedWeeks.value)
+  if (!weeks || weeks < 1 || weeks > 4 || !Number.isInteger(weeks)) {
+    alert('Selecione uma duração válida: 1 a 4 semanas.')
+    return
+  }
+
   step.value = 3
   saveState()
 }
