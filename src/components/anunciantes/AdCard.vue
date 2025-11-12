@@ -10,7 +10,7 @@
         <span class="placeholder-subtitle">Produtos & Serviços...</span>
         <button
           @click.stop="$router.push('/anuncie')"
-          class="ad-announce-btn"
+          class="ad-action-btn"
           aria-label="Criar um novo anúncio"
         >
           <i class="bi bi-plus-circle" aria-hidden="true"></i>
@@ -26,8 +26,11 @@
             <i class="bi bi-x-lg" aria-hidden="true"></i>
           </button>
 
-          <!-- PATROCINADO (PEQUENO) -->
-          <div class="ad-sponsored">Patrocinado</div>
+          <!-- PATROCINADO (COM ÍCONE, PEQUENO) -->
+          <div class="ad-sponsored">
+            <i class="bi bi-megaphone-fill" aria-hidden="true"></i>
+            <span>Patrocinado</span>
+          </div>
 
           <!-- IMAGEM -->
           <img
@@ -48,37 +51,40 @@
               <strong>{{ formatPrice(activeAd.price || 0) }}</strong>
             </div>
 
-            <!-- CONTACTAR -->
+             <!-- CONTADOR (MESMO ESTILO) -->
+            <div class="ad-action-btn ad-timer-btn">
+              <i class="bi bi-clock-history" aria-hidden="true"></i>
+              <span>Falta  <strong>{{ countdown }}s</strong></span>
+            </div>
+
+            <!-- WHATSAPP (MESMO ESTILO) -->
             <button
               @click.stop="handleWhatsAppClick(activeAd._id, activeAd.ctaLink)"
-              class="ad-cta-button"
+              class="ad-action-btn ad-whatsapp-btn"
               :aria-label="`Contactar via WhatsApp sobre ${activeAd.name || 'o anúncio'}`"
             >
-              <i class="bi bi-whatsapp" aria-hidden="true"></i> Contactar
+              <i class="bi bi-whatsapp" aria-hidden="true"></i>
+              Contactar
             </button>
 
-            <!-- CONTADOR (MESMO ESTILO) -->
-            <div class="ad-announce-btn ad-timer-btn">
-              <i class="bi bi-clock-history" aria-hidden="true"></i>
-              <span>Faltam <strong>{{ countdown }}s</strong></span>
-            </div>
+           
 
             <!-- PRÓXIMO ANÚNCIO (MESMO ESTILO) -->
             <button
               v-if="activeAds.length > 1"
               @click="debouncedNextAd"
-              class="ad-announce-btn ad-next-btn"
+              class="ad-action-btn ad-next-btn"
               aria-label="Ver próximo anúncio"
             >
               <i class="bi bi-arrow-right-circle-fill" aria-hidden="true"></i>
               <span>Próximo Ads</span>
             </button>
 
-            <!-- ANUNCIE AQUI (ORIGINAL) -->
+            <!-- ANUNCIE AQUI (MESMO ESTILO) -->
             <button
               @click.stop="$router.push('/anuncie')"
-              class="ad-announce-btn"
-              aria-label="Criar um novo anúncio"
+              class="ad-action-btn"
+              aria-label="C-crie um anúncio"
             >
               <i class="bi bi-plus-circle" aria-hidden="true"></i>
               <span>Anuncie Aqui</span>
@@ -271,27 +277,35 @@ onUnmounted(() => {
   pointer-events: auto;
 }
 
-/* === PATROCINADO (PEQUENO) === */
+/* === PATROCINADO (COM ÍCONE, PEQUENO) === */
 .ad-sponsored {
   position: absolute;
   top: 0.6rem;
   left: 0.6rem;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(88, 27, 135, 0.85);
   color: #fff;
   font-size: 0.58rem;
-  font-weight: 500;
-  padding: 0.15rem 0.4rem;
-  border-radius: 0.8rem;
+  font-weight: 600;
+  padding: 0.2rem 0.45rem;
+  border-radius: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
   z-index: 5;
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   letter-spacing: 0.2px;
   text-transform: uppercase;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.ad-sponsored i {
+  font-size: 0.75rem;
+  opacity: 0.9;
 }
 
 /* === BOTÃO PADRÃO (TODOS IGUAIS) === */
-.ad-announce-btn {
+.ad-action-btn {
   font-weight: 600;
   font-size: 0.82rem;
   color: #ffffff;
@@ -308,11 +322,24 @@ onUnmounted(() => {
   margin: 0.3rem auto 0;
   width: 100%;
   max-width: 200px;
+  height: 36px; /* ALTURA FIXA */
 }
 
-.ad-announce-btn:hover {
+.ad-action-btn:hover {
   background: rgba(0, 0, 0, 0.973);
   border-color: rgba(102, 187, 106, 0.6);
+  transform: scale(1.05);
+}
+
+/* === WHATSAPP (MESMO ESTILO) === */
+.ad-whatsapp-btn {
+  background: linear-gradient(135deg, #800080, #800080);
+  color: #fff;
+  border: 1px solid rgba(102, 187, 106, 0.4);
+}
+
+.ad-whatsapp-btn:hover {
+  background: linear-gradient(135deg, #4caf50, #4caf50);
   transform: scale(1.05);
 }
 
@@ -474,32 +501,6 @@ onUnmounted(() => {
   gap: 0.4rem;
 }
 
-.ad-cta-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, #800080, #800080);
-  color: #ffffff;
-  border-radius: 0.8rem;
-  font-weight: 700;
-  font-size: 0.88rem;
-  text-decoration: none;
-  transition: all 0.4s ease;
-  box-shadow: 0 4px 12px rgba(102, 187, 106, 0.35);
-  margin-bottom: 0.7rem;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-}
-
-.ad-cta-button:hover {
-  background: linear-gradient(135deg, #4caf50, #4caf50);
-  transform: scale(1.03);
-  box-shadow: 0 8px 20px rgba(102, 187, 106, 0.48);
-}
-
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.85; }
@@ -547,19 +548,20 @@ onUnmounted(() => {
   .ad-title { font-size: 0.8rem; }
   .ad-description { font-size: 0.65rem; }
   .ad-price { font-size: 0.9rem; }
-  .ad-cta-button { padding: 0.5rem 0.7rem; font-size: 0.7rem; }
-  .ad-announce-btn, .ad-timer-btn, .ad-next-btn {
+  .ad-action-btn {
     font-size: 0.62rem;
     padding: 0.25rem 0.9rem;
     gap: 0.25rem;
+    height: 30px;
   }
   .close-btn { width: 24px; height: 24px; top: 0.4rem; right: 0.4rem; font-size: 0.75rem; }
   .ad-sponsored {
     top: 0.4rem;
     left: 0.4rem;
     font-size: 0.52rem;
-    padding: 0.1rem 0.3rem;
-    border-radius: 0.6rem;
+    padding: 0.15rem 0.35rem;
+    border-radius: 0.8rem;
   }
+  .ad-sponsored i { font-size: 0.65rem; }
 }
 </style>
