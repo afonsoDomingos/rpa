@@ -22,7 +22,7 @@
       </button>
     </div>
 
-    <!-- LISTA -->
+    <!-- LISTA DE ANÚNCIOS -->
     <div v-else>
       <header class="header">
         <button @click="$router.go(-1)" class="back-btn">
@@ -32,22 +32,30 @@
       </header>
 
       <div class="grid-anuncios">
-        <div v-for="(ad, i) in anuncios" :key="ad._id" class="anuncio-card" :style="{ '--i': i }">
+        <div
+          v-for="(ad, i) in anuncios"
+          :key="ad._id"
+          class="anuncio-card"
+          :style="{ '--i': i }"
+        >
           <!-- STATUS -->
           <div class="anuncio-status" :class="ad.status">
             {{ getStatusText(ad.status) }}
+            <span v-if="ad.status === 'pending'" class="pending-hint">
+              (aguardando pagamento)
+            </span>
           </div>
 
           <!-- IMAGEM -->
-          <img 
-            :src="ad.image" 
-            :alt="ad.name" 
-            class="anuncio-img" 
-            @error="handleImageError" 
+          <img
+            :src="ad.image"
+            :alt="ad.name"
+            class="anuncio-img"
+            @error="handleImageError"
             @load="onImageLoad"
           />
 
-          <!-- INFO -->
+          <!-- INFORMAÇÕES -->
           <div class="anuncio-info">
             <h3 class="anuncio-titulo">{{ ad.name }}</h3>
             <p class="anuncio-desc">{{ ad.description }}</p>
@@ -59,15 +67,33 @@
 
           <!-- AÇÕES -->
           <div class="anuncio-acoes">
+            <!-- WhatsApp sempre visível -->
             <a :href="ad.ctaLink" target="_blank" class="btn-contato">
-              <i class="bi bi-whatsapp"></i> Contactar
+              <i class="bi bi-whatsapp"></i>
+              <span class="btn-text">Contactar</span>
             </a>
-            <button @click="editarAnuncio(ad)" class="btn-editar">
-              <i class="bi bi-pencil"></i> Editar
+
+            <!-- PENDENTE → Pagar Agora -->
+            <button
+              v-if="ad.status === 'pending'"
+              @click="pagarAnuncioPendente(ad)"
+              class="btn-pagar"
+            >
+              <i class="bi bi-credit-card"></i>
+              <span class="btn-text">Pagar Agora</span>
             </button>
-            <button @click="confirmarRemocao(ad._id)" class="btn-remover">
-              <i class="bi bi-trash"></i> Remover
-            </button>
+
+            <!-- ATIVO/PAUSADO → Editar e Remover -->
+            <template v-else>
+              <button @click="editarAnuncio(ad)" class="btn-editar">
+                <i class="bi bi-pencil"></i>
+                <span class="btn-text">Editar</span>
+              </button>
+              <button @click="confirmarRemocao(ad._id)" class="btn-remover">
+                <i class="bi bi-trash"></i>
+                <span class="btn-text">Remover</span>
+              </button>
+            </template>
           </div>
         </div>
       </div>
@@ -85,7 +111,7 @@ const anuncios = ref([])
 const loading = ref(true)
 const error = ref('')
 
-// Formatar preço
+// === UTILIDADES ===
 const formatPrice = (value) => {
   return new Intl.NumberFormat('pt-MZ', {
     style: 'currency',
@@ -94,17 +120,16 @@ const formatPrice = (value) => {
   }).format(value)
 }
 
-// Status traduzido
 const getStatusText = (status) => {
-  switch (status) {
-    case 'active': return 'Ativo'
-    case 'pending': return 'Pendente'
-    case 'paused': return 'Pausado'
-    default: return 'Indefinido'
+  const map = {
+    active: 'Ativo',
+    pending: 'Pendente',
+    paused: 'Pausado'
   }
+  return map[status] || 'Indefinido'
 }
 
-// Imagem fallback
+// === IMAGEM ===
 const handleImageError = (e) => {
   e.target.src = '/img/placeholder-ad.jpg'
   e.target.classList.add('error')
@@ -114,22 +139,19 @@ const onImageLoad = (e) => {
   e.target.classList.add('loaded')
 }
 
-// EDITAR ANÚNCIO (PASSA DADOS COMPLETOS)
+// === AÇÕES ===
 const editarAnuncio = (ad) => {
-  // Salva no localStorage para o formulário carregar
   localStorage.setItem('anuncioParaEditar', JSON.stringify({
     id: ad._id,
     name: ad.name,
     description: ad.description,
     price: ad.price,
     ctaLink: ad.ctaLink,
-    imageUrl: ad.image // para pré-visualização
+    imageUrl: ad.image
   }))
-
   router.push('/anuncie/editar')
 }
 
-// Remover
 const confirmarRemocao = async (id) => {
   if (!confirm('Tem certeza que deseja remover este anúncio?')) return
 
@@ -143,6 +165,24 @@ const confirmarRemocao = async (id) => {
   }
 }
 
+// Pagar anúncio pendente
+const pagarAnuncioPendente = (ad) => {
+  localStorage.setItem('anuncieState', JSON.stringify({
+    step: 2, // vai direto para pacotes
+    selectedWeeks: ad.weeks || 1,
+    anuncioId: ad._id,
+    anuncioData: {
+      name: ad.name,
+      description: ad.description,
+      price: ad.price,
+      ctaLink: ad.ctaLink,
+      image: ad.image
+    }
+  }))
+
+  router.push('/anuncie')
+}
+
 // Recarregar
 const recarregar = () => {
   loading.value = true
@@ -150,7 +190,7 @@ const recarregar = () => {
   carregarAnuncios()
 }
 
-// Carregar anúncios
+// === CARREGAR ANÚNCIOS ===
 const carregarAnuncios = async () => {
   try {
     const res = await api.get('/anuncios/meus', {
@@ -158,7 +198,6 @@ const carregarAnuncios = async () => {
     })
 
     anuncios.value = Array.isArray(res.data) ? res.data : res.data.anuncios || []
-
   } catch (err) {
     console.error('Erro ao carregar anúncios:', err)
     error.value = err.response?.data?.mensagem || 'Não foi possível carregar os anúncios.'
@@ -179,31 +218,25 @@ onMounted(() => {
 .meus-anuncios {
   font-family: 'Poppins', sans-serif;
   min-height: 100vh;
-  padding: 2rem;
+  padding: 1.5rem;
   background: radial-gradient(circle at top left, #120024, #000);
   color: #fff;
 }
 
+/* === ESTADOS === */
 .loading-state, .error-state, .empty-state {
   text-align: center;
   margin-top: 6rem;
   opacity: 0.9;
 }
-
 .loading-state i, .error-state i, .empty-state i {
   font-size: 2.5rem;
   margin-bottom: 1rem;
   display: block;
 }
-
 .loading-state i { color: #7c3aed; animation: spin 1.5s linear infinite; }
 .error-state i { color: #ff6b6b; }
 .empty-state i { color: #66bb6a; }
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
 
 .retry-btn, .new-btn {
   margin-top: 1rem;
@@ -215,28 +248,32 @@ onMounted(() => {
   cursor: pointer;
   transition: 0.3s;
   font-weight: 600;
+  font-size: 0.9rem;
 }
-
-.retry-btn:hover, .new-btn:hover { 
-  background: #6d28d9; 
+.retry-btn:hover, .new-btn:hover {
+  background: #6d28d9;
   transform: translateY(-1px);
 }
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 
+/* === HEADER === */
 .header {
   display: flex;
   align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
 }
-
 .page-title {
   font-size: 1.6rem;
   font-weight: 700;
-  color: #ffffff !important; /* BRANCO */
-  font-family: 'Poppins', sans-serif;
+  color: #ffffff;
   margin: 0;
+  flex: 1;
 }
-
 .back-btn {
   background: none;
   border: 1px solid rgba(255,255,255,0.3);
@@ -248,16 +285,20 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-size: 0.9rem;
 }
-
 .back-btn:hover { background: rgba(255,255,255,0.1); }
 
+/* === GRID === */
 .grid-anuncios {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.8rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
+/* === CARD === */
 .anuncio-card {
   position: relative;
   background: rgba(255,255,255,0.05);
@@ -270,45 +311,59 @@ onMounted(() => {
   transform: translateY(20px);
   animation: fadeUp 0.6s ease forwards;
   animation-delay: calc(0.1s * var(--i));
+  display: flex;
+  flex-direction: column;
 }
-
 .anuncio-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 12px 32px rgba(0,0,0,0.35);
 }
 
+/* === STATUS === */
 .anuncio-status {
   position: absolute;
   top: 0.8rem;
   right: 0.8rem;
   padding: 0.25rem 0.7rem;
   border-radius: 1rem;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  z-index: 2;
 }
-
 .anuncio-status.active { background: #4caf50; color: #fff; }
 .anuncio-status.pending { background: #ff9800; color: #fff; }
 .anuncio-status.paused { background: #9e9e9e; color: #fff; }
+.pending-hint {
+  display: block;
+  font-size: 0.55rem;
+  opacity: 0.9;
+  margin-top: 2px;
+  font-weight: 400;
+}
 
+/* === IMAGEM === */
 .anuncio-img {
   width: 100%;
-  height: 180px;
+  height: 170px;
   object-fit: cover;
   border-radius: 0.8rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
   opacity: 0;
   transition: opacity 0.4s ease;
   background: #1a1a1a;
 }
-
 .anuncio-img.loaded { opacity: 1; }
 .anuncio-img.error { opacity: 0.7; }
 
+/* === INFO === */
+.anuncio-info {
+  flex: 1;
+  margin-bottom: 0.8rem;
+}
 .anuncio-titulo {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 600;
   margin-bottom: 0.3rem;
   white-space: nowrap;
@@ -316,76 +371,110 @@ onMounted(() => {
   text-overflow: ellipsis;
   color: #fff;
 }
-
 .anuncio-desc {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #d9d9d9;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.5rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
 .anuncio-preco {
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   color: #81c784;
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  margin-bottom: 1rem;
 }
 
+/* === AÇÕES — FIXO NO FUNDO === */
 .anuncio-acoes {
   display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0.4rem;
+  margin-top: auto; /* EMPURRA PARA O FUNDO */
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
 }
 
-.anuncio-acoes button, .anuncio-acoes a {
+.anuncio-acoes button,
+.anuncio-acoes a {
   flex: 1;
-  padding: 0.55rem 0.7rem;
-  border-radius: 8px;
+  padding: 0.48rem 0.6rem;
+  border-radius: 7px;
   border: none;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.25s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
   font-weight: 500;
+  min-height: 36px;
+  white-space: nowrap;
 }
 
+.btn-text {
+  display: none;
+}
+
+/* === BOTÕES ESPECÍFICOS === */
 .btn-contato {
   background: #7c3aed;
   color: #fff;
 }
-
 .btn-contato:hover { background: #25d366; }
+
+.btn-pagar {
+  background: #ff6b35;
+  color: #fff;
+  font-weight: 600;
+}
+.btn-pagar:hover { background: #e65b2b; transform: translateY(-1px); }
 
 .btn-editar {
   background: rgba(255,255,255,0.1);
   color: #fff;
 }
-
 .btn-editar:hover { background: rgba(255,255,255,0.2); }
 
 .btn-remover {
   background: rgba(239,68,68,0.2);
   color: #ff6666;
 }
-
 .btn-remover:hover { background: rgba(239,68,68,0.35); }
 
+/* === ANIMAÇÃO === */
 @keyframes fadeUp {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* === RESPONSIVO === */
 @media (max-width: 768px) {
-  .grid-anuncios { grid-template-columns: 1fr; }
-  .anuncio-acoes { flex-direction: column; }
+  .meus-anuncios { padding: 1rem; }
+  .grid-anuncios { grid-template-columns: 1fr; gap: 1.5rem; }
   .page-title { font-size: 1.4rem; }
+  .header { gap: 0.8rem; }
+
+  .anuncio-acoes {
+    flex-direction: row;
+    gap: 0.35rem;
+  }
+
+  .anuncio-acoes button,
+  .anuncio-acoes a {
+    padding: 0.45rem 0.5rem;
+    font-size: 0.75rem;
+    min-height: 34px;
+  }
+
+  .btn-text { display: inline; }
+  .btn-contato, .btn-pagar { order: -1; }
+}
+
+@media (min-width: 769px) {
+  .btn-text { display: inline; }
 }
 </style>
