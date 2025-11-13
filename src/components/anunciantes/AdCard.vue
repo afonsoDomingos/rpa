@@ -26,18 +26,19 @@
             <i class="bi bi-x-lg" aria-hidden="true"></i>
           </button>
 
-          <!-- PATROCINADO (COM ÍCONE, PEQUENO) -->
+          <!-- PATROCINADO -->
           <div class="ad-sponsored">
             <i class="bi bi-megaphone-fill" aria-hidden="true"></i>
             <span>Patrocinado</span>
           </div>
 
-          <!-- IMAGEM -->
+          <!-- IMAGEM COM REGISTRO DE VIEW -->
           <img
             :src="activeAd.image"
             :alt="activeAd.name || 'Imagem do anúncio'"
             class="ad-image"
             loading="lazy"
+            @load="registrarView(activeAd._id)"
             @error="handleImageError"
           />
 
@@ -51,13 +52,13 @@
               <strong>{{ formatPrice(activeAd.price || 0) }}</strong>
             </div>
 
-             <!-- CONTADOR (MESMO ESTILO) -->
+            <!-- CONTADOR -->
             <div class="ad-action-btn ad-timer-btn">
               <i class="bi bi-clock-history" aria-hidden="true"></i>
-              <span>Falta  <strong>{{ countdown }}s</strong></span>
+              <span>Falta <strong>{{ countdown }}s</strong></span>
             </div>
 
-            <!-- WHATSAPP (MESMO ESTILO) -->
+            <!-- WHATSAPP -->
             <button
               @click.stop="handleWhatsAppClick(activeAd._id, activeAd.ctaLink)"
               class="ad-action-btn ad-whatsapp-btn"
@@ -67,9 +68,7 @@
               Contactar
             </button>
 
-           
-
-            <!-- PRÓXIMO ANÚNCIO (MESMO ESTILO) -->
+            <!-- PRÓXIMO ANÚNCIO -->
             <button
               v-if="activeAds.length > 1"
               @click="debouncedNextAd"
@@ -80,11 +79,11 @@
               <span>Próximo Ads</span>
             </button>
 
-            <!-- ANUNCIE AQUI (MESMO ESTILO) -->
+            <!-- ANUNCIE AQUI -->
             <button
               @click.stop="$router.push('/anuncie')"
               class="ad-action-btn"
-              aria-label="C-crie um anúncio"
+              aria-label="Criar um anúncio"
             >
               <i class="bi bi-plus-circle" aria-hidden="true"></i>
               <span>Anuncie Aqui</span>
@@ -114,7 +113,7 @@ let intervalId = null
 let pollingInterval = null
 let reappearTimeout = null
 
-const ONE_HOUR_MS = 60 * 60 * 1000 // 1 hora
+const ONE_HOUR_MS = 60 * 60 * 1000
 
 // === BUSCAR ANÚNCIOS ATIVOS ===
 const fetchActiveAds = async () => {
@@ -186,10 +185,19 @@ const nextAd = () => {
 
 const debouncedNextAd = debounce(nextAd, 300)
 
-// === CLIQUE NO WHATSAPP ===
+// === REGISTRAR VIEW (AO CARREGAR IMAGEM) ===
+const registrarView = async (id) => {
+  try {
+    await api.post(`/anuncios/${id}/view`)
+  } catch (err) {
+    // Silencioso
+  }
+}
+
+// === CLIQUE NO WHATSAPP (NOVA ROTA /click) ===
 const handleWhatsAppClick = async (id, link) => {
   try {
-    await api.post(`/anuncios/${id}/clique`)
+    await api.post(`/anuncios/${id}/click`)
     console.log('Clique registrado:', id)
   } catch (err) {
     console.error('Erro ao registrar clique:', err)

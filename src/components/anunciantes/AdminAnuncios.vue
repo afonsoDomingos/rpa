@@ -87,10 +87,10 @@
           <!-- ESTATÍSTICAS -->
           <div class="anuncio-stats">
             <div class="stat-row">
-              <i class="bi bi-eye"></i> Visualizações: {{ ad.views || 0 }}
+              <i class="bi bi-eye"></i> Visualizações: <strong>{{ ad.views || 0 }}</strong>
             </div>
             <div class="stat-row">
-              <i class="bi bi-whatsapp"></i> Cliques: {{ ad.clicks || 0 }}
+              <i class="bi bi-whatsapp"></i> Cliques: <strong>{{ ad.clicks || 0 }}</strong>
             </div>
             <div v-if="ad.expiresAt" class="stat-row">
               <i class="bi bi-clock"></i> Expira: {{ formatDate(ad.expiresAt) }}
@@ -120,7 +120,7 @@
         </div>
       </div>
 
-      <!-- MODAL -->
+      <!-- MODAL COM GRÁFICO -->
       <div v-if="modalAberto" class="modal-overlay" @click="fecharModal">
         <div class="modal-content" @click.stop>
           <header class="modal-header">
@@ -134,13 +134,9 @@
               <div class="stat-card"><i class="bi bi-people"></i><h3>{{ anuncioModal?.impressions || 0 }}</h3><p>Impressões</p></div>
               <div class="stat-card"><i class="bi bi-clock-history"></i><h3>{{ anuncioModal?.duration || 'N/A' }} dias</h3><p>Duração</p></div>
             </div>
-            <div v-if="anuncioModal?.statsHistory?.length" class="stats-history">
-              <h4>Histórico de Cliques</h4>
-              <ul>
-                <li v-for="(c, i) in anuncioModal.statsHistory.slice(0,7)" :key="i">
-                  {{ formatDate(c.date) }}: {{ c.clicks }} cliques
-                </li>
-              </ul>
+
+            <div v-if="anuncioModal?.statsHistory?.length" class="chart-container">
+              <canvas ref="chartRef"></canvas>
             </div>
           </div>
         </div>
@@ -150,9 +146,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
+import io from 'socket.io-client'
+import Chart from 'chart.js/auto'
 
 const router = useRouter()
 const anuncios = ref([])
@@ -162,6 +160,9 @@ const filtroStatus = ref('todos')
 const filtroUsuario = ref('')
 const modalAberto = ref(false)
 const anuncioModal = ref(null)
+const chartRef = ref(null)
+let chart = null
+let socket = null
 
 // === DEBOUNCE ===
 let debounceTimer
@@ -249,10 +250,67 @@ const abrirStats = async (ad) => {
 }
 
 const fecharModal = () => { modalAberto.value = false; anuncioModal.value = null }
+
 const recarregar = () => aplicarFiltro()
 
-onMounted(aplicarFiltro)
+// === ATUALIZAÇÃO EM TEMPO REAL ===
+const atualizarEstatisticaLocal = (anuncioId, campo, valor) => {
+  const anuncio = anuncios.value.find(a => a._id === anuncioId)
+  if (anuncio) {
+    anuncio[campo] = valor
+  }
+}
+
+// === GRÁFICO ===
+watch(() => anuncioModal.value, (novo) => {
+  if (novo && chartRef.value) {
+    if (chart) chart.destroy()
+
+    const ctx = chartRef.value.getContext('2d')
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: novo.statsHistory.map(h => new Date(h.date).toLocaleDateString('pt-MZ')),
+        datasets: [{
+          label: 'Cliques por dia',
+          data: novo.statsHistory.map(h => h.clicks),
+          borderColor: '#7c3aed',
+          backgroundColor: 'rgba(124, 58, 237, 0.1)',
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    })
+  }
+}, { deep: true })
+
+// === MONTAGEM ===
+onMounted(() => {
+  aplicarFiltro()
+
+  // Socket.IO
+  socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000')
+
+  socket.on('anuncio:view', (data) => {
+    atualizarEstatisticaLocal(data.anuncioId, 'views', data.views)
+  })
+
+  socket.on('anuncio:click', (data) => {
+    atualizarEstatisticaLocal(data.anuncioId, 'clicks', data.clicks)
+  })
+})
+
+onUnmounted(() => {
+  if (socket) socket.disconnect()
+  if (chart) chart.destroy()
+})
 </script>
+
 
 
 <style scoped>
@@ -405,6 +463,14 @@ onMounted(aplicarFiltro)
   transition: opacity 0.4s ease;
   background: #1a1a1a;
 }
+
+.chart-container {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(255,255,255,0.05);
+  border-radius: 0.8rem;
+}
+
 .anuncio-img.loaded { opacity: 1; }
 .anuncio-img.error { opacity: 0.7; }
 
