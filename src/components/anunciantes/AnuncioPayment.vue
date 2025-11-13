@@ -182,7 +182,7 @@ const handlePayment = async () => {
 
     if (res.data.sucesso) {
       successMessage.value = 'Pagamento iniciado! Aguarde confirmação no seu telemóvel.'
-      localStorage.setItem('paymentPhone', `258${phone.value}`)
+      localStorage.setItem('paymentPhone', `/258${phone.value}`)
       localStorage.removeItem('anuncieState')
       setTimeout(() => router.push('/meus-anuncios'), 30000)
     }
