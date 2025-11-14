@@ -1,4 +1,4 @@
-<!-- AnuncieForm.vue -->
+<!-- AnuncioForm.vue -->
 <template>
   <div class="container">
     <main class="form-wrapper">
@@ -259,10 +259,10 @@ const handleSubmit = async () => {
   formData.append('price', form.price)
   formData.append('ctaLink', form.ctaLink.trim())
   formData.append('image', form.image)
-  // REMOVIDO: weeks (será definido no pagamento)
+  formData.append('weeks', 1)  // ENVIA weeks=1 (padrão)
 
   try {
-    const res = await api.post('/anuncios', formData, {
+    const res = await api.post('/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${localStorage.getItem('token')}`
