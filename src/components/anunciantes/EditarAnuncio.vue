@@ -247,7 +247,7 @@ const carregarAnuncios = async () => {
     const token = localStorage.getItem('token')
     if (!token) throw new Error('Token não encontrado')
 
-    const res = await api.get('/meus', {
+    const res = await api.get('/anuncios/meus', {
       headers: { Authorization: `Bearer ${token}` }
     })
 
