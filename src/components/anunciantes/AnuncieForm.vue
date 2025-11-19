@@ -132,7 +132,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { reactive, ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import api from '@/api'
 import { sendMetaEvent } from '@/utils/meta'
 
@@ -151,12 +151,13 @@ const previewUrl = ref('')
 const loading = ref(false)
 const submitError = ref('')
 
-// Validações
+// Erros
 const nameError = ref('')
 const descError = ref('')
 const priceError = ref('')
 const ctaError = ref('')
 
+// VALIDAÇÃO EM TEMPO REAL
 watch(() => form.name, (val) => {
   nameError.value = val.trim().length < 3 ? 'Mínimo 3 caracteres' : ''
 })
@@ -169,37 +170,98 @@ watch(() => form.price, (val) => {
   priceError.value = val < 1 ? 'Preço deve ser maior que 0' : ''
 })
 
+// VALIDAÇÃO E FORMATAÇÃO DO WHATSAPP (agora chamada em todos os casos)
 const formatAndValidateCta = () => {
-  // ... teu código de validação de WhatsApp (mantém igual)
-  // (não mudei aqui porque está perfeito)
+  const input = rawCta.value.trim()
+
+  // Aceita link completo wa.me ou api.whatsapp
+  const urlRegex = /^https?:\/\/(wa\.me|api\.whatsapp\.com|chat\.whatsapp\.com)\//i
+  if (urlRegex.test(input)) {
+    form.ctaLink = input
+    ctaError.value = ''
+    saveForm()
+    return
+  }
+
+  // Aceita número limpo ou com formatação
+  const clean = input.replace(/[\s\-\(\)\+]/g, '')
+  const phoneRegex = /^(84|85|86|87)\d{7}$|^258(84|85|86|87)\d{7}$/
+
+  if (phoneRegex.test(clean)) {
+    const phone = clean.startsWith('258') ? clean : '258' + clean
+    form.ctaLink = `https://wa.me/${phone}`
+    ctaError.value = ''
+    saveForm()
+    return
+  }
+
+  // Se chegou aqui = inválido
+  if (input.length > 0) {
+    ctaError.value = 'Número inválido. Ex: 84 123 4567'
+  } else {
+    ctaError.value = ''
+  }
+  form.ctaLink = ''
 }
 
+// Força validação quando carrega do localStorage ou cola
+watch(rawCta, () => {
+  // Pequeno delay para garantir que o valor já está no input
+  nextTick(() => formatAndValidateCta())
+})
+
+// Validação completa do formulário
 const isFormValid = computed(() => {
   return (
     form.name?.trim().length >= 3 &&
     form.description?.trim().length >= 10 &&
     form.price >= 1 &&
-    /^https?:\/\/wa\.me\/\+/.test(form.ctaLink) &&
-    form.image
+    /^https?:\/\/wa\.me\/258/.test(form.ctaLink) &&
+    form.image !== null
   )
 })
 
+// Imagem
 const onFileChange = (e) => {
   const file = e.target.files[0]
   if (!file) return
-  if (!file.type.match('image/(jpeg|png|webp)')) return alert('Apenas JPG, PNG ou WebP.')
-  if (file.size > 2 * 1024 * 1024) return alert('Máximo 2MB.')
+
+  if (!file.type.match('image/(jpeg|png|webp)')) {
+    alert('Apenas JPG, PNG ou WebP.')
+    return
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    alert('Máximo 2MB.')
+    return
+  }
+
   form.image = file
   previewUrl.value = URL.createObjectURL(file)
+  saveForm()
 }
 
 const removeImage = () => {
   form.image = null
   previewUrl.value = ''
   document.getElementById('file').value = ''
+  saveForm()
 }
 
+// Salva no localStorage sempre que muda algo importante
+const saveForm = () => {
+  localStorage.setItem('anuncieForm', JSON.stringify({
+    name: form.name,
+    description: form.description,
+    price: form.price,
+    ctaLink: form.ctaLink
+  }))
+}
+
+// SUBMIT — agora 100% funcional
 const handleSubmit = async () => {
+  // Força validação final do WhatsApp (caso usuário clique sem sair do campo)
+  formatAndValidateCta()
+
   if (!isFormValid.value) {
     submitError.value = 'Preencha todos os campos corretamente.'
     return
@@ -227,9 +289,9 @@ const handleSubmit = async () => {
     if (res.data.sucesso) {
       localStorage.removeItem('anuncieForm')
 
-      // EVENTO LEAD – ANÚNCIO CRIADO
       await sendMetaEvent('Lead', {
         content_name: 'Anúncio Criado',
+        content_category: 'anuncios',
         content_type: 'product',
         value: form.price,
         currency: 'MZN'
@@ -247,13 +309,20 @@ const handleSubmit = async () => {
   }
 }
 
+// Carrega dados salvos
 onMounted(() => {
   const saved = localStorage.getItem('anuncieForm')
   if (saved) {
     const data = JSON.parse(saved)
     Object.assign(form, data)
-    rawCta.value = form.ctaLink || ''
-    if (form.image) previewUrl.value = URL.createObjectURL(form.image)
+    rawCta.value = form.ctaLink?.replace('https://wa.me/', '') || ''
+    
+    // Força validação do CTA ao carregar
+    nextTick(() => formatAndValidateCta())
+
+    if (form.image && typeof form.image === 'object') {
+      previewUrl.value = URL.createObjectURL(form.image)
+    }
   }
 })
 
@@ -261,7 +330,6 @@ onUnmounted(() => {
   if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
 })
 </script>
-
 <style scoped>
 /* === MESMO CSS DO ORIGINAL (mantido) === */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
