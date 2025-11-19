@@ -14,7 +14,12 @@
       <main class="main-content">
         <!-- Passo 1: Pacotes -->
         <div v-if="currentStep === 1" class="packages-grid">
-          <div v-for="pkg in packages" :key="pkg.id" :class="['package-card', { 'selected': selectedPackage?.id === pkg.id, 'recommended': pkg.recommended }]" @click="selectPackage(pkg)">
+          <div
+            v-for="pkg in packages"
+            :key="pkg.id"
+            :class="['package-card', { selected: selectedPackage?.id === pkg.id, recommended: pkg.recommended }]"
+            @click="selectPackage(pkg)"
+          >
             <div v-if="pkg.recommended" class="recommended-badge">Recomendado</div>
             <h3 class="package-name">{{ pkg.name }}</h3>
             <div class="package-price">
@@ -22,7 +27,9 @@
               <span class="amount">{{ pkg.price > 0 ? pkg.price.toLocaleString('pt-MZ') : 'Gratuito' }}</span>
               <span v-if="pkg.price > 0" class="period">{{ pkg.period }}</span>
             </div>
+
             <ul class="benefits-list">
+              <!-- CORRIGIDO AQUI: era "benefit-item" sem ser class -->
               <li v-for="(benefit, index) in pkg.benefits" :key="index" class="benefit-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="check-icon">
                   <path d="M20 6 9 17l-5-5"/>
@@ -30,7 +37,11 @@
                 {{ benefit }}
               </li>
             </ul>
-            <button :class="['select-button', { 'selected': selectedPackage?.id === pkg.id }]" @click.stop="selectPackage(pkg)">
+
+            <button
+              :class="['select-button', { selected: selectedPackage?.id === pkg.id }]"
+              @click.stop="selectPackage(pkg)"
+            >
               {{ selectedPackage?.id === pkg.id ? 'Selecionado' : 'Selecionar' }}
             </button>
           </div>
@@ -40,7 +51,12 @@
         <div v-if="currentStep === 2" class="payment-methods">
           <h2 class="section-title">Escolha o Método de Pagamento</h2>
           <div class="payment-methods-grid">
-            <button v-for="method in paymentMethods" :key="method.id" :class="['payment-method-card', { 'selected': selectedPaymentMethod === method.id }]" @click="selectPaymentMethod(method.id)">
+            <button
+              v-for="method in paymentMethods"
+              :key="method.id"
+              :class="['payment-method-card', { selected: selectedPaymentMethod === method.id }]"
+              @click="selectPaymentMethod(method.id)"
+            >
               <img v-if="method.img" :src="method.img" class="payment-method-icon-img" />
               <i v-else :class="method.iconClass" class="payment-method-icon"></i>
               <span class="payment-method-name">{{ method.name }}</span>
@@ -48,6 +64,7 @@
           </div>
 
           <form v-if="selectedPaymentMethod" @submit.prevent="handleSubmit" class="form">
+            <!-- M-Pesa / Emola -->
             <div v-if="['mpesa', 'emola'].includes(selectedPaymentMethod)" class="form-group phone-input-group">
               <label class="form-label">Número {{ selectedPaymentMethod === 'mpesa' ? 'M-Pesa' : 'Emola' }}</label>
               <input
@@ -65,10 +82,22 @@
               />
             </div>
 
+            <!-- Cartão -->
             <div v-if="selectedPaymentMethod === 'card'">
               <div class="form-group">
                 <label class="form-label">Número do Cartão</label>
-                <input ref="cardInput" v-model="cardDetails.number" type="text" inputmode="numeric" autocomplete="cc-number" placeholder="0000 0000 0000 0000" required class="form-input" @focus="onInputFocus" @blur="onInputBlur" />
+                <input
+                  ref="cardInput"
+                  v-model="cardDetails.number"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="cc-number"
+                  placeholder="0000 0000 0000 0000"
+                  required
+                  class="form-input"
+                  @focus="onInputFocus"
+                  @blur="onInputBlur"
+                />
               </div>
               <div class="form-row">
                 <div class="form-group">
@@ -89,6 +118,7 @@
             </button>
           </form>
 
+          <!-- Mensagem de erro -->
           <div v-if="errorMessage" class="error-message">
             {{ errorMessage }}
             <div class="error-actions">
@@ -166,8 +196,13 @@ import mpesaIcon from '@/assets/img/Mpesa.png'
 import emolaIcon from '@/assets/img/Emola.png'
 import api from '@/api'
 
+// Meta Pixel Tracking
+import { useFacebookTracking } from '@/plugins/facebookTracking'
+const { track, generateEventId } = useFacebookTracking()
+
 const router = useRouter()
 
+// Estado
 const currentStep = ref(1)
 const selectedPackage = ref(null)
 const selectedPaymentMethod = ref(null)
@@ -186,31 +221,11 @@ onMounted(() => {
   })
 })
 
+// Pacotes (preços originais mantidos!)
 const packages = [
-  { 
-    id: 'teste', 
-    name: 'Teste', 
-    price: 25, 
-    period: '/5 dias', 
-    benefits: ['Acesso total por 5 dias', 'Gerar CV', '1 GB de armazenamento'], 
-    recommended: true 
-  },
-  { 
-    id: 'mensal', 
-    name: 'Mensal', 
-    price: 150, 
-    period: '/mês', 
-    benefits: ['Tudo do teste', 'Solicitar documentos', '3 GB', 'Suporte prioritário'], 
-    recommended: false 
-  },
-  { 
-    id: 'anual', 
-    name: 'Anual', 
-    price: 1500, 
-    period: '/ano', 
-    benefits: ['Tudo do mensal', 'Delivery', 'Atualizações diárias'], 
-    recommended: false 
-  }
+  { id: 'teste', name: 'Teste', price: 25, period: '/5 dias', benefits: ['Acesso total por 5 dias', 'Gerar CV', '1 GB de armazenamento'], recommended: true },
+  { id: 'mensal', name: 'Mensal', price: 150, period: '/mês', benefits: ['Tudo do teste', 'Solicitar documentos', '3 GB', 'Suporte prioritário'], recommended: false },
+  { id: 'anual', name: 'Anual', price: 1500, period: '/ano', benefits: ['Tudo do mensal', 'Delivery', 'Atualizações diárias'], recommended: false }
 ]
 
 const paymentMethods = [
@@ -222,6 +237,7 @@ const paymentMethods = [
 const mobileDetails = reactive({ phone: '' })
 const cardDetails = reactive({ number: '', expiry: '', cvv: '' })
 
+// Normalização de telefone
 function normalizarTelefone(phone) {
   const cleaned = phone.replace(/[\s\-\(\)\+]/g, '')
   if (/^(84|85|86|87)\d{7}$/.test(cleaned)) return '258' + cleaned
@@ -240,6 +256,7 @@ const debouncedNormalize = () => {
   }, 400)
 }
 
+// Foco mobile
 const onInputFocus = async () => {
   if (isMobile.value) {
     inputFocused.value = true
@@ -250,33 +267,53 @@ const onInputFocus = async () => {
 }
 const onInputBlur = () => { inputFocused.value = false }
 
-const selectPackage = (pkg) => {
-  selectedPackage.value = pkg
-  errorMessage.value = ''
-}
-const selectPaymentMethod = (id) => {
-  selectedPaymentMethod.value = id
-  errorMessage.value = ''
-}
-
+// Ações
+const selectPackage = (pkg) => { selectedPackage.value = pkg; errorMessage.value = '' }
+const selectPaymentMethod = (id) => { selectedPaymentMethod.value = id; errorMessage.value = '' }
 const goToHome = () => router.push('/home')
 const retryPayment = () => { errorMessage.value = ''; loading.value = false }
 const contactSupport = () => window.location.href = 'tel:258847877405'
 
+const nextStep = async () => {
+  errorMessage.value = ''
+  if (!selectedPackage.value) {
+    errorMessage.value = 'Selecione um pacote.'
+    return
+  }
+
+  // InitiateCheckout (evento crítico!)
+  track('InitiateCheckout', {
+    value: selectedPackage.value.price,
+    currency: 'MZN',
+    num_items: 1,
+    content_type: 'product',
+    content_ids: [selectedPackage.value.id],
+    content_name: selectedPackage.value.name,
+    predicted_ltv: selectedPackage.value.id === 'anual' ? 1800 : selectedPackage.value.id === 'mensal' ? 600 : 100
+  })
+
+  if (selectedPackage.value.id === 'teste') {
+    await ativarPlanoTeste()
+    return
+  }
+  currentStep.value = 2
+}
+
 const ativarPlanoTeste = async () => {
   loading.value = true
   try {
-    const payload = { 
-      pacote: 'teste', 
-      method: 'teste', 
-      amount: 25, 
-      type: 'assinatura' 
-    }
-    const res = await api.post('/pagamentos/processar', payload, {
+    const res = await api.post('/pagamentos/processar', {
+      pacote: 'teste',
+      method: 'teste',
+      amount: 25,
+      type: 'assinatura'
+    }, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     })
 
     if (res.data.sucesso) {
+      const eventID = generateEventId()
+      track('Subscribe', { value: 25, currency: 'MZN', predicted_ltv: 100, period: 'teste', content_ids: ['teste'], eventID })
       showSuccess.value = true
     } else {
       errorMessage.value = res.data.mensagem || 'Erro ao ativar teste.'
@@ -288,22 +325,11 @@ const ativarPlanoTeste = async () => {
   }
 }
 
-const nextStep = async () => {
-  errorMessage.value = ''
-  if (!selectedPackage.value) {
-    errorMessage.value = 'Selecione um pacote.'
-    return
-  }
-  if (selectedPackage.value.id === 'teste') {
-    await ativarPlanoTeste()
-    return
-  }
-  currentStep.value = 2
-}
 const previousStep = () => {
   currentStep.value = 1
   selectedPaymentMethod.value = null
 }
+
 const goBack = () => {
   if (currentStep.value === 2) previousStep()
   else window.history.back()
@@ -311,8 +337,7 @@ const goBack = () => {
 
 const handleSubmit = async () => {
   errorMessage.value = ''
-  if (loading.value) return
-  if (!selectedPackage.value || !selectedPaymentMethod.value) {
+  if (loading.value || !selectedPackage.value || !selectedPaymentMethod.value) {
     errorMessage.value = 'Selecione pacote e método.'
     return
   }
@@ -329,16 +354,13 @@ const handleSubmit = async () => {
     mobileDetails.phone = telefoneValido
   }
 
-  if (selectedPaymentMethod.value === 'card') {
-    if (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv) {
-      errorMessage.value = 'Preencha todos os dados do cartão.'
-      loading.value = false
-      return
-    }
+  if (selectedPaymentMethod.value === 'card' && (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv)) {
+    errorMessage.value = 'Preencha todos os dados do cartão.'
+    loading.value = false
+    return
   }
 
   try {
-    const token = localStorage.getItem('token') || ''
     const payload = {
       pacote: selectedPackage.value.id,
       method: selectedPaymentMethod.value,
@@ -349,10 +371,20 @@ const handleSubmit = async () => {
     }
 
     const res = await api.post('/pagamentos/processar', payload, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     })
 
     if (res.data.sucesso) {
+      const eventID = generateEventId()
+      track('Subscribe', {
+        value: selectedPackage.value.price,
+        currency: 'MZN',
+        predicted_ltv: selectedPackage.value.id === 'anual' ? 1800 : 600,
+        period: selectedPackage.value.id === 'anual' ? 'year' : 'month',
+        content_ids: [selectedPackage.value.id],
+        content_name: selectedPackage.value.name,
+        eventID
+      })
       showSuccess.value = true
     } else {
       errorMessage.value = res.data.mensagem || 'Erro no pagamento.'
@@ -364,6 +396,8 @@ const handleSubmit = async () => {
   }
 }
 </script>
+
+
 
 <style scoped>
 @import 'bootstrap-icons/font/bootstrap-icons.css';

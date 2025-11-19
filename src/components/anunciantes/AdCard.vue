@@ -119,7 +119,7 @@ const ONE_HOUR_MS = 60 * 60 * 1000
 const fetchActiveAds = async () => {
   console.log('Buscando anúncios ativos...')
   try {
-    const res = await api.get('/anuncios/ativos', { timeout: 10000 })
+    const res = await api.get('/ativos', { timeout: 10000 })
     console.log('Anúncios recebidos:', res.data)
 
     activeAds.value = (res.data || [])

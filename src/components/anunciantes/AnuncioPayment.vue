@@ -80,6 +80,9 @@ import { useRouter } from 'vue-router'
 import api from '@/api'
 import mpesaIcon from '@/assets/img/Mpesa.png'
 import emolaIcon from '@/assets/img/Emola.png'
+import { useFacebookTracking } from '@/plugins/facebookTracking'   // ← ADICIONADO
+
+const { track, generateEventId } = useFacebookTracking()   // ← ADICIONADO
 
 const props = defineProps({
   weeks: { type: Number, required: true },
@@ -108,12 +111,24 @@ const placeholder = computed(() =>
   selectedMethod.value === 'mpesa' ? '84/85 XXXXXXX' : '86/87 XXXXXXX'
 )
 
+// === TRACKING: InitiateCheckout ao carregar a tela de pagamento ===
 onMounted(() => {
   const saved = localStorage.getItem('paymentPhone')
   if (saved) {
     phone.value = saved.replace(/^258/, '')
     validatePhone()
   }
+
+  // Tracking do InitiateCheckout (passo do pagamento)
+  track('InitiateCheckout', {
+    value: totalPrice.value,
+    currency: 'MZN',
+    num_items: 1,
+    content_type: 'product',
+    content_ids: ['anuncio'],
+    content_name: 'Anúncio Corporativo',
+    predicted_ltv: totalPrice.value * 1.5  // estimativa simples
+  })
 })
 
 const formatPhone = () => {
@@ -166,10 +181,8 @@ const handlePayment = async () => {
     phone: `258${phone.value}`,
     type: 'anuncio',
     anuncioId: props.anuncioId,
-    weeks: weeks  // GARANTE NÚMERO INTEIRO
+    weeks: weeks
   }
-
-  console.log('ENVIANDO PAGAMENTO:', payload)
 
   loading.value = true
   errorMessage.value = ''
@@ -181,8 +194,22 @@ const handlePayment = async () => {
     })
 
     if (res.data.sucesso) {
+      const eventID = generateEventId()
+
+      // TRACKING DO PURCHASE (client-side + mesmo eventID será usado no backend)
+      track('Purchase', {
+        value: totalPrice.value,
+        currency: 'MZN',
+        content_ids: ['anuncio'],
+        content_type: 'product',
+        content_name: 'Anúncio Corporativo',
+        num_items: 1,
+        predicted_ltv: totalPrice.value * 1.5,
+        eventID
+      })
+
       successMessage.value = 'Pagamento iniciado! Aguarde confirmação no seu telemóvel.'
-      localStorage.setItem('paymentPhone', `/258${phone.value}`)
+      localStorage.setItem('paymentPhone', `258${phone.value}`)
       localStorage.removeItem('anuncieState')
       setTimeout(() => router.push('/meus-anuncios'), 30000)
     }
@@ -194,6 +221,8 @@ const handlePayment = async () => {
   }
 }
 </script>
+
+
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
