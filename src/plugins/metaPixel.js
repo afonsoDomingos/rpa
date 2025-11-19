@@ -21,3 +21,5 @@ export default {
     app.config.globalProperties.$fbq = window.fbq;
   }
 }
+
+

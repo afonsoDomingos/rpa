@@ -196,9 +196,12 @@ import mpesaIcon from '@/assets/img/Mpesa.png'
 import emolaIcon from '@/assets/img/Emola.png'
 import api from '@/api'
 
-// Meta Pixel Tracking
+// Meta Pixel Tracking (browser)
 import { useFacebookTracking } from '@/plugins/facebookTracking'
 const { track, generateEventId } = useFacebookTracking()
+
+// NOVO: Conversions API server-side
+import { sendConversionEvent } from '@/api/metaConversions'   // caminho mais comum em projetos Vue
 
 const router = useRouter()
 
@@ -221,7 +224,7 @@ onMounted(() => {
   })
 })
 
-// Pacotes (preços originais mantidos!)
+// Pacotes e métodos de pagamento (igual)
 const packages = [
   { id: 'teste', name: 'Teste', price: 25, period: '/5 dias', benefits: ['Acesso total por 5 dias', 'Gerar CV', '1 GB de armazenamento'], recommended: true },
   { id: 'mensal', name: 'Mensal', price: 150, period: '/mês', benefits: ['Tudo do teste', 'Solicitar documentos', '3 GB', 'Suporte prioritário'], recommended: false },
@@ -256,7 +259,6 @@ const debouncedNormalize = () => {
   }, 400)
 }
 
-// Foco mobile
 const onInputFocus = async () => {
   if (isMobile.value) {
     inputFocused.value = true
@@ -281,7 +283,6 @@ const nextStep = async () => {
     return
   }
 
-  // InitiateCheckout (evento crítico!)
   track('InitiateCheckout', {
     value: selectedPackage.value.price,
     currency: 'MZN',
@@ -299,6 +300,7 @@ const nextStep = async () => {
   currentStep.value = 2
 }
 
+// PLANO DE TESTE — com CAPI
 const ativarPlanoTeste = async () => {
   loading.value = true
   try {
@@ -313,7 +315,23 @@ const ativarPlanoTeste = async () => {
 
     if (res.data.sucesso) {
       const eventID = generateEventId()
+
+      // 1. Browser
       track('Subscribe', { value: 25, currency: 'MZN', predicted_ltv: 100, period: 'teste', content_ids: ['teste'], eventID })
+
+      // 2. Server-side (CAPI)
+      await sendConversionEvent('Subscribe', {
+        value: 25,
+        predicted_ltv: 100,
+        content_ids: ['teste'],
+        content_name: 'Plano de Teste',
+        url: window.location.href,
+        ip: null,
+        userAgent: navigator.userAgent
+      }, {
+        phone: mobileDetails.phone || null
+      }, eventID)
+
       showSuccess.value = true
     } else {
       errorMessage.value = res.data.mensagem || 'Erro ao ativar teste.'
@@ -335,6 +353,7 @@ const goBack = () => {
   else window.history.back()
 }
 
+// PAGAMENTO NORMAL — com CAPI
 const handleSubmit = async () => {
   errorMessage.value = ''
   if (loading.value || !selectedPackage.value || !selectedPaymentMethod.value) {
@@ -376,6 +395,8 @@ const handleSubmit = async () => {
 
     if (res.data.sucesso) {
       const eventID = generateEventId()
+
+      // 1. Browser
       track('Subscribe', {
         value: selectedPackage.value.price,
         currency: 'MZN',
@@ -385,6 +406,20 @@ const handleSubmit = async () => {
         content_name: selectedPackage.value.name,
         eventID
       })
+
+      // 2. Server-side (CAPI)
+      await sendConversionEvent('Subscribe', {
+        value: selectedPackage.value.price,
+        predicted_ltv: selectedPackage.value.id === 'anual' ? 1800 : 600,
+        content_ids: [selectedPackage.value.id],
+        content_name: selectedPackage.value.name,
+        url: window.location.href,
+        ip: null,
+        userAgent: navigator.userAgent
+      }, {
+        phone: mobileDetails.phone || null
+      }, eventID)
+
       showSuccess.value = true
     } else {
       errorMessage.value = res.data.mensagem || 'Erro no pagamento.'
