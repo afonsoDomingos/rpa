@@ -279,7 +279,7 @@ const handleSubmit = async () => {
   formData.append('weeks', 1)
 
   try {
-    const res = await api.post('/', formData, {
+    const res = await api.post('/anuncios', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${localStorage.getItem('token')}`
