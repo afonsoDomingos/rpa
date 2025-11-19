@@ -192,16 +192,12 @@
 <script setup>
 import { ref, reactive, nextTick, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '@/api'
 import mpesaIcon from '@/assets/img/Mpesa.png'
 import emolaIcon from '@/assets/img/Emola.png'
-import api from '@/api'
 
-// Meta Pixel Tracking (browser)
-import { useFacebookTracking } from '@/plugins/facebookTracking'
-const { track, generateEventId } = useFacebookTracking()
-
-// NOVO: Conversions API server-side
-import { sendConversionEvent } from '@/api/metaConversions'   // caminho mais comum em projetos Vue
+// A NOVA E ÚNICA FUNÇÃO DE TRACKING QUE USAS
+import { sendMetaEvent } from '@/utils/meta'
 
 const router = useRouter()
 
@@ -224,7 +220,7 @@ onMounted(() => {
   })
 })
 
-// Pacotes e métodos de pagamento (igual)
+// Pacotes (preços reais)
 const packages = [
   { id: 'teste', name: 'Teste', price: 25, period: '/5 dias', benefits: ['Acesso total por 5 dias', 'Gerar CV', '1 GB de armazenamento'], recommended: true },
   { id: 'mensal', name: 'Mensal', price: 150, period: '/mês', benefits: ['Tudo do teste', 'Solicitar documentos', '3 GB', 'Suporte prioritário'], recommended: false },
@@ -241,24 +237,26 @@ const mobileDetails = reactive({ phone: '' })
 const cardDetails = reactive({ number: '', expiry: '', cvv: '' })
 
 // Normalização de telefone
-function normalizarTelefone(phone) {
-  const cleaned = phone.replace(/[\s\-\(\)\+]/g, '')
+const normalizePhone = (raw) => {
+  const cleaned = raw.replace(/[\s\-\(\)\+]/g, '')
   if (/^(84|85|86|87)\d{7}$/.test(cleaned)) return '258' + cleaned
   if (/^258\d{9}$/.test(cleaned)) return cleaned
   return null
 }
 
+// Debounce para formatação visual
 let debounceTimer
-const debouncedNormalize = () => {
+const formatPhoneInput = () => {
   clearTimeout(debounceTimer)
   debounceTimer = setTimeout(() => {
     if (mobileDetails.phone.length >= 9) {
-      const normalized = normalizarTelefone(mobileDetails.phone)
-      if (normalized) mobileDetails.phone = normalized.slice(3)
+      const norm = normalizePhone(mobileDetails.phone)
+      if (norm) mobileDetails.phone = norm.slice(3) // mostra só 84...
     }
   }, 400)
 }
 
+// Foco no mobile
 const onInputFocus = async () => {
   if (isMobile.value) {
     inputFocused.value = true
@@ -277,20 +275,19 @@ const retryPayment = () => { errorMessage.value = ''; loading.value = false }
 const contactSupport = () => window.location.href = 'tel:258847877405'
 
 const nextStep = async () => {
-  errorMessage.value = ''
   if (!selectedPackage.value) {
     errorMessage.value = 'Selecione um pacote.'
     return
   }
 
-  track('InitiateCheckout', {
+  // InitiateCheckout — evento crítico
+  await sendMetaEvent('InitiateCheckout', {
     value: selectedPackage.value.price,
     currency: 'MZN',
     num_items: 1,
     content_type: 'product',
     content_ids: [selectedPackage.value.id],
-    content_name: selectedPackage.value.name,
-    predicted_ltv: selectedPackage.value.id === 'anual' ? 1800 : selectedPackage.value.id === 'mensal' ? 600 : 100
+    content_name: selectedPackage.value.name
   })
 
   if (selectedPackage.value.id === 'teste') {
@@ -300,7 +297,7 @@ const nextStep = async () => {
   currentStep.value = 2
 }
 
-// PLANO DE TESTE — com CAPI
+// Plano de teste
 const ativarPlanoTeste = async () => {
   loading.value = true
   try {
@@ -309,28 +306,16 @@ const ativarPlanoTeste = async () => {
       method: 'teste',
       amount: 25,
       type: 'assinatura'
-    }, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    })
+    }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
 
     if (res.data.sucesso) {
-      const eventID = generateEventId()
-
-      // 1. Browser
-      track('Subscribe', { value: 25, currency: 'MZN', predicted_ltv: 100, period: 'teste', content_ids: ['teste'], eventID })
-
-      // 2. Server-side (CAPI)
-      await sendConversionEvent('Subscribe', {
+      await sendMetaEvent('Subscribe', {
         value: 25,
-        predicted_ltv: 100,
+        currency: 'MZN',
         content_ids: ['teste'],
         content_name: 'Plano de Teste',
-        url: window.location.href,
-        ip: null,
-        userAgent: navigator.userAgent
-      }, {
-        phone: mobileDetails.phone || null
-      }, eventID)
+        num_items: 1
+      })
 
       showSuccess.value = true
     } else {
@@ -353,24 +338,24 @@ const goBack = () => {
   else window.history.back()
 }
 
-// PAGAMENTO NORMAL — com CAPI
+// Pagamento final (Subscribe = Purchase para assinaturas)
 const handleSubmit = async () => {
   errorMessage.value = ''
-  if (loading.value || !selectedPackage.value || !selectedPaymentMethod.value) {
+  if (!selectedPackage.value || !selectedPaymentMethod.value) {
     errorMessage.value = 'Selecione pacote e método.'
     return
   }
 
   loading.value = true
 
+  let finalPhone = null
   if (['mpesa', 'emola'].includes(selectedPaymentMethod.value)) {
-    const telefoneValido = normalizarTelefone(mobileDetails.phone)
-    if (!telefoneValido) {
-      errorMessage.value = 'Número inválido.'
+    finalPhone = normalizePhone(mobileDetails.phone)
+    if (!finalPhone) {
+      errorMessage.value = 'Número de telefone inválido.'
       loading.value = false
       return
     }
-    mobileDetails.phone = telefoneValido
   }
 
   if (selectedPaymentMethod.value === 'card' && (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv)) {
@@ -383,7 +368,7 @@ const handleSubmit = async () => {
     const payload = {
       pacote: selectedPackage.value.id,
       method: selectedPaymentMethod.value,
-      phone: mobileDetails.phone || null,
+      phone: finalPhone,
       amount: selectedPackage.value.price,
       type: 'assinatura',
       dadosCartao: selectedPaymentMethod.value === 'card' ? cardDetails : null
@@ -394,38 +379,23 @@ const handleSubmit = async () => {
     })
 
     if (res.data.sucesso) {
-      const eventID = generateEventId()
-
-      // 1. Browser
-      track('Subscribe', {
+      // EVENTO SUBSCRIBE (equivalente a Purchase para assinaturas)
+      await sendMetaEvent('Subscribe', {
         value: selectedPackage.value.price,
         currency: 'MZN',
-        predicted_ltv: selectedPackage.value.id === 'anual' ? 1800 : 600,
-        period: selectedPackage.value.id === 'anual' ? 'year' : 'month',
         content_ids: [selectedPackage.value.id],
         content_name: selectedPackage.value.name,
-        eventID
-      })
-
-      // 2. Server-side (CAPI)
-      await sendConversionEvent('Subscribe', {
-        value: selectedPackage.value.price,
-        predicted_ltv: selectedPackage.value.id === 'anual' ? 1800 : 600,
-        content_ids: [selectedPackage.value.id],
-        content_name: selectedPackage.value.name,
-        url: window.location.href,
-        ip: null,
-        userAgent: navigator.userAgent
+        num_items: 1
       }, {
-        phone: mobileDetails.phone || null
-      }, eventID)
+        phone: finalPhone || undefined
+      })
 
       showSuccess.value = true
     } else {
-      errorMessage.value = res.data.mensagem || 'Erro no pagamento.'
+      errorMessage.value = res.data.mensagem || 'Pagamento não concluído.'
     }
   } catch (err) {
-    errorMessage.value = 'Erro de conexão.'
+    errorMessage.value = 'Erro de conexão. Tente novamente.'
   } finally {
     loading.value = false
   }

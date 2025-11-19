@@ -178,7 +178,7 @@ onMounted(async () => {
           {
             theme: "outline",
             size: "large",
-            width: "100%",
+            width: "300",
             type: "standard",
           }
         );
@@ -501,7 +501,7 @@ label, .form-label {
   margin-top: 1rem;
   display: flex;
   justify-content: center;
-  width: 100%;
+  width: 300;
   max-width: 320px;
 }
 
@@ -509,7 +509,7 @@ label, .form-label {
   border: none !important;
   border-radius: 8px !important;
   padding: 10px;
-  width: 100% !important;
+  width: 300 !important;
   box-sizing: border-box;
   transition: transform 0.2s ease, box-shadow 0.3s ease;
 }

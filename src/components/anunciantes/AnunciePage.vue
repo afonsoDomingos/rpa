@@ -33,15 +33,23 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { AnuncieForm, AnuncioPackages, AnuncioPayment } from '@/components/anunciantes'
+
+// Componentes
+import AnuncieForm from '@/components/anunciantes/AnuncieForm.vue'
+import AnuncioPackages from '@/components/anunciantes/AnuncioPackages.vue'
+import AnuncioPayment from '@/components/anunciantes/AnuncioPayment.vue'
+
+// A NOVA E ÚNICA FUNÇÃO DE TRACKING
+import { sendMetaEvent } from '@/utils/meta'
 
 const router = useRouter()
+
 const step = ref(1)
 const selectedWeeks = ref(1)
 const anuncioId = ref('')
 const anuncioData = ref(null)
 
-// Carregar estado salvo
+// Carrega estado salvo (se o usuário voltou)
 onMounted(() => {
   const saved = localStorage.getItem('anuncieState')
   if (saved) {
@@ -51,9 +59,16 @@ onMounted(() => {
     anuncioId.value = data.anuncioId || ''
     anuncioData.value = data.anuncioData || null
   }
+
+  // VIEWCONTENT — entrou na página de criar anúncio (Pixel + CAPI)
+  sendMetaEvent('ViewContent', {
+    content_name: 'Criar Anúncio',
+    content_category: 'anuncios',
+    content_type: 'product'
+  })
 })
 
-// 1. Anúncio criado → vai para pacotes
+// Quando o anúncio é criado → vai para escolha de pacote
 const onAnuncioCreated = (data) => {
   anuncioId.value = data.anuncioId
   anuncioData.value = data.formData
@@ -61,25 +76,23 @@ const onAnuncioCreated = (data) => {
   saveState()
 }
 
-// 2. Pacote escolhido
+// Escolha de semanas
 const onSelectWeeks = (weeks) => {
   selectedWeeks.value = weeks
   saveState()
 }
 
-// 3. Ir para pagamento COM VALIDAÇÃO
+// Vai para pagamento
 const goToPayment = () => {
   if (!anuncioId.value) {
     alert('Erro: Anúncio não foi criado.')
     return
   }
-
   const weeks = Number(selectedWeeks.value)
   if (!weeks || weeks < 1 || weeks > 4 || !Number.isInteger(weeks)) {
     alert('Selecione uma duração válida: 1 a 4 semanas.')
     return
   }
-
   step.value = 3
   saveState()
 }
@@ -94,7 +107,7 @@ const goBack = () => {
   }
 }
 
-// Salvar estado
+// Salva estado no localStorage (para não perder se recarregar)
 const saveState = () => {
   localStorage.setItem('anuncieState', JSON.stringify({
     step: step.value,
@@ -104,6 +117,8 @@ const saveState = () => {
   }))
 }
 </script>
+
+
 
 <style scoped>
 .anuncie-page { width: 100%; min-height: 100vh; background: #0a0a0a; }

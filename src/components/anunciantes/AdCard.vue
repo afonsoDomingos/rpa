@@ -21,18 +21,15 @@
       <!-- ANÚNCIO ATIVO -->
       <transition name="fade-ad" mode="out-in">
         <div v-if="activeAd" :key="currentIndex" class="ad-content">
-          <!-- FECHAR -->
           <button @click="closeAd" class="close-btn" aria-label="Fechar anúncio">
             <i class="bi bi-x-lg" aria-hidden="true"></i>
           </button>
 
-          <!-- PATROCINADO -->
           <div class="ad-sponsored">
             <i class="bi bi-megaphone-fill" aria-hidden="true"></i>
             <span>Patrocinado</span>
           </div>
 
-          <!-- IMAGEM COM REGISTRO DE VIEW -->
           <img
             :src="activeAd.image"
             :alt="activeAd.name || 'Imagem do anúncio'"
@@ -42,7 +39,6 @@
             @error="handleImageError"
           />
 
-          <!-- CONTEÚDO -->
           <div class="ad-body">
             <h3 class="ad-title">{{ activeAd.name || 'Anúncio sem título' }}</h3>
             <p class="ad-description">{{ activeAd.description || 'Sem descrição disponível' }}</p>
@@ -52,13 +48,11 @@
               <strong>{{ formatPrice(activeAd.price || 0) }}</strong>
             </div>
 
-            <!-- CONTADOR -->
             <div class="ad-action-btn ad-timer-btn">
               <i class="bi bi-clock-history" aria-hidden="true"></i>
               <span>Falta <strong>{{ countdown }}s</strong></span>
             </div>
 
-            <!-- WHATSAPP -->
             <button
               @click.stop="handleWhatsAppClick(activeAd._id, activeAd.ctaLink)"
               class="ad-action-btn ad-whatsapp-btn"
@@ -68,7 +62,6 @@
               Contactar
             </button>
 
-            <!-- PRÓXIMO ANÚNCIO -->
             <button
               v-if="activeAds.length > 1"
               @click="debouncedNextAd"
@@ -79,7 +72,6 @@
               <span>Próximo Ads</span>
             </button>
 
-            <!-- ANUNCIE AQUI -->
             <button
               @click.stop="$router.push('/anuncie')"
               class="ad-action-btn"
@@ -100,13 +92,13 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { debounce } from 'lodash'
 import api from '@/api'
+import { sendMetaEvent } from '@/utils/meta'
 
 const router = useRouter()
 const showAd = ref(false)
 const activeAd = ref(null)
 const activeAds = ref([])
-const countdown = ref(0)
-const userInteracted = ref(false)
+const countdown = ref(30)
 const currentIndex = ref(0)
 let timeoutId = null
 let intervalId = null
@@ -115,13 +107,10 @@ let reappearTimeout = null
 
 const ONE_HOUR_MS = 60 * 60 * 1000
 
-// === BUSCAR ANÚNCIOS ATIVOS ===
 const fetchActiveAds = async () => {
   console.log('Buscando anúncios ativos...')
   try {
     const res = await api.get('/ativos', { timeout: 10000 })
-    console.log('Anúncios recebidos:', res.data)
-
     activeAds.value = (res.data || [])
       .filter(ad => ad.status === 'active' && ad.image && ad.name && ad.price >= 0 && ad._id)
       .slice(0, 10)
@@ -151,10 +140,8 @@ const fetchActiveAds = async () => {
   }
 }
 
-// === CONTADOR ===
 const startCountdown = () => {
-  const totalSeconds = 30
-  countdown.value = totalSeconds
+  countdown.value = 30
   clearTimers()
 
   intervalId = setInterval(() => {
@@ -166,39 +153,43 @@ const startCountdown = () => {
     }
   }, 1000)
 
-  timeoutId = setTimeout(closeAd, totalSeconds * 1000)
+  timeoutId = setTimeout(closeAd, 30000)
 }
 
-// === PRÓXIMO ANÚNCIO ===
 const nextAd = () => {
   if (activeAds.value.length <= 1) return
-
   clearTimers()
-  userInteracted.value = true
-
   currentIndex.value = (currentIndex.value + 1) % activeAds.value.length
   activeAd.value = activeAds.value[currentIndex.value]
-
-  console.log('Próximo anúncio:', activeAd.value.name)
   startCountdown()
 }
 
 const debouncedNextAd = debounce(nextAd, 300)
 
-// === REGISTRAR VIEW (AO CARREGAR IMAGEM) ===
 const registrarView = async (id) => {
   try {
     await api.post(`/anuncios/${id}/view`)
-  } catch (err) {
-    // Silencioso
-  }
+    await sendMetaEvent('ViewContent', {
+      content_name: activeAd.value?.name || 'Anúncio',
+      content_category: 'anuncios',
+      content_ids: [id],
+      content_type: 'product',
+      value: activeAd.value?.price || 0,
+      currency: 'MZN'
+    })
+  } catch (err) {}
 }
 
-// === CLIQUE NO WHATSAPP (NOVA ROTA /click) ===
 const handleWhatsAppClick = async (id, link) => {
   try {
     await api.post(`/anuncios/${id}/click`)
-    console.log('Clique registrado:', id)
+    await sendMetaEvent('Lead', {
+      content_name: activeAd.value?.name || 'Anúncio',
+      content_category: 'anuncios',
+      content_ids: [id],
+      value: activeAd.value?.price || 0,
+      currency: 'MZN'
+    })
   } catch (err) {
     console.error('Erro ao registrar clique:', err)
   } finally {
@@ -206,13 +197,11 @@ const handleWhatsAppClick = async (id, link) => {
   }
 }
 
-// === FECHAR ===
 const closeAd = () => {
   showAd.value = false
   activeAd.value = null
   clearTimers()
   localStorage.setItem('adLastClosed', Date.now().toString())
-
   clearTimeout(reappearTimeout)
   reappearTimeout = setTimeout(() => {
     showAd.value = true
@@ -227,12 +216,10 @@ const clearTimers = () => {
   intervalId = null
 }
 
-// === IMAGEM ERRO ===
 const handleImageError = (e) => {
   e.target.src = '/img/placeholder-ad.jpg'
 }
 
-// === FORMATAR PREÇO ===
 const formatPrice = (value) => {
   return new Intl.NumberFormat('pt-MZ', {
     style: 'currency',
@@ -241,10 +228,8 @@ const formatPrice = (value) => {
   }).format(value || 0)
 }
 
-// === MONTAGEM ===
 onMounted(() => {
   fetchActiveAds()
-
   pollingInterval = setInterval(() => {
     if (!showAd.value) {
       const lastClosed = localStorage.getItem('adLastClosed')

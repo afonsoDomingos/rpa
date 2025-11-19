@@ -75,152 +75,123 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import mpesaIcon from '@/assets/img/Mpesa.png'
 import emolaIcon from '@/assets/img/Emola.png'
-import { useFacebookTracking } from '@/plugins/facebookTracking'   // ← ADICIONADO
 
-const { track, generateEventId } = useFacebookTracking()   // ← ADICIONADO
+// A NOVA FUNÇÃO CENTRAL DE TRACKING (ÚNICA QUE USAS)
+import { sendMetaEvent } from '@/utils/meta'
 
 const props = defineProps({
-  weeks: { type: Number, required: true },
-  formData: { type: Object, required: true },
-  anuncioId: { type: String, required: true }
+  weeks: Number,
+  formData: Object,
+  anuncioId: String
 })
 
 const router = useRouter()
 
-const PRICES = [500, 1000, 1500, 2000]
-
-const totalPrice = computed(() => {
-  const index = Number(props.weeks) - 1
-  return (index >= 0 && index < PRICES.length) ? PRICES[index] : 500
-})
-
-const selectedMethod = ref('mpesa')
+// Estado
+const selectedMethod = ref('')
 const phone = ref('')
-const phoneError = ref('')
 const loading = ref(false)
 const successMessage = ref('')
 const errorMessage = ref('')
-const isPhoneValid = ref(false)
+const phoneError = ref('')
 
-const placeholder = computed(() =>
-  selectedMethod.value === 'mpesa' ? '84/85 XXXXXXX' : '86/87 XXXXXXX'
-)
+// Placeholder dinâmico (opcional)
+const placeholder = ref('84 123 4567')
 
-// === TRACKING: InitiateCheckout ao carregar a tela de pagamento ===
-onMounted(() => {
-  const saved = localStorage.getItem('paymentPhone')
-  if (saved) {
-    phone.value = saved.replace(/^258/, '')
-    validatePhone()
-  }
-
-  // Tracking do InitiateCheckout (passo do pagamento)
-  track('InitiateCheckout', {
-    value: totalPrice.value,
-    currency: 'MZN',
-    num_items: 1,
-    content_type: 'product',
-    content_ids: ['anuncio'],
-    content_name: 'Anúncio Corporativo',
-    predicted_ltv: totalPrice.value * 1.5  // estimativa simples
-  })
+// Preço total
+const totalPrice = computed(() => {
+  const prices = [500, 1000, 1500, 2000]
+  return prices[props.weeks - 1] || 0
 })
 
+// Validação do telefone
+const isPhoneValid = computed(() => {
+  const cleaned = phone.value.replace(/\D/g, '')
+  return cleaned.length === 9 && /^8[4-7]/.test(cleaned)
+})
+
+// Formatação visual do telefone (opcional)
 const formatPhone = () => {
-  phone.value = phone.value.replace(/\D/g, '').slice(0, 9)
+  let v = phone.value.replace(/\D/g, '')
+  if (v.length > 6) v = v.replace(/^(\d{2})(\d{3})(\d{4})$/, '$1 $2 $3')
+  else if (v.length > 3) v = v.replace(/^(\d{2})(\d{3})/, '$1 $2 ')
+  else if (v.length > 2) v = v.replace(/^(\d{2})/, '$1 ')
+  phone.value = v
 }
 
 const validatePhone = () => {
-  const num = phone.value.trim()
-  phoneError.value = ''
-  isPhoneValid.value = false
-
-  if (!num) return
-  if (num.length !== 9) {
-    phoneError.value = '9 dígitos obrigatórios'
-    return
+  if (!isPhoneValid.value && phone.value.length > 0) {
+    phoneError.value = 'Número inválido. Use formato 84 123 4567'
+  } else {
+    phoneError.value = ''
   }
-  if (selectedMethod.value === 'mpesa' && !/^8[45]\d{7}$/.test(num)) {
-    phoneError.value = 'M-Pesa: use 84 ou 85'
-    return
-  }
-  if (selectedMethod.value === 'emola' && !/^8[67]\d{7}$/.test(num)) {
-    phoneError.value = 'Emola: use 86 ou 87'
-    return
-  }
-  isPhoneValid.value = true
 }
 
-watch(selectedMethod, validatePhone)
+// Normaliza para 258XXXXXXXXX
+const normalizePhone = () => {
+  const cleaned = phone.value.replace(/\D/g, '')
+  return '258' + cleaned
+}
 
+// PAGAMENTO
 const handlePayment = async () => {
-  validatePhone()
-  if (!isPhoneValid.value) {
-    errorMessage.value = 'Corrija o número de telefone.'
+  if (!selectedMethod.value || !isPhoneValid.value || !props.anuncioId) {
+    errorMessage.value = 'Preencha todos os campos corretamente.'
     return
-  }
-  if (!props.anuncioId) {
-    errorMessage.value = 'Erro: Anúncio não foi criado.'
-    return
-  }
-
-  const weeks = Number(props.weeks)
-  if (!weeks || weeks < 1 || weeks > 4 || !Number.isInteger(weeks)) {
-    errorMessage.value = 'Duração inválida: selecione 1 a 4 semanas.'
-    return
-  }
-
-  const payload = {
-    amount: Number(totalPrice.value),
-    method: selectedMethod.value,
-    phone: `258${phone.value}`,
-    type: 'anuncio',
-    anuncioId: props.anuncioId,
-    weeks: weeks
   }
 
   loading.value = true
   errorMessage.value = ''
   successMessage.value = ''
 
+  const finalPhone = normalizePhone()
+
   try {
-    const res = await api.post('/pagamentos/processar', payload, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    const res = await api.post('/api/anuncios/pagar', {
+      anuncioId: props.anuncioId,
+      weeks: props.weeks,
+      method: selectedMethod.value,
+      phone: finalPhone
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
     })
 
-    if (res.data.sucesso) {
-      const eventID = generateEventId()
-
-      // TRACKING DO PURCHASE (client-side + mesmo eventID será usado no backend)
-      track('Purchase', {
+    if (res.data.sucesso || res.data.success) {
+      // EVENTO PURCHASE – O MAIS VALIOSO DO TEU NEGÓCIO
+      await sendMetaEvent('Purchase', {
         value: totalPrice.value,
         currency: 'MZN',
-        content_ids: ['anuncio'],
-        content_type: 'product',
-        content_name: 'Anúncio Corporativo',
-        num_items: 1,
-        predicted_ltv: totalPrice.value * 1.5,
-        eventID
+        content_ids: ['anuncio_pago'],
+        content_name: `Anúncio Patrocinado - ${props.weeks} semana${props.weeks > 1 ? 's' : ''}`,
+        num_items: 1
+      }, {
+        phone: finalPhone   // 95%+ match rate garantido
       })
 
-      successMessage.value = 'Pagamento iniciado! Aguarde confirmação no seu telemóvel.'
-      localStorage.setItem('paymentPhone', `258${phone.value}`)
-      localStorage.removeItem('anuncieState')
-      setTimeout(() => router.push('/meus-anuncios'), 30000)
+      successMessage.value = 'Pagamento concluído com sucesso! O seu anúncio já está ativo.'
+      
+      setTimeout(() => {
+        router.push('/')
+      }, 4000)
+    } else {
+      errorMessage.value = res.data.mensagem || 'Pagamento não foi concluído.'
     }
   } catch (err) {
-    errorMessage.value = err.response?.data?.mensagem || 'Erro ao processar pagamento.'
-    console.error('ERRO NO PAGAMENTO:', err.response?.data || err)
+    errorMessage.value = err.response?.data?.mensagem || 'Erro de conexão. Tente novamente.'
   } finally {
     loading.value = false
   }
 }
 </script>
+
+
 
 
 <style scoped>

@@ -4,7 +4,6 @@ import App from "./App.vue";
 import router from "./router";
 import i18n from './i18n';
 
-import metaPixel from './plugins/metaPixel';
 
 // Bootstrap CSS + JS
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -42,20 +41,7 @@ app.use(i18n);
 app.use(createPinia());
 app.use(router);
 app.use(materialKit);
-app.use(metaPixel); // ← ativa o plugin Meta Pixel
 
 
-// Track PageView em toda mudança de rota (SPA)
-router.afterEach((to) => {
-  // Pequeno delay para garantir que a página renderizou
-  setTimeout(() => {
-    window.fbq('track', 'PageView');
-    // Opcional: enviar ViewContent com nome da rota
-    window.fbq('track', 'ViewContent', {
-      content_name: to.name || to.path,
-      content_category: to.path.includes('anuncie') ? 'anunciantes' : 'assinaturas'
-    });
-  }, 300);
-});
 
 app.mount("#app");

@@ -7,7 +7,7 @@
         v-for="n in 4"
         :key="n"
         :class="['pkg', { active: selected === n }]"
-        @click="$emit('select', n)"
+        @click="handleSelect(n)"
         :aria-label="`Selecionar pacote de ${n} ${n === 1 ? 'semana' : 'semanas'} por ${prices[n-1]} MZN`"
         type="button"
       >
@@ -38,10 +38,24 @@
 
 <script setup>
 import { AD_PRICES } from '@/utils/prices'
+import { sendMetaEvent } from '@/utils/meta'
+
 defineProps({ selected: Number })
 defineEmits(['select', 'pay'])
 
 const prices = AD_PRICES || [500, 1000, 1500, 2000]
+
+const handleSelect = async (n) => {
+  $emit('select', n)
+
+  await sendMetaEvent('AddToCart', {
+    content_ids: ['pacote_anuncio'],
+    content_name: `Pacote ${n} semana${n > 1 ? 's' : ''}`,
+    value: prices[n - 1],
+    currency: 'MZN',
+    num_items: 1
+  })
+}
 </script>
 
 <style scoped>
