@@ -298,7 +298,7 @@ onUnmounted(() => {
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   letter-spacing: 0.2px;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .ad-sponsored i {
