@@ -26,7 +26,7 @@
           <i class="bi bi-plus-circle"></i> Criar Anúncio
         </button>
 
-        <button @click="$router.push('/')" class="back-home-btn">
+        <button @click="$router.push('/home')" class="back-home-btn">
           <i class="bi bi-house-door"></i> Voltar para Home
         </button>
       </div>
