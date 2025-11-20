@@ -53,13 +53,15 @@
               <span>Falta <strong>{{ countdown }}s</strong></span>
             </div>
 
+            <!-- BOTÃO WHATSAPP COM REGISTRO DE CLIQUE -->
             <button
-              @click.stop="handleWhatsAppClick(activeAd._id, activeAd.ctaLink)"
+              @click.stop="handleWhatsAppClick(activeAd._id, activeAd.ctaLink, activeAd.phone)"
               class="ad-action-btn ad-whatsapp-btn"
+              :disabled="enviandoWhatsapp"
               :aria-label="`Contactar via WhatsApp sobre ${activeAd.name || 'o anúncio'}`"
             >
               <i class="bi bi-whatsapp" aria-hidden="true"></i>
-              Contactar
+              {{ enviandoWhatsapp ? 'Abrindo...' : 'Contactar' }}
             </button>
 
             <button
@@ -95,11 +97,15 @@ import api from '@/api'
 import { sendMetaEvent } from '@/utils/meta'
 
 const router = useRouter()
+
+// Estado do anúncio
 const showAd = ref(false)
 const activeAd = ref(null)
 const activeAds = ref([])
-const countdown = ref(30)
 const currentIndex = ref(0)
+const countdown = ref(30)
+const enviandoWhatsapp = ref(false)   // <-- feedback visual
+
 let timeoutId = null
 let intervalId = null
 let pollingInterval = null
@@ -107,12 +113,13 @@ let reappearTimeout = null
 
 const ONE_HOUR_MS = 60 * 60 * 1000
 
+// === BUSCAR ANÚNCIOS ATIVOS ===
 const fetchActiveAds = async () => {
   console.log('Buscando anúncios ativos...')
   try {
     const res = await api.get('/anuncios/ativos', { timeout: 10000 })
     activeAds.value = (res.data || [])
-      .filter(ad => ad.status === 'active' && ad.image && ad.name && ad.price >= 0 && ad._id)
+      .filter(ad => ad.status === 'active' && ad.image && ad.name && ad.price >= 0 && ad._id && ad.phone)
       .slice(0, 10)
 
     if (activeAds.value.length > 0) {
@@ -129,7 +136,7 @@ const fetchActiveAds = async () => {
     console.error('Erro ao carregar anúncios:', err)
     const cached = localStorage.getItem('cachedAds')
     if (cached) {
-      activeAds.value = JSON.parse(cached).filter(ad => ad.status === 'active')
+      activeAds.value = JSON.parse(cached)
       if (activeAds.value.length > 0) {
         currentIndex.value = Math.min(currentIndex.value, activeAds.value.length - 1)
         activeAd.value = activeAds.value[currentIndex.value]
@@ -140,17 +147,14 @@ const fetchActiveAds = async () => {
   }
 }
 
+// === CONTADOR E CICLO ===
 const startCountdown = () => {
   countdown.value = 30
   clearTimers()
 
   intervalId = setInterval(() => {
-    if (countdown.value > 0) {
-      countdown.value--
-    } else {
-      clearInterval(intervalId)
-      closeAd()
-    }
+    if (countdown.value > 0) countdown.value--
+    else clearInterval(intervalId)
   }, 1000)
 
   timeoutId = setTimeout(closeAd, 30000)
@@ -166,24 +170,11 @@ const nextAd = () => {
 
 const debouncedNextAd = debounce(nextAd, 300)
 
+// === REGISTRAR VIEW ===
 const registrarView = async (id) => {
   try {
     await api.post(`/anuncios/${id}/view`)
-    await sendMetaEvent('ViewContent', {
-      content_name: activeAd.value?.name || 'Anúncio',
-      content_category: 'anuncios',
-      content_ids: [id],
-      content_type: 'product',
-      value: activeAd.value?.price || 0,
-      currency: 'MZN'
-    })
-  } catch (err) {}
-}
-
-const handleWhatsAppClick = async (id, link) => {
-  try {
-    await api.post(`/anuncios/${id}/click`)
-    await sendMetaEvent('Lead', {
+    sendMetaEvent('ViewContent', {
       content_name: activeAd.value?.name || 'Anúncio',
       content_category: 'anuncios',
       content_ids: [id],
@@ -191,12 +182,51 @@ const handleWhatsAppClick = async (id, link) => {
       currency: 'MZN'
     })
   } catch (err) {
-    console.error('Erro ao registrar clique:', err)
-  } finally {
-    window.open(link, '_blank')
+    console.warn('Erro ao registrar view', err)
   }
 }
 
+// === CLIQUE NO WHATSAPP (COM REGISTRO E ABERTURA CORRETA) ===
+const handleWhatsAppClick = async (id, ctaLink, phone) => {
+  if (enviandoWhatsapp.value) return
+  enviandoWhatsapp.value = true
+
+  try {
+    // 1. Registra o clique
+    await api.post(`/anuncios/${id}/clique`)
+
+    // 2. Envia evento pro Meta (Lead)
+    sendMetaEvent('Lead', {
+      content_name: activeAd.value?.name || 'Anúncio',
+      content_category: 'anuncios',
+      content_ids: [id],
+      value: activeAd.value?.price || 0,
+      currency: 'MZN'
+    })
+  } catch (err) {
+    console.warn('Erro ao registrar clique (mas abre WhatsApp mesmo assim)', err)
+  } finally {
+    // 3. Monta URL correta do WhatsApp
+    const numeroLimpo = (phone || '').replace(/\D/g, '')
+    if (!numeroLimpo || numeroLimpo.length < 9) {
+      alert('Número de contato não disponível')
+      enviandoWhatsapp.value = false
+      return
+    }
+
+    const mensagem = ctaLink
+      ? `Olá! Vi o anúncio: *${activeAd.value.name}* — ${ctaLink}`
+      : `Olá! Gostaria de saber mais sobre *${activeAd.value.name}*`
+
+    const url = `https://wa.me/${numeroLimpo}?text=${encodeURIComponent(mensagem)}`
+    window.open(url, '_blank', 'noopener,noreferrer')
+
+    // Reset do botão
+    setTimeout(() => enviandoWhatsapp.value = false, 1500)
+  }
+}
+
+// === FECHAR ANÚNCIO ===
 const closeAd = () => {
   showAd.value = false
   activeAd.value = null
@@ -228,6 +258,7 @@ const formatPrice = (value) => {
   }).format(value || 0)
 }
 
+// === CICLO DE VIDA ===
 onMounted(() => {
   fetchActiveAds()
   pollingInterval = setInterval(() => {
@@ -250,6 +281,7 @@ onUnmounted(() => {
   window.removeEventListener('newAdCreated', fetchActiveAds)
 })
 </script>
+
 
 <style scoped>
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
@@ -557,4 +589,5 @@ onUnmounted(() => {
   }
   .ad-sponsored i { font-size: 0.65rem; }
 }
+
 </style>

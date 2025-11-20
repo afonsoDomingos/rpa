@@ -1,12 +1,11 @@
 <template>
   <div class="admin-anuncios">
-    <!-- LOADING -->
+    <!-- LOADING / ERRO (mantido igual) -->
     <div v-if="loading" class="loading-state">
       <i class="bi bi-hourglass-split"></i>
       <p>Carregando anúncios...</p>
     </div>
 
-    <!-- ERRO -->
     <div v-else-if="error" class="error-state">
       <i class="bi bi-exclamation-triangle"></i>
       <p>{{ error }}</p>
@@ -22,7 +21,7 @@
         <h1 class="page-title">Admin - Anúncios</h1>
       </header>
 
-      <!-- FILTROS -->
+      <!-- FILTROS (mantido) -->
       <div class="filters">
         <div class="filter-group">
           <select v-model="filtroStatus" @change="aplicarFiltro" class="filter-select">
@@ -31,15 +30,8 @@
             <option value="pending">Pendentes</option>
             <option value="paused">Pausados</option>
           </select>
-
-          <input
-            v-model="filtroUsuario"
-            @input="debouncedFiltro"
-            placeholder="Filtrar por usuário"
-            class="filter-input"
-          />
+          <input v-model="filtroUsuario" @input="debouncedFiltro" placeholder="Filtrar por usuário" class="filter-input" />
         </div>
-
         <div class="filter-stats">
           <span class="stat-item">Total: {{ totalAnuncios }}</span>
           <span class="stat-item">Ativos: {{ countByStatus.active }}</span>
@@ -48,79 +40,37 @@
         </div>
       </div>
 
-      <!-- GRID -->
+      <!-- GRID DE ANÚNCIOS -->
       <div class="grid-anuncios">
-        <div
-          v-for="(ad, i) in anunciosFiltrados"
-          :key="ad._id"
-          class="anuncio-card"
-          :style="{ '--i': i }"
-        >
-          <!-- STATUS -->
-          <div class="anuncio-status" :class="ad.status">
-            {{ getStatusText(ad.status) }}
-          </div>
+        <div v-for="(ad, i) in anunciosFiltrados" :key="ad._id" class="anuncio-card" :style="{ '--i': i }">
+          <div class="anuncio-status" :class="ad.status">{{ getStatusText(ad.status) }}</div>
+          <img :src="ad.image" :alt="ad.name" class="anuncio-img" @error="handleImageError" @load="onImageLoad" />
 
-          <!-- IMAGEM -->
-          <img
-            :src="ad.image"
-            :alt="ad.name"
-            class="anuncio-img"
-            @error="handleImageError"
-            @load="onImageLoad"
-          />
-
-          <!-- INFO -->
           <div class="anuncio-info">
             <h3 class="anuncio-titulo">{{ ad.name }}</h3>
             <p class="anuncio-desc">{{ ad.description }}</p>
-            <div class="anuncio-preco">
-              <i class="bi bi-currency-exchange"></i>
-              <span>{{ formatPrice(ad.price) }}</span>
-            </div>
-            <div class="anuncio-user">
-              {{ ad.userName || 'Anônimo' }}
-              <small v-if="ad.userEmail">({{ ad.userEmail }})</small>
-            </div>
+            <div class="anuncio-preco"><i class="bi bi-currency-exchange"></i> {{ formatPrice(ad.price) }}</div>
+            <div class="anuncio-user">{{ ad.userName || 'Anônimo' }} <small v-if="ad.userEmail">({{ ad.userEmail }})</small></div>
           </div>
 
-          <!-- ESTATÍSTICAS -->
           <div class="anuncio-stats">
-            <div class="stat-row">
-              <i class="bi bi-eye"></i> Visualizações: <strong>{{ ad.views || 0 }}</strong>
-            </div>
-            <div class="stat-row">
-              <i class="bi bi-whatsapp"></i> Cliques: <strong>{{ ad.clicks || 0 }}</strong>
-            </div>
-            <div v-if="ad.expiresAt" class="stat-row">
-              <i class="bi bi-clock"></i> Expira: {{ formatDate(ad.expiresAt) }}
-            </div>
+            <div class="stat-row"><i class="bi bi-eye"></i> Visualizações: <strong>{{ ad.views || 0 }}</strong></div>
+            <div class="stat-row"><i class="bi bi-whatsapp"></i> Cliques: <strong>{{ ad.clicks || 0 }}</strong></div>
+            <div v-if="ad.expiresAt" class="stat-row"><i class="bi bi-clock"></i> Expira: {{ formatDate(ad.expiresAt) }}</div>
           </div>
 
-          <!-- AÇÕES -->
           <div class="anuncio-acoes">
-            <button @click="abrirStats(ad)" class="btn-stats">
-              <i class="bi bi-graph-up"></i>
-              <span class="btn-text">Estatísticas</span>
-            </button>
-
-            <button
-              @click="toggleStatus(ad)"
-              :class="['btn-status', ad.status === 'paused' ? 'btn-ativar' : 'btn-pausar']"
-            >
+            <button @click="abrirStats(ad)" class="btn-stats"><i class="bi bi-graph-up"></i><span class="btn-text">Estatísticas</span></button>
+            <button @click="toggleStatus(ad)" :class="['btn-status', ad.status === 'paused' ? 'btn-ativar' : 'btn-pausar']">
               <i :class="ad.status === 'paused' ? 'bi bi-play' : 'bi bi-pause'"></i>
               <span class="btn-text">{{ ad.status === 'paused' ? 'Ativar' : 'Pausar' }}</span>
             </button>
-
-            <button @click="confirmarRemocao(ad._id)" class="btn-remover">
-              <i class="bi bi-trash"></i>
-              <span class="btn-text">Remover</span>
-            </button>
+            <button @click="confirmarRemocao(ad._id)" class="btn-remover"><i class="bi bi-trash"></i><span class="btn-text">Remover</span></button>
           </div>
         </div>
       </div>
 
-      <!-- MODAL COM GRÁFICO -->
+      <!-- MODAL COM GRÁFICO EM TEMPO REAL -->
       <div v-if="modalAberto" class="modal-overlay" @click="fecharModal">
         <div class="modal-content" @click.stop>
           <header class="modal-header">
@@ -130,7 +80,7 @@
           <div class="modal-body">
             <div class="stats-grid">
               <div class="stat-card"><i class="bi bi-eye"></i><h3>{{ anuncioModal?.views || 0 }}</h3><p>Visualizações</p></div>
-              <div class="stat-card"><i class="bi bi-whatsapp"></i><h3>{{ anuncioModal?.clicks || 0 }}</h3><p>Cliques</p></div>
+              <div class="stat-card"><i class="bi bi-whatsapp"></i><h3>{{ anuncioModal?.clicks || 0 }}</h3><p>Cliques Totais</p></div>
               <div class="stat-card"><i class="bi bi-people"></i><h3>{{ anuncioModal?.impressions || 0 }}</h3><p>Impressões</p></div>
               <div class="stat-card"><i class="bi bi-clock-history"></i><h3>{{ anuncioModal?.duration || 'N/A' }} dias</h3><p>Duração</p></div>
             </div>
@@ -138,6 +88,7 @@
             <div v-if="anuncioModal?.statsHistory?.length" class="chart-container">
               <canvas ref="chartRef"></canvas>
             </div>
+            <div v-else class="no-data">Ainda sem cliques nos últimos 7 dias</div>
           </div>
         </div>
       </div>
@@ -146,7 +97,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import io from 'socket.io-client'
@@ -171,37 +122,28 @@ const debouncedFiltro = () => {
   debounceTimer = setTimeout(aplicarFiltro, 400)
 }
 
-// === FILTROS ===
-const anunciosFiltrados = computed(() => {
-  if (filtroStatus.value === 'todos') return anuncios.value
-  return anuncios.value.filter(a => a.status === filtroStatus.value)
-})
-
+// === FILTROS & CONTADORES ===
+const anunciosFiltrados = computed(() => filtroStatus.value === 'todos' ? anuncios.value : anuncios.value.filter(a => a.status === filtroStatus.value))
 const countByStatus = computed(() => {
   const c = { active: 0, pending: 0, paused: 0 }
   anuncios.value.forEach(a => c[a.status] = (c[a.status] || 0) + 1)
   return c
 })
-
 const totalAnuncios = computed(() => anuncios.value.length)
 
-// === CARREGAR COM FILTROS ===
+// === CARREGAR ANÚNCIOS ===
 const aplicarFiltro = async () => {
   loading.value = true
   error.value = ''
-
   try {
     const params = new URLSearchParams()
     if (filtroStatus.value !== 'todos') params.append('status', filtroStatus.value)
     if (filtroUsuario.value.trim()) params.append('usuario', filtroUsuario.value.trim())
-
     const res = await api.get(`/anuncios/admin${params.toString() ? `?${params}` : ''}`)
     anuncios.value = Array.isArray(res.data) ? res.data : []
   } catch (err) {
     console.error('Erro ao carregar:', err)
-    if (err.response?.status === 401) error.value = 'Sessão expirada.'
-    else if (err.response?.status === 403) error.value = 'Acesso negado.'
-    else error.value = err.response?.data?.mensagem || 'Erro ao carregar.'
+    error.value = err.response?.status === 401 ? 'Sessão expirada.' : err.response?.status === 403 ? 'Acesso negado.' : err.response?.data?.mensagem || 'Erro ao carregar.'
   } finally {
     loading.value = false
   }
@@ -216,27 +158,22 @@ const getStatusText = s => ({ active: 'Ativo', pending: 'Pendente', paused: 'Pau
 const handleImageError = e => { e.target.src = '/img/placeholder-ad.jpg'; e.target.classList.add('error') }
 const onImageLoad = e => e.target.classList.add('loaded')
 
-// === AÇÕES ===
+// === AÇÕES ADMIN ===
 const toggleStatus = async (ad) => {
   const novo = ad.status === 'paused' ? 'active' : 'paused'
-  if (!confirm(`Deseja ${novo === 'active' ? 'ativar' : 'pausar'}?`)) return
-
+  if (!confirm(`Deseja ${novo === 'active' ? 'ativar' : 'pausar'} este anúncio?`)) return
   try {
     await api.patch(`/anuncios/admin/${ad._id}/status`, { status: novo })
     ad.status = novo
-  } catch (e) {
-    alert(e.response?.data?.mensagem || 'Erro ao alterar status')
-  }
+  } catch (e) { alert(e.response?.data?.mensagem || 'Erro ao alterar status') }
 }
 
 const confirmarRemocao = async (id) => {
-  if (!confirm('Remover permanentemente?')) return
+  if (!confirm('Remover permanentemente este anúncio?')) return
   try {
     await api.delete(`/anuncios/admin/${id}`)
     anuncios.value = anuncios.value.filter(a => a._id !== id)
-  } catch (e) {
-    alert(e.response?.data?.mensagem || 'Erro ao remover')
-  }
+  } catch (e) { alert(e.response?.data?.mensagem || 'Erro ao remover') }
 }
 
 const abrirStats = async (ad) => {
@@ -244,64 +181,127 @@ const abrirStats = async (ad) => {
     const res = await api.get(`/anuncios/admin/${ad._id}/stats`)
     anuncioModal.value = { ...ad, ...res.data }
     modalAberto.value = true
+    await nextTick() // garante que o canvas exista antes de criar o gráfico
+    criarOuAtualizarGrafico()
   } catch (e) {
     alert(e.response?.data?.mensagem || 'Erro ao carregar estatísticas')
   }
 }
 
-const fecharModal = () => { modalAberto.value = false; anuncioModal.value = null }
+const fecharModal = () => {
+  modalAberto.value = false
+  anuncioModal.value = null
+  if (chart) { chart.destroy(); chart = null }
+}
 
 const recarregar = () => aplicarFiltro()
 
-// === ATUALIZAÇÃO EM TEMPO REAL ===
+// === ATUALIZAÇÃO LOCAL (lista e modal) ===
 const atualizarEstatisticaLocal = (anuncioId, campo, valor) => {
-  const anuncio = anuncios.value.find(a => a._id === anuncioId)
-  if (anuncio) {
-    anuncio[campo] = valor
+  const anuncioNaLista = anuncios.value.find(a => a._id === anuncioId)
+  if (anuncioNaLista) anuncioNaLista[campo] = valor
+
+  // Se o modal estiver aberto com esse anúncio → atualiza também lá
+  if (anuncioModal.value?._id === anuncioId) {
+    anuncioModal.value[campo] = valor
+    // Se for clique, precisamos atualizar o histórico do dia atual no gráfico
+    if (campo === 'clicks') atualizarGraficoComNovoClique()
   }
 }
 
-// === GRÁFICO ===
-watch(() => anuncioModal.value, (novo) => {
-  if (novo && chartRef.value) {
-    if (chart) chart.destroy()
+// === GRÁFICO EM TEMPO REAL ===
+const criarOuAtualizarGrafico = () => {
+  if (!chartRef.value || !anuncioModal.value?.statsHistory) return
 
-    const ctx = chartRef.value.getContext('2d')
-    chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: novo.statsHistory.map(h => new Date(h.date).toLocaleDateString('pt-MZ')),
-        datasets: [{
+  const labels = anuncioModal.value.statsHistory.map(h => new Date(h.date).toLocaleDateString('pt-MZ'))
+  const clicksData = anuncioModal.value.statsHistory.map(h => h.clicks)
+
+  if (chart) chart.destroy()
+
+  const ctx = chartRef.value.getContext('2d')
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
           label: 'Cliques por dia',
-          data: novo.statsHistory.map(h => h.clicks),
+          data: clicksData,
           borderColor: '#7c3aed',
-          backgroundColor: 'rgba(124, 58, 237, 0.1)',
+          backgroundColor: 'rgba(124, 58, 237, 0.15)',
           fill: true,
-          tension: 0.4
-        }]
+          tension: 0.4,
+          pointBackgroundColor: '#7c3aed',
+          pointRadius: 5,
+          pointHoverRadius: 7
+        },
+        {
+          label: 'Visualizações (total acumulado)',
+          data: labels.map((_, i) => anuncioModal.value.views || 0),
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          borderDash: [5, 5],
+          fill: false,
+          tension: 0.3,
+          pointRadius: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { color: '#e2e8f0' } },
+        tooltip: { mode: 'index', intersect: false }
       },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true } }
+      scales: {
+        y: { beginAtZero: true, ticks: { color: '#e2e8f0' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+        x: { ticks: { color: '#e2e8f0' }, grid: { color: 'rgba(255,255,255,0.1)' } }
       }
-    })
-  }
-}, { deep: true })
+    }
+  })
+}
 
-// === MONTAGEM ===
+// Atualiza o gráfico quando chega um clique novo (com modal aberto)
+const atualizarGraficoComNovoClique = async () => {
+  if (!chart || !anuncioModal.value) return
+
+  // Recarrega apenas o histórico do dia (mais leve)
+  try {
+    const res = await api.get(`/anuncios/admin/${anuncioModal.value._id}/stats`)
+    anuncioModal.value.statsHistory = res.data.statsHistory
+    anuncioModal.value.clicks = res.data.clicks
+
+    const novoHistory = res.data.statsHistory
+    const labels = novoHistory.map(h => new Date(h.date).toLocaleDateString('pt-MZ'))
+    const clicksData = novoHistory.map(h => h.clicks)
+
+    chart.data.labels = labels
+    chart.data.datasets[0].data = clicksData
+    chart.data.datasets[1].data = labels.map(() => anuncioModal.value.views || 0)
+    chart.update('quiet') // animação suave
+  } catch (e) {
+    console.warn('Falha ao atualizar gráfico em tempo real', e)
+  }
+}
+
+// === SOCKET.IO - TEMPO REAL ===
 onMounted(() => {
   aplicarFiltro()
 
-  // Socket.IO
-  socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000')
+  socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', { transports: ['websocket'] })
 
   socket.on('anuncio:view', (data) => {
     atualizarEstatisticaLocal(data.anuncioId, 'views', data.views)
+    if (anuncioModal.value?._id === data.anuncioId && chart) {
+      chart.data.datasets[1].data = chart.data.labels.map(() => data.views)
+      chart.update('quiet')
+    }
   })
 
   socket.on('anuncio:click', (data) => {
     atualizarEstatisticaLocal(data.anuncioId, 'clicks', data.clicks)
+    // O gráfico será atualizado pela função acima (atualizarGraficoComNovoClique)
   })
 })
 
@@ -316,6 +316,22 @@ onUnmounted(() => {
 <style scoped>
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+.chart-container {
+  position: relative;
+  height: 300px;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(255,255,255,0.05);
+  border-radius: 0.8rem;
+}
 
 .admin-anuncios {
   font-family: 'Poppins', sans-serif;
