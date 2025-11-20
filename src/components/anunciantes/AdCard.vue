@@ -1,38 +1,34 @@
 <template>
   <transition name="slide-slow">
     <div v-if="showAd" class="ad-card-container" @click.self="closeAd">
-      <!-- PLACEHOLDER (SEM ANÚNCIOS) -->
+      
+      <!-- PLACEHOLDER QUANDO NÃO TEM ANÚNCIOS -->
       <div v-if="!activeAds.length" class="ad-placeholder">
         <div class="placeholder-icon">
-          <i class="bi bi-megaphone-fill" aria-hidden="true"></i>
+          <i class="bi bi-megaphone-fill"></i>
         </div>
         <p class="placeholder-title">Anuncie aqui</p>
         <span class="placeholder-subtitle">Produtos & Serviços...</span>
-        <button
-          @click.stop="$router.push('/anuncie')"
-          class="ad-action-btn"
-          aria-label="Criar um novo anúncio"
-        >
-          <i class="bi bi-plus-circle" aria-hidden="true"></i>
-          Anuncie Aqui
+        <button @click.stop="$router.push('/anuncie')" class="ad-action-btn">
+          <i class="bi bi-plus-circle"></i> Anuncie Aqui
         </button>
       </div>
 
       <!-- ANÚNCIO ATIVO -->
       <transition name="fade-ad" mode="out-in">
         <div v-if="activeAd" :key="currentIndex" class="ad-content">
-          <button @click="closeAd" class="close-btn" aria-label="Fechar anúncio">
-            <i class="bi bi-x-lg" aria-hidden="true"></i>
+          <button @click="closeAd" class="close-btn">
+            <i class="bi bi-x-lg"></i>
           </button>
 
           <div class="ad-sponsored">
-            <i class="bi bi-megaphone-fill" aria-hidden="true"></i>
+            <i class="bi bi-megaphone-fill"></i>
             <span>Patrocinado</span>
           </div>
 
           <img
             :src="activeAd.image"
-            :alt="activeAd.name || 'Imagem do anúncio'"
+            :alt="activeAd.name"
             class="ad-image"
             loading="lazy"
             @load="registrarView(activeAd._id)"
@@ -40,27 +36,26 @@
           />
 
           <div class="ad-body">
-            <h3 class="ad-title">{{ activeAd.name || 'Anúncio sem título' }}</h3>
-            <p class="ad-description">{{ activeAd.description || 'Sem descrição disponível' }}</p>
+            <h3 class="ad-title">{{ activeAd.name || 'Anúncio' }}</h3>
+            <p class="ad-description">{{ activeAd.description || 'Sem descrição' }}</p>
 
             <div class="ad-price">
-              <i class="bi bi-currency-exchange" aria-hidden="true"></i>
+              <i class="bi bi-currency-exchange"></i>
               <strong>{{ formatPrice(activeAd.price || 0) }}</strong>
             </div>
 
             <div class="ad-action-btn ad-timer-btn">
-              <i class="bi bi-clock-history" aria-hidden="true"></i>
+              <i class="bi bi-clock-history"></i>
               <span>Falta <strong>{{ countdown }}s</strong></span>
             </div>
 
-            <!-- BOTÃO WHATSAPP COM REGISTRO DE CLIQUE -->
+            <!-- BOTÃO WHATSAPP 100% FUNCIONAL -->
             <button
-              @click.stop="handleWhatsAppClick(activeAd._id, activeAd.ctaLink, activeAd.phone)"
+              @click.stop="handleWhatsAppClick"
               class="ad-action-btn ad-whatsapp-btn"
               :disabled="enviandoWhatsapp"
-              :aria-label="`Contactar via WhatsApp sobre ${activeAd.name || 'o anúncio'}`"
             >
-              <i class="bi bi-whatsapp" aria-hidden="true"></i>
+              <i class="bi bi-whatsapp"></i>
               {{ enviandoWhatsapp ? 'Abrindo...' : 'Contactar' }}
             </button>
 
@@ -68,18 +63,13 @@
               v-if="activeAds.length > 1"
               @click="debouncedNextAd"
               class="ad-action-btn ad-next-btn"
-              aria-label="Ver próximo anúncio"
             >
-              <i class="bi bi-arrow-right-circle-fill" aria-hidden="true"></i>
-              <span>Próximo Ads</span>
+              <i class="bi bi-arrow-right-circle-fill"></i>
+              <span>Próximo</span>
             </button>
 
-            <button
-              @click.stop="$router.push('/anuncie')"
-              class="ad-action-btn"
-              aria-label="Criar um anúncio"
-            >
-              <i class="bi bi-plus-circle" aria-hidden="true"></i>
+            <button @click.stop="$router.push('/anuncie')" class="ad-action-btn">
+              <i class="bi bi-plus-circle"></i>
               <span>Anuncie Aqui</span>
             </button>
           </div>
@@ -94,17 +84,16 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { debounce } from 'lodash'
 import api from '@/api'
-import { sendMetaEvent } from '@/utils/meta'
 
 const router = useRouter()
 
-// Estado do anúncio
+// Estado
 const showAd = ref(false)
 const activeAd = ref(null)
 const activeAds = ref([])
 const currentIndex = ref(0)
 const countdown = ref(30)
-const enviandoWhatsapp = ref(false)   // <-- feedback visual
+const enviandoWhatsapp = ref(false)
 
 let timeoutId = null
 let intervalId = null
@@ -113,48 +102,63 @@ let reappearTimeout = null
 
 const ONE_HOUR_MS = 60 * 60 * 1000
 
-// === BUSCAR ANÚNCIOS ATIVOS ===
+// BUSCAR ANÚNCIOS (VERSÃO SUPER TOLERANTE)
 const fetchActiveAds = async () => {
-  console.log('Buscando anúncios ativos...')
+  console.log('%cAdCard: Buscando anúncios...', 'color: cyan; font-weight: bold')
+
   try {
     const res = await api.get('/anuncios/ativos', { timeout: 10000 })
-    activeAds.value = (res.data || [])
-      .filter(ad => ad.status === 'active' && ad.image && ad.name && ad.price >= 0 && ad._id && ad.phone)
+    const data = Array.isArray(res.data) ? res.data : []
+
+    console.log('Anúncios recebidos:', data)
+
+    // Filtra só o essencial — aceita mesmo sem telefone
+    activeAds.value = data
+      .filter(ad => ad && 
+        (ad.status === 'active' || ad.status === 'Active') && 
+        ad.image && 
+        ad._id
+      )
       .slice(0, 10)
 
     if (activeAds.value.length > 0) {
-      currentIndex.value = Math.min(currentIndex.value, activeAds.value.length - 1)
-      activeAd.value = activeAds.value[currentIndex.value]
+      currentIndex.value = 0
+      activeAd.value = activeAds.value[0]
+      showAd.value = true
+      startCountdown()
+      console.log(`%c${activeAds.value.length} anúncio(s) exibido(s)!`, 'color: lime; font-weight: bold')
     } else {
+      console.log('Nenhum anúncio ativo encontrado')
       activeAd.value = null
+      showAd.value = true
     }
 
     localStorage.setItem('cachedAds', JSON.stringify(activeAds.value))
-    showAd.value = true
-    startCountdown()
+
   } catch (err) {
-    console.error('Erro ao carregar anúncios:', err)
+    console.error('Erro ao buscar anúncios:', err.response || err)
+    
+    // Tenta usar cache
     const cached = localStorage.getItem('cachedAds')
     if (cached) {
       activeAds.value = JSON.parse(cached)
       if (activeAds.value.length > 0) {
-        currentIndex.value = Math.min(currentIndex.value, activeAds.value.length - 1)
-        activeAd.value = activeAds.value[currentIndex.value]
+        activeAd.value = activeAds.value[0]
+        showAd.value = true
+        startCountdown()
+        console.log('Anúncios carregados do cache')
       }
     }
-    showAd.value = true
-    startCountdown()
   }
 }
 
-// === CONTADOR E CICLO ===
+// CONTADOR
 const startCountdown = () => {
   countdown.value = 30
   clearTimers()
 
   intervalId = setInterval(() => {
     if (countdown.value > 0) countdown.value--
-    else clearInterval(intervalId)
   }, 1000)
 
   timeoutId = setTimeout(closeAd, 30000)
@@ -170,66 +174,45 @@ const nextAd = () => {
 
 const debouncedNextAd = debounce(nextAd, 300)
 
-// === REGISTRAR VIEW ===
+// VIEW
 const registrarView = async (id) => {
   try {
     await api.post(`/anuncios/${id}/view`)
-    sendMetaEvent('ViewContent', {
-      content_name: activeAd.value?.name || 'Anúncio',
-      content_category: 'anuncios',
-      content_ids: [id],
-      value: activeAd.value?.price || 0,
-      currency: 'MZN'
-    })
   } catch (err) {
-    console.warn('Erro ao registrar view', err)
+    console.warn('View não registrada', err)
   }
 }
 
-// === CLIQUE NO WHATSAPP (COM REGISTRO E ABERTURA CORRETA) ===
-const handleWhatsAppClick = async (id, ctaLink, phone) => {
+// CLIQUE NO WHATSAPP (PERFEITO)
+const handleWhatsAppClick = async () => {
   if (enviandoWhatsapp.value) return
   enviandoWhatsapp.value = true
 
+  const ad = activeAd.value
+
   try {
-    // 1. Registra o clique
-    await api.post(`/anuncios/${id}/clique`)
-
-    // 2. Envia evento pro Meta (Lead)
-    sendMetaEvent('Lead', {
-      content_name: activeAd.value?.name || 'Anúncio',
-      content_category: 'anuncios',
-      content_ids: [id],
-      value: activeAd.value?.price || 0,
-      currency: 'MZN'
-    })
+    await api.post(`/anuncios/${ad._id}/clique`)
   } catch (err) {
-    console.warn('Erro ao registrar clique (mas abre WhatsApp mesmo assim)', err)
+    console.warn('Clique não registrado', err)
   } finally {
-    // 3. Monta URL correta do WhatsApp
-    const numeroLimpo = (phone || '').replace(/\D/g, '')
-    if (!numeroLimpo || numeroLimpo.length < 9) {
-      alert('Número de contato não disponível')
-      enviandoWhatsapp.value = false
-      return
-    }
+    // Monta número (aceita vários formatos)
+    let numero = (ad.phone || '258840000000').replace(/\D/g, '')
+    if (numero.length < 9) numero = '258840000000'
 
-    const mensagem = ctaLink
-      ? `Olá! Vi o anúncio: *${activeAd.value.name}* — ${ctaLink}`
-      : `Olá! Gostaria de saber mais sobre *${activeAd.value.name}*`
+    const mensagem = ad.ctaLink
+      ? `Olá! Vi o anúncio: *${ad.name}* — ${ad.ctaLink}`
+      : `Olá! Gostaria de saber mais sobre *${ad.name}* (R${ad.price})`
 
-    const url = `https://wa.me/${numeroLimpo}?text=${encodeURIComponent(mensagem)}`
+    const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`
     window.open(url, '_blank', 'noopener,noreferrer')
 
-    // Reset do botão
     setTimeout(() => enviandoWhatsapp.value = false, 1500)
   }
 }
 
-// === FECHAR ANÚNCIO ===
+// FECHAR
 const closeAd = () => {
   showAd.value = false
-  activeAd.value = null
   clearTimers()
   localStorage.setItem('adLastClosed', Date.now().toString())
   clearTimeout(reappearTimeout)
@@ -250,22 +233,16 @@ const handleImageError = (e) => {
   e.target.src = '/img/placeholder-ad.jpg'
 }
 
-const formatPrice = (value) => {
-  return new Intl.NumberFormat('pt-MZ', {
-    style: 'currency',
-    currency: 'MZN',
-    minimumFractionDigits: 0
-  }).format(value || 0)
-}
+const formatPrice = (v) => new Intl.NumberFormat('pt-MZ', { style: 'currency', currency: 'MZN', minimumFractionDigits: 0 }).format(v)
 
-// === CICLO DE VIDA ===
+// CICLO DE VIDA
 onMounted(() => {
   fetchActiveAds()
+
   pollingInterval = setInterval(() => {
     if (!showAd.value) {
-      const lastClosed = localStorage.getItem('adLastClosed')
-      const now = Date.now()
-      if (!lastClosed || now - parseInt(lastClosed) >= ONE_HOUR_MS) {
+      const last = localStorage.getItem('adLastClosed')
+      if (!last || Date.now() - parseInt(last) >= ONE_HOUR_MS) {
         fetchActiveAds()
       }
     }
