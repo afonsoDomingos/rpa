@@ -152,7 +152,7 @@ const handlePayment = async () => {
   const finalPhone = normalizePhone()
 
   try {
-    const res = await api.post('/api/anuncios/pagar', {
+    const res = await api.post('/anuncios/pagar', {
       anuncioId: props.anuncioId,
       weeks: props.weeks,
       method: selectedMethod.value,
