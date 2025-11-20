@@ -110,7 +110,7 @@ const ONE_HOUR_MS = 60 * 60 * 1000
 const fetchActiveAds = async () => {
   console.log('Buscando anúncios ativos...')
   try {
-    const res = await api.get('/ativos', { timeout: 10000 })
+    const res = await api.get('/anuncios/ativos', { timeout: 10000 })
     activeAds.value = (res.data || [])
       .filter(ad => ad.status === 'active' && ad.image && ad.name && ad.price >= 0 && ad._id)
       .slice(0, 10)
