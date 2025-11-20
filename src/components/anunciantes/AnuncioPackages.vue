@@ -37,20 +37,34 @@
 </template>
 
 <script setup>
+import { ref, watch, toRefs } from 'vue'
 import { AD_PRICES } from '@/utils/prices'
 import { sendMetaEvent } from '@/utils/meta'
 
-defineProps({ selected: Number })
-defineEmits(['select', 'pay'])
+const props = defineProps({
+  selected: {
+    type: Number,
+    default: null
+  }
+})
 
+const emit = defineEmits(['select', 'pay'])
+
+// Garante que selected seja reativo mesmo vindo do pai
+const { selected } = toRefs(props)
+
+// Preços
 const prices = AD_PRICES || [500, 1000, 1500, 2000]
 
-// Emissão imediata + evento Meta (sem bloquear a UI)
-const handleSelect = (n) => {
-  // Emite imediatamente → o componente pai atualiza o selected na hora
-  $emit('select', n)
+// Força reatividade total (nunca mais falha)
+watch(selected, (newVal) => {
+  console.log('Pacote selecionado:', newVal) // debug opcional
+}, { immediate: true })
 
-  // Envia o evento do Meta Pixel em segundo plano (não bloqueia)
+// Seleção imediata + Meta Pixel
+const handleSelect = (n) => {
+  emit('select', n) // Emite para o pai atualizar imediatamente
+
   sendMetaEvent('AddToCart', {
     content_ids: ['pacote_anuncio'],
     content_name: `Pacote ${n} semana${n > 1 ? 's' : ''}`,
@@ -58,13 +72,12 @@ const handleSelect = (n) => {
     currency: 'MZN',
     num_items: 1
   }).catch(err => {
-    console.warn('Erro ao enviar evento Meta Pixel:', err)
+    console.warn('Erro Meta Pixel:', err)
   })
 }
 </script>
 
 <style scoped>
-/* === IMPORT POPPINS === */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 *, *::before, *::after {
@@ -140,6 +153,8 @@ h2.title {
   width: 1.3rem;
   height: 1.3rem;
   color: #7c3aed;
+  stroke: currentColor;
+  fill: none;
 }
 
 .price {
@@ -177,6 +192,7 @@ h2.title {
 .pay-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
 .arrow {
