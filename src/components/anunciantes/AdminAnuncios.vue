@@ -1,6 +1,6 @@
 <template>
   <div class="admin-anuncios">
-    <!-- LOADING / ERRO (mantido igual) -->
+    <!-- LOADING / ERRO -->
     <div v-if="loading" class="loading-state">
       <i class="bi bi-hourglass-split"></i>
       <p>Carregando anúncios...</p>
@@ -12,37 +12,86 @@
       <button @click="recarregar" class="retry-btn">Tentar novamente</button>
     </div>
 
-    <!-- LISTA -->
+    <!-- CONTEÚDO -->
     <div v-else>
-      <header class="header">
-        <button @click="$router.go(-1)" class="back-btn">
-          <i class="bi bi-arrow-left"></i> Voltar
+      <!-- SKELETON LOADING (novo) -->
+      <div v-if="loading" class="grid-anuncios">
+        <div v-for="n in 6" :key="'skeleton-' + n" class="anuncio-card skeleton">
+          <div class="anuncio-img skeleton-img"></div>
+          <div class="anuncio-info">
+            <h3 class="skeleton-line"></h3>
+            <p class="skeleton-line short"></p>
+            <p class="skeleton-line"></p>
+          </div>
+          <div class="anuncio-acoes">
+            <div class="skeleton-btn"></div>
+            <div class="skeleton-btn"></div>
+            <div class="skeleton-btn"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HEADER PREMIUM COMPLETO -->
+      <header class="premium-header">
+        <button @click="$router.go(-1)" class="back-button">
+          <i class="bi bi-arrow-left-circle-fill"></i>
+          <span>Voltar</span>
         </button>
-        <h1 class="page-title">Admin - Anúncios</h1>
+
+        <div class="title-section">
+          <h1 class="page-title">
+            <i class="bi bi-megaphone-fill"></i>
+            Gerenciar Anúncios
+          </h1>
+          <p class="page-subtitle">Controle total dos anúncios patrocinados</p>
+        </div>
+
+        <!-- CONTADORES COMPACTOS -->
+        <div class="compact-stats">
+          <div class="cstat total">
+            <div class="cstat-value">{{ totalAnuncios }}</div>
+            <div class="cstat-label">Total</div>
+          </div>
+          <div class="cstat active">
+            <div class="cstat-value">{{ countByStatus.active }}</div>
+            <div class="cstat-label">Ativos</div>
+          </div>
+          <div class="cstat pending">
+            <div class="cstat-value">{{ countByStatus.pending }}</div>
+            <div class="cstat-label">Pendentes</div>
+          </div>
+          <div class="cstat paused">
+            <div class="cstat-value">{{ countByStatus.paused }}</div>
+            <div class="cstat-label">Pausados</div>
+          </div>
+        </div>
       </header>
 
-      <!-- FILTROS (mantido) -->
-      <div class="filters">
-        <div class="filter-group">
+      <!-- BARRA DE FILTROS -->
+      <div class="filters-bar">
+        <div class="filter-controls">
           <select v-model="filtroStatus" @change="aplicarFiltro" class="filter-select">
-            <option value="todos">Todos</option>
-            <option value="active">Ativos</option>
-            <option value="pending">Pendentes</option>
-            <option value="paused">Pausados</option>
+            <option value="todos">Todos os anúncios</option>
+            <option value="active">Apenas ativos</option>
+            <option value="pending">Apenas pendentes</option>
+            <option value="paused">Apenas pausados</option>
           </select>
-          <input v-model="filtroUsuario" @input="debouncedFiltro" placeholder="Filtrar por usuário" class="filter-input" />
-        </div>
-        <div class="filter-stats">
-          <span class="stat-item">Total: {{ totalAnuncios }}</span>
-          <span class="stat-item">Ativos: {{ countByStatus.active }}</span>
-          <span class="stat-item">Pendentes: {{ countByStatus.pending }}</span>
-          <span class="stat-item">Pausados: {{ countByStatus.paused }}</span>
+
+          <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input
+              v-model="filtroUsuario"
+              @keyup.enter="aplicarFiltro"
+              placeholder="Buscar por nome ou e-mail (Enter para buscar)"
+              class="search-input"
+            />
+          </div>
         </div>
       </div>
 
       <!-- GRID DE ANÚNCIOS -->
       <div class="grid-anuncios">
-        <div v-for="(ad, i) in anunciosFiltrados" :key="ad._id" class="anuncio-card" :style="{ '--i': i }">
+        <div v-for="(ad, i) in anunciosFiltrados" :key="ad._id" class="anuncio-card Hiring" :style="{ '--i': i }">
           <div class="anuncio-status" :class="ad.status">{{ getStatusText(ad.status) }}</div>
           <img :src="ad.image" :alt="ad.name" class="anuncio-img" @error="handleImageError" @load="onImageLoad" />
 
@@ -70,34 +119,69 @@
         </div>
       </div>
 
-      <!-- MODAL COM GRÁFICO EM TEMPO REAL -->
-      <div v-if="modalAberto" class="modal-overlay" @click="fecharModal">
-        <div class="modal-content" @click.stop>
-          <header class="modal-header">
-            <h2>Estatísticas: {{ anuncioModal?.name }}</h2>
-            <button @click="fecharModal" class="modal-close"><i class="bi bi-x"></i></button>
-          </header>
-          <div class="modal-body">
-            <div class="stats-grid">
-              <div class="stat-card"><i class="bi bi-eye"></i><h3>{{ anuncioModal?.views || 0 }}</h3><p>Visualizações</p></div>
-              <div class="stat-card"><i class="bi bi-whatsapp"></i><h3>{{ anuncioModal?.clicks || 0 }}</h3><p>Cliques Totais</p></div>
-              <div class="stat-card"><i class="bi bi-people"></i><h3>{{ anuncioModal?.impressions || 0 }}</h3><p>Impressões</p></div>
-              <div class="stat-card"><i class="bi bi-clock-history"></i><h3>{{ anuncioModal?.duration || 'N/A' }} dias</h3><p>Duração</p></div>
-            </div>
+      <!-- MODAL (igual) -->
+      <!-- MODAL TOTALMENTE REFORMULADO -->
+<div v-if="modalAberto" class="modal-overlay" @click="fecharModal">
+  <div class="modal-content pro-stats-modal" @click.stop>
+    <header class="modal-header">
+      <h2>
+        <i class="bi bi-graph-up-arrow"></i>
+        Estatísticas Detalhadas: {{ anuncioModal?.name }}
+      </h2>
+      <button @click="fecharModal" class="modal-close"><i class="bi bi-x-lg"></i></button>
+    </header>
 
-            <div v-if="anuncioModal?.statsHistory?.length" class="chart-container">
-              <canvas ref="chartRef"></canvas>
-            </div>
-            <div v-else class="no-data">Ainda sem cliques nos últimos 7 dias</div>
+    <div class="modal-body">
+      <!-- 4 CARDS PRINCIPAIS -->
+      <div class="stats-grid">
+        <div class="stat-card big">
+          <i class="bi bi-eye"></i>
+          <h3>{{ formatNumber(anuncioModal?.views || 0) }}</h3>
+          <p>Visualizações</p>
+        </div>
+        <div class="stat-card big">
+          <i class="bi bi-whatsapp"></i>
+          <h3>{{ formatNumber(anuncioModal?.clicks || 0) }}</h3>
+          <p>Cliques Totais</p>
+        </div>
+        <div class="stat-card big">
+          <i class="bi bi-people"></i>
+          <h3>{{ formatNumber(anuncioModal?.impressions || 0) }}</h3>
+          <p>Impressões</p>
+        </div>
+        <div class="stat-card big ctr">
+          <i class="bi bi-percent"></i>
+          <h3>{{ ctrTotal.toFixed(2) }}%</h3>
+          <p>Taxa de Cliques (CTR)</p>
+        </div>
+      </div>
+
+      <!-- GRÁFICO PREMIUM -->
+      <div class="chart-wrapper">
+        <div class="chart-header">
+          <h3>Desempenho nos últimos dias</h3>
+          <div class="chart-legend">
+            <span><i class="dot" style="background:#8b5cf6"></i> Cliques</span>
+            <span><i class="dot" style="background:#10b981"></i> Visualizações</span>
+            <span><i class="dot" style="background:#f59e0b"></i> CTR (%)</span>
           </div>
+        </div>
+        <div v-if="anuncioModal?.statsHistory?.length" class="chart-container">
+          <canvas ref="chartRef"></canvas>
+        </div>
+        <div v-else class="no-data">
+          <i class="bi bi-bar-chart-line"></i>
+          Ainda sem dados suficientes para exibir o gráfico
         </div>
       </div>
     </div>
   </div>
+</div>
+    </div>
+  </div>
 </template>
-
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import io from 'socket.io-client'
@@ -115,23 +199,44 @@ const chartRef = ref(null)
 let chart = null
 let socket = null
 
-// === DEBOUNCE ===
-let debounceTimer
-const debouncedFiltro = () => {
-  clearTimeout(debounceTimer)
-  debounceTimer = setTimeout(aplicarFiltro, 400)
+// Debounce reutilizável (mais limpo)
+const useDebounce = (fn, delay = 400) => {
+  let timer
+  return (...args) => {
+    clearTimeout(timer)
+    timer = setTimeout(() => fn(...args), delay)
+  }
 }
 
-// === FILTROS & CONTADORES ===
-const anunciosFiltrados = computed(() => filtroStatus.value === 'todos' ? anuncios.value : anuncios.value.filter(a => a.status === filtroStatus.value))
+// Filtros combinados (status + busca por texto no frontend)
+const anunciosFiltrados = computed(() => {
+  let list = anuncios.value
+
+  if (filtroStatus.value !== 'todos') {
+    list = list.filter(a => a.status === filtroStatus.value)
+  }
+
+  if (filtroUsuario.value.trim()) {
+    const termo = filtroUsuario.value.toLowerCase().trim()
+    list = list.filter(ad =>
+      (ad.userName?.toLowerCase().includes(termo)) ||
+      (ad.userEmail?.toLowerCase().includes(termo))
+    )
+  }
+
+  return list
+})
+
 const countByStatus = computed(() => {
   const c = { active: 0, pending: 0, paused: 0 }
-  anuncios.value.forEach(a => c[a.status] = (c[a.status] || 0) + 1)
+  anuncios.value.forEach(a => {
+    if (c[a.status] !== undefined) c[a.status]++
+  })
   return c
 })
+
 const totalAnuncios = computed(() => anuncios.value.length)
 
-// === CARREGAR ANÚNCIOS ===
 const aplicarFiltro = async () => {
   loading.value = true
   error.value = ''
@@ -139,33 +244,38 @@ const aplicarFiltro = async () => {
     const params = new URLSearchParams()
     if (filtroStatus.value !== 'todos') params.append('status', filtroStatus.value)
     if (filtroUsuario.value.trim()) params.append('usuario', filtroUsuario.value.trim())
+
     const res = await api.get(`/anuncios/admin${params.toString() ? `?${params}` : ''}`)
     anuncios.value = Array.isArray(res.data) ? res.data : []
   } catch (err) {
-    console.error('Erro ao carregar:', err)
-    error.value = err.response?.status === 401 ? 'Sessão expirada.' : err.response?.status === 403 ? 'Acesso negado.' : err.response?.data?.mensagem || 'Erro ao carregar.'
+    error.value = err.response?.status === 401 ? 'Sessão expirada.' :
+                  err.response?.status === 403 ? 'Acesso negado.' :
+                  err.response?.data?.mensagem || 'Erro ao carregar.'
   } finally {
     loading.value = false
   }
 }
 
-// === UTILIDADES ===
 const formatPrice = v => new Intl.NumberFormat('pt-MZ', { style: 'currency', currency: 'MZN', minimumFractionDigits: 0 }).format(v)
 const formatDate = d => new Date(d).toLocaleDateString('pt-MZ')
-const getStatusText = s => ({ active: 'Ativo', pending: 'Pendente', paused: 'Pausado' })[s] || 'Indefinido'
 
-// === IMAGEM ===
+// Corrigido o nome da função
+const getStatusText = (s) => ({
+  active: 'Ativo',
+  pending: 'Pendente',
+  paused: 'Pausado'
+}[s] || 'Indefinido')
+
 const handleImageError = e => { e.target.src = '/img/placeholder-ad.jpg'; e.target.classList.add('error') }
 const onImageLoad = e => e.target.classList.add('loaded')
 
-// === AÇÕES ADMIN ===
 const toggleStatus = async (ad) => {
   const novo = ad.status === 'paused' ? 'active' : 'paused'
   if (!confirm(`Deseja ${novo === 'active' ? 'ativar' : 'pausar'} este anúncio?`)) return
   try {
     await api.patch(`/anuncios/admin/${ad._id}/status`, { status: novo })
     ad.status = novo
-  } catch (e) { alert(e.response?.data?.mensagem || 'Erro ao alterar status') }
+  } catch (e) { alert(e.response?.data?.mensagem || 'Erro') }
 }
 
 const confirmarRemocao = async (id) => {
@@ -173,7 +283,7 @@ const confirmarRemocao = async (id) => {
   try {
     await api.delete(`/anuncios/admin/${id}`)
     anuncios.value = anuncios.value.filter(a => a._id !== id)
-  } catch (e) { alert(e.response?.data?.mensagem || 'Erro ao remover') }
+  } catch (e) { alert(e.response?.data?.mensagem || 'Erro') }
 }
 
 const abrirStats = async (ad) => {
@@ -181,11 +291,9 @@ const abrirStats = async (ad) => {
     const res = await api.get(`/anuncios/admin/${ad._id}/stats`)
     anuncioModal.value = { ...ad, ...res.data }
     modalAberto.value = true
-    await nextTick() // garante que o canvas exista antes de criar o gráfico
+    await nextTick()
     criarOuAtualizarGrafico()
-  } catch (e) {
-    alert(e.response?.data?.mensagem || 'Erro ao carregar estatísticas')
-  }
+  } catch (e) { alert('Erro ao carregar estatísticas') }
 }
 
 const fecharModal = () => {
@@ -196,112 +304,137 @@ const fecharModal = () => {
 
 const recarregar = () => aplicarFiltro()
 
-// === ATUALIZAÇÃO LOCAL (lista e modal) ===
-const atualizarEstatisticaLocal = (anuncioId, campo, valor) => {
-  const anuncioNaLista = anuncios.value.find(a => a._id === anuncioId)
-  if (anuncioNaLista) anuncioNaLista[campo] = valor
-
-  // Se o modal estiver aberto com esse anúncio → atualiza também lá
-  if (anuncioModal.value?._id === anuncioId) {
-    anuncioModal.value[campo] = valor
-    // Se for clique, precisamos atualizar o histórico do dia atual no gráfico
-    if (campo === 'clicks') atualizarGraficoComNovoClique()
-  }
+// Adiciona estes helpers no <script setup>
+const formatNumber = (num) => {
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M'
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
+  return num.toString()
 }
 
-// === GRÁFICO EM TEMPO REAL ===
-const criarOuAtualizarGrafico = () => {
-  if (!chartRef.value || !anuncioModal.value?.statsHistory) return
+const ctrTotal = computed(() => {
+  if (!anuncioModal.value) return 0
+  const views = anuncioModal.value.views || 0
+  const clicks = anuncioModal.value.clicks || 0
+  return views > 0 ? (clicks / views) * 100 : 0
+})
 
-  const labels = anuncioModal.value.statsHistory.map(h => new Date(h.date).toLocaleDateString('pt-MZ'))
-  const clicksData = anuncioModal.value.statsHistory.map(h => h.clicks)
+// GRÁFICO TOTALMENTE REFORMULADO
+const criarOuAtualizarGrafico = () => {
+  if (!chartRef.value || !anuncioModal.value?.statsHistory?.length) return
+
+  const history = anuncioModal.value.statsHistory
+  const labels = history.map(h => {
+    const date = new Date(h.date)
+    const day = date.getDate()
+    const month = date.toLocaleString('pt-MZ', { month: 'short' })
+    return `${day} ${month}`
+  })
+
+  const clicksData = history.map(h => h.clicks || 0)
+  const viewsData = history.map(h => h.views || 0)
+  const ctrData = history.map(h => {
+    const v = h.views || 0
+    return v > 0 ? ((h.clicks || 0) / v) * 100 : 0
+  })
 
   if (chart) chart.destroy()
 
-  const ctx = chartRef.value.getContext('2d')
-  chart = new Chart(ctx, {
+  chart = new Chart(chartRef.value.getContext('2d'), {
     type: 'line',
     data: {
       labels,
       datasets: [
         {
-          label: 'Cliques por dia',
+          label: 'Cliques',
           data: clicksData,
-          borderColor: '#7c3aed',
-          backgroundColor: 'rgba(124, 58, 237, 0.15)',
+          borderColor: '#8b5cf6',
+          backgroundColor: 'rgba(139, 92, 246, 0.15)',
           fill: true,
           tension: 0.4,
-          pointBackgroundColor: '#7c3aed',
+          pointBackgroundColor: '#8b5cf6',
           pointRadius: 5,
-          pointHoverRadius: 7
+          pointHoverRadius: 8
         },
         {
-          label: 'Visualizações (total acumulado)',
-          data: labels.map((_, i) => anuncioModal.value.views || 0),
+          label: 'Visualizações',
+          data: viewsData,
           borderColor: '#10b981',
           backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          borderDash: [5, 5],
+          fill: false,
+          tension: 0.4,
+          pointBackgroundColor: '#10b981',
+          pointRadius: 4,
+          borderWidth: 3
+        },
+        {
+          label: 'CTR (%)',
+          data: ctrData,
+          borderColor: '#f59e0b',
+          backgroundColor: 'rgba(245, 158, 11, 0.1)',
           fill: false,
           tension: 0.3,
-          pointRadius: 0
+          yAxisID: 'y1',
+          pointRadius: 3,
+          borderDash: [5, 5]
         }
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: { position: 'top', labels: { color: '#e2e8f0' } },
-        tooltip: { mode: 'index', intersect: false }
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(0,0,0,0.9)',
+          titleColor: '#e2e8f0',
+          bodyColor: '#e2e8f0',
+          cornerRadius: 12,
+          displayColors: true,
+          callbacks: {
+            label: (ctx) => {
+              if (ctx.dataset.label === 'CTR (%)') {
+                return ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%`
+              }
+              return ` ${ctx.dataset.label}: ${formatNumber(ctx.parsed.y)}`
+            }
+          }
+        }
       },
       scales: {
-        y: { beginAtZero: true, ticks: { color: '#e2e8f0' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-        x: { ticks: { color: '#e2e8f0' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          ticks: { color: '#94a3b8', callback: value => formatNumber(value) }
+        },
+        y1: {
+          position: 'right',
+          beginAtZero: true,
+          max: 100,
+          grid: { drawOnChartArea: false },
+          ticks: { color: '#f59e0b', callback: value => value + '%' }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#94a3b8' }
+        }
       }
     }
   })
 }
 
-// Atualiza o gráfico quando chega um clique novo (com modal aberto)
-const atualizarGraficoComNovoClique = async () => {
-  if (!chart || !anuncioModal.value) return
-
-  // Recarrega apenas o histórico do dia (mais leve)
-  try {
-    const res = await api.get(`/anuncios/admin/${anuncioModal.value._id}/stats`)
-    anuncioModal.value.statsHistory = res.data.statsHistory
-    anuncioModal.value.clicks = res.data.clicks
-
-    const novoHistory = res.data.statsHistory
-    const labels = novoHistory.map(h => new Date(h.date).toLocaleDateString('pt-MZ'))
-    const clicksData = novoHistory.map(h => h.clicks)
-
-    chart.data.labels = labels
-    chart.data.datasets[0].data = clicksData
-    chart.data.datasets[1].data = labels.map(() => anuncioModal.value.views || 0)
-    chart.update('quiet') // animação suave
-  } catch (e) {
-    console.warn('Falha ao atualizar gráfico em tempo real', e)
-  }
-}
-
-// === SOCKET.IO - TEMPO REAL ===
 onMounted(() => {
   aplicarFiltro()
-
   socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', { transports: ['websocket'] })
 
   socket.on('anuncio:view', (data) => {
-    atualizarEstatisticaLocal(data.anuncioId, 'views', data.views)
-    if (anuncioModal.value?._id === data.anuncioId && chart) {
-      chart.data.datasets[1].data = chart.data.labels.map(() => data.views)
-      chart.update('quiet')
-    }
+    const ad = anuncios.value.find(a => a._id === data.anuncioId)
+    if (ad) ad.views = data.views
   })
 
   socket.on('anuncio:click', (data) => {
-    atualizarEstatisticaLocal(data.anuncioId, 'clicks', data.clicks)
-    // O gráfico será atualizado pela função acima (atualizarGraficoComNovoClique)
+    const ad = anuncios.value.find(a => a._id === data.anuncioId)
+    if (ad) ad.clicks = data.clicks
   })
 })
 
@@ -314,34 +447,20 @@ onUnmounted(() => {
 
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-
-.no-data {
-  text-align: center;
-  padding: 2rem;
-  color: #94a3b8;
-  font-size: 0.95rem;
-}
-.chart-container {
-  position: relative;
-  height: 300px;
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: rgba(255,255,255,0.05);
-  border-radius: 0.8rem;
-}
+/* Força Poppins em tudo */
+* { font-family: 'Poppins', sans-serif !important; }
 
 .admin-anuncios {
-  font-family: 'Poppins', sans-serif;
   min-height: 100vh;
-  padding: 1.5rem;
   background: radial-gradient(circle at top left, #120024, #000);
   color: #fff;
+  padding: 1.8rem 1.5rem;
 }
 
-/* === ESTADOS === */
+/* ============= ESTADOS (loading/error) ============= */
 .loading-state, .error-state {
   text-align: center;
   margin-top: 6rem;
@@ -366,62 +485,202 @@ onUnmounted(() => {
 }
 .retry-btn:hover { background: #6d28d9; transform: translateY(-1px); }
 
-/* === HEADER === */
-.header {
+/* ============= HEADER PREMIUM ============= */
+.premium-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-}
-.page-title {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
-  flex: 1;
-}
-.back-btn {
-  background: none;
-  border: 1px solid rgba(255,255,255,0.3);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  color: #fff;
-  cursor: pointer;
-  transition: 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.back-btn:hover { background: rgba(255,255,255,0.1); }
-
-/* === FILTROS === */
-.filters {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
   flex-wrap: wrap;
-  gap: 1rem;
-}
-.filter-select {
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.3);
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-}
-.filter-select option { color: #000; }
-.filter-stats {
-  display: flex;
   gap: 1.5rem;
-  font-size: 0.85rem;
+  padding-bottom: 1.8rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.compact-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.cstat {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 0.75rem 1.1rem;
+  min-width: 90px;
+  text-align: center;
+  border: 1.5px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.cstat::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 2px;
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.cstat:hover::before { opacity: 1; }
+.cstat:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); }
+
+.cstat.total   { --gradient-start: #6366f1; --gradient-end: #8b5cf6; }
+.cstat.active  { --gradient-start: #34d399; --gradient-end: #10b981; }
+.cstat.pending { --gradient-start: #fbbf24; --gradient-end: #f59e0b; }
+.cstat.paused  { --gradient-start: #94a3b8; --gradient-end: #64748b; }
+
+.cstat-value {
+  font-size: 1.65rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.cstat-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-top: 0.35rem;
+  color: #e2e8f0;
   opacity: 0.9;
 }
-.stat-item { color: #d9d9d9; }
 
-/* === GRID === */
+/* Responsivo – em telas pequenas empilha os contadores */
+@media (max-width: 992px) {
+  .premium-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  .compact-stats {
+    justify-content: center;
+  }
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  padding: 0.75rem 1.4rem;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+.back-button i { font-size: 1.3rem; color: #c4b5fd; }
+
+.title-section .page-title {
+  font-size: 2.1rem;
+  font-weight: 800;
+  margin: 0;
+  color: #e0d0ff;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+.title-section .page-title i { color: #a78bfa; font-size: 2rem; }
+
+.page-subtitle {
+  margin: 0.4rem 0 0;
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+/* Contadores compactos */
+.header-stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.stat-badge {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  padding: 0.9rem 1.3rem;
+  min-width: 100px;
+  text-align: center;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+.stat-badge:hover { transform: translateY(-4px); box-shadow: 0 8px 18px rgba(0,0,0,0.25); }
+.stat-badge.total   { border-color: #818cf8; }
+.stat-badge.active  { border-color: #34d399; }
+.stat-badge.pending { border-color: #fbbf24; }
+.stat-badge.paused  { border-color: #94a3b8; }
+.stat-badge .number { display: block; font-size: 1.6rem; font-weight: 800; line-height: 1; color: #fff; }
+.stat-badge .label { font-size: 0.78rem; margin-top: 0.35rem; opacity: 0.85; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ============= BARRA DE FILTROS ============= */
+.filters-bar {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 18px;
+  padding: 1.3rem 1.6rem;
+  margin-bottom: 2.2rem;
+}
+.filter-controls {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.filter-select {
+  padding: 0.85rem 1.3rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 0.94rem;
+  font-weight: 500;
+  min-width: 200px;
+}
+.search-box { position: relative; }
+.search-box i {
+  position: absolute;
+  left: 1.1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+.search-input {
+  padding: 0.85rem 1.3rem 0.85rem 3.2rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 0.94rem;
+  width: 300px;
+  max-width: 100%;
+}
+.search-input::placeholder { color: rgba(255,255,255,0.5); }
+
+/* ============= GRID DE ANÚNCIOS ============= */
 .grid-anuncios {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -430,7 +689,7 @@ onUnmounted(() => {
   margin: 0 auto;
 }
 
-/* === CARD === */
+/* ============= CARD (mantido exatamente como você queria) ============= */
 .anuncio-card {
   position: relative;
   background: rgba(255,255,255,0.05);
@@ -446,12 +705,8 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
 }
-.anuncio-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.35);
-}
+.anuncio-card:hover { transform: translateY(-6px); box-shadow: 0 12px 32px rgba(0,0,0,0.35); }
 
-/* === STATUS === */
 .anuncio-status {
   position: absolute;
   top: 0.8rem;
@@ -468,7 +723,6 @@ onUnmounted(() => {
 .anuncio-status.pending { background: #ff9800; color: #fff; }
 .anuncio-status.paused { background: #9e9e9e; color: #fff; }
 
-/* === IMAGEM === */
 .anuncio-img {
   width: 100%;
   height: 170px;
@@ -479,22 +733,10 @@ onUnmounted(() => {
   transition: opacity 0.4s ease;
   background: #1a1a1a;
 }
-
-.chart-container {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: rgba(255,255,255,0.05);
-  border-radius: 0.8rem;
-}
-
 .anuncio-img.loaded { opacity: 1; }
 .anuncio-img.error { opacity: 0.7; }
 
-/* === INFO === */
-.anuncio-info {
-  flex: 1;
-  margin-bottom: 0.8rem;
-}
+.anuncio-info { flex: 1; margin-bottom: 0.8rem; }
 .anuncio-titulo {
   font-size: 1.05rem;
   font-weight: 600;
@@ -522,12 +764,8 @@ onUnmounted(() => {
   gap: 0.3rem;
   margin-bottom: 0.3rem;
 }
-.anuncio-user {
-  font-size: 0.8rem;
-  color: #a0a0a0;
-}
+.anuncio-user { font-size: 0.8rem; color: #a0a0a0; }
 
-/* === ESTATÍSTICAS === */
 .anuncio-stats {
   margin-bottom: 0.8rem;
   padding: 0.5rem;
@@ -545,7 +783,6 @@ onUnmounted(() => {
 .stat-row:last-child { margin-bottom: 0; }
 .stat-row i { color: #7c3aed; }
 
-/* === AÇÕES === */
 .anuncio-acoes {
   display: flex;
   gap: 0.4rem;
@@ -553,7 +790,6 @@ onUnmounted(() => {
   padding-top: 0.5rem;
   border-top: 1px solid rgba(255,255,255,0.08);
 }
-
 .anuncio-acoes button {
   flex: 1;
   padding: 0.48rem 0.6rem;
@@ -570,40 +806,20 @@ onUnmounted(() => {
   min-height: 36px;
   white-space: nowrap;
 }
-
 .btn-text { display: none; }
-
-.btn-stats {
-  background: rgba(124, 58, 237, 0.3);
-  color: #fff;
-}
+.btn-stats { background: rgba(124, 58, 237, 0.3); color: #fff; }
 .btn-stats:hover { background: rgba(124, 58, 237, 0.5); }
-
-.btn-pausar {
-  background: #ff9800;
-  color: #fff;
-}
+.btn-pausar { background: #ff9800; color: #fff; }
 .btn-pausar:hover { background: #f57c00; }
-
-.btn-ativar {
-  background: #4caf50;
-  color: #fff;
-}
+.btn-ativar { background: #4caf50; color: #fff; }
 .btn-ativar:hover { background: #45a049; }
-
-.btn-remover {
-  background: rgba(239,68,68,0.2);
-  color: #ff6666;
-}
+.btn-remover { background: rgba(239,68,68,0.2); color: #ff6666; }
 .btn-remover:hover { background: rgba(239,68,68,0.35); }
 
-/* === MODAL === */
+/* ============= MODAL ============= */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,0.8);
   display: flex;
   align-items: center;
@@ -627,19 +843,8 @@ onUnmounted(() => {
   padding: 1.5rem;
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
-.modal-header h2 {
-  margin: 0;
-  color: #fff;
-  font-size: 1.2rem;
-}
-.modal-close {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1.5rem;
-  cursor: pointer;
-  opacity: 0.7;
-}
+.modal-header h2 { margin: 0; color: #fff; font-size: 1.2rem; }
+.modal-close { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; opacity: 0.7; }
 .modal-close:hover { opacity: 1; }
 .modal-body { padding: 1.5rem; }
 .stats-grid {
@@ -657,51 +862,86 @@ onUnmounted(() => {
 .stat-card i { font-size: 2rem; color: #7c3aed; margin-bottom: 0.5rem; display: block; }
 .stat-card h3 { margin: 0; font-size: 1.5rem; color: #fff; }
 .stat-card p { margin: 0.3rem 0 0; color: #d9d9d9; font-size: 0.85rem; }
-.stats-history {
-  background: rgba(255,255,255,0.05);
+
+.chart-container {
+  position: relative;
+  height: 300px;
+  margin-top: 1.5rem;
   padding: 1rem;
-  border-radius: 0.5rem;
+  background: rgba(255,255,255,0.05);
+  border-radius: 0.8rem;
 }
-.stats-history h4 { margin: 0 0 0.5rem; color: #fff; }
-.stats-history ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  max-height: 200px;
-  overflow-y: auto;
-}
-.stats-history li {
-  padding: 0.3rem 0;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  font-size: 0.85rem;
-  color: #d9d9d9;
-}
+.no-data { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.95rem; }
 
-/* === ANIMAÇÃO === */
-@keyframes fadeUp {
-  to { opacity: 1; transform: translateY(0); }
-}
+/* ============= ANIMAÇÃO ============= */
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
-/* === RESPONSIVO === */
+/* ============= RESPONSIVO ============= */
+@media (max-width: 992px) {
+  .premium-header { flex-direction: column; text-align: center; }
+  .title-section .page-title { font-size: 1.9rem; justify-content: center; }
+  .header-stats { justify-content: center; }
+}
 @media (max-width: 768px) {
   .admin-anuncios { padding: 1rem; }
   .grid-anuncios { grid-template-columns: 1fr; gap: 1.5rem; }
-  .page-title { font-size: 1.4rem; }
-  .header { gap: 0.8rem; }
-  .filters { flex-direction: column; align-items: stretch; }
-  .filter-stats { justify-content: center; flex-wrap: wrap; }
-  .anuncio-acoes { flex-direction: row; gap: 0.35rem; }
-  .anuncio-acoes button {
-    padding: 0.45rem 0.5rem;
-    font-size: 0.75rem;
-    min-height: 34px;
-  }
+  .filter-controls { flex-direction: column; align-items: stretch; }
+  .filter-select, .search-input { width: 100%; }
+  .back-button { width: 100%; justify-content: center; }
+  .anuncio-acoes button { padding: 0.45rem 0.5rem; font-size: 0.75rem; min-height: 34px; }
   .btn-text { display: inline; }
-  .modal-content { width: 95%; margin: 1rem; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
-
 @media (min-width: 769px) {
   .btn-text { display: inline; }
+}
+
+
+
+/* SKELETON LOADING */
+.skeleton {
+  animation: pulse 1.8s ease-in-out infinite;
+}
+.skeleton-img {
+  height: 170px;
+  background: #2d1b3a;
+  border-radius: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+.skeleton-line {
+  height: 16px;
+  background: #2d1b3a;
+  border-radius: 8px;
+  margin-bottom: 0.6rem;
+}
+.skeleton-line.short { width: 70%; }
+.skeleton-btn {
+  height: 36px;
+  background: #2d1b3a;
+  border-radius: 7px;
+  flex: 1;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+/* Botões: texto só aparece no hover (desktop) */
+.btn-text {
+  display: none;
+}
+@media (min-width: 769px) {
+  .anuncio-acoes button:hover .btn-text {
+    display: inline;
+  }
+}
+@media (max-width: 768px) {
+  .btn-text {
+    display: inline;
+  }
+}
+
+/* Contadores com transição suave */
+.cstat-value {
+  transition: all 0.4s ease;
 }
 </style>
