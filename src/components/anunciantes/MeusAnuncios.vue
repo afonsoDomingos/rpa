@@ -11,7 +11,7 @@
       <i class="bi bi-exclamation-triangle"></i>
       <p>{{ error }}</p>
       <button @click="recarregar" class="retry-btn">Tentar novamente</button>
-      <button @click="$router.push('/')" class="back-home-btn mt-3">
+      <button @click="$router.push('/home')" class="back-home-btn mt-3">
         <i class="bi bi-house-door"></i> Voltar para Home
       </button>
     </div>
