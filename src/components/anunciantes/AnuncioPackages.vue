@@ -45,15 +45,20 @@ defineEmits(['select', 'pay'])
 
 const prices = AD_PRICES || [500, 1000, 1500, 2000]
 
-const handleSelect = async (n) => {
+// Emissão imediata + evento Meta (sem bloquear a UI)
+const handleSelect = (n) => {
+  // Emite imediatamente → o componente pai atualiza o selected na hora
   $emit('select', n)
 
-  await sendMetaEvent('AddToCart', {
+  // Envia o evento do Meta Pixel em segundo plano (não bloqueia)
+  sendMetaEvent('AddToCart', {
     content_ids: ['pacote_anuncio'],
     content_name: `Pacote ${n} semana${n > 1 ? 's' : ''}`,
     value: prices[n - 1],
     currency: 'MZN',
     num_items: 1
+  }).catch(err => {
+    console.warn('Erro ao enviar evento Meta Pixel:', err)
   })
 }
 </script>
@@ -66,7 +71,6 @@ const handleSelect = async (n) => {
   box-sizing: border-box;
 }
 
-/* === FORÇA POPPINS NO COMPONENTE INTEIRO === */
 .packages {
   font-family: 'Poppins', sans-serif !important;
   padding: 1.5rem;
@@ -75,7 +79,6 @@ const handleSelect = async (n) => {
   -webkit-font-smoothing: antialiased;
 }
 
-/* === TÍTULO H2 COM POPPINS 100% GARANTIDO === */
 .packages .title,
 h2.title {
   font-family: 'Poppins', sans-serif !important;
@@ -88,7 +91,6 @@ h2.title {
   line-height: 1.3;
 }
 
-/* === RESTANTE DO CSS === */
 .grid {
   display: grid;
   grid-template-columns: 1fr;
