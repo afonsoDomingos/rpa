@@ -195,7 +195,7 @@ const aplicarFiltro = async () => {
     if (filtroStatus.value !== 'todos') params.append('status', filtroStatus.value)
     if (filtroUsuario.value.trim()) params.append('usuario', filtroUsuario.value.trim())
 
-    const res = await api.get(`/admin${params.toString() ? `?${params}` : ''}`)
+    const res = await api.get(`/anuncios/admin${params.toString() ? `?${params}` : ''}`)
     anuncios.value = Array.isArray(res.data) ? res.data : []
   } catch (err) {
     console.error('Erro ao carregar:', err)
@@ -222,7 +222,7 @@ const toggleStatus = async (ad) => {
   if (!confirm(`Deseja ${novo === 'active' ? 'ativar' : 'pausar'}?`)) return
 
   try {
-    await api.patch(`/admin/${ad._id}/status`, { status: novo })
+    await api.patch(`/anuncios/admin/${ad._id}/status`, { status: novo })
     ad.status = novo
   } catch (e) {
     alert(e.response?.data?.mensagem || 'Erro ao alterar status')
@@ -232,7 +232,7 @@ const toggleStatus = async (ad) => {
 const confirmarRemocao = async (id) => {
   if (!confirm('Remover permanentemente?')) return
   try {
-    await api.delete(`/admin/${id}`)
+    await api.delete(`/anuncios/admin/${id}`)
     anuncios.value = anuncios.value.filter(a => a._id !== id)
   } catch (e) {
     alert(e.response?.data?.mensagem || 'Erro ao remover')
@@ -241,7 +241,7 @@ const confirmarRemocao = async (id) => {
 
 const abrirStats = async (ad) => {
   try {
-    const res = await api.get(`/admin/${ad._id}/stats`)
+    const res = await api.get(`/anuncios/admin/${ad._id}/stats`)
     anuncioModal.value = { ...ad, ...res.data }
     modalAberto.value = true
   } catch (e) {
