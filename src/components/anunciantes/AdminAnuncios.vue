@@ -159,7 +159,7 @@
       <!-- GRÁFICO PREMIUM -->
       <div class="chart-wrapper">
         <div class="chart-header">
-          <h3>Desempenho nos últimos dias</h3>
+          
           <div class="chart-legend">
             <span><i class="dot" style="background:#8b5cf6"></i> Cliques</span>
             <span><i class="dot" style="background:#10b981"></i> Visualizações</span>
