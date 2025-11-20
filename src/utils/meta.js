@@ -14,7 +14,7 @@ export const sendMetaEvent = async (eventName, params = {}, userData = {}) => {
 
   // 2. Conversions API (server-side) – O QUE SALVA TUDO
   try {
-    await api.post('/api/facebook/conversion', {
+    await api.post('/facebook/conversion', {
       event_name: eventName,
       eventData: {
         ...params,
