@@ -11,15 +11,25 @@
       <i class="bi bi-exclamation-triangle"></i>
       <p>{{ error }}</p>
       <button @click="recarregar" class="retry-btn">Tentar novamente</button>
+      <button @click="$router.push('/')" class="back-home-btn mt-3">
+        <i class="bi bi-house-door"></i> Voltar para Home
+      </button>
     </div>
 
     <!-- VAZIO -->
     <div v-else-if="!anuncios.length" class="empty-state">
       <i class="bi bi-megaphone-fill"></i>
       <p>Ainda não existem anúncios publicados.</p>
-      <button @click="$router.push('/anuncie')" class="new-btn">
-        <i class="bi bi-plus-circle"></i> Criar Anúncio
-      </button>
+
+      <div class="empty-actions">
+        <button @click="$router.push('/anuncie')" class="new-btn">
+          <i class="bi bi-plus-circle"></i> Criar Anúncio
+        </button>
+
+        <button @click="$router.push('/')" class="back-home-btn">
+          <i class="bi bi-house-door"></i> Voltar para Home
+        </button>
+      </div>
     </div>
 
     <!-- LISTA DE ANÚNCIOS -->
@@ -168,7 +178,7 @@ const confirmarRemocao = async (id) => {
 // Pagar anúncio pendente
 const pagarAnuncioPendente = (ad) => {
   localStorage.setItem('anuncieState', JSON.stringify({
-    step: 2, // vai direto para pacotes
+    step: 2,
     selectedWeeks: ad.weeks || 1,
     anuncioId: ad._id,
     anuncioData: {
@@ -236,7 +246,7 @@ onMounted(() => {
 }
 .loading-state i { color: #7c3aed; animation: spin 1.5s linear infinite; }
 .error-state i { color: #ff6b6b; }
-.empty-state i { color: #66bb6a; }
+.empty-state i {  color: #66bb6a; }
 
 .retry-btn, .new-btn {
   margin-top: 1rem;
@@ -247,13 +257,48 @@ onMounted(() => {
   border: none;
   cursor: pointer;
   transition: 0.3s;
-  font-weight: 600;
+  font-weight: 600,600;
   font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 .retry-btn:hover, .new-btn:hover {
   background: #6d28d9;
   transform: translateY(-1px);
 }
+
+/* Botão Voltar para Home (usado no vazio e erro) */
+.back-home-btn {
+  background: transparent;
+  color: #cccccc;
+  border: 1px solid rgba(255,255,255,0.25);
+  padding: 0.7rem 1.4rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.back-home-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border-color: rgba(255,255,255,0.5);
+}
+.mt-3 { margin-top: 1rem; }
+
+/* Ações no estado vazio */
+.empty-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+  align-items: center;
+}
+
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -289,7 +334,7 @@ onMounted(() => {
 }
 .back-btn:hover { background: rgba(255,255,255,0.1); }
 
-/* === GRID === */
+/* === GRID E CARD === */
 .grid-anuncios {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -298,7 +343,6 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-/* === CARD === */
 .anuncio-card {
   position: relative;
   background: rgba(255,255,255,0.05);
@@ -319,7 +363,6 @@ onMounted(() => {
   box-shadow: 0 12px 32px rgba(0,0,0,0.35);
 }
 
-/* === STATUS === */
 .anuncio-status {
   position: absolute;
   top: 0.8rem;
@@ -343,7 +386,6 @@ onMounted(() => {
   font-weight: 400;
 }
 
-/* === IMAGEM === */
 .anuncio-img {
   width: 100%;
   height: 170px;
@@ -357,11 +399,7 @@ onMounted(() => {
 .anuncio-img.loaded { opacity: 1; }
 .anuncio-img.error { opacity: 0.7; }
 
-/* === INFO === */
-.anuncio-info {
-  flex: 1;
-  margin-bottom: 0.8rem;
-}
+.anuncio-info { flex: 1; margin-bottom: 0.8rem; }
 .anuncio-titulo {
   font-size: 1.05rem;
   font-weight: 600;
@@ -389,11 +427,10 @@ onMounted(() => {
   gap: 0.3rem;
 }
 
-/* === AÇÕES — FIXO NO FUNDO === */
 .anuncio-acoes {
   display: flex;
   gap: 0.4rem;
-  margin-top: auto; /* EMPURRA PARA O FUNDO */
+  margin-top: auto;
   padding-top: 0.5rem;
   border-top: 1px solid rgba(255,255,255,0.08);
 }
@@ -416,60 +453,30 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-.btn-text {
-  display: none;
-}
+.btn-text { display: none; }
 
-/* === BOTÕES ESPECÍFICOS === */
-.btn-contato {
-  background: #7c3aed;
-  color: #fff;
-}
+.btn-contato { background: #7c3aed; color: #fff; }
 .btn-contato:hover { background: #25d366; }
 
-.btn-pagar {
-  background: #ff6b35;
-  color: #fff;
-  font-weight: 600;
-}
+.btn-pagar { background: #ff6b35; color: #fff; font-weight: 600; }
 .btn-pagar:hover { background: #e65b2b; transform: translateY(-1px); }
 
-.btn-editar {
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-}
+.btn-editar { background: rgba(255,255,255,0.1); color: #fff; }
 .btn-editar:hover { background: rgba(255,255,255,0.2); }
 
-.btn-remover {
-  background: rgba(239,68,68,0.2);
-  color: #ff6666;
-}
+.btn-remover { background: rgba(239,68,68,0.2); color: #ff6666; }
 .btn-remover:hover { background: rgba(239,68,68,0.35); }
 
-/* === ANIMAÇÃO === */
 @keyframes fadeUp {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* === RESPONSIVO === */
+/* RESPONSIVO */
 @media (max-width: 768px) {
   .meus-anuncios { padding: 1rem; }
   .grid-anuncios { grid-template-columns: 1fr; gap: 1.5rem; }
   .page-title { font-size: 1.4rem; }
   .header { gap: 0.8rem; }
-
-  .anuncio-acoes {
-    flex-direction: row;
-    gap: 0.35rem;
-  }
-
-  .anuncio-acoes button,
-  .anuncio-acoes a {
-    padding: 0.45rem 0.5rem;
-    font-size: 0.75rem;
-    min-height: 34px;
-  }
-
   .btn-text { display: inline; }
   .btn-contato, .btn-pagar { order: -1; }
 }
