@@ -193,7 +193,7 @@ const recarregar = () => {
 // === CARREGAR ANÚNCIOS ===
 const carregarAnuncios = async () => {
   try {
-    const res = await api.get('/meus', {
+    const res = await api.get('anuncios/meus', {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     })
 
