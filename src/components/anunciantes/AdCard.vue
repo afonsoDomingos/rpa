@@ -49,7 +49,7 @@
               <span>Falta <strong>{{ countdown }}s</strong></span>
             </div>
 
-            <!-- BOTÃO WHATSAPP 100% FUNCIONAL -->
+            <!-- BOTÃO WHATSAPP -->
             <button
               @click.stop="handleWhatsAppClick"
               class="ad-action-btn ad-whatsapp-btn"
@@ -102,51 +102,50 @@ let reappearTimeout = null
 
 const ONE_HOUR_MS = 60 * 60 * 1000
 
-// BUSCAR ANÚNCIOS (VERSÃO SUPER TOLERANTE)
+// BUSCAR ANÚNCIOS (sempre fresco)
 const fetchActiveAds = async () => {
-  console.log('%cAdCard: Buscando anúncios...', 'color: cyan; font-weight: bold')
+  console.log('%cAdCard: Buscando anúncios fresquinhos...', 'color: cyan; font-weight: bold')
 
   try {
     const res = await api.get('/anuncios/ativos', { timeout: 10000 })
     const data = Array.isArray(res.data) ? res.data : []
 
-    console.log('Anúncios recebidos:', data)
-
-    // Filtra só o essencial — aceita mesmo sem telefone
     activeAds.value = data
       .filter(ad => ad && 
         (ad.status === 'active' || ad.status === 'Active') && 
         ad.image && 
         ad._id
       )
-      .slice(0, 10)
+      .slice(0, 10) // máximo 10 anúncios
 
+    // Salva no cache para fallback offline
+    localStorage.setItem('cachedAds', JSON.stringify(activeAds.value))
+
+    // Se tem anúncios, escolhe um ALEATÓRIO (nunca mais o mesmo toda hora)
     if (activeAds.value.length > 0) {
-      currentIndex.value = 0
-      activeAd.value = activeAds.value[0]
+      currentIndex.value = Math.floor(Math.random() * activeAds.value.length)
+      activeAd.value = activeAds.value[currentIndex.value]
       showAd.value = true
       startCountdown()
-      console.log(`%c${activeAds.value.length} anúncio(s) exibido(s)!`, 'color: lime; font-weight: bold')
+      console.log(`%cMostrando anúncio #${currentIndex.value + 1}/${activeAds.value.length}`, 'color: lime; font-weight: bold')
     } else {
-      console.log('Nenhum anúncio ativo encontrado')
       activeAd.value = null
-      showAd.value = true
+      showAd.value = true // mostra placeholder
     }
-
-    localStorage.setItem('cachedAds', JSON.stringify(activeAds.value))
 
   } catch (err) {
     console.error('Erro ao buscar anúncios:', err.response || err)
     
-    // Tenta usar cache
+    // Tenta carregar do cache se falhar
     const cached = localStorage.getItem('cachedAds')
     if (cached) {
       activeAds.value = JSON.parse(cached)
       if (activeAds.value.length > 0) {
-        activeAd.value = activeAds.value[0]
+        currentIndex.value = Math.floor(Math.random() * activeAds.value.length)
+        activeAd.value = activeAds.value[currentIndex.value]
         showAd.value = true
         startCountdown()
-        console.log('Anúncios carregados do cache')
+        console.log('Anúncios carregados do cache (offline)')
       }
     }
   }
@@ -174,79 +173,73 @@ const nextAd = () => {
 
 const debouncedNextAd = debounce(nextAd, 300)
 
-// VIEW
+// VIEW + CLIQUE
 const registrarView = async (id) => {
-  try {
-    await api.post(`/anuncios/${id}/view`)
-  } catch (err) {
-    console.warn('View não registrada', err)
-  }
+  try { await api.post(`/anuncios/${id}/view`) } catch (err) { console.warn('View não registrada', err) }
 }
 
-// CLIQUE NO WHATSAPP (PERFEITO)
 const handleWhatsAppClick = async () => {
   if (enviandoWhatsapp.value) return
   enviandoWhatsapp.value = true
 
   const ad = activeAd.value
 
-  try {
-    await api.post(`/anuncios/${ad._id}/clique`)
-  } catch (err) {
-    console.warn('Clique não registrado', err)
-  } finally {
-    // Monta número (aceita vários formatos)
-    let numero = (ad.phone || '258840000000').replace(/\D/g, '')
-    if (numero.length < 9) numero = '258840000000'
+  try { await api.post(`/anuncios/${ad._id}/clique`) } catch (err) { console.warn('Clique não registrado', err) }
 
-    const mensagem = ad.ctaLink
-      ? `Olá! Vi o anúncio: *${ad.name}* — ${ad.ctaLink}`
-      : `Olá! Gostaria de saber mais sobre *${ad.name}* (R${ad.price})`
+  let numero = (ad.phone || '258840000000').replace(/\D/g, '')
+  if (numero.length < 9) numero = '258840000000'
 
-    const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`
-    window.open(url, '_blank', 'noopener,noreferrer')
+  const mensagem = ad.ctaLink
+    ? `Olá! Vi o anúncio: *${ad.name}* — ${ad.ctaLink}`
+    : `Olá! Gostaria de saber mais sobre *${ad.name}* (R${ad.price})`
 
-    setTimeout(() => enviandoWhatsapp.value = false, 1500)
-  }
+  const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`
+  window.open(url, '_blank', 'noopener,noreferrer')
+
+  setTimeout(() => enviandoWhatsapp.value = false, 1500)
 }
 
-// FECHAR
+// FECHAR → e forçar atualização fresca quando voltar
 const closeAd = () => {
   showAd.value = false
   clearTimers()
   localStorage.setItem('adLastClosed', Date.now().toString())
+
   clearTimeout(reappearTimeout)
   reappearTimeout = setTimeout(() => {
-    showAd.value = true
-    startCountdown()
+    fetchActiveAds() // ← AQUI: busca anúncios novos quando voltar!
   }, ONE_HOUR_MS)
 }
 
 const clearTimers = () => {
   if (timeoutId) clearTimeout(timeoutId)
   if (intervalId) clearInterval(intervalId)
-  timeoutId = null
-  intervalId = null
+  timeoutId = intervalId = null
 }
 
 const handleImageError = (e) => {
   e.target.src = '/img/placeholder-ad.jpg'
 }
 
-const formatPrice = (v) => new Intl.NumberFormat('pt-MZ', { style: 'currency', currency: 'MZN', minimumFractionDigits: 0 }).format(v)
+const formatPrice = (v) => new Intl.NumberFormat('pt-MZ', { 
+  style: 'currency', 
+  currency: 'MZN', 
+  minimumFractionDigits: 0 
+}).format(v)
 
 // CICLO DE VIDA
 onMounted(() => {
-  fetchActiveAds()
+  fetchActiveAds() // primeira carga
 
+  // Polling a cada 1 minuto (só quando pode ou deve reaparecer)
   pollingInterval = setInterval(() => {
-    if (!showAd.value) {
-      const last = localStorage.getItem('adLastClosed')
-      if (!last || Date.now() - parseInt(last) >= ONE_HOUR_MS) {
-        fetchActiveAds()
-      }
+    const lastClosed = localStorage.getItem('adLastClosed')
+    const canReappearNow = !lastClosed || Date.now() - parseInt(lastClosed) >= ONE_HOUR_MS
+
+    if (!showAd.value || canReappearNow) {
+      fetchActiveAds() // sempre fresco
     }
-  }, 5 * 60 * 1000)
+  }, 60 * 1000) // 1 minuto
 
   window.addEventListener('newAdCreated', fetchActiveAds)
 })
@@ -258,7 +251,6 @@ onUnmounted(() => {
   window.removeEventListener('newAdCreated', fetchActiveAds)
 })
 </script>
-
 
 <style scoped>
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
