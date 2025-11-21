@@ -24,12 +24,26 @@
 
     <!-- LISTA DE ANÚNCIOS -->
     <div v-else class="lista-container">
-      <header class="header">
-        <button @click="$router.go(-1)" class="back-btn" aria-label="Voltar">
-          <i class="bi bi-arrow-left"></i> Voltar
+
+         <!-- HEADER PREMIUM COMPLETO -->
+      <header class="premium-header">
+        <button @click="$router.go(-1)" class="back-button">
+          <i class="bi bi-arrow-left-circle-fill"></i>
+          <span>Voltar</span>
         </button>
-        <h1 class="page-title">Meus Anúncios</h1>
+
+        <div class="title-section">
+          <h1 class="page-title">
+            <i class="bi bi-megaphone-fill"></i>
+            Meus Anúncios
+          </h1>
+         
+        </div>
+
+    
       </header>
+
+   
 
       <div class="grid-anuncios">
         <div v-for="(ad, i) in anuncios" :key="ad._id" class="anuncio-card" :style="{ '--i': i }">
@@ -425,6 +439,59 @@ onUnmounted(() => {
 
 /* Força Poppins em tudo */
 * { font-family: 'Poppins', sans-serif !important; }
+
+
+.premium-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding-bottom: 1.8rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  padding: 0.75rem 1.4rem;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+.back-button i { font-size: 1.3rem; color: #c4b5fd; }
+
+.title-section .page-title {
+  font-size: 2.1rem;
+  font-weight: 800;
+  margin: 0;
+  color: #e0d0ff;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+.title-section .page-title i { color: #a78bfa; font-size: 2rem; }
+
+.page-subtitle {
+  margin: 0.4rem 0 0;
+  font-size: 0.95rem;
+  color: #cbd5e1;
+  font-weight: 500;
+  opacity: 0.9;
+}
 
 
 .meus-anuncios { font-family: 'Poppins', sans-serif; min-height: 100vh; padding: 2rem; background: radial-gradient(circle at top left, #120024, #000); color: #fff; }
