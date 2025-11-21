@@ -6,7 +6,8 @@
       <p>Carregando seus anúncios...</p>
     </div>
 
-    <!-- ERRO -->
+   
+ <!-- ERRO -->
     <div v-else-if="error" class="error-state">
       <i class="bi bi-exclamation-triangle"></i>
       <p>{{ error }}</p>
@@ -14,18 +15,7 @@
     </div>
 
     <!-- VAZIO -->
-    <div v-else-if="!anuncios.length" class="empty-state">
-      <i class="bi bi-megaphone-fill"></i>
-      <p>Ainda não existem anúncios publicados.</p>
-      <button @click="$router.push('/anuncie')" class="new-btn">
-        <i class="bi bi-plus-circle"></i> Criar Anúncio
-      </button>
-    </div>
-
-    <!-- LISTA DE ANÚNCIOS -->
-    <div v-else class="lista-container">
-
-         <!-- HEADER PREMIUM COMPLETO -->
+    <!-- HEADER PREMIUM SEMPRE VISÍVEL -->
       <header class="premium-header">
         <button @click="$router.go(-1)" class="back-button">
           <i class="bi bi-arrow-left-circle-fill"></i>
@@ -37,13 +27,25 @@
             <i class="bi bi-megaphone-fill"></i>
             Meus Anúncios
           </h1>
-         
+        
         </div>
 
-    
+       
       </header>
 
-   
+      <!-- ESTADO VAZIO (com header em cima) -->
+      <div v-if="!anuncios.length" class="empty-state">
+        <i class="bi bi-megaphone-fill"></i>
+        <p>Ainda não tens anúncios publicados.</p>
+        <button @click="$router.push('/anuncie')" class="new-btn">
+          <i class="bi bi-plus-circle"></i> Criar Meu Primeiro Anúncio
+        </button>
+      </div>
+
+    <!-- LISTA DE ANÚNCIOS -->
+    <div v-else class="lista-container">
+
+       
 
       <div class="grid-anuncios">
         <div v-for="(ad, i) in anuncios" :key="ad._id" class="anuncio-card" :style="{ '--i': i }">
