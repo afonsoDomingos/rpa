@@ -1,29 +1,12 @@
 <script setup>
-/*
-=========================================================
-* Vue Material Kit 2 - v2.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/vue-material-kit
-* Copyright 2022 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
 import { RouterView } from "vue-router";
 import CustomCursor from "./views/Presentation/CustomCursor.vue";
 import SocialIcons from "./components/SocialIcons.vue";
 import ChatAssistente from "./components/ChatAssistente.vue";
 import InstallButton from "./components/InstallButton.vue";
-
-/*import olhodedeus from "./examples/navbars/olhodedeus.vue";*/
+import ScrollToolsCTA from "./components/ScrollToolsCTA.vue";
 
 import { ref, onMounted, onUnmounted } from 'vue';
-
-
 
 const showScrollTop = ref(false);
 const showIcon = ref(true);
@@ -39,6 +22,8 @@ function scrollToTop() {
 
 onMounted(() => {
   window.addEventListener('scroll', handleScroll);
+  
+  // Animação da barrinha de loading (~2 segundos)
   let progress = 0;
   const interval = setInterval(() => {
     progress += 2.5;
@@ -49,26 +34,18 @@ onMounted(() => {
         showIcon.value = false;
       }, 350);
     }
-  }, 50); // 50ms * 40 = ~2s
+  }, 50);
 });
+
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
 });
-
-
-
-
-
-const props = defineProps({
-  size: {
-    type: [Number, String],
-    default: 6, // valor original
-  },
-});
-
 </script>
+
 <template>
   <div style="min-height: 100vh; max-width: 100vw; overflow-x: hidden; overflow-y: auto; position: relative;">
+    
+    <!-- TELA DE LOADING COM ANIMAÇÃO -->
     <transition name="zoom-in">
       <div v-if="showIcon" class="zoom-icon-wrapper">
         <div class="zoom-icon-content">
@@ -81,38 +58,40 @@ const props = defineProps({
         </div>
       </div>
     </transition>
+
+    <!-- CONTEÚDO PRINCIPAL (só aparece depois do loading) -->
     <div v-show="!showIcon">
-      <!--<olhodedeus />-->
       <router-view />
-      <CustomCursor />
-      <ChatAssistente v-if="!showScrollTop" />
-     <SocialIcons :size="14" />
-     <InstallButton />
-
-    
-
-     
-
-
-      
-      <button
-        v-show="showScrollTop"
-        @click="scrollToTop"
-        class="scroll-top-btn"
-        aria-label="Voltar ao topo"
-      >
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="10" cy="10" r="10" fill="white" fill-opacity="0.13"/>
-          <path d="M10 15V5" stroke="#198754" stroke-width="2" stroke-linecap="round"/>
-          <path d="M6.5 8.5L10 5L13.5 8.5" stroke="#800080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
     </div>
+
+    <!-- ==================== COMPONENTES GLOBAIS SEMPRE ATIVOS ==================== -->
+    <!-- Eles são montados desde o início → ScrollToolsCTA funciona perfeitamente -->
+    <ScrollToolsCTA />
+    <CustomCursor />
+    <SocialIcons :size="14" />
+    <InstallButton />
+
+    <!-- ChatAssistente só some quando rolar (como você queria) -->
+    <ChatAssistente v-if="!showScrollTop && !showIcon" />
+
+    <!-- Botão voltar ao topo -->
+    <button
+      v-show="showScrollTop"
+      @click="scrollToTop"
+      class="scroll-top-btn"
+      aria-label="Voltar ao topo"
+    >
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="10" cy="10" r="10" fill="white" fill-opacity="0.13"/>
+        <path d="M10 15V5" stroke="#198754" stroke-width="2" stroke-linecap="round"/>
+        <path d="M6.5 8.5L10 5L13.5 8.5" stroke="#800080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
   </div>
-<!-- Fim do template -->
 </template>
+
 <style scoped>
-/* Botão voltar ao topo menor e mais atraente */
+/* Botão voltar ao topo */
 .scroll-top-btn {
   position: fixed;
   right: 18px;
@@ -141,7 +120,7 @@ const props = defineProps({
   transform: scale(1.13) rotate(-10deg);
 }
 
-/* Efeito zoom-in para o ícone */
+/* Animações do loading */
 .zoom-in-enter-active {
   animation: zoomIn 0.7s cubic-bezier(0.23, 1.01, 0.32, 1) both;
 }
@@ -149,43 +128,28 @@ const props = defineProps({
   animation: zoomOut 0.4s cubic-bezier(0.23, 1.01, 0.32, 1) both;
 }
 @keyframes zoomIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  0% { opacity: 0; transform: scale(0.3); }
+  100% { opacity: 1; transform: scale(1); }
 }
 @keyframes zoomOut {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.3); }
 }
 
 .zoom-icon-wrapper {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  top: 0; left: 0; width: 100vw; height: 100vh;
   background: rgba(255,255,255,0.97);
   z-index: 99999;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.zoom-icon-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.zoom-icon-content { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: center; 
 }
 .zoom-icon {
   width: 110px;
@@ -194,13 +158,7 @@ const props = defineProps({
   filter: drop-shadow(0 2px 12px rgba(60,60,60,0.18));
   margin-bottom: 18px;
 }
-.zoom-bar-wrapper {
-  width: 120px;
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+.zoom-bar-wrapper { width: 120px; margin-top: 8px; }
 .zoom-bar-bg {
   width: 100%;
   height: 10px;
@@ -214,9 +172,5 @@ const props = defineProps({
   background: linear-gradient(90deg, #198754 60%, #800080 100%);
   border-radius: 6px;
   transition: width 0.18s cubic-bezier(0.4,0,0.2,1);
-  width: 0%;
 }
-
-/* ...existing styles... */
 </style>
-
