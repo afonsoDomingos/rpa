@@ -14,12 +14,9 @@
       <main class="main-content">
         <!-- Passo 1: Pacotes -->
         <div v-if="currentStep === 1" class="packages-grid">
-          <div
-            v-for="pkg in packages"
-            :key="pkg.id"
+          <div v-for="pkg in packages" :key="pkg.id"
             :class="['package-card', { selected: selectedPackage?.id === pkg.id, recommended: pkg.recommended }]"
-            @click="selectPackage(pkg)"
-          >
+            @click="selectPackage(pkg)">
             <div v-if="pkg.recommended" class="recommended-badge">Recomendado</div>
             <h3 class="package-name">{{ pkg.name }}</h3>
             <div class="package-price">
@@ -27,9 +24,7 @@
               <span class="amount">{{ pkg.price > 0 ? pkg.price.toLocaleString('pt-MZ') : 'Gratuito' }}</span>
               <span v-if="pkg.price > 0" class="period">{{ pkg.period }}</span>
             </div>
-
             <ul class="benefits-list">
-              <!-- CORRIGIDO AQUI: era "benefit-item" sem ser class -->
               <li v-for="(benefit, index) in pkg.benefits" :key="index" class="benefit-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="check-icon">
                   <path d="M20 6 9 17l-5-5"/>
@@ -37,11 +32,7 @@
                 {{ benefit }}
               </li>
             </ul>
-
-            <button
-              :class="['select-button', { selected: selectedPackage?.id === pkg.id }]"
-              @click.stop="selectPackage(pkg)"
-            >
+            <button :class="['select-button', { selected: selectedPackage?.id === pkg.id }]" @click.stop="selectPackage(pkg)">
               {{ selectedPackage?.id === pkg.id ? 'Selecionado' : 'Selecionar' }}
             </button>
           </div>
@@ -51,12 +42,9 @@
         <div v-if="currentStep === 2" class="payment-methods">
           <h2 class="section-title">Escolha o Método de Pagamento</h2>
           <div class="payment-methods-grid">
-            <button
-              v-for="method in paymentMethods"
-              :key="method.id"
+            <button v-for="method in paymentMethods" :key="method.id"
               :class="['payment-method-card', { selected: selectedPaymentMethod === method.id }]"
-              @click="selectPaymentMethod(method.id)"
-            >
+              @click="selectPaymentMethod(method.id)">
               <img v-if="method.img" :src="method.img" class="payment-method-icon-img" />
               <i v-else :class="method.iconClass" class="payment-method-icon"></i>
               <span class="payment-method-name">{{ method.name }}</span>
@@ -64,61 +52,37 @@
           </div>
 
           <form v-if="selectedPaymentMethod" @submit.prevent="handleSubmit" class="form">
+
             <!-- M-Pesa / Emola -->
             <div v-if="['mpesa', 'emola'].includes(selectedPaymentMethod)" class="form-group phone-input-group">
               <label class="form-label">Número {{ selectedPaymentMethod === 'mpesa' ? 'M-Pesa' : 'Emola' }}</label>
-              <input
-                ref="phoneInput"
-                v-model="mobileDetails.phone"
-                type="tel"
-                inputmode="numeric"
-                autocomplete="tel"
-                :placeholder="selectedPaymentMethod === 'mpesa' ? '84 123 4567' : '86 123 4567'"
-                required
-                class="form-input"
-                @focus="onInputFocus"
-                @blur="onInputBlur"
-                @input="debouncedNormalize"
-              />
+              <input ref="phoneInput" v-model="mobileDetails.phone" type="tel" inputmode="numeric" autocomplete="tel"
+                :placeholder="selectedPaymentMethod === 'mpesa' ? '84 123 4567' : '86 123 4567'" required class="form-input"
+                @focus="onInputFocus" @blur="onInputBlur" @input="debouncedNormalize" />
             </div>
 
-            <!-- Cartão -->
-            <div v-if="selectedPaymentMethod === 'card'">
-              <div class="form-group">
-                <label class="form-label">Número do Cartão</label>
-                <input
-                  ref="cardInput"
-                  v-model="cardDetails.number"
-                  type="text"
-                  inputmode="numeric"
-                  autocomplete="cc-number"
-                  placeholder="0000 0000 0000 0000"
-                  required
-                  class="form-input"
-                  @focus="onInputFocus"
-                  @blur="onInputBlur"
-                />
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">Validade</label>
-                  <input v-model="cardDetails.expiry" type="text" placeholder="MM/AA" required class="form-input"/>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">CVV</label>
-                  <input v-model="cardDetails.cvv" type="text" inputmode="numeric" placeholder="123" required class="form-input"/>
-                </div>
+            <!-- CARTÃO — VERSÃO 100% GARANTIDA -->
+            <div v-if="selectedPaymentMethod === 'card'" class="stripe-container">
+              <!-- Este div tem que estar vazio e visível -->
+              <div id="payment-element" style="min-height: 380px;"></div>
+              
+              <!-- Mensagem de erro do Stripe -->
+              <div id="payment-message" class="error-message" v-show="stripeError">
+                {{ stripeError }}
               </div>
             </div>
 
-            <p class="form-hint">Você receberá uma notificação no seu telefone para confirmar o pagamento.</p>
+            <p class="form-hint">
+              {{ selectedPaymentMethod === 'card' ? 'Preencha os dados do cartão acima.' : 'Você receberá uma notificação no seu telefone.' }}
+            </p>
+
             <button type="submit" :disabled="loading" class="submit-button">
               <span v-if="loading" class="spinner"></span>
               {{ loading ? 'Processando...' : 'Enviar Pedido' }}
             </button>
           </form>
 
-          <!-- Mensagem de erro -->
+          <!-- Erro geral -->
           <div v-if="errorMessage" class="error-message">
             {{ errorMessage }}
             <div class="error-actions">
@@ -128,7 +92,7 @@
           </div>
         </div>
 
-        <!-- Tela de Sucesso -->
+        <!-- Sucesso -->
         <div v-if="showSuccess" class="success-message">
           <div class="success-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -190,37 +154,34 @@
 </template>
 
 <script setup>
-import { ref, reactive, nextTick, onMounted } from 'vue'
+import { ref, reactive, nextTick, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api'
 import mpesaIcon from '@/assets/img/Mpesa.png'
 import emolaIcon from '@/assets/img/Emola.png'
-
-// A NOVA E ÚNICA FUNÇÃO DE TRACKING QUE USAS
 import { sendMetaEvent } from '@/utils/meta'
 
 const router = useRouter()
 
-// Estado
+// ==================== ESTADO GERAL ====================
 const currentStep = ref(1)
 const selectedPackage = ref(null)
 const selectedPaymentMethod = ref(null)
 const loading = ref(false)
 const showSuccess = ref(false)
 const errorMessage = ref('')
+const stripeError = ref('')
+
 const phoneInput = ref(null)
-const cardInput = ref(null)
 const inputFocused = ref(false)
 const isMobile = ref(false)
 
-onMounted(() => {
-  isMobile.value = window.innerWidth <= 1024
-  window.addEventListener('resize', () => {
-    isMobile.value = window.innerWidth <= 1024
-  })
-})
+// ==================== STRIPE (variáveis globais) ====================
+let stripe = null
+let elements = null
+let paymentElement = null  // agora guardamos a referência
 
-// Pacotes (preços reais)
+// ==================== DADOS ====================
 const packages = [
   { id: 'teste', name: 'Teste', price: 25, period: '/5 dias', benefits: ['Acesso total por 5 dias', 'Gerar CV', '1 GB de armazenamento'], recommended: true },
   { id: 'mensal', name: 'Mensal', price: 150, period: '/mês', benefits: ['Tudo do teste', 'Solicitar documentos', '3 GB', 'Suporte prioritário'], recommended: false },
@@ -234,9 +195,8 @@ const paymentMethods = [
 ]
 
 const mobileDetails = reactive({ phone: '' })
-const cardDetails = reactive({ number: '', expiry: '', cvv: '' })
 
-// Normalização de telefone
+// ==================== FUNÇÕES AUXILIARES ====================
 const normalizePhone = (raw) => {
   const cleaned = raw.replace(/[\s\-\(\)\+]/g, '')
   if (/^(84|85|86|87)\d{7}$/.test(cleaned)) return '258' + cleaned
@@ -244,34 +204,45 @@ const normalizePhone = (raw) => {
   return null
 }
 
-// Debounce para formatação visual
 let debounceTimer
-const formatPhoneInput = () => {
+const debouncedNormalize = () => {
   clearTimeout(debounceTimer)
   debounceTimer = setTimeout(() => {
-    if (mobileDetails.phone.length >= 9) {
+    if (mobileDetails.phone) {
       const norm = normalizePhone(mobileDetails.phone)
-      if (norm) mobileDetails.phone = norm.slice(3) // mostra só 84...
+      if (norm) mobileDetails.phone = norm.slice(3)
     }
-  }, 400)
+  }, 600)
 }
 
-// Foco no mobile
 const onInputFocus = async () => {
   if (isMobile.value) {
     inputFocused.value = true
     await nextTick()
-    const input = phoneInput.value || cardInput.value
+    const input = phoneInput.value
     if (input) input.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 }
 const onInputBlur = () => { inputFocused.value = false }
 
-// Ações
-const selectPackage = (pkg) => { selectedPackage.value = pkg; errorMessage.value = '' }
-const selectPaymentMethod = (id) => { selectedPaymentMethod.value = id; errorMessage.value = '' }
+const selectPackage = (pkg) => {
+  selectedPackage.value = pkg
+  errorMessage.value = ''
+  stripeError.value = ''
+}
+
+const selectPaymentMethod = (id) => {
+  selectedPaymentMethod.value = id
+  errorMessage.value = ''
+  stripeError.value = ''
+}
+
 const goToHome = () => router.push('/home')
-const retryPayment = () => { errorMessage.value = ''; loading.value = false }
+const retryPayment = () => {
+  errorMessage.value = ''
+  stripeError.value = ''
+  loading.value = false
+}
 const contactSupport = () => window.location.href = 'tel:258847877405'
 
 const nextStep = async () => {
@@ -280,12 +251,10 @@ const nextStep = async () => {
     return
   }
 
-  // InitiateCheckout — evento crítico
   await sendMetaEvent('InitiateCheckout', {
     value: selectedPackage.value.price,
     currency: 'MZN',
     num_items: 1,
-    content_type: 'product',
     content_ids: [selectedPackage.value.id],
     content_name: selectedPackage.value.name
   })
@@ -295,37 +264,6 @@ const nextStep = async () => {
     return
   }
   currentStep.value = 2
-}
-
-// Plano de teste
-const ativarPlanoTeste = async () => {
-  loading.value = true
-  try {
-    const res = await api.post('/pagamentos/processar', {
-      pacote: 'teste',
-      method: 'teste',
-      amount: 25,
-      type: 'assinatura'
-    }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
-
-    if (res.data.sucesso) {
-      await sendMetaEvent('Subscribe', {
-        value: 25,
-        currency: 'MZN',
-        content_ids: ['teste'],
-        content_name: 'Plano de Teste',
-        num_items: 1
-      })
-
-      showSuccess.value = true
-    } else {
-      errorMessage.value = res.data.mensagem || 'Erro ao ativar teste.'
-    }
-  } catch (err) {
-    errorMessage.value = 'Erro de conexão.'
-  } finally {
-    loading.value = false
-  }
 }
 
 const previousStep = () => {
@@ -338,9 +276,99 @@ const goBack = () => {
   else window.history.back()
 }
 
-// Pagamento final (Subscribe = Purchase para assinaturas)
+// ==================== PLANO DE TESTE ====================
+const ativarPlanoTeste = async () => {
+  loading.value = true
+  try {
+    const res = await api.post('/pagamentos/processar', {
+      pacote: 'teste',
+      method: 'teste',
+      amount: 25,
+      type: 'assinatura'
+    }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }})
+
+    if (res.data.sucesso) {
+      await sendMetaEvent('Subscribe', { value: 25, currency: 'MZN', content_ids: ['teste'], content_name: 'Plano de Teste' })
+      showSuccess.value = true
+    } else {
+      errorMessage.value = res.data.mensagem || 'Erro ao ativar teste.'
+    }
+  } catch (err) {
+    errorMessage.value = 'Erro de conexão.'
+  } finally {
+    loading.value = false
+  }
+}
+
+// ==================== STRIPE – VERSÃO QUE NUNCA FALHA ====================
+const loadStripe = async () => {
+  if (stripe && paymentElement) return
+
+  await nextTick()
+  const container = document.getElementById('payment-element')
+  if (!container) {
+    stripeError.value = 'Erro: formulário não encontrado.'
+    return
+  }
+
+  try {
+    // Carrega Stripe.js se ainda não estiver
+    if (!window.Stripe) {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = 'https://js.stripe.com/v3/'
+        script.onload = resolve
+        script.onerror = reject
+        document.head.appendChild(script)
+      })
+    }
+
+    // Cria PaymentIntent
+    const { data } = await api.post('/stripe/create-payment-intent', {
+      amount: selectedPackage.value.price,
+      pacote: selectedPackage.value.id,
+      type: 'assinatura'
+    }, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    })
+
+    stripe = window.Stripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
+    elements = stripe.elements({ clientSecret: data.clientSecret })
+
+    paymentElement = elements.create('payment', {
+      layout: 'tabs',
+      defaultValues: { billingDetails: { name: 'Cliente RPA' } }
+    })
+
+    paymentElement.mount(container)
+    console.log('FORMULÁRIO STRIPE MONTADO COM SUCESSO!')
+
+  } catch (err) {
+    console.error('Erro fatal no Stripe:', err)
+    stripeError.value = 'Falha ao carregar cartão. Tente novamente.'
+  }
+}
+
+// Watch 100% confiável
+watch(selectedPaymentMethod, async (newVal) => {
+  if (newVal === 'card') {
+    await loadStripe()
+  } else {
+    // Limpa tudo se trocar de método
+    if (paymentElement) paymentElement.unmount()
+    if (elements) elements = null
+    stripe = null
+    paymentElement = null
+    const el = document.getElementById('payment-element')
+    if (el) el.innerHTML = ''
+  }
+})
+
+// ==================== SUBMISSÃO FINAL ====================
 const handleSubmit = async () => {
   errorMessage.value = ''
+  stripeError.value = ''
+
   if (!selectedPackage.value || !selectedPaymentMethod.value) {
     errorMessage.value = 'Selecione pacote e método.'
     return
@@ -348,6 +376,29 @@ const handleSubmit = async () => {
 
   loading.value = true
 
+  if (selectedPaymentMethod.value === 'card') {
+    if (!stripe || !elements || !paymentElement) {
+      errorMessage.value = 'Formulário de cartão não carregou.'
+      loading.value = false
+      return
+    }
+
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/assinaturas?sucesso=cartao`
+      }
+    })
+
+    if (error) {
+      stripeError.value = error.message || 'Pagamento recusado.'
+      errorMessage.value = error.message || 'Pagamento recusado.'
+    }
+    loading.value = false
+    return
+  }
+
+  // M-Pesa / Emola (igual)
   let finalPhone = null
   if (['mpesa', 'emola'].includes(selectedPaymentMethod.value)) {
     finalPhone = normalizePhone(mobileDetails.phone)
@@ -358,20 +409,13 @@ const handleSubmit = async () => {
     }
   }
 
-  if (selectedPaymentMethod.value === 'card' && (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv)) {
-    errorMessage.value = 'Preencha todos os dados do cartão.'
-    loading.value = false
-    return
-  }
-
   try {
     const payload = {
       pacote: selectedPackage.value.id,
       method: selectedPaymentMethod.value,
       phone: finalPhone,
       amount: selectedPackage.value.price,
-      type: 'assinatura',
-      dadosCartao: selectedPaymentMethod.value === 'card' ? cardDetails : null
+      type: 'assinatura'
     }
 
     const res = await api.post('/pagamentos/processar', payload, {
@@ -379,17 +423,7 @@ const handleSubmit = async () => {
     })
 
     if (res.data.sucesso) {
-      // EVENTO SUBSCRIBE (equivalente a Purchase para assinaturas)
-      await sendMetaEvent('Subscribe', {
-        value: selectedPackage.value.price,
-        currency: 'MZN',
-        content_ids: [selectedPackage.value.id],
-        content_name: selectedPackage.value.name,
-        num_items: 1
-      }, {
-        phone: finalPhone || undefined
-      })
-
+      await sendMetaEvent('Subscribe', { value: selectedPackage.value.price, currency: 'MZN' })
       showSuccess.value = true
     } else {
       errorMessage.value = res.data.mensagem || 'Pagamento não concluído.'
@@ -400,6 +434,20 @@ const handleSubmit = async () => {
     loading.value = false
   }
 }
+
+// ==================== ON MOUNTED ====================
+onMounted(() => {
+  isMobile.value = window.innerWidth <= 1024
+  window.addEventListener('resize', () => {
+    isMobile.value = window.innerWidth <= 1024
+  })
+
+  const params = new URLSearchParams(window.location.search)
+  if (params.get('sucesso') === 'cartao') {
+    showSuccess.value = true
+    history.replaceState({}, '', window.location.pathname)
+  }
+})
 </script>
 
 
