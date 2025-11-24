@@ -104,8 +104,9 @@ onUnmounted(() => {
     <transition name="curtain-up">
       <div v-if="showLoading" class="loading-screen">
 
-        <!-- By: + Logo clicável (canto superior direito) -->
+        <!-- By: + Logo no CANTO INFERIOR DIREITO (bem encostado) -->
         <div class="powered-by" @click="openLinkedIn">
+          
           <img src="@/assets/img/byvibe.png" alt="Vibe" />
         </div>
 
@@ -181,37 +182,40 @@ onUnmounted(() => {
   50% { background-position: 100% 50%; }
 }
 
-/* By: + Logo (maior e clicável) */
+/* By: + Logo no CANTO INFERIOR DIREITO (bem encostado mesmo na borda) */
 .powered-by {
   position: absolute;
-  top: 24px;
-  right: 28px;
+  bottom: 16px;   /* bem encostado em baixo */
+  right: 16px;    /* bem encostado à direita */
   display: flex;
   align-items: center;
   gap: 10px;
   cursor: pointer;
   z-index: 100000;
-  padding: 8px 12px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
+  padding: 10px 14px;
+  border-radius: 12px;
+  
+  backdrop-filter: blur(8px);
+  transition: all 0.35s ease;
 }
 .powered-by:hover {
-  transform: scale(1.05);
-  background: rgba(128, 0, 128, 0.15);
+  transform: translateY(-2px);
+
+
 }
 .by-text {
-  font-family: 'Segoe UI', sans-serif;
-  font-size: 18px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 19px;
   font-weight: 600;
   color: #e0aaff;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
 }
 .powered-by img {
-  height: 48px;                    /* logo maior */
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+  height: 56px;   /* logo maior e bem visível */
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.7));
 }
 
-/* Pontinhos roxos suaves (sem agressividade) */
+/* Pontinhos roxos suaves */
 .dots-container {
   display: flex;
   gap: 22px;
@@ -226,12 +230,12 @@ onUnmounted(() => {
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dot.active {
-  background: #b000b0;
+  background: #c000c0;
   transform: scale(1.4);
-  box-shadow: 0 0 16px rgba(176, 0, 176, 0.6);
+  box-shadow: 0 0 14px rgba(192, 0, 192, 0.5);
 }
 
-/* Animações de loading */
+/* Animações */
 .curtain-up-leave-active { transition: transform 1.1s cubic-bezier(0.4, 0, 0.2, 1); }
 .curtain-up-leave-to { transform: translateY(-100vh); }
 .gentle-fade-leave-active { transition: opacity 0.7s ease-out; }
@@ -240,7 +244,7 @@ onUnmounted(() => {
 .loading-eye { transform: scale(4.6); cursor: pointer; animation: float 7s ease-in-out infinite; }
 @keyframes float { 0%, 100% { transform: translateY(0) scale(4.6); } 50% { transform: translateY(-10px) scale(4.6); } }
 
-/* Olho roxo detalhado */
+/* Olho roxo */
 .eye { width: 50px; height: 30px; border-radius: 50%/50%; background: radial-gradient(circle at 50% 55%, #fff 0%, #f5f5f5 95%); position: relative; overflow: hidden; box-shadow: inset 0 4px 12px rgba(0,0,0,0.25), 0 6px 16px rgba(0,0,0,0.2); transition: height 0.16s ease; }
 .eye.blinking { height: 4px; }
 .sclera { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
