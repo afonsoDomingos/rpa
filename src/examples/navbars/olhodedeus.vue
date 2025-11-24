@@ -12,9 +12,11 @@
           <div class="iris-core"></div>
           <div class="iris-fibers"></div>
           <div class="iris-glow"></div>
+          <div class="iris-veins"></div>
           <div class="pupil"></div>
           <div class="reflection-main"></div>
           <div class="reflection-small"></div>
+          <div class="reflection-tiny"></div>
         </div>
       </div>
     </div>
@@ -39,22 +41,16 @@ const colors = [
 let targetIris = { x: 0, y: 0 }
 let lastMoveTime = Date.now()
 
-// Função para atualizar a posição suavemente
 const updateIris = () => {
   const now = Date.now()
-  // Se passou mais de 1s sem movimento, centraliza suavemente
-  if (now - lastMoveTime > 1000) {
-    targetIris = { x: 0, y: 0 }
-  }
+  if (now - lastMoveTime > 1000) targetIris = { x: 0, y: 0 }
 
-  // Interpolação suave (lerp)
   iris.value.x += (targetIris.x - iris.value.x) * 0.1
   iris.value.y += (targetIris.y - iris.value.y) * 0.1
 
   requestAnimationFrame(updateIris)
 }
 
-// Movimento do cursor
 const handleMouseMove = (event) => {
   if (!eyeElement) return
   const rect = eyeElement.getBoundingClientRect()
@@ -65,20 +61,18 @@ const handleMouseMove = (event) => {
   const dy = event.clientY - centerY
 
   const maxDistance = 8
-  const distance = Math.min(Math.sqrt(dx * dx + dy * dy), maxDistance)
+  const distance = Math.min(Math.hypot(dx, dy), maxDistance * 12)
   const angle = Math.atan2(dy, dx)
 
   targetIris = {
-    x: Math.cos(angle) * distance,
-    y: Math.sin(angle) * distance
+    x: Math.cos(angle) * (distance / (maxDistance * 12)) * maxDistance,
+    y: Math.sin(angle) * (distance / (maxDistance * 12)) * maxDistance
   }
   lastMoveTime = Date.now()
 }
 
-// Movimento com giroscópio do dispositivo
 const handleDeviceOrientation = (event) => {
   if (!eyeElement) return
-
   const maxDistance = 6
   const x = (event.gamma || 0) / 30
   const y = (event.beta || 0) / 30
@@ -90,26 +84,21 @@ const handleDeviceOrientation = (event) => {
   lastMoveTime = Date.now()
 }
 
-// Piscar aleatoriamente
 const blink = () => {
   isBlinking.value = true
   setTimeout(() => {
     isBlinking.value = false
-    setTimeout(blink, 2000 + Math.random() * 3000)
+    setTimeout(blink, 2200 + Math.random() * 3800)
   }, 150)
 }
 
-// Mudar cor da íris
 const changeColor = () => {
   const next = colors[Math.floor(Math.random() * colors.length)]
   irisColor.value = next
 }
 
-// Mudar cor ao clicar em qualquer botão
 const handleGlobalButtonClick = (event) => {
-  if (event.target.closest("button")) {
-    changeColor()
-  }
+  if (event.target.closest("button")) changeColor()
 }
 
 onMounted(() => {
@@ -134,36 +123,53 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.floating-eye {
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+
+
+
+
+
+/* ==================== OLHO (GRANDE + PEQUENO NO CANTO) ==================== */
+.loading-eye {
+  transform: scale(4.4);
   cursor: pointer;
+  animation: float 5s ease-in-out infinite;
+}
+
+.corner-eye {
+  position: fixed;
+  top: 16px;
+  left: 16px;
   z-index: 9999;
-  animation: float 4s ease-in-out infinite;
+  cursor: pointer;
+  animation: float-small 5s ease-in-out infinite;
 }
 
 @keyframes float {
-  0%,100% { transform: translateY(0); }
-  50% { transform: translateY(-2px); }
+  0%, 100% { transform: translateY(0) scale(4.4); }
+  50%     { transform: translateY(-12px) scale(4.4); }
 }
 
+@keyframes float-small {
+  0%, 100% { transform: translateY(0); }
+  50%     { transform: translateY(-4px); }
+}
+
+/* Estrutura e detalhes do olho */
 .eye {
   width: 50px;
   height: 30px;
-  border-radius: 50% / 50%;
-  background: radial-gradient(circle at 50% 55%, #ffffff 0%, #e1e1e1 95%);
+  border-radius: 50%/50%;
+  background: radial-gradient(circle at 50% 55%, #fff 0%, #eaeaea 95%);
   position: relative;
-  box-shadow:
-    inset 0 3px 6px rgba(0, 0, 0, 0.2),
-    0 2px 5px rgba(0, 0, 0, 0.15);
   overflow: hidden;
-  transition: height 0.15s ease;
+  box-shadow: 
+    inset 0 4px 12px rgba(0,0,0,0.3),
+    0 5px 15px rgba(0,0,0,0.25);
+  transition: height 0.16s ease;
+}
+
+.eye.blinking {
+  height: 4px; /* fecha o olho */
 }
 
 .sclera {
@@ -172,50 +178,50 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: inherit;
-  background: radial-gradient(circle at 50% 55%, #ffffff 0%, #f0f0f0 80%, #e1e1e1 95%);
-  position: relative;
-  box-shadow:
-    inset 0 1px 3px rgba(0,0,0,0.1),
-    inset 0 -1px 2px rgba(0,0,0,0.05);
-}
-
-.eye.blinking {
-  height: 5px;
 }
 
 .iris {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   position: relative;
-  transition: 
-    transform 0.15s ease-out,
-    background 1.2s ease-in-out,
-    box-shadow 1s ease-in-out;
-  background: radial-gradient(circle at 50% 55%, #a855f7 0%, #6b21a8 90%);
-  box-shadow:
-    0 0 10px rgba(168, 85, 247, 0.6),
-    inset 0 2px 4px rgba(255, 255, 255, 0.15),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.6);
-}
-
-.iris:active, 
-.iris:focus, 
-.iris-changing {
+  background: v-bind(irisColor); /* ou troque por qualquer radial-gradient roxo que quiser */
   box-shadow: 
-    0 0 15px rgba(255,255,255,0.7),
-    0 0 25px rgba(255,255,255,0.3),
-    inset 0 2px 4px rgba(255, 255, 255, 0.2),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.7);
+    0 0 22px rgba(168,85,247,0.9),
+    inset 0 3px 6px rgba(255,255,255,0.3),
+    inset 0 -4px 8px rgba(0,0,0,0.7);
+  transition: transform 0.1s ease-out; /* movimento suave da íris */
 }
 
-.iris-core {
+.pupil {
   position: absolute;
-  inset: 0;
+  top: 50%;
+  left: 50%;
+  width: 11px;
+  height: 11px;
+  transform: translate(-50%, -50%);
+  background: #000;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, #d8b4fe 0%, #5b21b6 85%);
-  mix-blend-mode: overlay;
+}
+
+.reflection-main {
+  position: absolute;
+  top: 16%;
+  left: 24%;
+  width: 7px;
+  height: 7px;
+  background: rgba(255,255,255,0.98);
+  border-radius: 50%;
+}
+
+.reflection-small {
+  position: absolute;
+  top: 32%;
+  right: 20%;
+  width: 4px;
+  height: 4px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 50%;
 }
 
 .iris-fibers {
@@ -223,63 +229,35 @@ onUnmounted(() => {
   inset: 0;
   border-radius: 50%;
   background: repeating-conic-gradient(
-    rgba(255,255,255,0.08) 0deg 8deg,
-    transparent 8deg 16deg
+    rgba(255,255,255,0.12) 0deg 10deg,
+    transparent 10deg 20deg
   );
-  mix-blend-mode: overlay;
-  animation: rotateFibers 25s linear infinite;
-  opacity: 0.8;
+  animation: rotateFibers 28s linear infinite;
+  opacity: 0.75;
 }
 
 .iris-glow {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 45% 60%, rgba(168,85,247,0.7), transparent 80%);
-  filter: blur(2px);
+  background: radial-gradient(circle at 40% 55%, rgba(168,85,247,0.7), transparent 70%);
+  filter: blur(4px);
   mix-blend-mode: screen;
 }
 
-.pupil {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle at 40% 40%, #000 0%, #111 100%);
-  border-radius: 50%;
-  box-shadow:
-    inset 0 1.5px 3px rgba(0,0,0,0.9),
-    0 0 3px rgba(0,0,0,0.8);
-}
-
-.reflection-main {
-  position: absolute;
-  top: 18%;
-  left: 25%;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,0.95), transparent);
-  filter: blur(0.5px);
-  opacity: 0.9;
-}
-
-.reflection-small {
-  position: absolute;
-  top: 28%;
-  right: 25%;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,0.4), transparent);
-  filter: blur(0.7px);
-  opacity: 0.7;
-}
-
 @keyframes rotateFibers {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Animação de zoom-out quando some (opcional) */
+.zoom-out-leave-active {
+  animation: zoomOut 1s cubic-bezier(0.2,0.8,0.4,1) both;
+}
+
+@keyframes zoomOut {
+  to {
+    opacity: 0;
+    transform: scale(0.1);
+  }
 }
 </style>
