@@ -1,28 +1,40 @@
 <template>
-  <transition name="slide-up">
-    <div v-if="isVisible" class="tools-bar">
-      <div class="main-cta">
-        <i class="bi bi-stars"></i>
-        <span>Ferramentas</span>
-      </div>
+  <!-- Botão pequeno "Ver Ferramentas" (aparece após scroll e some em 7s) -->
+  <transition name="quick-fade">
+    <div
+      v-if="!isExpanded && showTrigger"
+      class="mini-bar"
+      @click.stop="isExpanded = true"
+    >
+      <i class="bi bi-stars"></i>
+      Ver Ferramentas
+    </div>
+  </transition>
 
-      <div class="tools-list">
+  <!-- Barra expandida com apenas ícones -->
+  <transition name="fast-slide">
+    <div v-if="isExpanded" class="tools-expanded" @click.stop>
+      <div class="tools-grid">
         <div
           v-for="(tool, i) in tools"
           :key="i"
-          class="tool-item"
-          :style="{ animationDelay: i * 0.09 + 0.4 + 's' }"
+          class="tool-icon"
           @click.stop="goTo(tool.route)"
         >
           <i :class="tool.icon"></i>
-          <span class="tool-label">{{ tool.short }}</span>
+          <span class="tooltip">{{ tool.name }}</span>
         </div>
       </div>
 
-      <button @click.stop="closeCTA" class="close-btn">
-        <i class="bi bi-x"></i>
+      <button @click.stop="isExpanded = false" class="close-btn">
+        <i class="bi bi-x-lg"></i>
       </button>
     </div>
+  </transition>
+
+  <!-- Overlay invisível para fechar clicando fora -->
+  <transition name="fade">
+    <div v-if="isExpanded" class="overlay" @click="isExpanded = false" />
   </transition>
 </template>
 
@@ -31,160 +43,210 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const isVisible = ref(false)
+const isExpanded = ref(false)
+const showTrigger = ref(false)
 
 const tools = [
-  { short: 'CV',       name: 'Gerador de CV',      icon: 'bi bi-file-earmark-person', route: 'CVGenerator' },
-  { short: 'Anúncios', name: 'Meus Anúncios',      icon: 'bi bi-megaphone',           route: 'MeusAnuncios' },
-  { short: 'Feed',     name: 'Feed da Comunidade', icon: 'bi bi-people-fill',         route: 'ComunidadeRpa' },
-  { short: 'Docs',     name: 'Guardar Documentos', icon: 'bi bi-folder-plus',         route: 'GuardarDocumentos' },
-  { short: 'Carro',    name: 'Rastreador',         icon: 'bi bi-car-front',           route: 'Viaturas' },
+  { name: 'Gerador de CV',          icon: 'bi bi-file-earmark-person', route: 'CVGenerator' },
+  { name: 'Meus Anúncios',          icon: 'bi bi-megaphone',           route: 'MeusAnuncios' },
+  { name: 'Feed da Comunidade',     icon: 'bi bi-people-fill',         route: 'ComunidadeRpa' },
+  { name: 'Guardar Documentos',     icon: 'bi bi-folder-plus',         route: 'GuardarDocumentos' },
+  { name: 'Rastreador de Viaturas', icon: 'bi bi-car-front',           route: 'Viaturas' },
 ]
-
-const showCTA = () => {
-  if (isVisible.value) return
-  isVisible.value = true
-  setTimeout(() => { isVisible.value = false }, 15000)
-}
 
 onMounted(() => {
   let triggered = false
-  const handle = () => {
-    if (!triggered && window.scrollY > 250) {
-      showCTA()
+  const handleScroll = () => {
+    if (!triggered && window.scrollY > 280) {
+      showTrigger.value = true
       triggered = true
-      window.removeEventListener('scroll', handle)
+      window.removeEventListener('scroll', handleScroll)
+
+      // Some automaticamente em 7 segundos se não clicar
+      setTimeout(() => {
+        if (!isExpanded.value) {
+          showTrigger.value = false
+        }
+      }, 7000)
     }
   }
-  window.addEventListener('scroll', handle)
+  window.addEventListener('scroll', handleScroll)
 })
 
-const closeCTA = () => { isVisible.value = false }
 const goTo = (route) => {
-  closeCTA()
-  router.push({ name: route })
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  isExpanded.value = false
+  setTimeout(() => {
+    router.push({ name: route })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, 100)
 }
 </script>
 
 <style scoped>
-.tools-bar {
+/* Botão pequeno e discreto – fundo branco, texto roxo */
+.mini-bar {
   position: fixed;
   bottom: 18px;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(100vw - 60px);     /* largura bem maior */
-  max-width: 620px;              /* mais espaço confortável */
-  height: 56px;
-  background: rgba(255, 255, 255, 0.28);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1.6px solid rgba(128, 0, 128, 0.4);
-  border-radius: 32px;
-  box-shadow: 0 10px 30px rgba(128, 0, 128, 0.2);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  padding: 0 28px;               /* mais padding interno */
-  gap: 20px;                     /* espaço generoso entre itens */
-  color: #000;
-  animation: float 6s ease-in-out infinite;
-}
-
-/* CTA */
-.main-cta {
+  background: rgba(255, 255, 255, 0.98);
+  color: #800080;
+  border: 1.8px solid #800080;
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.88rem;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-weight: 700;
-  font-size: 0.94rem;
-  color: #000;
-  background: rgba(128, 0, 128, 0.22);
-  padding: 7px 14px;
-  border-radius: 20px;
-  white-space: nowrap;
-}
-
-.main-cta i { font-size: 1.2rem; color: #800080; }
-
-/* Ferramentas com bom espaçamento */
-.tools-list {
-  display: flex;
-  gap: 18px;                     /* mais espaço entre ferramentas */
-  flex: 1;
-  justify-content: flex-end;
-}
-
-.tool-item {
-  opacity: 0;
-  transform: translateY(12px);
-  animation: slideUpFade 0.5s ease forwards;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 12px;
-  border-radius: 14px;
-  background: rgba(128, 0, 128, 0.18);
-  border: 1px solid rgba(128, 0, 128, 0.32);
+  box-shadow: 0 6px 20px rgba(128, 0, 128, 0.32);
+  backdrop-filter: blur(12px);
   cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 56px;
+  z-index: 9999;
+  white-space: nowrap;
+  animation: float 3.5s ease-in-out infinite;
+  transition: all 0.25s ease;
 }
 
-.tool-item:hover {
-  background: rgba(128, 0, 128, 0.36);
-  transform: translateY(-5px);
-}
-
-.tool-item i {
+.mini-bar i {
   font-size: 1.15rem;
   color: #800080;
 }
 
-.tool-label {
-  font-size: 0.74rem;
-  font-weight: 600;
-  color: #000;
+.mini-bar:hover {
+  background: #800080;
+  color: white;
+  transform: translateX(-50%) translateY(-5px);
+  box-shadow: 0 10px 28px rgba(128, 0, 128, 0.45);
 }
 
-/* Botão X com bom espaçamento */
+.mini-bar:hover i { color: white; }
+
+/* Barra expandida com ícones */
+.tools-expanded {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.34);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1.8px solid rgba(128, 0, 128, 0.45);
+  border-radius: 32px;
+  padding: 16px 26px;
+  box-shadow: 0 12px 38px rgba(128, 0, 128, 0.3);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.tools-grid {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tool-icon {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  background: rgba(128, 0, 128, 0.2);
+  border: 1.6px solid rgba(128, 0, 128, 0.4);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+.tool-icon:hover {
+  background: rgba(128, 0, 128, 0.45);
+  transform: translateY(-7px) scale(1.14);
+  border-color: #800080;
+}
+
+.tool-icon i {
+  font-size: 1.55rem;
+  color: #800080;
+}
+
+/* Tooltip */
+.tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  background: #333;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.tool-icon:hover .tooltip { opacity: 1; }
+
+/* Botão X */
 .close-btn {
-  margin-left: 16px;             /* espaço confortável à esquerda */
+  width: 42px;
+  height: 42px;
   background: rgba(128, 0, 128, 0.25);
-  border: 1.6px solid #800080;
-  width: 38px;
-  height: 38px;
+  border: 2px solid #800080;
   border-radius: 50%;
-  color: #000;
-  font-size: 1.4rem;
+  color: #800080;
   font-weight: bold;
-  flex-shrink: 0;
-  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.22s;
 }
 
 .close-btn:hover {
   background: #800080;
   color: white;
-  transform: scale(1.15);
+  transform: scale(1.18);
 }
 
-/* Animações */
-@keyframes float { 0%,100%{transform:translateX(-50%)translateY(0)} 50%{transform:translateX(-50%)translateY(-7px)} }
-@keyframes slideUpFade { to { opacity:1; transform:translateY(0) } }
-.slide-up-enter-active { transition: all 0.6s cubic-bezier(0.22,1,0.36,1); }
-.slide-up-enter-from   { opacity:0; transform:translateX(-50%)translateY(100px); }
+/* Overlay para fechar ao clicar fora */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 9998;
+}
 
-/* Mobile – ainda confortável */
+/* Animações rápidas */
+@keyframes float {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-6px); }
+}
+
+.quick-fade-enter-active, .quick-fade-leave-active { transition: all 0.28s ease; }
+.quick-fade-enter-from, .quick-fade-leave-to { opacity: 0; transform: translateX(-50%) scale(0.88); }
+
+.fast-slide-enter-active, .fast-slide-leave-active { transition: all 0.26s ease; }
+.fast-slide-enter-from { opacity: 0; transform: translateX(-50%) translateY(50px); }
+.fast-slide-leave-to { opacity: 0; transform: translateX(-50%) translateY(30px); }
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
+
+/* Mobile */
 @media (max-width: 480px) {
-  .tools-bar {
-    width: calc(100vw - 40px);
-    max-width: 560px;
-    padding: 0 20px;
-    gap: 14px;
-    height: 54px;
+  .mini-bar {
+    bottom: 14px;
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    gap: 6px;
   }
-  .tool-item { padding: 7px 10px; min-width: 50px; }
-  .tool-label { font-size: 0.7rem; }
+  .mini-bar i { font-size: 1.1rem; }
+  .tools-expanded { padding: 12px 18px; gap: 14px; bottom: 14px; }
+  .tool-icon { width: 48px; height: 48px; }
+  .tool-icon i { font-size: 1.4rem; }
 }
 </style>
