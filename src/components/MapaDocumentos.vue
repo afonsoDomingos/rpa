@@ -18,7 +18,7 @@ let markersLayer = null
 const isLoading = ref(false)
 const filtroProvincia = ref("")
 
-// POPULAÇÃO (só para contadores e gráfico)
+// POPULAÇÃO
 const populacaoProvincias = {
   "Cabo Delgado": { homens: 1336707, mulheres: 1408165, total: 2744872 },
   "Gaza": { homens: 673411, mulheres: 803242, total: 1476653 },
@@ -62,7 +62,7 @@ const abreviarNome = (n) =>
   n === "Cidade de Maputo" ? "C.Maputo" :
   n === "Cabo Delgado" ? "C.Delgado" : n
 
-// RANKING DISCRETO (só posição + província + documentos)
+// RANKING DISCRETO
 const rankingDiscreto = computed(() => {
   if (filtroProvincia.value) {
     const prov = filtroProvincia.value
@@ -73,7 +73,7 @@ const rankingDiscreto = computed(() => {
   return Object.keys(coordenadasProvincias)
     .map(p => ({ provincia: p, nomeCurto: abreviarNome(p), docs: documentos.value.filter(d => d.provincia === p).length }))
     .sort((a, b) => b.docs - a.docs)
-    .slice(0, 10) // só as 10 primeiras para não ocupar espaço
+    .slice(0, 10)
 })
 
 // CONTADORES ANIMADOS
@@ -106,7 +106,7 @@ watch([documentos, filtroProvincia], () => {
   requestAnimationFrame(tick)
 }, { immediate: true })
 
-// GRÁFICO (agora mostra Homens / Mulheres / Docs – sem legenda para ficar limpo)
+// GRÁFICO
 const chartData = computed(() => ({
   labels: rankingDiscreto.value.map(i => i.nomeCurto),
   datasets: [
@@ -151,16 +151,30 @@ const desenharMarcadores = () => {
 const centrarProvincia = p => coordenadasProvincias[p] && mapa.value.setView(coordenadasProvincias[p], 10)
 
 onMounted(async () => {
-  mapa.value = L.map("mapa", { zoomControl: false, attributionControl: false }).setView([-18.6657, 35.5296], 6)
+  // ZOOM E CENTRO AJUSTADOS PARA MOSTRAR TODO O MOÇAMBIQUE PERFEITAMENTE
+  mapa.value = L.map("mapa", { 
+    zoomControl: false, 
+    attributionControl: false 
+  }).setView([-18.25, 35.3], 5)  // ← Todo o país visível com margem
+
   L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png").addTo(mapa.value)
-  L.control.zoom({ position: "bottomright", zoomInText: "+", zoomOutText: "-" }).addTo(mapa.value)
+  
+  L.control.zoom({ 
+    position: "bottomright", 
+    zoomInText: "+", 
+    zoomOutText: "-" 
+  }).addTo(mapa.value)
+  
   markersLayer = L.layerGroup().addTo(mapa.value)
 
-  L.geoJSON(moambiqueGeoJSON, { style: { color: "#ffffff", weight: 2.5, opacity: 0.9, fillOpacity: 0 } }).addTo(mapa.value)
+  L.geoJSON(moambiqueGeoJSON, { 
+    style: { color: "#ffffff", weight: 2.5, opacity: 0.9, fillOpacity: 0 } 
+  }).addTo(mapa.value)
 
   const fix = () => nextTick(() => mapa.value?.invalidateSize())
   window.addEventListener("resize", fix)
   window.addEventListener("orientationchange", () => setTimeout(fix, 200))
+  
   carregarDocumentos()
 })
 
@@ -172,10 +186,8 @@ watch(documentos, desenharMarcadores, { deep: true })
   <div class="app">
     <div id="mapa" class="mapa"></div>
 
-    <!-- PAINEL MINIMALISTA E DISCRETO -->
+    <!-- PAINEL MINIMALISTA -->
     <div class="painel">
-     
-
       <div class="stats">
         <strong>{{ totalDocumentos.toLocaleString() }}</strong> docs •
         <strong>{{ populacaoExibida.toLocaleString() }}</strong> hab
@@ -229,7 +241,6 @@ watch(documentos, desenharMarcadores, { deep: true })
   overflow: hidden;
 }
 
-h1 { margin: 0; font-size: 1.3rem; font-weight: 700; text-align: center; }
 .stats { font-size: 0.76rem; text-align: center; color: #222; }
 .stats strong { font-weight: 700; font-size: 0.86rem; }
 
