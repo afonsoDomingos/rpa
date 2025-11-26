@@ -147,7 +147,7 @@ onUnmounted(() => {
     <CustomCursor />
     <SocialIcons :size="14" />
     <InstallButton />
-    <ChatAssistente v-if="!showScrollTop && !showLoading" />
+    <ChatAssistente :hide-fab-when-scrolled="showScrollTop" />
 
     <button v-show="showScrollTop" @click="scrollToTop" class="scroll-top-btn">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">

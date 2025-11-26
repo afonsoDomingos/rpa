@@ -146,7 +146,12 @@
 
   </div>
 
-  <button v-show="!open" class="chat-fab" @click="toggle" aria-label="Falar com Assistente">
+    <button 
+    v-show="!open && !props.hideFabWhenScrolled" 
+    class="chat-fab" 
+    @click="toggle"
+    aria-label="Falar com Assistent"
+  >
   <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" fill="#fff"/>
     <path d="M7 10h10M7 14h7" stroke="#800080" stroke-width="2" stroke-linecap="round"/>
@@ -176,6 +181,14 @@
 import axios from 'axios';
 import api from "../api"; 
 import { ref, nextTick, onUpdated, onMounted, onUnmounted } from 'vue';
+
+
+const props = defineProps({
+  hideFabWhenScrolled: {
+    type: Boolean,
+    default: false
+  }
+})
 
 const open = ref(false);
 const input = ref("");
