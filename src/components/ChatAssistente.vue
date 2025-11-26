@@ -12,8 +12,21 @@
         </svg>
       </span>
       <span class="chat-title">Rpa.Ai</span>
-      <button class="close-btn" @click.stop="toggle">×</button>
+      
+    <!-- BOTÃO NOVO CHAT (só esta linha nova + o botão de fechar) -->
+      <!-- BOTÃO NOVO CHAT + FECHAR -->
+      <div class="header-right">
+        <button @click.stop="abrirModalNovoChat" class="new-chat-btn" title="Começar novo chat novo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          <span class="new-chat-text">Novo</span>
+        </button>
+        <button class="close-btn" @click.stop="toggle">×</button>
+      </div>
     </div>
+
+    
 
     <div class="chat-desc"> Assistente Virtual</div>
 
@@ -139,6 +152,24 @@
     <path d="M7 10h10M7 14h7" stroke="#800080" stroke-width="2" stroke-linecap="round"/>
   </svg>
 </button>
+
+<!-- Modal bonito de confirmação -->
+  <div v-if="modalNovoChat" class="modal-overlay" @click="modalNovoChat = false">
+    <div class="modal-novo-chat" @click.stop>
+      <button class="modal-close" @click="modalNovoChat = false">×</button>
+      <div class="modal-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#800080" stroke-width="2">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+      </div>
+      <h3>Novo chat</h3>
+      <p>Todas as mensagens serão apagadas.<br>Deseja continuar?</p>
+      <div class="modal-botoes">
+        <button @click="confirmarNovoChat" class="btn-sim">Sim, limpar</button>
+        <button @click="modalNovoChat = false" class="btn-nao">Cancelar</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -405,6 +436,28 @@ async function processMessage(userMsg) {
     typeWriter("Desculpe, não consegui responder agora. Tente mais tarde.");
   }
 }
+
+
+
+
+
+
+const modalNovoChat = ref(false)
+
+function abrirModalNovoChat() {
+  modalNovoChat.value = true
+}
+
+function confirmarNovoChat() {
+  messages.value = [{
+    from: 'bot',
+    text: 'Olá! Como posso ajudar?<br>Tip: Se perdeu algum documento, só me dizer que eu ajudo a procurar automaticamente!<br><br>New: Agora você pode falar comigo usando o microfone!<br><br>Selecione uma pergunta abaixo ou digite/fale sua dúvida.'
+  }]
+  resetarFluxoDocumento()
+  modalNovoChat.value = false
+  nextTick(() => scrollToBottom())
+}
+
 
 // Função para processar o fluxo de coleta de dados do documento
 async function processarFluxoDocumento(mensagem) {
@@ -896,10 +949,12 @@ onMounted(() => {
 /* Posição original: canto inferior direito */
 .chat-assistente-fixed {
   position: fixed;
-  bottom: 18px;
-  right: 18px;
-  width: 320px;
-  max-width: 95vw;
+  bottom: 4px;
+  right: 4px;
+  
+  width: auto;          /* pode aumentar um pouco também */
+  max-width: 500px;
+
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 4px 24px rgba(60,60,60,0.18);
@@ -908,6 +963,10 @@ onMounted(() => {
   flex-direction: column;
   overflow: hidden;
   font-family: inherit;
+
+  /* Altura máxima do chat inteiro */
+  max-height: 80vh;        /* antes não tinha limite */
+  /* ou: max-height: 720px; */
 }
 .chat-header {
   background: linear-gradient(90deg, #800080 60%, #198754 100%);
@@ -933,13 +992,28 @@ onMounted(() => {
   font-size: 0.9rem;
   border-bottom: 1px solid #eee;
 }
+
+
 .chat-body {
   flex: 1;
   padding: 12px 10px;
   background: #f8f8fa;
   overflow-y: auto;
-  max-height: 280px;
+  /* Altura antiga */
+ /*  max-height: 280px; */
+
+  /* Nova altura – escolha uma das opções abaixo */
+  
+  /* Opção 1: Altura fixa maior (ex: 500px) */
+  max-height: 500px;
+
+  /* Opção 2: Aproveita quase toda a tela (recomendado para mobile) */
+  /* cmax-height: calc(90vh - 180px); */
+
+  /* Opção 3: Ainda mais alto (quase tela cheia) */
+  /* max-height: calc(100vh - 200px); */
 }
+
 .chat-messages {
   position: relative;
 }
@@ -1021,7 +1095,7 @@ onMounted(() => {
 /* Botão do chat no canto inferior direito */
 .chat-fab {
   position: fixed;
-  bottom: 18px;
+  bottom: 16px;
   right: 18px;
   width: 34px;
   height: 34px;
@@ -1047,10 +1121,12 @@ onMounted(() => {
   .chat-assistente-fixed {
     width: 98vw;
     right: 1vw;
-    bottom: 70px;
+    bottom: 1px;
+    height: calc(100dvh - 16px);
+   
   }
   .chat-fab {
-    right: 16px;
+    right: 14px;
     bottom: 30px;
     width: 36px;
     height: 36px;
@@ -1126,4 +1202,130 @@ onMounted(() => {
   background: #e6e6fa;
   border-color: #198754;
 }
+
+
+
+
+/* Botão "Novo Chat" com texto visível */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.new-chat-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.new-chat-btn:hover {
+  background: rgba(255, 255, 255, 0.32);
+  transform: translateY(-1px);
+}
+
+/* Em telemóveis esconde só o texto, mantém o + */
+@media (max-width: 480px) {
+  .new-chat-text {
+    display: none;
+  }
+  .new-chat-btn {
+    padding: 8px;
+  }
+}
+
+
+
+
+
+
+/* Modal bonito de novo chat */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20000;
+}
+
+.modal-novo-chat {
+  
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(128,0,128,0.3);
+  max-width: 320px;
+  animation: modalShow 0.3s ease;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #999;
+  cursor: pointer;
+}
+
+.modal-icon {
+  margin-bottom: 16px;
+}
+
+.modal-novo-chat h3 {
+  margin: 0 0 12px 0;
+  color: #800080;
+  font-size: 1.4rem;
+}
+
+.modal-novo-chat p {
+  color: #555;
+  margin-bottom: 24px;
+  line-height: 1.4;
+}
+
+.modal-botoes {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-sim {
+  background: linear-gradient(90deg, #800080, #198754);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-nao {
+  background: #f0f0f0;
+  color: #555;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+@keyframes modalShow {
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
 </style>

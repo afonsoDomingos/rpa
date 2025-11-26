@@ -223,6 +223,7 @@ const handleImageError = (e) => {
 
 const formatPrice = (v) => new Intl.NumberFormat('pt-MZ', { 
   style: 'currency', 
+  
   currency: 'MZN', 
   minimumFractionDigits: 0 
 }).format(v)
