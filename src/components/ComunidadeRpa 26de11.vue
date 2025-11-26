@@ -1,4 +1,4 @@
-<template>
+<template> 
   <!-- Navbar fixo -->
   <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
     <div class="row gx-0">
@@ -13,7 +13,7 @@
     <!-- Header -->
     <div class="feed-header">
       <h2 class="feed-title">Comunidade Rpa</h2>
-      <p class="feed-subtitle">Um espaço para compartilhamentos</p>
+      <p class="feed-subtitle">Um espaco para compartilhamentos</p>
     </div>
 
     <!-- New Post Form -->
@@ -54,19 +54,11 @@
 
       <div v-for="post in posts" :key="post._id" class="post-card">
         <div class="post-header">
-          <!-- AVATAR DO RPAADMIN COM LOGO -->
-          <div v-if="post.autor?.nome === 'RpaAdmin'" class="avatar avatar-rpa">
-            <img src="@/assets/img/rPa.png" alt="RpaAdmin" class="rpa-logo" />
-          </div>
-          <div v-else class="avatar avatar-purple">
+          <div class="avatar avatar-purple">
             <span>{{ post.autor?.nome?.[0]?.toUpperCase() || 'U' }}</span>
           </div>
-
           <div class="post-user-info">
-            <div class="user-name">
-              {{ post.autor?.nome === 'RpaAdmin' ? 'RpaAdmin' : post.autor?.nome || 'Usuário' }}
-              <small v-if="post.autor?.nome === 'RpaAdmin'" class="assistente-badge">(Assistente)</small>
-            </div>
+            <div class="user-name">{{ post.autor?.nome || 'Usuário' }}</div>
             <div class="post-time">{{ formatTime(post.createdAt) }}</div>
           </div>
         </div>
@@ -102,39 +94,13 @@
 
         <!-- Replies Section -->
         <div v-if="post.showReplies" class="replies-section">
-
-          <!-- RpaAdmin está pensando... -->
-          <div v-if="pensandoEm === post._id" class="reply-card bot-typing">
-            <div class="avatar avatar-small avatar-rpa">
-              <img src="@/assets/img/rPa.png" alt="RpaAdmin" class="rpa-logo-small" />
-            </div>
-            <div class="reply-content-wrapper">
-              <div class="reply-header">
-                <span class="reply-user-name">RpaAdmin</span>
-                <span class="reply-time">digitando</span>
-              </div>
-              <div class="reply-content">
-                <i>RpaAdmin está pensando</i>
-              </div>
-            </div>
-          </div>
-
-          <!-- Replies reais -->
-          <div v-for="reply in post.replies" :key="reply._id" class="reply-card" :class="{ 'bot-reply': reply.autor?.nome === 'RpaAdmin' }">
-            <!-- AVATAR DO RPAADMIN NAS RESPOSTAS -->
-            <div v-if="reply.autor?.nome === 'RpaAdmin'" class="avatar avatar-small avatar-rpa">
-              <img src="@/assets/img/rPa.png" alt="RpaAdmin" class="rpa-logo-small" />
-            </div>
-            <div v-else class="avatar avatar-small avatar-purple">
+          <div v-for="reply in post.replies" :key="reply._id" class="reply-card">
+            <div class="avatar avatar-small avatar-purple">
               <span>{{ reply.autor?.nome?.[0]?.toUpperCase() || 'U' }}</span>
             </div>
-
             <div class="reply-content-wrapper">
               <div class="reply-header">
-                <span class="reply-user-name">
-                  {{ reply.autor?.nome === 'RpaAdmin' ? 'RpaAdmin' : reply.autor?.nome }}
-                  <small v-if="reply.autor?.nome === 'RpaAdmin'" class="assistente-badge">(Assistente)</small>
-                </span>
+                <span class="reply-user-name">{{ reply.autor?.nome }}</span>
                 <span class="reply-time">{{ formatTime(reply.createdAt) }}</span>
               </div>
               <div class="reply-content">{{ reply.conteudo }}</div>
@@ -164,11 +130,11 @@
     </div>
   </div>
 
+  <!-- Rodapé -->
   <FooterDefault />
 </template>
 
 <script setup>
-// ← Todo o script permanece 100% igual ao que tinhas
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
@@ -181,51 +147,55 @@ const usuario = ref(null)
 const posts = ref([])
 const newPostContent = ref('')
 const carregando = ref(false)
-const pensandoEm = ref(null)
 
 const API_URL = 'https://apirpa.onrender.com/api/posts'
 const token = localStorage.getItem('token')
 const headers = { Authorization: `Bearer ${token}` }
 
+// 🔌 Conexão com Socket.IO
 const socket = io('https://apirpa.onrender.com', {
   transports: ['websocket'],
   reconnection: true,
 })
 
-socket.on('connect', () => console.log('Conectado ao servidor Socket.IO:', socket.id))
-socket.on('disconnect', () => console.log('Desconectado do servidor Socket.IO'))
-
-socket.on('novoPost', (post) => {
-  posts.value.unshift({ ...post, showReplies: false, newReply: '' })
-  if (post.autor?._id !== '685bff7d1b6abc16c490af52') {
-    pensandoEm.value = post._id
-    setTimeout(() => {
-      if (pensandoEm.value === post._id) pensandoEm.value = null
-    }, 15000)
-  }
+socket.on('connect', () => {
+  console.log('🟢 Conectado ao servidor Socket.IO:', socket.id)
 })
 
+socket.on('disconnect', () => {
+  console.log('🔴 Desconectado do servidor Socket.IO')
+})
+
+// 🆕 Novo post criado
+socket.on('novoPost', (post) => {
+  console.log('📩 Novo post recebido:', post)
+  posts.value.unshift({ ...post, showReplies: false, newReply: '' })
+})
+
+// 🆕 Curtida atualizada
 socket.on('postLiked', ({ postId, likes }) => {
   const post = posts.value.find(p => p._id === postId)
   if (post) post.likes = likes
 })
 
+// 🆕 Nova resposta
 socket.on('novaResposta', ({ postId, replies }) => {
   const post = posts.value.find(p => p._id === postId)
-  if (post) {
-    post.replies = replies
-    if (pensandoEm.value === postId) pensandoEm.value = null
-  }
+  if (post) post.replies = replies
 })
 
+// 🆕 Post deletado
 socket.on('postDeletado', ({ postId }) => {
   posts.value = posts.value.filter(p => p._id !== postId)
 })
 
+// 🆕 Resposta deletada
 socket.on('respostaDeletada', ({ postId, replyId }) => {
   const post = posts.value.find(p => p._id === postId)
   if (post) post.replies = post.replies.filter(r => r._id !== replyId)
 })
+
+// --------------------------------------------------
 
 const buscarUsuario = async () => {
   try {
@@ -234,7 +204,9 @@ const buscarUsuario = async () => {
     const { data } = await axios.get('https://apirpa.onrender.com/api/auth/usuarios', { headers })
     usuario.value = data.find(u => u.email === emailLogado)
     if (!usuario.value) router.push('/')
-  } catch (err) { console.error(err) }
+  } catch (err) {
+    console.error(err)
+  }
 }
 
 const carregarPosts = async () => {
@@ -242,8 +214,11 @@ const carregarPosts = async () => {
     carregando.value = true
     const { data } = await axios.get(API_URL, { headers })
     posts.value = data.map(p => ({ ...p, showReplies: false, newReply: '' }))
-  } catch (err) { console.error(err) }
-  finally { carregando.value = false }
+  } catch (err) {
+    console.error(err)
+  } finally {
+    carregando.value = false
+  }
 }
 
 const criarPost = async () => {
@@ -251,12 +226,17 @@ const criarPost = async () => {
   try {
     await axios.post(API_URL, { conteudo: newPostContent.value }, { headers })
     newPostContent.value = ''
-  } catch (err) { console.error(err) }
+  } catch (err) {
+    console.error(err)
+  }
 }
 
 const curtirPost = async post => {
-  try { await axios.put(`${API_URL}/${post._id}/like`, {}, { headers }) }
-  catch (err) { console.error(err) }
+  try {
+    await axios.put(`${API_URL}/${post._id}/like`, {}, { headers })
+  } catch (err) {
+    console.error(err)
+  }
 }
 
 const responderPost = async post => {
@@ -264,7 +244,9 @@ const responderPost = async post => {
   try {
     await axios.post(`${API_URL}/${post._id}/replies`, { conteudo: post.newReply }, { headers })
     post.newReply = ''
-  } catch (err) { console.error(err) }
+  } catch (err) {
+    console.error(err)
+  }
 }
 
 const formatTime = timestamp => {
@@ -285,9 +267,11 @@ onMounted(async () => {
   await carregarPosts()
 })
 
-onBeforeUnmount(() => socket.disconnect())
+// Fechar conexão ao sair
+onBeforeUnmount(() => {
+  socket.disconnect()
+})
 </script>
-
 
 
 
@@ -302,68 +286,6 @@ onBeforeUnmount(() => socket.disconnect())
 @import '@fontsource/poppins/500.css';
 @import '@fontsource/poppins/600.css';
 @import '@fontsource/poppins/700.css';
-
-
-
-
-/* NOVO: Avatar com logo oficial */
-.avatar-rpa {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 3px solid #9b59b6;
-  box-shadow: 0 0 15px rgba(155, 89, 182, 0.4);
-  background: white;
-}
-
-.avatar-rpa .rpa-logo {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.avatar-rpa .rpa-logo-small,
-.avatar-small.avatar-rpa .rpa-logo {
-  width: 36px;
-  height: 36px;
-}
-
-.assistente-badge {
-  background: linear-gradient(135deg, #9b59b6, #3498db);
-  color: white;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 10px;
-  font-weight: 700;
-  margin-left: 6px;
-}
-
-
-.avatar-bot {
-  background: linear-gradient(135deg, #9b59b6, #3498db) !important;
-  font-weight: 900;
-  box-shadow: 0 0 15px rgba(155, 89, 182, 0.4);
-}
-
-.bot-reply {
-  background: linear-gradient(90deg, #f8f5ff 0%, #f3efff 100%);
-  border-left: 4px solid #9b59b6;
-}
-
-.bot-typing {
-  opacity: 0.75;
-  background: #f8f9fa;
-  border-left: 4px solid #9b59b6;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.75; }
-  50% { opacity: 1; }
-}
-
-
 
 .threads-feed { 
   max-width: 680px; 
