@@ -239,7 +239,7 @@ onMounted(() => {
     if (!showAd.value || canReappearNow) {
       fetchActiveAds() // sempre fresco
     }
-  }, 60 * 1000) // 1 minuto
+  }, 10 * 60 * 1000) // 10 minutos
 
   window.addEventListener('newAdCreated', fetchActiveAds)
 })
