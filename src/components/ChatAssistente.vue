@@ -364,7 +364,7 @@ async function speechToText() {
 
       switch (event.error) {
         case 'no-speech':
-          errorMessage = 'Nenhuma fala detectada. Tente falar mais alto.';
+          errorMessage = 'Nenhuma fala detectada. Tente falar mais alto';
           break;
         case 'audio-capture':
           errorMessage = 'Microfone não disponível.';
