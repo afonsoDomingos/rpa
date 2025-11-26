@@ -6,7 +6,6 @@ import ChatAssistente from "./components/ChatAssistente.vue";
 import InstallButton from "./components/InstallButton.vue";
 import ScrollToolsCTA from "./components/ScrollToolsCTA.vue";
 
-import AdCard from "./components/anunciantes/AdCard.vue";
 
 import { ref, onMounted, onUnmounted } from 'vue';
 
@@ -146,7 +145,7 @@ onUnmounted(() => {
     </div>
 
 
-    <AdCard />
+    
     <ScrollToolsCTA />
     <CustomCursor />
     <SocialIcons :size="14" />
