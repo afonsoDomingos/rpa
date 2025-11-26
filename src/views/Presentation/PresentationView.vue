@@ -26,7 +26,8 @@ import PresentationTestimonials from "./Sections/PresentationTestimonials.vue";
 import PresentationInformation from "./Sections/PresentationInformation.vue";
 import FloatingDocs from "../../components/FloatingDocs.vue";
 
-
+// CORRETO
+import AdCard from "../../components/anunciantes/AdCard.vue";
 import MapaDocumentos from "../../components/MapaDocumentos.vue";
 
 import DoacaoProjeto from "../../components/DoacaoProjeto.vue";
@@ -232,8 +233,7 @@ const solicitarDocumento = async () => {
   </div>
 </transition>
 <FloatingDocs />
-
-
+<AdCard />
 
   <Header>
     <div class="page-header min-vh-75" :style="`background-image: url(${vueMkHeader})`" loading="lazy">
