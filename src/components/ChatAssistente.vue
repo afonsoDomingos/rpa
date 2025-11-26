@@ -1,24 +1,24 @@
- <template>
+<template>
   <div class="chat-assistente-fixed" v-show="open">
     <div class="chat-header" @click="toggle">
       <span class="chat-avatar">
         <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-          <circle cx="16" cy="16" r="16" fill="#fff"/>
-          <ellipse cx="16" cy="19" rx="10" ry="7" fill="#e6e6fa"/>
-          <ellipse cx="16" cy="13" rx="7" ry="7" fill="#800080"/>
-          <ellipse cx="13.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff"/>
-          <ellipse cx="18.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff"/>
-          <rect x="13" y="16" width="6" height="2" rx="1" fill="#fff"/>
+          <circle cx="16" cy="16" r="16" fill="#fff" />
+          <ellipse cx="16" cy="19" rx="10" ry="7" fill="#e6e6fa" />
+          <ellipse cx="16" cy="13" rx="7" ry="7" fill="#800080" />
+          <ellipse cx="13.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff" />
+          <ellipse cx="18.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff" />
+          <rect x="13" y="16" width="6" height="2" rx="1" fill="#fff" />
         </svg>
       </span>
       <span class="chat-title">Rpa.Ai</span>
-      
-    <!-- BOTÃO NOVO CHAT (só esta linha nova + o botão de fechar) -->
+
+      <!-- BOTÃO NOVO CHAT (só esta linha nova + o botão de fechar) -->
       <!-- BOTÃO NOVO CHAT + FECHAR -->
       <div class="header-right">
         <button @click.stop="abrirModalNovoChat" class="new-chat-btn" title="Começar novo chat novo">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M12 5v14M5 12h14"/>
+            <path d="M12 5v14M5 12h14" />
           </svg>
           <span class="new-chat-text">Novo</span>
         </button>
@@ -26,17 +26,22 @@
       </div>
     </div>
 
-    
+
 
     <div class="chat-desc"> Assistente Virtual</div>
 
     <div class="chat-body">
       <!-- Menu suspenso de perguntas -->
       <div class="faq-menu-wrapper">
-        <button class="faq-toggle-btn" @click="faqOpen = !faqOpen" :aria-expanded="faqOpen.toString()" aria-controls="faqMenuList">
+        <button class="faq-toggle-btn" @click="faqOpen = !faqOpen" :aria-expanded="faqOpen.toString()"
+          aria-controls="faqMenuList">
           <span>❓ Perguntas Frequentes</span>
-          <svg v-if="!faqOpen" width="18" height="18" viewBox="0 0 20 20"><path d="M5 8l5 5 5-5" stroke="#800080" stroke-width="2" fill="none"/></svg>
-          <svg v-else width="18" height="18" viewBox="0 0 20 20"><path d="M15 12l-5-5-5 5" stroke="#800080" stroke-width="2" fill="none"/></svg>
+          <svg v-if="!faqOpen" width="18" height="18" viewBox="0 0 20 20">
+            <path d="M5 8l5 5 5-5" stroke="#800080" stroke-width="2" fill="none" />
+          </svg>
+          <svg v-else width="18" height="18" viewBox="0 0 20 20">
+            <path d="M15 12l-5-5-5 5" stroke="#800080" stroke-width="2" fill="none" />
+          </svg>
         </button>
         <transition name="faq-fade">
           <div v-show="faqOpen" class="faq-menu" id="faqMenuList" role="menu">
@@ -70,42 +75,36 @@
         <div v-for="(msg, i) in messages" :key="'msg-' + i" :class="['msg', msg.from]">
           <span v-if="msg.from === 'bot'" class="msg-bot-avatar">
             <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
-              <circle cx="16" cy="16" r="16" fill="#fff"/>
-              <ellipse cx="16" cy="19" rx="10" ry="7" fill="#e6e6fa"/>
-              <ellipse cx="16" cy="13" rx="7" ry="7" fill="#800080"/>
-              <ellipse cx="13.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff"/>
-              <ellipse cx="18.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff"/>
-              <rect x="13" y="16" width="6" height="2" rx="1" fill="#fff"/>
+              <circle cx="16" cy="16" r="16" fill="#fff" />
+              <ellipse cx="16" cy="19" rx="10" ry="7" fill="#e6e6fa" />
+              <ellipse cx="16" cy="13" rx="7" ry="7" fill="#800080" />
+              <ellipse cx="13.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff" />
+              <ellipse cx="18.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff" />
+              <rect x="13" y="16" width="6" height="2" rx="1" fill="#fff" />
             </svg>
           </span>
           <span class="msg-text" v-if="msg.from === 'bot'" v-html="msg.text"></span>
           <span class="msg-text" v-else>{{ msg.text }}</span>
         </div>
-        <button v-show="showScrollBtn" class="scroll-to-bottom-btn" @click="scrollToBottom" aria-label="Rolar para o fim do chat">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M19 12l-7 7-7-7" stroke="#800080" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button v-show="showScrollBtn" class="scroll-to-bottom-btn" @click="scrollToBottom"
+          aria-label="Rolar para o fim do chat">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14M19 12l-7 7-7-7" stroke="#800080" stroke-width="2.2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
         </button>
       </div>
     </div>
 
 
 
-<form class="chat-footer" @submit.prevent="send">
-  <input
-    v-model="input"
-    type="text"
-    placeholder="Digite ou fale sua mensagem..."
-    autocomplete="off"
-  />
+    <form class="chat-footer" @submit.prevent="send">
+      <input v-model="input" type="text" placeholder="Digite ou fale sua mensagem..." autocomplete="off" />
 
-  <!-- Botão de microfone -->
-  <button 
-    type="button" 
-    class="mic-btn"
-    :class="{ 'recording': isRecording, 'disabled': !micSupported }"
-    @click="toggleRecording"
-    :disabled="!micSupported || isProcessingAudio || isRecording"
-    :title="micSupported ? (isRecording ? 'Escutando...' : 'Clique para falar') : 'Microfone não suportado'"
-    style="
+      <!-- Botão de microfone -->
+      <button type="button" class="mic-btn" :class="{ 'recording': isRecording, 'disabled': !micSupported }"
+        @click="toggleRecording" :disabled="!micSupported || isProcessingAudio || isRecording"
+        :title="micSupported ? (isRecording ? 'Escutando...' : 'Clique para falar') : 'Microfone não suportado'" style="
       padding: 1.5px 4px; 
       font-size: 9px; 
       border-radius: 12px; 
@@ -114,57 +113,50 @@
       align-items: center; 
       justify-content: center;
       background: transparent;
-    "
-  >
-    <svg v-if="!isRecording" width="10" height="10" viewBox="0 0 24 24" fill="none" >
-      <path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4Z" fill="#333"/>
-      <path d="M19 11v1a7 7 0 0 1-14 0v-1M12 19v4M8 23h8" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <svg v-else width="10" height="10" viewBox="0 0 24 24" fill="none" >
-      <circle cx="12" cy="12" r="3" fill="#333">
-        <animate attributeName="r" values="3;6;3" dur="1s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
-      </circle>
-    </svg>
-  </button>
+    ">
+        <svg v-if="!isRecording" width="10" height="10" viewBox="0 0 24 24" fill="none">
+          <path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4Z" fill="#333" />
+          <path d="M19 11v1a7 7 0 0 1-14 0v-1M12 19v4M8 23h8" stroke="#333" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        <svg v-else width="10" height="10" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="3" fill="#333">
+            <animate attributeName="r" values="3;6;3" dur="1s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite" />
+          </circle>
+        </svg>
+      </button>
 
-  <button 
-    type="submit"
-    style="
+      <button type="submit" style="
       padding: 1.5px 6px; 
       font-size: 9px; 
       border-radius: 12px; 
       border: none;
       background: transparent;
       color: #333;
-    "
-  >
-    Enviar
-  </button>
-</form>
+    ">
+        Enviar
+      </button>
+    </form>
 
 
   </div>
 
-    <button 
-    v-show="!open && !props.hideFabWhenScrolled" 
-    class="chat-fab" 
-    @click="toggle"
-    aria-label="Falar com Assistent"
-  >
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" fill="#fff"/>
-    <path d="M7 10h10M7 14h7" stroke="#800080" stroke-width="2" stroke-linecap="round"/>
-  </svg>
-</button>
+  <button v-show="!open && !props.hideFabWhenScrolled" class="chat-fab" @click="toggle"
+    aria-label="Falar com Assistent">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" fill="#fff" />
+      <path d="M7 10h10M7 14h7" stroke="#800080" stroke-width="2" stroke-linecap="round" />
+    </svg>
+  </button>
 
-<!-- Modal bonito de confirmação -->
+  <!-- Modal bonito de confirmação -->
   <div v-if="modalNovoChat" class="modal-overlay" @click="modalNovoChat = false">
     <div class="modal-novo-chat" @click.stop>
       <button class="modal-close" @click="modalNovoChat = false">×</button>
       <div class="modal-icon">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#800080" stroke-width="2">
-          <path d="M12 5v14M5 12h14"/>
+          <path d="M12 5v14M5 12h14" />
         </svg>
       </div>
       <h3>Novo chat</h3>
@@ -179,7 +171,7 @@
 
 <script setup>
 import axios from 'axios';
-import api from "../api"; 
+import api from "../api";
 import { ref, nextTick, onUpdated, onMounted, onUnmounted } from 'vue';
 
 
@@ -265,7 +257,7 @@ async function checkMicrophoneSupport() {
   try {
     // Verificar se Web Speech API está disponível
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
+
     if (!SpeechRecognition) {
       micSupported.value = false;
       return;
@@ -299,7 +291,7 @@ async function startRecording() {
     // Timer para mostrar tempo
     recordingTimer = setInterval(() => {
       recordingTime.value++;
-      
+
       // Parar automaticamente após 10 segundos (limite da Web Speech API)
       if (recordingTime.value >= 10) {
         clearInterval(recordingTimer);
@@ -309,7 +301,7 @@ async function startRecording() {
 
     // Usar Web Speech API diretamente
     const transcription = await speechToText();
-    
+
     // Processar resultado
     if (transcription && transcription.trim()) {
       input.value = transcription;
@@ -318,7 +310,7 @@ async function startRecording() {
     } else {
       typeWriter('❌ Não consegui entender o áudio. Tente falar mais claramente.');
     }
-    
+
   } catch (error) {
     console.error('Erro no reconhecimento de voz:', error);
     typeWriter(`❌ ${error.message}`);
@@ -327,7 +319,7 @@ async function startRecording() {
     isRecording.value = false;
     isProcessingAudio.value = false;
     input.value = '';
-    
+
     if (recordingTimer) {
       clearInterval(recordingTimer);
       recordingTimer = null;
@@ -346,31 +338,31 @@ async function speechToText() {
   return new Promise((resolve, reject) => {
     // Verificar se Web Speech API está disponível
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
+
     if (!SpeechRecognition) {
       reject(new Error('Reconhecimento de fala não suportado neste navegador'));
       return;
     }
-    
+
     const recognition = new SpeechRecognition();
-    
+
     // Configurações do reconhecimento
     recognition.lang = 'pt-PT'; // Português
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
-    
+
     // Quando obter resultado
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
       resolve(transcript);
     };
-    
+
     // Em caso de erro
     recognition.onerror = (event) => {
       let errorMessage = 'Erro no reconhecimento de voz';
-      
-      switch(event.error) {
+
+      switch (event.error) {
         case 'no-speech':
           errorMessage = 'Nenhuma fala detectada. Tente falar mais alto.';
           break;
@@ -384,15 +376,15 @@ async function speechToText() {
           errorMessage = 'Erro de rede. Verifique sua conexão.';
           break;
       }
-      
+
       reject(new Error(errorMessage));
     };
-    
+
     // Quando terminar (sem resultado)
     recognition.onend = () => {
       // Se chegou até aqui sem onresult, significa que não captou nada
     };
-    
+
     // Iniciar reconhecimento
     try {
       recognition.start();
@@ -414,7 +406,7 @@ function toggle() {
 // Função para detectar se o usuário quer buscar documento perdido
 function detectarBuscaDocumento(mensagem) {
   const palavrasChave = [
-   'quero procurar meu documento','como ver se meu documento esta disponivel?','perdi meu bi','procura meu documento', 'perdi meu documento', 'Podes me ajudar a procurar meu documento?', 'como pesquisar meu documento?'
+    'quero procurar meu documento', 'como ver se meu documento esta disponivel?', 'perdi meu bi', 'procura meu documento', 'perdi meu documento', 'Podes me ajudar a procurar meu documento?', 'como pesquisar meu documento?'
   ];
 
   const mensagemLower = mensagem.toLowerCase();
@@ -475,13 +467,13 @@ function confirmarNovoChat() {
 // Função para processar o fluxo de coleta de dados do documento
 async function processarFluxoDocumento(mensagem) {
   const etapa = dadosDocumento.value.etapa;
-  
+
   switch (etapa) {
     case 'inicial':
       dadosDocumento.value.etapa = 'coletando_nome';
       typeWriter('📋 Entendi! Vou te ajudar a procurar seu documento.<br><br>Primeiro, me diga: <strong>qual é o nome completo que está no documento?</strong>');
       break;
-      
+
     case 'coletando_nome':
       if (mensagem.trim().length < 3) {
         typeWriter('❌ Por favor, digite um nome válido com pelo menos 3 caracteres.');
@@ -489,19 +481,19 @@ async function processarFluxoDocumento(mensagem) {
       }
       dadosDocumento.value.nome_completo = mensagem.trim();
       dadosDocumento.value.etapa = 'coletando_tipo';
-      
+
       let opcoesDocumentos = '<strong>Que tipo de documento você perdeu?</strong><br><br>';
       tipo_documentos.forEach((tipo, index) => {
         opcoesDocumentos += `${index + 1}. ${tipo}<br>`;
       });
       opcoesDocumentos += '<br>💬 Digite o <strong>número</strong> ou o <strong>nome completo</strong> do documento:';
-      
+
       typeWriter(opcoesDocumentos);
       break;
-      
+
     case 'coletando_tipo':
       let tipoSelecionado = '';
-      
+
       // Verificar se é um número
       if (/^\d+$/.test(mensagem.trim())) {
         const index = parseInt(mensagem.trim()) - 1;
@@ -510,7 +502,7 @@ async function processarFluxoDocumento(mensagem) {
         }
       } else {
         // Procurar por nome (busca flexível)
-        const tipoEncontrado = tipo_documentos.find(tipo => 
+        const tipoEncontrado = tipo_documentos.find(tipo =>
           tipo.toLowerCase().includes(mensagem.trim().toLowerCase()) ||
           mensagem.trim().toLowerCase().includes(tipo.toLowerCase())
         );
@@ -518,41 +510,41 @@ async function processarFluxoDocumento(mensagem) {
           tipoSelecionado = tipoEncontrado;
         }
       }
-      
+
       if (!tipoSelecionado) {
         typeWriter('❌ Tipo de documento não reconhecido. Por favor, escolha um número de 1 a ' + tipo_documentos.length + ' ou digite o nome exato.');
         return;
       }
-      
+
       dadosDocumento.value.tipo_documento = tipoSelecionado;
       dadosDocumento.value.etapa = 'coletando_numero';
-      
+
       typeWriter(`✅ Documento: <strong>${tipoSelecionado}</strong><br><br>📋 Se souber, me diga o <strong>número do documento</strong>.<br><br>💡 <em>Se não lembrar, pode digitar "não sei" ou "pular"</em>`);
       break;
-      
+
     case 'coletando_numero':
       const mensagemNumero = mensagem.trim().toLowerCase();
-      
+
       if (mensagemNumero === 'não sei' || mensagemNumero === 'nao sei' || mensagemNumero === 'pular') {
         dadosDocumento.value.numero_documento = '';
       } else {
         dadosDocumento.value.numero_documento = mensagem.trim();
       }
-      
+
       dadosDocumento.value.etapa = 'coletando_provincia';
-      
+
       let opcoesProvincias = '<strong>Em que província você perdeu o documento?</strong><br><br>';
       provincias.forEach((provincia, index) => {
         opcoesProvincias += `${index + 1}. ${provincia}<br>`;
       });
       opcoesProvincias += '<br>💬 Digite o <strong>número</strong> ou o <strong>nome da província</strong>:';
-      
+
       typeWriter(opcoesProvincias);
       break;
-      
+
     case 'coletando_provincia':
       let provinciaSelecionada = '';
-      
+
       // Verificar se é um número
       if (/^\d+$/.test(mensagem.trim())) {
         const index = parseInt(mensagem.trim()) - 1;
@@ -561,7 +553,7 @@ async function processarFluxoDocumento(mensagem) {
         }
       } else {
         // Procurar por nome
-        const provinciaEncontrada = provincias.find(provincia => 
+        const provinciaEncontrada = provincias.find(provincia =>
           provincia.toLowerCase().includes(mensagem.trim().toLowerCase()) ||
           mensagem.trim().toLowerCase().includes(provincia.toLowerCase())
         );
@@ -569,15 +561,15 @@ async function processarFluxoDocumento(mensagem) {
           provinciaSelecionada = provinciaEncontrada;
         }
       }
-      
+
       if (!provinciaSelecionada) {
         typeWriter('❌ Província não reconhecida. Por favor, escolha um número de 1 a ' + provincias.length + ' ou digite o nome exato.');
         return;
       }
-      
+
       dadosDocumento.value.provincia = provinciaSelecionada;
       dadosDocumento.value.etapa = 'finalizando';
-      
+
       // Realizar a busca
       await realizarBuscaDocumento();
       break;
@@ -587,11 +579,11 @@ async function processarFluxoDocumento(mensagem) {
 // Função para buscar o documento na base de dados
 async function realizarBuscaDocumento() {
   typeWriter('🔍 Buscando seu documento na nossa base de dados...<br><br>⏳ <em>Por favor aguarde...</em>');
-  
+
   try {
     // Montar parâmetros para a busca
     let params = {};
-    
+
     if (dadosDocumento.value.nome_completo) {
       params.nome_completo = dadosDocumento.value.nome_completo;
     }
@@ -604,14 +596,14 @@ async function realizarBuscaDocumento() {
     if (dadosDocumento.value.provincia) {
       params.provincia = dadosDocumento.value.provincia;
     }
-    
+
     // Fazer a consulta na API existente
     const response = await api.get('/documentos', { params });
     const documentosEncontrados = response.data;
-    
+
     // Exibir resultados
     await exibirResultadosBusca(documentosEncontrados);
-    
+
   } catch (error) {
     console.error('Erro ao buscar documentos:', error);
     typeWriter('Ola! não encontramos o documento que esta a procura na nossa base de dados. Tente novamente mais tarde ou use a busca manual na aba "Procurar".');
@@ -623,11 +615,11 @@ async function realizarBuscaDocumento() {
 async function exibirResultadosBusca(documentos) {
   if (documentos.length === 0) {
     const nomeUsuario = dadosDocumento.value.nome_completo.split(' ')[0];
-    
+
     typeWriter(`❌ <strong>Documento não encontrado</strong><br><br>Olá ${nomeUsuario}, infelizmente não encontrei seu documento na nossa base de dados.<br><br>🤔 <strong>Mas não desanime!</strong><br><br>📋 <strong>O que você pode fazer:</strong><br>1️⃣ Cadastre seu documento na aba <strong>"Reportar"</strong><br>2️⃣ Assim, se alguém encontrá-lo, você será notificado!<br><br>💡 <em>Muitas pessoas encontram seus documentos alguns dias depois de cadastrá-los na plataforma.</em><br><br>Quer que eu te redirecione para o cadastro?`);
   } else {
     let resultadoTexto = `🎉 <strong>Ótimas notícias!</strong><br><br>Encontrei <strong>${documentos.length} documento(s)</strong> que pode(m) ser o seu:<br><br>`;
-    
+
     documentos.forEach((doc, index) => {
       resultadoTexto += `📄 <strong>Resultado ${index + 1}:</strong><br>`;
       resultadoTexto += `👤 Nome: ${doc.nome_completo}<br>`;
@@ -639,12 +631,12 @@ async function exibirResultadosBusca(documentos) {
       resultadoTexto += `📅 Data: ${doc.data_perda}<br>`;
       resultadoTexto += `<br>`;
     });
-    
+
     resultadoTexto += `✅ <strong>Próximo passo:</strong><br>Vá até a aba <strong>"Procurar"</strong> para solicitar o documento oficialmente.<br><br>💡 <em>Você precisará de uma assinatura ativa para solicitar.</em><br><br><a href="/assinaturas" style="color:#800080;text-decoration:underline;">Ver planos de assinatura</a>`;
-    
+
     typeWriter(resultadoTexto);
   }
-  
+
   resetarFluxoDocumento();
 }
 
@@ -674,7 +666,7 @@ function responderFaq(id) {
   const pergunta = predefinidas.find(p => p.id === id);
   if (pergunta) {
     messages.value.push({ from: 'user', text: pergunta.pergunta });
-    
+
     // Se for a pergunta sobre documento perdido, iniciar fluxo
     if (id === 3) {
       buscandoDocumento.value = true;
@@ -794,10 +786,11 @@ onMounted(() => {
 
 </script>
 
-<style scoped> 
+<style scoped>
 .faq-select-box {
   margin-bottom: 10px;
 }
+
 .faq-select-box select {
   width: 100%;
   padding: 8px 12px;
@@ -807,9 +800,10 @@ onMounted(() => {
   font-size: 0.98rem;
   color: #333;
 }
+
 .faq-select-box select:focus {
   border-color: #800080;
-  box-shadow: 0 0 4px rgba(128,0,128,0.2);
+  box-shadow: 0 0 4px rgba(128, 0, 128, 0.2);
   outline: none;
 }
 
@@ -848,8 +842,15 @@ onMounted(() => {
 }
 
 @keyframes recording-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
 }
 
 .processing-status {
@@ -881,8 +882,13 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Botão de microfone */
@@ -928,19 +934,22 @@ onMounted(() => {
   border-radius: 10px;
   padding: 10px 8px 8px 8px;
   margin-bottom: 10px;
-  box-shadow: 0 1px 4px rgba(128,0,128,0.06);
+  box-shadow: 0 1px 4px rgba(128, 0, 128, 0.06);
 }
+
 .faq-title {
   font-weight: 600;
   color: #800080;
   margin-bottom: 6px;
   font-size: 1.08rem;
 }
+
 .faq-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
+
 .faq-btn {
   background: #fff;
   color: #800080;
@@ -954,6 +963,7 @@ onMounted(() => {
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
+
 .faq-btn:hover {
   background: #e6e6fa;
   color: #198754;
@@ -964,13 +974,14 @@ onMounted(() => {
   position: fixed;
   bottom: 4px;
   right: 4px;
-  
-  width: auto;          /* pode aumentar um pouco também */
+
+  width: auto;
+  /* pode aumentar um pouco também */
   max-width: 500px;
 
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(60,60,60,0.18);
+  box-shadow: 0 4px 24px rgba(60, 60, 60, 0.18);
   z-index: 10000;
   display: flex;
   flex-direction: column;
@@ -978,9 +989,11 @@ onMounted(() => {
   font-family: inherit;
 
   /* Altura máxima do chat inteiro */
-  max-height: 80vh;        /* antes não tinha limite */
+  max-height: 80vh;
+  /* antes não tinha limite */
   /* ou: max-height: 720px; */
 }
+
 .chat-header {
   background: linear-gradient(90deg, #800080 60%, #198754 100%);
   color: #fff;
@@ -991,6 +1004,7 @@ onMounted(() => {
   justify-content: space-between;
   cursor: pointer;
 }
+
 .close-btn {
   background: none;
   border: none;
@@ -998,6 +1012,7 @@ onMounted(() => {
   font-size: 1.3rem;
   cursor: pointer;
 }
+
 .chat-desc {
   background: #f8f8fa;
   color: #666;
@@ -1013,10 +1028,10 @@ onMounted(() => {
   background: #f8f8fa;
   overflow-y: auto;
   /* Altura antiga */
- /*  max-height: 280px; */
+  /*  max-height: 280px; */
 
   /* Nova altura – escolha uma das opções abaixo */
-  
+
   /* Opção 1: Altura fixa maior (ex: 500px) */
   max-height: 500px;
 
@@ -1030,25 +1045,29 @@ onMounted(() => {
 .chat-messages {
   position: relative;
 }
+
 .msg {
   margin-bottom: 8px;
   display: flex;
 }
+
 .msg-bot-avatar {
   display: inline-flex;
   vertical-align: middle;
   margin-right: 6px;
   margin-bottom: -4px;
 }
+
 .msg-text {
   display: inline-block;
   vertical-align: middle;
 }
+
 .msg.bot .msg-text {
   background: #e6e6fa;
   color: #800080;
   border: 1.5px solid #d1c4e9;
-  box-shadow: 0 2px 8px rgba(128,0,128,0.07);
+  box-shadow: 0 2px 8px rgba(128, 0, 128, 0.07);
   align-self: flex-start;
   padding: 7px 13px;
   border-radius: 14px;
@@ -1057,6 +1076,7 @@ onMounted(() => {
   word-break: break-word;
   margin-bottom: 2px;
 }
+
 .msg.user .msg-text {
   background: #d1e7dd;
   color: #198754;
@@ -1069,6 +1089,7 @@ onMounted(() => {
   word-break: break-word;
   margin-bottom: 2px;
 }
+
 .chat-footer {
   display: flex;
   border-top: 1px solid #eee;
@@ -1076,6 +1097,7 @@ onMounted(() => {
   padding: 8px 10px;
   align-items: center;
 }
+
 .chat-footer input {
   flex: 1;
   border: none;
@@ -1088,6 +1110,7 @@ onMounted(() => {
   height: 40px;
   box-sizing: border-box;
 }
+
 .chat-footer button[type="submit"] {
   background: #800080;
   color: #fff;
@@ -1100,6 +1123,7 @@ onMounted(() => {
   transition: background 0.2s;
   height: 40px;
 }
+
 .chat-footer button[type="submit"]:hover {
   background: #198754;
 }
@@ -1116,7 +1140,7 @@ onMounted(() => {
   background: linear-gradient(135deg, #800080 60%, #198754 100%);
   color: #fff;
   border: none;
-  box-shadow: 0 4px 16px rgba(60,60,60,0.15);
+  box-shadow: 0 4px 16px rgba(60, 60, 60, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1124,9 +1148,10 @@ onMounted(() => {
   z-index: 10001;
   transition: all 0.2s;
 }
+
 .chat-fab:hover {
   background: linear-gradient(135deg, #198754 60%, #800080 100%);
-  box-shadow: 0 6px 20px rgba(128,0,128,0.25);
+  box-shadow: 0 6px 20px rgba(128, 0, 128, 0.25);
   transform: scale(1.1) rotate(-10deg);
 }
 
@@ -1136,8 +1161,9 @@ onMounted(() => {
     right: 1vw;
     bottom: 1px;
     height: calc(100dvh - 16px);
-   
+
   }
+
   .chat-fab {
     right: 14px;
     bottom: 30px;
@@ -1155,6 +1181,7 @@ onMounted(() => {
   position: relative;
   margin-bottom: 10px;
 }
+
 .faq-toggle-btn {
   width: 100%;
   background: #fff;
@@ -1171,10 +1198,12 @@ onMounted(() => {
   margin-bottom: 0;
   transition: background 0.15s, color 0.15s;
 }
+
 .faq-toggle-btn:hover {
   background: #e6e6fa;
   color: #198754;
 }
+
 .faq-menu {
   position: absolute;
   top: 110%;
@@ -1182,14 +1211,18 @@ onMounted(() => {
   width: 100%;
   background: #f3f3f7;
   border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(128,0,128,0.13);
+  box-shadow: 0 4px 16px rgba(128, 0, 128, 0.13);
   z-index: 10;
   padding: 10px 8px 8px 8px;
 }
-.faq-fade-enter-active, .faq-fade-leave-active {
+
+.faq-fade-enter-active,
+.faq-fade-leave-active {
   transition: opacity 0.18s;
 }
-.faq-fade-enter-from, .faq-fade-leave-to {
+
+.faq-fade-enter-from,
+.faq-fade-leave-to {
   opacity: 0;
 }
 
@@ -1206,11 +1239,12 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(128,0,128,0.10);
+  box-shadow: 0 2px 8px rgba(128, 0, 128, 0.10);
   cursor: pointer;
   z-index: 20;
   transition: background 0.18s, border 0.18s;
 }
+
 .scroll-to-bottom-btn:hover {
   background: #e6e6fa;
   border-color: #198754;
@@ -1251,6 +1285,7 @@ onMounted(() => {
   .new-chat-text {
     display: none;
   }
+
   .new-chat-btn {
     padding: 8px;
   }
@@ -1265,7 +1300,7 @@ onMounted(() => {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -1274,12 +1309,12 @@ onMounted(() => {
 }
 
 .modal-novo-chat {
-  
+
   background: #fff;
   border-radius: 16px;
   padding: 24px;
   text-align: center;
-  box-shadow: 0 10px 30px rgba(128,0,128,0.3);
+  box-shadow: 0 10px 30px rgba(128, 0, 128, 0.3);
   max-width: 320px;
   animation: modalShow 0.3s ease;
 }
@@ -1337,8 +1372,14 @@ onMounted(() => {
 }
 
 @keyframes modalShow {
-  from { transform: scale(0.8); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
-}
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
 
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
 </style>

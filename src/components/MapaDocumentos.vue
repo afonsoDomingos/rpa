@@ -1,45 +1,39 @@
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from "vue";
-import api from "../api";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import moambiqueGeoJSON from "../geojson/geoBoundaries-MOZ-ADM0_simplified2.json";
+import { ref, computed, watch, onMounted, nextTick } from "vue"
+import api from "../api"
+import L from "leaflet"
+import "leaflet/dist/leaflet.css"
+import moambiqueGeoJSON from "../geojson/geoBoundaries-MOZ-ADM0_simplified2.json"
 
-// Chart.js
-import { Bar } from "vue-chartjs";
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-  CategoryScale,
-  LinearScale
-} from "chart.js";
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+import { Bar } from "vue-chartjs"
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from "chart.js"
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
-// ==================== STATE ====================
-const documentos = ref([]);
-const mapa = ref(null);
-let markersLayer = null;
+// STATE
+const documentos = ref([])
+const totalDocumentos = ref(0)
+const populacaoExibida = ref(0)
+const mapa = ref(null)
+let markersLayer = null
+const isLoading = ref(false)
+const filtroProvincia = ref("")
 
-const isLoading = ref(false);
-const filtroProvincia = ref("");
-
-// 🔹 Dados populacionais do INE
+// POPULAÇÃO (só para contadores e gráfico)
 const populacaoProvincias = {
-  "Cabo Delgado": { total: 2744872, homens: 1336707, mulheres: 1408165 },
-  "Gaza": { total: 1476653, homens: 673411, mulheres: 803242 },
-  "Cidade de Maputo": { total: 1133235, homens: 551403, mulheres: 581832 },
-  "Maputo": { total: 2479809, homens: 1197965, mulheres: 1281844 },
-  "Nampula": { total: 6649881, homens: 3241895, mulheres: 3407986 },
-  "Niassa": { total: 2202817, homens: 1071956, mulheres: 1130861 },
-  "Sofala": { total: 2674787, homens: 1303851, mulheres: 1370936 },
-  "Tete": { total: 3173917, homens: 1563790, mulheres: 1610127 },
-  "Zambézia": { total: 6003909, homens: 2895410, mulheres: 3108499 },
-  "Inhambane": { total: 1581114, homens: 736101, mulheres: 845013 },
-  "Manica": { total: 2298753, homens: 1111192, mulheres: 1187561 }
-};
+  "Cabo Delgado": { homens: 1336707, mulheres: 1408165, total: 2744872 },
+  "Gaza": { homens: 673411, mulheres: 803242, total: 1476653 },
+  "Cidade de Maputo": { homens: 551403, mulheres: 581832, total: 1133235 },
+  "Maputo": { homens: 1197965, mulheres: 1281844, total: 2479809 },
+  "Nampula": { homens: 3241895, mulheres: 3407986, total: 6649881 },
+  "Niassa": { homens: 1071956, mulheres: 1130861, total: 2202817 },
+  "Sofala": { homens: 1303851, mulheres: 1370936, total: 2674787 },
+  "Tete": { homens: 1563790, mulheres: 1610127, total: 3173917 },
+  "Zambézia": { homens: 2895410, mulheres: 3108499, total: 6003909 },
+  "Inhambane": { homens: 736101, mulheres: 845013, total: 1581114 },
+  "Manica": { homens: 1111192, mulheres: 1187561, total: 2298753 }
+}
+
+const totalPopulacaoPais = Object.values(populacaoProvincias).reduce((a, p) => a + p.total, 0)
 
 const coordenadasProvincias = {
   "Maputo": [-25.9655, 32.5832],
@@ -52,367 +46,217 @@ const coordenadasProvincias = {
   "Zambézia": [-17.83, 36.9],
   "Nampula": [-15.13, 39.27],
   "Niassa": [-13.28, 36.55],
-  "Cabo Delgado": [-12.3, 40.5],
-};
+  "Cabo Delgado": [-12.3, 40.5]
+}
 
-// ==================== NORMALIZAÇÃO ====================
-const normalizarProvincia = (nome) => {
-  if (!nome) return "";
-  const n = nome.trim().toLowerCase();
-  if (n.includes("maputo cidade") || n.includes("cidade de maputo")) return "Cidade de Maputo";
-  if (n.includes("cabo delgado")) return "Cabo Delgado";
-  if (n === "maputo") return "Maputo";
-  if (n.includes("zambezia")) return "Zambézia";
-  if (n.includes("inhambane")) return "Inhambane";
-  if (n.includes("nampula")) return "Nampula";
-  if (n.includes("niassa")) return "Niassa";
-  if (n.includes("gaza")) return "Gaza";
-  if (n.includes("sofala")) return "Sofala";
-  if (n.includes("tete")) return "Tete";
-  if (n.includes("manica")) return "Manica";
-  return nome;
-};
+const normalizarProvincia = (n) => {
+  if (!n) return ""
+  const nome = n.toLowerCase().trim()
+  if (nome.includes("cidade") || nome.includes("maputo cidade")) return "Cidade de Maputo"
+  if (nome.includes("cabo delgado")) return "Cabo Delgado"
+  if (nome.includes("zambezia") || nome.includes("zambézia")) return "Zambézia"
+  return Object.keys(coordenadasProvincias).find(p => nome.includes(p.toLowerCase())) || n
+}
 
-// ==================== COMPUTEDS ====================
-const abreviarNome = (nome) => {
-  if (nome === "Cidade de Maputo") return "C.Maputo";
-  if (nome === "Cabo Delgado") return "C.Delgado";
-  return nome;
-};
+const abreviarNome = (n) =>
+  n === "Cidade de Maputo" ? "C.Maputo" :
+  n === "Cabo Delgado" ? "C.Delgado" : n
 
-const populacaoTotal = computed(() =>
-  Object.values(populacaoProvincias).reduce((acc, p) => acc + (p.total || 0), 0)
-);
+// RANKING DISCRETO (só posição + província + documentos)
+const rankingDiscreto = computed(() => {
+  if (filtroProvincia.value) {
+    const prov = filtroProvincia.value
+    const qtd = documentos.value.filter(d => d.provincia === prov).length
+    return [{ provincia: prov, nomeCurto: abreviarNome(prov), docs: qtd }]
+  }
 
-const documentosFiltrados = computed(() =>
-  documentos.value.filter((doc) =>
-    filtroProvincia.value ? doc.provincia === filtroProvincia.value : true
-  )
-);
+  return Object.keys(coordenadasProvincias)
+    .map(p => ({ provincia: p, nomeCurto: abreviarNome(p), docs: documentos.value.filter(d => d.provincia === p).length }))
+    .sort((a, b) => b.docs - a.docs)
+    .slice(0, 10) // só as 10 primeiras para não ocupar espaço
+})
 
-const estatisticasProvincias = computed(() =>
-  Object.entries(coordenadasProvincias).map(([provincia]) => {
-    const qtdDocs = documentos.value.filter(doc => doc.provincia === provincia).length;
-    const popData = populacaoProvincias[provincia] || {};
-    const taxaPor100k = popData.total ? (qtdDocs / popData.total * 100000).toFixed(2) : null;
+// CONTADORES ANIMADOS
+const animateValue = (start, end, duration = 800) => {
+  let s = null
+  return t => {
+    if (!s) s = t
+    const p = Math.min((t - s) / duration, 1)
+    return Math.floor((1 - Math.pow(1 - p, 3)) * (end - start) + start)
+  }
+}
 
-    return {
-      provincia,
-      nomeCurto: abreviarNome(provincia),
-      qtdDocs,
-      ...popData,
-      taxaPor100k
-    };
-  }).sort((a, b) => b.qtdDocs - a.qtdDocs)
-);
+watch([documentos, filtroProvincia], () => {
+  const targetDocs = filtroProvincia.value
+    ? documentos.value.filter(d => d.provincia === filtroProvincia.value).length
+    : documentos.value.length
 
+  const targetPop = filtroProvincia.value
+    ? populacaoProvincias[filtroProvincia.value]?.total || 0
+    : totalPopulacaoPais
+
+  const dAnim = animateValue(totalDocumentos.value, targetDocs)
+  const pAnim = animateValue(populacaoExibida.value, targetPop)
+
+  const tick = t => {
+    totalDocumentos.value = dAnim(t)
+    populacaoExibida.value = pAnim(t)
+    if (totalDocumentos.value < targetDocs || populacaoExibida.value < targetPop) requestAnimationFrame(tick)
+  }
+  requestAnimationFrame(tick)
+}, { immediate: true })
+
+// GRÁFICO (agora mostra Homens / Mulheres / Docs – sem legenda para ficar limpo)
 const chartData = computed(() => ({
-  labels: estatisticasProvincias.value.map(item => item.nomeCurto),
+  labels: rankingDiscreto.value.map(i => i.nomeCurto),
   datasets: [
-    {
-      label: "Homens",
-      backgroundColor: "#3b82f6",
-      data: estatisticasProvincias.value.map(item => item.homens || 0)
-    },
-    {
-      label: "Mulheres",
-      backgroundColor: "#f43f5e",
-      data: estatisticasProvincias.value.map(item => item.mulheres || 0)
-    },
-    {
-      label: "Documentos Perdidos",
-      backgroundColor: "#22c55e",
-      data: estatisticasProvincias.value.map(item => item.qtdDocs || 0)
-    }
+    { backgroundColor: "#3b82f6", data: rankingDiscreto.value.map(i => populacaoProvincias[i.provincia]?.homens || 0) },
+    { backgroundColor: "#ec4899", data: rankingDiscreto.value.map(i => populacaoProvincias[i.provincia]?.mulheres || 0) },
+    { backgroundColor: "#10b981", data: rankingDiscreto.value.map(i => i.docs) }
   ]
-}));
+}))
 
-// ==================== FUNÇÕES ====================
-const getColor = (qtd) => {
-  if (qtd > 50) return "red";
-  if (qtd > 20) return "orange";
-  return "green";
-};
+// MAPA
+const getColor = q => q > 50 ? "#ef4444" : q > 20 ? "#f97316" : "#10b981"
 
 const carregarDocumentos = async () => {
-  isLoading.value = true;
+  isLoading.value = true
   try {
-    const response = await api.get("/documentos");
-    documentos.value = Array.isArray(response.data)
-      ? response.data.map(d => ({ ...d, provincia: normalizarProvincia(d.provincia) }))
-      : [];
-    desenharMarcadores();
-  } catch (error) {
-    console.error("Erro ao carregar documentos:", error);
-  } finally {
-    isLoading.value = false;
-  }
-};
+    const { data } = await api.get("/documentos")
+    documentos.value = Array.isArray(data)
+      ? data.map(d => ({ ...d, provincia: normalizarProvincia(d.provincia) }))
+      : []
+  } catch (e) { console.error(e) } finally { isLoading.value = false }
+}
+
+const limparFiltro = () => { filtroProvincia.value = "" }
 
 const desenharMarcadores = () => {
-  if (!mapa.value || !markersLayer) return;
-  markersLayer.clearLayers();
+  if (!mapa.value || !markersLayer) return
+  markersLayer.clearLayers()
+  rankingDiscreto.value.forEach(item => {
+    if (item.docs === 0 && filtroProvincia.value) return
+    const c = coordenadasProvincias[item.provincia]
+    if (!c) return
+    L.circleMarker(c, {
+      radius: filtroProvincia.value ? 22 : Math.max(7, 7 + item.docs * 0.16),
+      color: "#000", weight: 2, fillColor: getColor(item.docs), fillOpacity: 0.95
+    })
+      .bindPopup(`<div style="background:#000;color:#fff;padding:8px 11px;border-radius:6px;font-family:Poppins;font-weight:600;font-size:13px"><b>${item.nomeCurto}</b><br>${item.docs} docs</div>`)
+      .addTo(markersLayer)
+  })
+  if (filtroProvincia.value) nextTick(() => mapa.value.setView(coordenadasProvincias[filtroProvincia.value], 10))
+}
 
-  estatisticasProvincias.value.forEach((item) => {
-    const coords = coordenadasProvincias[item.provincia];
-    if (!coords) return;
+const centrarProvincia = p => coordenadasProvincias[p] && mapa.value.setView(coordenadasProvincias[p], 10)
 
-    const marker = L.circleMarker(coords, {
-      radius: Math.max(8, 10 + item.qtdDocs * 0.3),
-      color: getColor(item.qtdDocs),
-      fillColor: getColor(item.qtdDocs),
-      fillOpacity: 0.6,
-      weight: 1,
-    });
+onMounted(async () => {
+  mapa.value = L.map("mapa", { zoomControl: false, attributionControl: false }).setView([-18.6657, 35.5296], 6)
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png").addTo(mapa.value)
+  L.control.zoom({ position: "bottomright", zoomInText: "+", zoomOutText: "-" }).addTo(mapa.value)
+  markersLayer = L.layerGroup().addTo(mapa.value)
 
-    marker.bindPopup(`
-      <b>${item.nomeCurto}</b><br>
-      📄 ${item.qtdDocs} documentos<br>
-      👥 População: ${item.total?.toLocaleString() || "N/D"}<br>
-      🔹 ${item.taxaPor100k ? item.taxaPor100k + " docs/100k hab." : ""}
-    `);
+  L.geoJSON(moambiqueGeoJSON, { style: { color: "#ffffff", weight: 2.5, opacity: 0.9, fillOpacity: 0 } }).addTo(mapa.value)
 
-    marker.on("click", () => mapa.value.setView(coords, 7));
-    markersLayer.addLayer(marker);
-  });
-};
+  const fix = () => nextTick(() => mapa.value?.invalidateSize())
+  window.addEventListener("resize", fix)
+  window.addEventListener("orientationchange", () => setTimeout(fix, 200))
+  carregarDocumentos()
+})
 
-const limparFiltros = () => {
-  filtroProvincia.value = "";
-  desenharMarcadores();
-};
-
-const centrarProvincia = (provincia) => {
-  const coords = coordenadasProvincias[provincia];
-  if (coords && mapa.value) mapa.value.setView(coords, 7);
-};
-
-// ==================== WATCHERS ====================
-watch(filtroProvincia, () => desenharMarcadores());
-watch(documentos, () => desenharMarcadores());
-
-// ==================== LIFECYCLE ====================
-onMounted(() => {
-  mapa.value = L.map("mapa", { attributionControl: false })
-    .setView([-18.6657, 35.5296], 5);
-
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
-    .addTo(mapa.value);
-
-  L.control.attribution({ prefix: false })
-    .addAttribution('<a href="https://www.openstreetmap.org/" target="_blank" style="font-size: 10px; color: #666;">Fonte: MapSource</a')
-    .setPosition("bottomright")
-    .addTo(mapa.value);
-
-  markersLayer = L.layerGroup().addTo(mapa.value);
-
-  try {
-    L.geoJSON(moambiqueGeoJSON, { style: { color: "#800080", weight: 2, fill: false } }).addTo(mapa.value);
-  } catch (e) {
-    console.warn("Falha ao adicionar GeoJSON:", e);
-  }
-
-  carregarDocumentos();
-});
-
-onUnmounted(() => {
-  if (mapa.value) {
-    mapa.value.off();
-    mapa.value.remove();
-    mapa.value = null;
-  }
-});
+watch(filtroProvincia, desenharMarcadores)
+watch(documentos, desenharMarcadores, { deep: true })
 </script>
 
 <template>
-  <div class="mapa-wrapper">
-    <!-- Mapa -->
-    <div class="mapa-container borda-destacada">
-      <div id="mapa" class="mapa"></div>
-    </div>
+  <div class="app">
+    <div id="mapa" class="mapa"></div>
 
-    <!-- Painel lateral -->
-    <div class="painel-lateral borda-destacada">
-      <div class="mapa-header">
-        <p>🗺️ Rastreador Rpa</p>
-        <p>Total: <strong>{{ documentosFiltrados.length }}</strong></p>
-        <p class="pop-total">👥 População: <strong>{{ populacaoTotal.toLocaleString() }}</strong></p>
-        <div class="botoes-topo">
-          <button class="btn-refresh" @click="carregarDocumentos" :disabled="isLoading">
-            <span v-if="!isLoading">🔄 Atualizar</span>
-            <span v-else>⏳ Atualizando...</span>
-          </button>
-          <button class="btn-clear" @click="limparFiltros">❌ Limpar</button>
+    <!-- PAINEL MINIMALISTA E DISCRETO -->
+    <div class="painel">
+     
+
+      <div class="stats">
+        <strong>{{ totalDocumentos.toLocaleString() }}</strong> docs •
+        <strong>{{ populacaoExibida.toLocaleString() }}</strong> hab
+      </div>
+
+      <div class="filtro">
+        <select v-model="filtroProvincia" class="select">
+          <option value="">Todas</option>
+          <option v-for="(c, p) in coordenadasProvincias" :key="p" :value="p">{{ abreviarNome(p) }}</option>
+        </select>
+        <button v-if="filtroProvincia" @click="limparFiltro" class="limpar">×</button>
+      </div>
+
+      <!-- RANKING DISCRETO -->
+      <div class="ranking">
+        <div v-for="(item, i) in rankingDiscreto" :key="item.provincia" class="rank-line">
+          <span class="pos">{{ i + 1 }}.</span>
+          <span class="prov">{{ item.nomeCurto }}</span>
+          <strong class="docs">{{ item.docs }}</strong>
+          <button @click="centrarProvincia(item.provincia)" class="ver">Ver</button>
         </div>
       </div>
 
-      <div class="mapa-filtros">
-        <select v-model="filtroProvincia" class="borda-destacada">
-          <option value="">Todas</option>
-          <option v-for="(coords, prov) in coordenadasProvincias" :key="prov" :value="prov">
-            {{ abreviarNome(prov) }}
-          </option>
-        </select>
-      </div>
-
-      <div class="ranking">
-        <h4>📊 Ranking</h4>
-        <ul>
-          <li v-for="(item, idx) in estatisticasProvincias" :key="item.provincia">
-            <span class="posicao">#{{ idx + 1 }}</span>
-            <span class="nome">{{ item.nomeCurto }}</span>
-            <span class="qtd">📄 {{ item.qtdDocs }}</span>
-            <span class="pop">👥 {{ item.total?.toLocaleString() || "N/D" }}</span>
-            <span v-if="item.taxaPor100k" class="taxa">📊 {{ item.taxaPor100k }}/100k</span>
-            <button class="btn-zoom" @click="centrarProvincia(item.provincia)">🔍</button>
-          </li>
-        </ul>
-      </div>
-
       <div class="grafico">
-        <h4>📈 População vs Documentos</h4>
-        <Bar :data="chartData" />
+        <Bar :data="chartData" :options="{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }" />
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.mapa-wrapper {
-  display: flex;
-  gap: 12px;
-  height: 600px;
-  margin: 0 auto;
-  padding: 8px;
-  max-width: 1400px;
-  box-sizing: border-box;
-}
+@import '@fontsource/poppins/500.css';
+@import '@fontsource/poppins/600.css';
+@import '@fontsource/poppins/700.css';
 
-.mapa-container {
-  flex: 0 0 68%;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
+.app { display: flex; flex-direction: column; height: 100dvh; background: #000; font-family: 'Poppins', sans-serif; font-weight: 500; }
+.mapa { flex: 1; }
 
-.mapa {
-  width: 100%;
-  height: 100%;
-  min-height: 580px;
-}
-
-.painel-lateral {
-  flex: 0 0 32%;
+.painel {
+  margin: 10px;
+  padding: 9px 11px;
+  background: #fff;
+  color: #000;
+  border: 2.5px solid #000;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 7px;
+  max-height: 26vh;
   overflow: hidden;
 }
 
-/* Destaques */
-.borda-destacada {
-  border: 1px solid #66bb6a;
-  border-radius: 10px;
-  padding: 8px;
-  background-color: #fff;
-  transition: 0.3s ease;
-}
+h1 { margin: 0; font-size: 1.3rem; font-weight: 700; text-align: center; }
+.stats { font-size: 0.76rem; text-align: center; color: #222; }
+.stats strong { font-weight: 700; font-size: 0.86rem; }
 
-.borda-destacada:hover {
-  border-color: #800080;
-  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.2);
-}
+.filtro { display: flex; gap: 6px; align-items: center; }
+.select { flex: 1; padding: 6px; border: 1.4px solid #000; border-radius: 8px; font-size: 0.8rem; }
+.limpar { width: 24px; height: 24px; background: #000; color: #fff; border: none; border-radius: 50%; font-size: 1rem; }
 
-/* Cabeçalho */
-.mapa-header {
-  background: #f9fafb;
-  padding: 10px;
-  border-radius: 8px;
-  text-align: center;
-}
-
-.mapa-header h3 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #007bff;
-  margin: 0 0 6px 0;
-}
-
-/* Botões */
-.botoes-topo {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.btn-refresh,
-.btn-clear,
-.btn-zoom {
-  border: none;
-  padding: 5px 9px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  color: #fff;
-}
-
-.btn-refresh { background: #007bff; }
-.btn-clear { background: #6c757d; }
-.btn-zoom { background: #28a745; }
-
-/* Filtros */
-.mapa-filtros select {
-  width: 100%;
-  padding: 5px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-}
-
-/* Ranking */
-.ranking {
-  flex: 1;
-  overflow-y: auto;
-  background: #fff;
-  padding: 8px;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-}
-
-.ranking h4 {
-  margin-bottom: 6px;
-  font-size: 1rem;
-  color: #333;
-}
-
-.ranking ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.ranking li {
+.ranking { flex: 1; overflow-y: auto; padding-right: 4px; }
+.rank-line {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 3px 0;
-  border-bottom: 1px solid #eee;
+  gap: 8px;
+  padding: 4px 6px;
+  background: #f8f8f8;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  margin: 2px 0;
 }
+.pos { width: 18px; font-weight: 700; color: #444; }
+.prov { flex: 1; font-weight: 600; }
+.docs { color: #10b981; font-weight: 700; font-size: 0.9rem; }
+.ver { padding: 2px 5px; font-size: 0.66rem; background: #000; color: #fff; border: none; border-radius: 4px; }
 
-.ranking li:last-child { border-bottom: none; }
+.grafico { height: 100px; margin-top: 4px; }
 
-.ranking .posicao { font-weight: bold; color: #007bff; }
-.ranking .nome { flex: 1; margin: 0 5px; }
-
-/* Responsivo */
-@media (max-width: 1024px) {
-  .mapa-wrapper { flex-direction: column; height: auto; }
-  .mapa-container { flex: 0 0 100%; height: 350px; }
-  .painel-lateral { flex: 0 0 100%; }
-}
-
-@media (max-width: 600px) {
-  .botoes-topo { flex-direction: column; }
-  .btn-refresh, .btn-clear { width: 100%; }
+@media (min-width: 768px) {
+  .app { flex-direction: row; padding: 12px; gap: 12px; max-width: 1400px; margin: 0 auto; }
+  .painel { flex: 0 0 290px; border-radius: 18px; padding: 12px; max-height: none; }
 }
 </style>
