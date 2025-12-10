@@ -44,6 +44,7 @@ const showPass = ref(false);
 const showNewPass = ref(false);
 const showConfirmPass = ref(false);
 const isLoading = ref(false);
+const isTakingLong = ref(false);
 const errorMessage = ref("");
 
 // Validações
@@ -74,6 +75,13 @@ const login = async () => {
   }
   isLoading.value = true;
   errorMessage.value = "";
+  isTakingLong.value = false;
+
+  // Feedback para cold start do Render
+  const slowTimer = setTimeout(() => {
+    isTakingLong.value = true;
+  }, 3000);
+
   try {
     const res = await api.login({
       email: email.value.trim().toLowerCase(),
@@ -86,7 +94,9 @@ const login = async () => {
   } catch (err: any) {
     errorMessage.value = err.response?.data?.msg || "Falha no login. Tente novamente.";
   } finally {
+    clearTimeout(slowTimer);
     isLoading.value = false;
+    isTakingLong.value = false;
   }
 };
 
@@ -215,6 +225,11 @@ onMounted(async () => {
         </button>
       </div>
     </transition>
+
+    <div v-if="isTakingLong && isLoading" class="info-message">
+       <i class="fas fa-server"></i> A acordar o servidor... <br>
+       <small style="font-size: 0.75rem">(Isso pode levar alguns segundos)</small>
+    </div>
 
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
@@ -520,6 +535,20 @@ label, .form-label {
 }
 
 /* --- Mensagens de erro --- */
+.info-message {
+  color: #856404;
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  padding: 0.8rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+  font-size: 0.9rem;
+  animation: fadeIn 0.5s;
+}
+
 .error-message {
   color: #d32f2f;
   background: #fdeded;
