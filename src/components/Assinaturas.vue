@@ -482,7 +482,17 @@ const ativarPlanoTeste = async () => {
         content_ids: ["teste"],
         content_name: "Plano de Teste",
       });
-      showSuccess.value = true;
+      
+      // Redireciona para página de sucesso
+      router.push({
+        name: 'PagamentoSucesso',
+        query: {
+          plano: 'Plano de Teste',
+          valor: 0,
+          metodo: 'Teste Grátis',
+          msg: 'Seu período de teste de 5 dias foi ativado!'
+        }
+      });
     } else {
       errorMessage.value = res.data.mensagem || "Erro ao ativar teste.";
     }
@@ -623,7 +633,18 @@ const handleSubmit = async () => {
         value: selectedPackage.value.price,
         currency: "MZN",
       });
-      showSuccess.value = true;
+      
+      // Redireciona para página de sucesso
+      const metodoNome = paymentMethods.find(m => m.id === selectedPaymentMethod.value)?.name || selectedPaymentMethod.value;
+      router.push({
+        name: 'PagamentoSucesso',
+        query: {
+          plano: selectedPackage.value.name,
+          valor: selectedPackage.value.price,
+          metodo: metodoNome,
+          msg: 'Sua assinatura foi ativada com sucesso!'
+        }
+      });
     } else {
       errorMessage.value = res.data.mensagem || "Pagamento não concluído.";
     }
@@ -643,8 +664,16 @@ onMounted(() => {
 
   const params = new URLSearchParams(window.location.search);
   if (params.get("sucesso") === "cartao") {
-    showSuccess.value = true;
-    history.replaceState({}, "", window.location.pathname);
+    // Redireciona para página de sucesso após retorno do Stripe
+    router.push({
+      name: 'PagamentoSucesso',
+      query: {
+        plano: selectedPackage.value?.name || 'Assinatura',
+        valor: selectedPackage.value?.price || 0,
+        metodo: 'Cartão de Crédito',
+        msg: 'Pagamento com cartão confirmado!'
+      }
+    });
   }
 });
 </script>

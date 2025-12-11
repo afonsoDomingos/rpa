@@ -22,6 +22,7 @@ import ComunidadeRpa from "../components/ComunidadeRpa.vue";
 import AdminAssinaturas from "../components/AdminAssinaturas.vue";
 import olhodedeus from "../examples/navbars/olhodedeus.vue";
 import CVGenerator from "../components/CVGenerator.vue";
+import PagamentoSucesso from "../components/PagamentoSucesso.vue";
 
 // === SISTEMA DE ANUNCIANTES (ORGANIZADO) ===
 import AnunciePage from "@/components/anunciantes/AnunciePage.vue";
@@ -83,6 +84,11 @@ const router = createRouter({
       component: TermsConditions,
     },
     { path: "/privacypolicy", name: "privacypolicy", component: PrivacyPolicy },
+    {
+      path: "/pagamento-sucesso",
+      name: "PagamentoSucesso",
+      component: PagamentoSucesso,
+    },
 
     // === ROTAS DO SISTEMA DE ANÚNCIOS (CORRETAS E ORGANIZADAS) ===
     {
