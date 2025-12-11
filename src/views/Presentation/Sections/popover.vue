@@ -25,10 +25,11 @@ onMounted(() => {
           data-bs-container="body"
           data-bs-toggle="popover"
           data-bs-placement="top"
-          data-bs-content="Pesquise seu nome e veja se seu documento já foi registrado!">
+          data-bs-content="Pesquise seu nome e veja se seu documento já foi registrado!"
+        >
           Como funciona?
         </MaterialButton>
-        
+
         <MaterialButton
           class="mx-2"
           variant="gradient"
@@ -36,7 +37,8 @@ onMounted(() => {
           data-bs-container="body"
           data-bs-toggle="popover"
           data-bs-placement="right"
-          data-bs-content="Cadastre um alerta e avisamos quando seu documento for encontrado!">
+          data-bs-content="Cadastre um alerta e avisamos quando seu documento for encontrado!"
+        >
           E se não encontrar?
         </MaterialButton>
 
@@ -46,7 +48,8 @@ onMounted(() => {
           data-bs-container="body"
           data-bs-toggle="popover"
           data-bs-placement="bottom"
-          data-bs-content="Qualquer pessoa que encontrou um documento pode registrá-lo aqui!">
+          data-bs-content="Qualquer pessoa que encontrou um documento pode registrá-lo aqui!"
+        >
           Quem pode cadastrar?
         </MaterialButton>
 
@@ -57,7 +60,8 @@ onMounted(() => {
           data-bs-container="body"
           data-bs-toggle="popover"
           data-bs-placement="left"
-          data-bs-content=" Sim! Mostramos apenas o necessário para a recuperação segura do documento.">
+          data-bs-content=" Sim! Mostramos apenas o necessário para a recuperação segura do documento."
+        >
           É seguro?
         </MaterialButton>
       </div>

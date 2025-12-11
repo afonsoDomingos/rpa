@@ -14,9 +14,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import api from '@/api'
-import { Bar } from 'vue-chartjs'
+import { ref, computed, onMounted } from "vue";
+import api from "@/api";
+import { Bar } from "vue-chartjs";
 import {
   Chart as ChartJS,
   Title,
@@ -24,111 +24,120 @@ import {
   Legend,
   BarElement,
   CategoryScale,
+  LinearScale,
+} from "chart.js";
+
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
   LinearScale
-} from 'chart.js'
+);
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
-
-const documentos = ref([])
+const documentos = ref([]);
 
 // Carregando documentos para o gráfico
 onMounted(async () => {
   try {
-    const { data } = await api.get('/documentos') // Supondo que os dados vêm com 'provincia' e 'tipo_documento'
-    documentos.value = data
+    const { data } = await api.get("/documentos"); // Supondo que os dados vêm com 'provincia' e 'tipo_documento'
+    documentos.value = data;
   } catch (error) {
-    console.error('Erro ao carregar os documentos:', error)
+    console.error("Erro ao carregar os documentos:", error);
   }
-})
+});
 
 // Gráfico de Documentos Reportados por Província
 const provinciaReportadaChartData = computed(() => {
   const contagemPorProvincia = documentos.value.reduce((acc, doc) => {
-    if (doc.origem === 'reportado') {  // Apenas contando os reportados
-      const prov = doc.provincia || 'Não especificado'
-      acc[prov] = (acc[prov] || 0) + 1
+    if (doc.origem === "reportado") {
+      // Apenas contando os reportados
+      const prov = doc.provincia || "Não especificado";
+      acc[prov] = (acc[prov] || 0) + 1;
     }
-    return acc
-  }, {})
+    return acc;
+  }, {});
 
   return {
     labels: Object.keys(contagemPorProvincia),
     datasets: [
       {
-        label: 'Documentos Reportados por Província',
+        label: "Documentos Reportados por Província",
         data: Object.values(contagemPorProvincia),
-        backgroundColor: '#800080', // Cor roxa para as barras
-        borderColor: '#4CAF50', // Cor verde para a borda
+        backgroundColor: "#800080", // Cor roxa para as barras
+        borderColor: "#4CAF50", // Cor verde para a borda
         borderWidth: 2,
-        hoverBackgroundColor: '#9B30B0', // Cor de hover mais suave para o roxo
-        hoverBorderColor: '#388E3C', // Cor de borda de hover mais suave
-        borderRadius: 5 // Barras com bordas arredondadas
-      }
-    ]
-  }
-})
+        hoverBackgroundColor: "#9B30B0", // Cor de hover mais suave para o roxo
+        hoverBorderColor: "#388E3C", // Cor de borda de hover mais suave
+        borderRadius: 5, // Barras com bordas arredondadas
+      },
+    ],
+  };
+});
 
 // Gráfico de Documentos Reportados por Tipo
 const tipoDocumentoReportadoChartData = computed(() => {
   const contagemPorTipo = documentos.value.reduce((acc, doc) => {
-    if (doc.origem === 'reportado') {  // Apenas contando os reportados
-      const tipo = doc.tipo_documento || 'Não especificado'
-      acc[tipo] = (acc[tipo] || 0) + 1
+    if (doc.origem === "reportado") {
+      // Apenas contando os reportados
+      const tipo = doc.tipo_documento || "Não especificado";
+      acc[tipo] = (acc[tipo] || 0) + 1;
     }
-    return acc
-  }, {})
+    return acc;
+  }, {});
 
   return {
     labels: Object.keys(contagemPorTipo),
     datasets: [
       {
-        label: 'Documentos Reportados por Tipo',
+        label: "Documentos Reportados por Tipo",
         data: Object.values(contagemPorTipo),
-        backgroundColor: '#4CAF50', // Cor verde para as barras
-        borderColor: '#800080', // Cor roxa para a borda
+        backgroundColor: "#4CAF50", // Cor verde para as barras
+        borderColor: "#800080", // Cor roxa para a borda
         borderWidth: 2,
-        hoverBackgroundColor: '#66BB6A', // Cor de hover mais suave para o verde
-        hoverBorderColor: '#4C6F1F', // Cor de borda de hover mais suave
-        borderRadius: 5 // Barras com bordas arredondadas
-      }
-    ]
-  }
-})
+        hoverBackgroundColor: "#66BB6A", // Cor de hover mais suave para o verde
+        hoverBorderColor: "#4C6F1F", // Cor de borda de hover mais suave
+        borderRadius: 5, // Barras com bordas arredondadas
+      },
+    ],
+  };
+});
 
 // Opções de Configuração do Gráfico
 const chartOptions = {
   responsive: true,
   plugins: {
     legend: {
-      position: 'top',
+      position: "top",
       labels: {
         font: {
-          family: 'Arial, sans-serif',
+          family: "Arial, sans-serif",
           size: 14,
-          weight: 'bold'
+          weight: "bold",
         },
-        padding: 20
-      }
+        padding: 20,
+      },
     },
     title: {
       display: true,
-      text: 'Distribuição de Documentos Reportados',
+      text: "Distribuição de Documentos Reportados",
       font: {
-        family: 'Arial, sans-serif',
+        family: "Arial, sans-serif",
         size: 18,
-        weight: 'bold'
+        weight: "bold",
       },
       padding: {
-        bottom: 20
-      }
+        bottom: 20,
+      },
     },
   },
   maintainAspectRatio: false, // Permite controlar a altura do gráfico
   animation: {
     duration: 1000, // Duração da animação
-    easing: 'easeOutElastic' // Tipo de animação mais elástico
-  }
-}
+    easing: "easeOutElastic", // Tipo de animação mais elástico
+  },
+};
 </script>
 
 <style scoped>

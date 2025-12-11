@@ -18,13 +18,13 @@ import DefaultInfoCard from "../../../examples/cards/infoCards/DefaultInfoCard.v
             />
 
             <RotatingCardBack
-            
               image=""
               title="Recupera Aqui"
               description="Nossa plataforma cuida de tudo: basta registrar a perda, e nossa equipe encontra e entrega seu documento de volta, de maneira rápida e sem complicação."
               :action="[
                 {
-                  route: 'https://docs.google.com/forms/d/e/1FAIpQLSdLO0mga6ygr6oVlCHQ6Hgt48baiZuQlXTzPRYynhXv0etD3g/viewform',
+                  route:
+                    'https://docs.google.com/forms/d/e/1FAIpQLSdLO0mga6ygr6oVlCHQ6Hgt48baiZuQlXTzPRYynhXv0etD3g/viewform',
                   label: 'Reportar',
                 },
               ]"
@@ -57,7 +57,6 @@ import DefaultInfoCard from "../../../examples/cards/infoCards/DefaultInfoCard.v
               title="Recuperação e Entrega"
               description="Assim que o documento for encontrado, nós o entregamos diretamente a você."
             />
-            
           </div>
         </div>
       </div>

@@ -17,7 +17,8 @@ onMounted(() => {
         <div class="col-md-6 m-auto">
           <h4>Fique Sempre Atualizado!</h4>
           <p class="mb-4">
-            Seja o primeiro a receber notificações sobre documentos encontrados!.
+            Seja o primeiro a receber notificações sobre documentos
+            encontrados!.
           </p>
           <div class="row">
             <div class="col-8">

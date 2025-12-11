@@ -6,48 +6,58 @@
       </div>
     </div>
   </div>
-  
-  <br/><br/><br/>
-  
-  <div class="container-fluid pag-container-fluid py-4 my-4 shadow-sm rounded borda-destacada pag-container-responsive">
-     Alerta de Renovação 
+
+  <br /><br /><br />
+
+  <div
+    class="container-fluid pag-container-fluid py-4 my-4 shadow-sm rounded borda-destacada pag-container-responsive"
+  >
+    Alerta de Renovação
     <transition name="fade">
-      <div 
-        v-if="alertaRenovacao.mostrar" 
-        :class="['alert', 'd-flex', 'align-items-center', 'gap-2', alertaRenovacao.tipo === 'danger' ? 'alert-danger' : 'alert-warning']" 
-        role="alert" 
-        style="max-width: 700px; margin: 0 auto 1.5rem auto;"
+      <div
+        v-if="alertaRenovacao.mostrar"
+        :class="[
+          'alert',
+          'd-flex',
+          'align-items-center',
+          'gap-2',
+          alertaRenovacao.tipo === 'danger' ? 'alert-danger' : 'alert-warning',
+        ]"
+        role="alert"
+        style="max-width: 700px; margin: 0 auto 1.5rem auto"
       >
-        <i class="material-icons">{{ alertaRenovacao.tipo === 'danger' ? 'error' : 'warning' }}</i>
+        <i class="material-icons">{{
+          alertaRenovacao.tipo === "danger" ? "error" : "warning"
+        }}</i>
         <span>{{ alertaRenovacao.texto }}</span>
       </div>
     </transition>
 
-     Usuário Dropdown 
-    <li 
-      v-if="usuario" 
-      class="nav-item dropdown dropdown-hover mx-auto mb-4" 
-      style="list-style: none; max-width: 320px;"
+    Usuário Dropdown
+    <li
+      v-if="usuario"
+      class="nav-item dropdown dropdown-hover mx-auto mb-4"
+      style="list-style: none; max-width: 320px"
     >
-      <a 
-        role="button" 
-        class="nav-link ps-2 d-flex cursor-pointer align-items-center justify-content-center border rounded-pill px-4 py-2 user-dropdown" 
-        id="dropdownUser" 
-        data-bs-toggle="dropdown" 
+      <a
+        role="button"
+        class="nav-link ps-2 d-flex cursor-pointer align-items-center justify-content-center border rounded-pill px-4 py-2 user-dropdown"
+        id="dropdownUser"
+        data-bs-toggle="dropdown"
         aria-expanded="false"
         aria-label="Menu do usuário"
       >
         <i class="material-icons opacity-6 me-2 text-md">person</i>
-        <span class="fw-semibold">{{ usuario.nome || 'Usuário' }}</span>
+        <span class="fw-semibold">{{ usuario.nome || "Usuário" }}</span>
         <i class="material-icons ms-2 text-sm">expand_more</i>
       </a>
-      <ul 
-        class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 border-radius-lg" 
+      <ul
+        class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 border-radius-lg"
         aria-labelledby="dropdownUser"
       >
         <li>
-          <button 
-            class="dropdown-item border-radius-md text-danger d-flex align-items-center gap-2" 
+          <button
+            class="dropdown-item border-radius-md text-danger d-flex align-items-center gap-2"
             @click="logout"
           >
             <i class="material-icons text-sm">logout</i>
@@ -57,7 +67,7 @@
       </ul>
     </li>
 
-     Resumo Financeiro 
+    Resumo Financeiro
     <div class="mb-4 resumo-financeiro-container">
       <div class="resumo-card">
         <div class="resumo-icon bg-gradient-primary">
@@ -76,7 +86,11 @@
         <div class="resumo-content">
           <span class="resumo-label">Último Pagamento</span>
           <span class="resumo-value-small">
-            {{ ultimoPagamento ? formatarData(ultimoPagamento.dataPagamento) : "-" }}
+            {{
+              ultimoPagamento
+                ? formatarData(ultimoPagamento.dataPagamento)
+                : "-"
+            }}
           </span>
           <span v-if="ultimoPagamento" class="resumo-subtext">
             MZN {{ ultimoPagamento.valor.toFixed(2) }}
@@ -95,8 +109,8 @@
       </div>
 
       <div class="resumo-card resumo-card-action">
-        <button 
-          @click="exportarCSV" 
+        <button
+          @click="exportarCSV"
           class="btn btn-gradient-primary w-100 d-flex align-items-center justify-content-center gap-2"
           :disabled="pagamentos.length === 0"
           aria-label="Exportar pagamentos para CSV"
@@ -107,14 +121,16 @@
       </div>
     </div>
 
-     Filtros 
+    Filtros
     <div class="mb-4 filtros-container">
       <div class="filtros-wrapper">
         <div class="filtro-group">
-          <label for="filtroStatus" class="visually-hidden">Filtrar por status</label>
-          <select 
+          <label for="filtroStatus" class="visually-hidden"
+            >Filtrar por status</label
+          >
+          <select
             id="filtroStatus"
-            v-model="filtros.status" 
+            v-model="filtros.status"
             class="form-select form-select-sm filtro-select"
             aria-label="Filtrar por status"
           >
@@ -127,33 +143,41 @@
         </div>
 
         <div class="filtro-group">
-          <label for="filtroPacote" class="visually-hidden">Filtrar por pacote</label>
-          <select 
+          <label for="filtroPacote" class="visually-hidden"
+            >Filtrar por pacote</label
+          >
+          <select
             id="filtroPacote"
-            v-model="filtros.pacote" 
+            v-model="filtros.pacote"
             class="form-select form-select-sm filtro-select"
             aria-label="Filtrar por pacote"
           >
             <option value="">Todos os pacotes</option>
-            <option v-for="p in pacotesUnicos" :key="p" :value="p">{{ p }}</option>
+            <option v-for="p in pacotesUnicos" :key="p" :value="p">
+              {{ p }}
+            </option>
           </select>
         </div>
 
         <div class="filtro-group">
-          <label for="filtroForma" class="visually-hidden">Filtrar por forma de pagamento</label>
-          <select 
+          <label for="filtroForma" class="visually-hidden"
+            >Filtrar por forma de pagamento</label
+          >
+          <select
             id="filtroForma"
-            v-model="filtros.formaPagamento" 
+            v-model="filtros.formaPagamento"
             class="form-select form-select-sm filtro-select"
             aria-label="Filtrar por forma de pagamento"
           >
             <option value="">Todas as formas</option>
-            <option v-for="f in formasUnicas" :key="f" :value="f">{{ f }}</option>
+            <option v-for="f in formasUnicas" :key="f" :value="f">
+              {{ f }}
+            </option>
           </select>
         </div>
 
-        <button 
-          class="btn btn-outline-light btn-sm filtro-limpar" 
+        <button
+          class="btn btn-outline-light btn-sm filtro-limpar"
           @click="limparFiltros"
           :disabled="!temFiltrosAtivos"
           aria-label="Limpar todos os filtros"
@@ -163,17 +187,21 @@
         </button>
       </div>
 
-       Contador de resultados 
+      Contador de resultados
       <div v-if="temFiltrosAtivos" class="filtros-info mt-2 text-center">
         <small class="text-light">
-          Mostrando {{ pagamentosFiltrados.length }} de {{ pagamentos.length }} pagamento(s)
+          Mostrando {{ pagamentosFiltrados.length }} de
+          {{ pagamentos.length }} pagamento(s)
         </small>
       </div>
     </div>
 
-     Loading / Erro 
+    Loading / Erro
     <transition name="fade">
-      <div v-if="loading" class="alert alert-info text-center d-flex align-items-center justify-content-center gap-2">
+      <div
+        v-if="loading"
+        class="alert alert-info text-center d-flex align-items-center justify-content-center gap-2"
+      >
         <div class="spinner-border spinner-border-sm" role="status">
           <span class="visually-hidden">Carregando...</span>
         </div>
@@ -182,17 +210,22 @@
     </transition>
 
     <transition name="fade">
-      <div v-if="erro" class="alert alert-danger text-center d-flex align-items-center justify-content-center gap-2">
+      <div
+        v-if="erro"
+        class="alert alert-danger text-center d-flex align-items-center justify-content-center gap-2"
+      >
         <i class="material-icons">error</i>
         {{ erro }}
       </div>
     </transition>
 
-     Conteúdo 
+    Conteúdo
     <div v-if="!loading && !erro">
-       Desktop Table 
+      Desktop Table
       <div class="table-responsive d-none d-md-block">
-        <table class="table table-dark table-hover align-middle mb-0 payments-table">
+        <table
+          class="table table-dark table-hover align-middle mb-0 payments-table"
+        >
           <thead class="table-header-gradient">
             <tr>
               <th scope="col">Pacote</th>
@@ -205,18 +238,18 @@
             </tr>
           </thead>
           <tbody>
-            <tr 
-              v-for="pag in paginaAtual" 
-              :key="pag._id" 
-              @mouseenter="hoverId = pag._id" 
-              @mouseleave="hoverId = null" 
-              :class="{ 'table-active-dark': hoverId === pag._id }" 
+            <tr
+              v-for="pag in paginaAtual"
+              :key="pag._id"
+              @mouseenter="hoverId = pag._id"
+              @mouseleave="hoverId = null"
+              :class="{ 'table-active-dark': hoverId === pag._id }"
               class="payment-row"
             >
               <td class="fw-semibold">{{ pag.pacote }}</td>
               <td>
-                <span 
-                  class="badge status-badge" 
+                <span
+                  class="badge status-badge"
                   :class="getStatusClass(pag.status)"
                 >
                   {{ pag.status }}
@@ -225,12 +258,22 @@
               <td>{{ pag.formaPagamento }}</td>
               <td class="fw-semibold">{{ Number(pag.valor).toFixed(2) }}</td>
               <td>{{ formatarData(pag.dataPagamento) }}</td>
-              <td :class="pag.status === 'pago' ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).classe : 'text-muted'">
-                {{ pag.status === 'pago' ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).texto : '-' }}
+              <td
+                :class="
+                  pag.status === 'pago'
+                    ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).classe
+                    : 'text-muted'
+                "
+              >
+                {{
+                  pag.status === "pago"
+                    ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).texto
+                    : "-"
+                }}
               </td>
               <td class="text-center">
-                <button 
-                  @click="abrirDetalhes(pag)" 
+                <button
+                  @click="abrirDetalhes(pag)"
                   class="btn btn-gradient-primary btn-sm btn-action"
                   aria-label="Ver detalhes do pagamento"
                 >
@@ -243,12 +286,12 @@
         </table>
       </div>
 
-       Mobile Cards 
+      Mobile Cards
       <div class="d-md-none">
-        <div 
-          v-for="pag in paginaAtual" 
-          :key="pag._id" 
-          class="card mb-3 shadow-sm payment-card-dark" 
+        <div
+          v-for="pag in paginaAtual"
+          :key="pag._id"
+          class="card mb-3 shadow-sm payment-card-dark"
           @click="abrirDetalhes(pag)"
           role="button"
           tabindex="0"
@@ -258,14 +301,14 @@
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-2">
               <h5 class="card-title mb-0 text-light">{{ pag.pacote }}</h5>
-              <span 
-                class="badge status-badge" 
+              <span
+                class="badge status-badge"
                 :class="getStatusClass(pag.status)"
               >
                 {{ pag.status }}
               </span>
             </div>
-            
+
             <div class="payment-details">
               <div class="detail-row">
                 <span class="detail-label">
@@ -274,33 +317,46 @@
                 </span>
                 <span class="detail-value">{{ pag.formaPagamento }}</span>
               </div>
-              
+
               <div class="detail-row">
                 <span class="detail-label">
                   <i class="material-icons text-sm">attach_money</i>
                   Preço:
                 </span>
-                <span class="detail-value fw-bold">MZN {{ Number(pag.valor).toFixed(2) }}</span>
+                <span class="detail-value fw-bold"
+                  >MZN {{ Number(pag.valor).toFixed(2) }}</span
+                >
               </div>
-              
+
               <div class="detail-row">
                 <span class="detail-label">
                   <i class="material-icons text-sm">calendar_today</i>
                   Data:
                 </span>
-                <span class="detail-value">{{ formatarData(pag.dataPagamento) }}</span>
+                <span class="detail-value">{{
+                  formatarData(pag.dataPagamento)
+                }}</span>
               </div>
-              
+
               <div class="detail-row">
                 <span class="detail-label">
                   <i class="material-icons text-sm">schedule</i>
                   Validade:
                 </span>
-                <span 
-                  class="detail-value" 
-                  :class="pag.status === 'pago' ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).classe : 'text-muted'"
+                <span
+                  class="detail-value"
+                  :class="
+                    pag.status === 'pago'
+                      ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote)
+                          .classe
+                      : 'text-muted'
+                  "
                 >
-                  {{ pag.status === 'pago' ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).texto : '-' }}
+                  {{
+                    pag.status === "pago"
+                      ? diasParaExpirarInfo(pag.dataPagamento, pag.pacote).texto
+                      : "-"
+                  }}
                 </span>
               </div>
             </div>
@@ -308,29 +364,28 @@
         </div>
       </div>
 
-       Paginação 
-      <nav 
-        v-if="paginas > 1" 
-        aria-label="Navegação de páginas" 
-        class="mt-4"
-      >
+      Paginação
+      <nav v-if="paginas > 1" aria-label="Navegação de páginas" class="mt-4">
         <div class="pagination-container">
-          <button 
-            class="btn btn-gradient-primary pagination-btn pagination-btn-prev" 
-            @click="mudarPagina(paginaAtualIndex - 1)" 
+          <button
+            class="btn btn-gradient-primary pagination-btn pagination-btn-prev"
+            @click="mudarPagina(paginaAtualIndex - 1)"
             :disabled="paginaAtualIndex === 1"
             aria-label="Página anterior"
           >
             <i class="material-icons">chevron_left</i>
             <span class="d-none d-sm-inline ms-2">Anterior</span>
           </button>
-          
+
           <div class="pagination-numbers">
-            <button 
-              v-for="p in paginasVisiveis" 
-              :key="p" 
-              class="btn pagination-number" 
-              :class="{ 'active': p === paginaAtualIndex, 'disabled': typeof p === 'string' }"
+            <button
+              v-for="p in paginasVisiveis"
+              :key="p"
+              class="btn pagination-number"
+              :class="{
+                active: p === paginaAtualIndex,
+                disabled: typeof p === 'string',
+              }"
               @click="typeof p === 'number' && mudarPagina(p)"
               :disabled="typeof p === 'string'"
               :aria-label="`Página ${p}`"
@@ -339,10 +394,10 @@
               {{ p }}
             </button>
           </div>
-          
-          <button 
-            class="btn btn-gradient-primary pagination-btn pagination-btn-next" 
-            @click="mudarPagina(paginaAtualIndex + 1)" 
+
+          <button
+            class="btn btn-gradient-primary pagination-btn pagination-btn-next"
+            @click="mudarPagina(paginaAtualIndex + 1)"
             :disabled="paginaAtualIndex === paginas"
             aria-label="Próxima página"
           >
@@ -352,18 +407,22 @@
         </div>
       </nav>
 
-       Empty State 
-      <div 
-        v-if="pagamentosFiltrados.length === 0" 
+      Empty State
+      <div
+        v-if="pagamentosFiltrados.length === 0"
         class="alert alert-warning text-center empty-state"
       >
-        <i class="material-icons mb-2" style="font-size: 48px;">inbox</i>
+        <i class="material-icons mb-2" style="font-size: 48px">inbox</i>
         <p class="mb-0">
-          {{ temFiltrosAtivos ? 'Nenhum pagamento encontrado com os filtros aplicados.' : 'Nenhum pagamento encontrado.' }}
+          {{
+            temFiltrosAtivos
+              ? "Nenhum pagamento encontrado com os filtros aplicados."
+              : "Nenhum pagamento encontrado."
+          }}
         </p>
-        <button 
-          v-if="temFiltrosAtivos" 
-          @click="limparFiltros" 
+        <button
+          v-if="temFiltrosAtivos"
+          @click="limparFiltros"
           class="btn btn-sm btn-outline-warning mt-2"
         >
           Limpar filtros
@@ -371,79 +430,145 @@
       </div>
     </div>
 
-     Modal de Detalhes 
-    <div 
-      class="modal fade" 
-      id="modalDetalhes" 
-      tabindex="-1" 
-      aria-labelledby="modalDetalhesLabel" 
-      aria-hidden="true" 
+    Modal de Detalhes
+    <div
+      class="modal fade"
+      id="modalDetalhes"
+      tabindex="-1"
+      aria-labelledby="modalDetalhesLabel"
+      aria-hidden="true"
       ref="modalRef"
     >
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content modal-dark">
           <div class="modal-header modal-header-gradient">
-            <h5 class="modal-title d-flex align-items-center gap-2 text-white" id="modalDetalhesLabel">
+            <h5
+              class="modal-title d-flex align-items-center gap-2 text-white"
+              id="modalDetalhesLabel"
+            >
               <i class="material-icons">receipt_long</i>
               Detalhes do Pagamento
             </h5>
-            <button 
-              type="button" 
-              class="btn-close btn-close-white" 
-              data-bs-dismiss="modal" 
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
               aria-label="Fechar modal"
               @click="fecharModal"
             ></button>
           </div>
           <div class="modal-body" v-if="pagamentoSelecionado">
             <ul class="list-group list-group-flush">
-              <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center">
-                <strong><i class="material-icons text-sm me-2">category</i>Pacote:</strong>
+              <li
+                class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center"
+              >
+                <strong
+                  ><i class="material-icons text-sm me-2">category</i
+                  >Pacote:</strong
+                >
                 <span>{{ pagamentoSelecionado.pacote }}</span>
               </li>
-              <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center">
-                <strong><i class="material-icons text-sm me-2">info</i>Status:</strong>
-                <span 
-                  class="badge status-badge" 
+              <li
+                class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center"
+              >
+                <strong
+                  ><i class="material-icons text-sm me-2">info</i
+                  >Status:</strong
+                >
+                <span
+                  class="badge status-badge"
                   :class="getStatusClass(pagamentoSelecionado.status)"
                 >
                   {{ pagamentoSelecionado.status }}
                 </span>
               </li>
-              <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center">
-                <strong><i class="material-icons text-sm me-2">payment</i>Forma:</strong>
+              <li
+                class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center"
+              >
+                <strong
+                  ><i class="material-icons text-sm me-2">payment</i
+                  >Forma:</strong
+                >
                 <span>{{ pagamentoSelecionado.formaPagamento }}</span>
               </li>
-              <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center">
-                <strong><i class="material-icons text-sm me-2">attach_money</i>Preço:</strong>
-                <span class="fw-bold">MZN {{ Number(pagamentoSelecionado.valor).toFixed(2) }}</span>
-              </li>
-              <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center">
-                <strong><i class="material-icons text-sm me-2">calendar_today</i>Data:</strong>
-                <span>{{ formatarData(pagamentoSelecionado.dataPagamento) }}</span>
-              </li>
-              <li 
+              <li
                 class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center"
-                :class="pagamentoSelecionado.status === 'pago' ? diasParaExpirarInfo(pagamentoSelecionado.dataPagamento, pagamentoSelecionado.pacote).classe : 'text-muted'"
               >
-                <strong><i class="material-icons text-sm me-2">schedule</i>Validade:</strong>
+                <strong
+                  ><i class="material-icons text-sm me-2">attach_money</i
+                  >Preço:</strong
+                >
+                <span class="fw-bold"
+                  >MZN {{ Number(pagamentoSelecionado.valor).toFixed(2) }}</span
+                >
+              </li>
+              <li
+                class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center"
+              >
+                <strong
+                  ><i class="material-icons text-sm me-2">calendar_today</i
+                  >Data:</strong
+                >
+                <span>{{
+                  formatarData(pagamentoSelecionado.dataPagamento)
+                }}</span>
+              </li>
+              <li
+                class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center"
+                :class="
+                  pagamentoSelecionado.status === 'pago'
+                    ? diasParaExpirarInfo(
+                        pagamentoSelecionado.dataPagamento,
+                        pagamentoSelecionado.pacote
+                      ).classe
+                    : 'text-muted'
+                "
+              >
+                <strong
+                  ><i class="material-icons text-sm me-2">schedule</i
+                  >Validade:</strong
+                >
                 <span>
-                  {{ pagamentoSelecionado.status === 'pago' ? diasParaExpirarInfo(pagamentoSelecionado.dataPagamento, pagamentoSelecionado.pacote).texto : '-' }}
+                  {{
+                    pagamentoSelecionado.status === "pago"
+                      ? diasParaExpirarInfo(
+                          pagamentoSelecionado.dataPagamento,
+                          pagamentoSelecionado.pacote
+                        ).texto
+                      : "-"
+                  }}
                 </span>
               </li>
-              <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center">
-                <strong><i class="material-icons text-sm me-2">tag</i>Referência:</strong>
+              <li
+                class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center"
+              >
+                <strong
+                  ><i class="material-icons text-sm me-2">tag</i
+                  >Referência:</strong
+                >
                 <span>{{ pagamentoSelecionado.referencia || "-" }}</span>
               </li>
               <li class="list-group-item list-group-item-dark">
-                <strong class="d-block mb-2"><i class="material-icons text-sm me-2">description</i>Descrição:</strong>
-                <span>{{ pagamentoSelecionado.descricao || "Nenhuma descrição disponível" }}</span>
+                <strong class="d-block mb-2"
+                  ><i class="material-icons text-sm me-2">description</i
+                  >Descrição:</strong
+                >
+                <span>{{
+                  pagamentoSelecionado.descricao ||
+                  "Nenhuma descrição disponível"
+                }}</span>
               </li>
-              <li class="list-group-item list-group-item-dark" v-if="pagamentoSelecionado.comprovante">
-                <strong class="d-block mb-2"><i class="material-icons text-sm me-2">attachment</i>Comprovante:</strong>
-                <a 
-                  :href="pagamentoSelecionado.comprovante" 
-                  target="_blank" 
+              <li
+                class="list-group-item list-group-item-dark"
+                v-if="pagamentoSelecionado.comprovante"
+              >
+                <strong class="d-block mb-2"
+                  ><i class="material-icons text-sm me-2">attachment</i
+                  >Comprovante:</strong
+                >
+                <a
+                  :href="pagamentoSelecionado.comprovante"
+                  target="_blank"
                   rel="noopener noreferrer"
                   class="btn btn-sm btn-gradient-primary"
                 >
@@ -454,10 +579,10 @@
             </ul>
           </div>
           <div class="modal-footer">
-            <button 
-              type="button" 
-              class="btn btn-secondary" 
-              data-bs-dismiss="modal" 
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
               @click="fecharModal"
             >
               Fechar
@@ -467,7 +592,7 @@
       </div>
     </div>
   </div>
-  
+
   <FooterDefault />
 </template>
 
@@ -499,56 +624,65 @@ const alertaRenovacao = computed(() => {
   if (!ultimoPagamento.value) {
     return { mostrar: false, texto: "", tipo: "" };
   }
-  const info = diasParaExpirarInfo(ultimoPagamento.value.dataPagamento, ultimoPagamento.value.pacote);
-  
+  const info = diasParaExpirarInfo(
+    ultimoPagamento.value.dataPagamento,
+    ultimoPagamento.value.pacote
+  );
+
   if (info.texto === "Expirado") {
-    return { 
-      mostrar: true, 
-      texto: "⚠️ Sua assinatura expirou. Renove para continuar usando o serviço.", 
-      tipo: "danger" 
+    return {
+      mostrar: true,
+      texto:
+        "⚠️ Sua assinatura expirou. Renove para continuar usando o serviço.",
+      tipo: "danger",
     };
   }
-  
+
   const match = info.texto.match(/Faltam (\d+)/);
   if (match && Number(match[1]) <= 3) {
-    return { 
-      mostrar: true, 
-      texto: `⏰ Sua assinatura expira em ${match[1]} dia${match[1] > 1 ? "s" : ""}. Renove para evitar interrupções.`, 
-      tipo: "warning" 
+    return {
+      mostrar: true,
+      texto: `⏰ Sua assinatura expira em ${match[1]} dia${
+        match[1] > 1 ? "s" : ""
+      }. Renove para evitar interrupções.`,
+      tipo: "warning",
     };
   }
-  
+
   return { mostrar: false, texto: "", tipo: "" };
 });
 
 // Computed - Filtros e Dados
-const pacotesUnicos = computed(() => 
-  [...new Set(pagamentos.value.map(p => p.pacote))].sort()
+const pacotesUnicos = computed(() =>
+  [...new Set(pagamentos.value.map((p) => p.pacote))].sort()
 );
 
-const formasUnicas = computed(() => 
-  [...new Set(pagamentos.value.map(p => p.formaPagamento))].sort()
+const formasUnicas = computed(() =>
+  [...new Set(pagamentos.value.map((p) => p.formaPagamento))].sort()
 );
 
 const pagamentosFiltrados = computed(() =>
-  pagamentos.value.filter((p) =>
-    (!filtros.value.status || p.status === filtros.value.status) &&
-    (!filtros.value.pacote || p.pacote === filtros.value.pacote) &&
-    (!filtros.value.formaPagamento || p.formaPagamento === filtros.value.formaPagamento)
+  pagamentos.value.filter(
+    (p) =>
+      (!filtros.value.status || p.status === filtros.value.status) &&
+      (!filtros.value.pacote || p.pacote === filtros.value.pacote) &&
+      (!filtros.value.formaPagamento ||
+        p.formaPagamento === filtros.value.formaPagamento)
   )
 );
 
-const temFiltrosAtivos = computed(() => 
-  filtros.value.status || filtros.value.pacote || filtros.value.formaPagamento
+const temFiltrosAtivos = computed(
+  () =>
+    filtros.value.status || filtros.value.pacote || filtros.value.formaPagamento
 );
 
-const paginas = computed(() => 
+const paginas = computed(() =>
   Math.ceil(pagamentosFiltrados.value.length / itensPorPagina)
 );
 
-const paginaAtual = computed(() => 
+const paginaAtual = computed(() =>
   pagamentosFiltrados.value.slice(
-    (paginaAtualIndex.value - 1) * itensPorPagina, 
+    (paginaAtualIndex.value - 1) * itensPorPagina,
     paginaAtualIndex.value * itensPorPagina
   )
 );
@@ -558,35 +692,41 @@ const paginasVisiveis = computed(() => {
   const atual = paginaAtualIndex.value;
   const delta = 2;
   const range = [];
-  
-  for (let i = Math.max(2, atual - delta); i <= Math.min(total - 1, atual + delta); i++) {
+
+  for (
+    let i = Math.max(2, atual - delta);
+    i <= Math.min(total - 1, atual + delta);
+    i++
+  ) {
     range.push(i);
   }
-  
+
   if (atual - delta > 2) {
-    range.unshift('...');
+    range.unshift("...");
   }
   if (atual + delta < total - 1) {
-    range.push('...');
+    range.push("...");
   }
-  
+
   range.unshift(1);
   if (total > 1) {
     range.push(total);
   }
-  
+
   return range.filter((v, i, a) => a.indexOf(v) === i);
 });
 
-const totalPago = computed(() => 
+const totalPago = computed(() =>
   pagamentosFiltrados.value
-    .filter(p => p.status === "pago")
+    .filter((p) => p.status === "pago")
     .reduce((a, b) => a + Number(b.valor), 0)
 );
 
-const ultimoPagamento = computed(() => 
-  [...pagamentosFiltrados.value.filter(p => p.status === "pago")]
-    .sort((a, b) => new Date(b.dataPagamento) - new Date(a.dataPagamento))[0] || null
+const ultimoPagamento = computed(
+  () =>
+    [...pagamentosFiltrados.value.filter((p) => p.status === "pago")].sort(
+      (a, b) => new Date(b.dataPagamento) - new Date(a.dataPagamento)
+    )[0] || null
 );
 
 // Functions
@@ -603,29 +743,33 @@ function diasParaExpirarInfo(dataISO, pacote) {
   const diffDias = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffDias < 0) return { texto: "Expirado", classe: "text-danger fw-bold" };
-  if (diffDias === 0) return { texto: "Expira hoje", classe: "text-warning fw-bold" };
-  return { texto: `Faltam ${diffDias} dia${diffDias > 1 ? "s" : ""}`, classe: "text-success fw-bold" };
+  if (diffDias === 0)
+    return { texto: "Expira hoje", classe: "text-warning fw-bold" };
+  return {
+    texto: `Faltam ${diffDias} dia${diffDias > 1 ? "s" : ""}`,
+    classe: "text-success fw-bold",
+  };
 }
 
 function formatarData(dataISO) {
-  return new Date(dataISO).toLocaleString("pt-MZ", { 
-    dateStyle: "short", 
-    timeStyle: "short" 
+  return new Date(dataISO).toLocaleString("pt-MZ", {
+    dateStyle: "short",
+    timeStyle: "short",
   });
 }
 
 function getStatusClass(status) {
   const classes = {
-    'pago': 'bg-success',
-    'pendente': 'bg-warning text-dark',
-    'cancelado': 'bg-danger',
-    'expirado': 'bg-danger'
+    pago: "bg-success",
+    pendente: "bg-warning text-dark",
+    cancelado: "bg-danger",
+    expirado: "bg-danger",
   };
-  return classes[status] || 'bg-secondary';
+  return classes[status] || "bg-secondary";
 }
 
 function mudarPagina(p) {
-  if (typeof p === 'number' && p >= 1 && p <= paginas.value) {
+  if (typeof p === "number" && p >= 1 && p <= paginas.value) {
     paginaAtualIndex.value = p;
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -650,9 +794,21 @@ function fecharModal() {
 }
 
 function exportarCSV() {
-  const headers = ["Pacote", "Status", "Forma", "Preço (MZN)", "Data", "Validade", "Referência", "Descrição"];
-  const rows = pagamentosFiltrados.value.map(p => {
-    const validade = p.status === 'pago' ? diasParaExpirarInfo(p.dataPagamento, p.pacote).texto : '-';
+  const headers = [
+    "Pacote",
+    "Status",
+    "Forma",
+    "Preço (MZN)",
+    "Data",
+    "Validade",
+    "Referência",
+    "Descrição",
+  ];
+  const rows = pagamentosFiltrados.value.map((p) => {
+    const validade =
+      p.status === "pago"
+        ? diasParaExpirarInfo(p.dataPagamento, p.pacote).texto
+        : "-";
     return [
       p.pacote,
       p.status,
@@ -661,16 +817,17 @@ function exportarCSV() {
       formatarData(p.dataPagamento),
       validade,
       p.referencia || "",
-      p.descricao || ""
+      p.descricao || "",
     ];
   });
 
-  const csv = "data:text/csv;charset=utf-8," + 
-    [headers.join(";"), ...rows.map(r => r.join(";"))].join("\n");
-  
+  const csv =
+    "data:text/csv;charset=utf-8," +
+    [headers.join(";"), ...rows.map((r) => r.join(";"))].join("\n");
+
   const link = document.createElement("a");
   link.href = encodeURI(csv);
-  link.download = `pagamentos_${new Date().toISOString().split('T')[0]}.csv`;
+  link.download = `pagamentos_${new Date().toISOString().split("T")[0]}.csv`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -685,10 +842,10 @@ async function buscarUsuario() {
   try {
     const email = localStorage.getItem("email");
     if (!email) return router.push("/");
-    
+
     const res = await api.get("/auth/usuarios");
-    usuario.value = res.data.find(u => u.email === email);
-    
+    usuario.value = res.data.find((u) => u.email === email);
+
     if (!usuario.value) router.push("/");
   } catch (err) {
     console.error("Erro ao buscar usuário:", err);
@@ -699,7 +856,7 @@ async function buscarUsuario() {
 async function carregarPagamentos() {
   loading.value = true;
   erro.value = "";
-  
+
   try {
     const res = await api.get("/pagamentos/meus");
     pagamentos.value = res.data.pagamentos || [];
@@ -719,10 +876,12 @@ onMounted(() => {
 
 <style scoped>
 /* Transitions */
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s ease;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 

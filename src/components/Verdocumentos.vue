@@ -4,10 +4,9 @@ import { ref, onMounted, onUnmounted, watch } from "vue"; // Importa funções d
 import MaterialSwitch from "@/components/MaterialSwitch.vue"; // Componente para um switch material
 import eventBus from "@/eventBus";
 
-import { Modal } from 'bootstrap';
+import { Modal } from "bootstrap";
 
-
-import { useRouter } from 'vue-router';
+import { useRouter } from "vue-router";
 const router = useRouter();
 
 //Vue Material Kit 2 components
@@ -33,25 +32,22 @@ onMounted(async () => {
 });
 
 // Campos para a aba "Cadastrar"
-const nome_completo = ref('');
-const tipo_documento = ref('');
-const numero_documento = ref('');
+const nome_completo = ref("");
+const tipo_documento = ref("");
+const numero_documento = ref("");
 //const data_perda = ref('');
-const provincia = ref('');
-const contacto = ref('');
-const origem = ref('');
-
-
+const provincia = ref("");
+const contacto = ref("");
+const origem = ref("");
 
 // Campos para a aba "Reportar"
-const protocolo = ref('');
+const protocolo = ref("");
 
 // Campos para a aba "Procurar"
-const nome_completoRec = ref('');
-const tipo_documentoRec = ref('');
-const provinciaRec = ref('');
-const numero_documentoRec = ref('');
-
+const nome_completoRec = ref("");
+const tipo_documentoRec = ref("");
+const provinciaRec = ref("");
+const numero_documentoRec = ref("");
 
 // Lista de documentos
 const documentosDisponiveis = ref([]);
@@ -60,63 +56,56 @@ const documentosProprietarios = ref([]);
 const documentosEncontrados = ref([]);
 const documentoSelecionado = ref(null);
 
-
-
-
 // Mensagens reativas para feedback
-const mensagemErro = ref('');
-const mensagemSucesso = ref('');
-const erroMensagem = ref('');
-const nomeError = ref(''); // Para armazenar erros do nome completo
-const contactoError = ref(''); // Variável para armazenar erros do contacto
-
+const mensagemErro = ref("");
+const mensagemSucesso = ref("");
+const erroMensagem = ref("");
+const nomeError = ref(""); // Para armazenar erros do nome completo
+const contactoError = ref(""); // Variável para armazenar erros do contacto
 
 // Função para obter a data de hoje no formato 'YYYY-MM-DD'
 const getHoje = () => {
-  const hoje = new Date()
-  const ano = hoje.getFullYear()
-  const mes = String(hoje.getMonth() + 1).padStart(2, '0')
-  const dia = String(hoje.getDate()).padStart(2, '0')
-  return `${ano}-${mes}-${dia}`
-}
-const data_perda = ref(getHoje())
-
+  const hoje = new Date();
+  const ano = hoje.getFullYear();
+  const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+  const dia = String(hoje.getDate()).padStart(2, "0");
+  return `${ano}-${mes}-${dia}`;
+};
+const data_perda = ref(getHoje());
 
 // Função de validação do nome completo
 const validarNome = () => {
   const nomeRegex = /^[A-Za-zÀ-ÿ\s]+$/; // Regex para letras e espaços
   if (!nome_completo.value) {
-    nomeError.value = 'O nome  é obrigatório.';
+    nomeError.value = "O nome  é obrigatório.";
     return false;
   } else if (!nomeRegex.test(nome_completo.value)) {
-    nomeError.value = 'O nome completo deve conter apenas letras.';
+    nomeError.value = "O nome completo deve conter apenas letras.";
     return false;
   }
-  nomeError.value = ''; // Limpa o erro se tudo estiver correto
+  nomeError.value = ""; // Limpa o erro se tudo estiver correto
   return true;
 };
-
 
 // Função de validação do contacto
 const validarContacto = () => {
   const contactoRegex = /^(84|85|86|87|83)\d{7}$/; // Regex para validar números que começam com 84, 85, 83, 86, 87 ou 83 e têm 9 dígitos
   if (!contacto.value) {
-    contactoError.value = 'O contacto é obrigatório.';
+    contactoError.value = "O contacto é obrigatório.";
     return false;
   } else if (!contactoRegex.test(contacto.value)) {
-    contactoError.value = 'O contacto deve conter 9 dígitos e começar com 84, 85, 86, 87 ou 83.';
+    contactoError.value =
+      "O contacto deve conter 9 dígitos e começar com 84, 85, 86, 87 ou 83.";
     return false;
   }
-  contactoError.value = ''; // Limpa o erro se tudo estiver correto
+  contactoError.value = ""; // Limpa o erro se tudo estiver correto
   return true;
 };
-
-
 
 // Função para buscar todos os documentos disponíveis
 const buscarDocumentos = async () => {
   try {
-    const response = await api.get('/documentos');
+    const response = await api.get("/documentos");
     documentosDisponiveis.value = response.data;
   } catch (error) {
     console.error("Erro ao buscar documentos:", error);
@@ -126,14 +115,12 @@ const buscarDocumentos = async () => {
   if (!validarNome() || !validarContacto()) {
     return; // Não prossegue se alguma validação falhar
   }
-
 };
-
 
 // Funções para buscar documentos específicos
 const buscarDocumentosReportados = async () => {
   try {
-    const response = await api.get('/documentos/reportados');
+    const response = await api.get("/documentos/reportados");
     documentosReportados.value = response.data;
   } catch (error) {
     console.error("Erro ao buscar documentos reportados:", error);
@@ -142,7 +129,7 @@ const buscarDocumentosReportados = async () => {
 
 const buscarDocumentosProprietarios = async () => {
   try {
-    const response = await api.get('/documentos/proprietarios');
+    const response = await api.get("/documentos/proprietarios");
     documentosProprietarios.value = response.data;
   } catch (error) {
     console.error("Erro ao buscar documentos proprietários:", error);
@@ -158,8 +145,8 @@ onMounted(() => {
 
 // Função para cadastrar um novo documento perdido
 const cadastrarDocumento = async () => {
-  mensagemErro.value = '';
-  mensagemSucesso.value = '';
+  mensagemErro.value = "";
+  mensagemSucesso.value = "";
 
   try {
     // Monta o objeto do novo documento
@@ -168,51 +155,51 @@ const cadastrarDocumento = async () => {
       tipo_documento: tipo_documento.value.trim(),
       numero_documento: numero_documento.value.trim(),
       provincia: provincia.value.trim(),
-      data_perda: data_perda.value,    // data no formato ISO (ex: 2023-07-07)
-      origem: origem.value.trim(),      // deve ser 'proprietario' ou 'reportado'
-      contacto: contacto.value.trim()
+      data_perda: data_perda.value, // data no formato ISO (ex: 2023-07-07)
+      origem: origem.value.trim(), // deve ser 'proprietario' ou 'reportado'
+      contacto: contacto.value.trim(),
     };
 
     // Pega o token JWT do localStorage para autenticação
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
-      mensagemErro.value = 'Usuário não autenticado.';
+      mensagemErro.value = "Usuário não autenticado.";
       return;
     }
 
     // Envia o POST para a rota /documentos com o token no header Authorization
-    const response = await api.post('/documentos', novoDocumento, {
+    const response = await api.post("/documentos", novoDocumento, {
       headers: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
-    console.log('Documento cadastrado com sucesso:', response.data);
+    console.log("Documento cadastrado com sucesso:", response.data);
 
     mensagemSucesso.value = `Documento cadastrado com sucesso: Nome: ${response.data.nome_completo}, Tipo: ${response.data.tipo_documento}, Número: ${response.data.numero_documento}, Província: ${response.data.provincia}, Data: ${response.data.data_perda}`;
 
     // Limpa os campos do formulário
-    nome_completo.value = '';
-    tipo_documento.value = '';
-    numero_documento.value = '';
-    provincia.value = '';
-    data_perda.value = '';
-    origem.value = '';
-    contacto.value = '';
+    nome_completo.value = "";
+    tipo_documento.value = "";
+    numero_documento.value = "";
+    provincia.value = "";
+    data_perda.value = "";
+    origem.value = "";
+    contacto.value = "";
 
     buscarDocumentos(); // Atualiza a lista de documentos
   } catch (error) {
-    console.error('Erro ao cadastrar documento:', error);
-    mensagemErro.value = error.response?.data?.message || 'Erro ao cadastrar. Verifique os dados e tente novamente.';
+    console.error("Erro ao cadastrar documento:", error);
+    mensagemErro.value =
+      error.response?.data?.message ||
+      "Erro ao cadastrar. Verifique os dados e tente novamente.";
   }
 };
-
 
 // Filtro de busca de documentos
 
 // Estado do filtro
 const tipoFiltro = ref("nome");
-
 
 // Watch para resetar os campos ao mudar o filtro
 watch(tipoFiltro, (novoValor) => {
@@ -222,7 +209,6 @@ watch(tipoFiltro, (novoValor) => {
   provinciaRec.value = "";
   numero_documentoRec.value = "";
 });
-
 
 // Função para procurar documentos
 const procurarDocumento = async () => {
@@ -237,10 +223,15 @@ const procurarDocumento = async () => {
     params.tipo_documento = tipo_documentoRec.value;
   } else if (tipoFiltro.value === "provincia" && provinciaRec.value) {
     params.provincia = provinciaRec.value;
-  } else if (tipoFiltro.value === "numero" && numero_documentoRec.value.trim()) { // Adiciona a condição para número de documento
+  } else if (
+    tipoFiltro.value === "numero" &&
+    numero_documentoRec.value.trim()
+  ) {
+    // Adiciona a condição para número de documento
     params.numero_documento = numero_documentoRec.value.trim();
   } else {
-    erroMensagem.value = "Por favor, preencha o campo correspondente ao filtro selecionado.";
+    erroMensagem.value =
+      "Por favor, preencha o campo correspondente ao filtro selecionado.";
     return;
   }
   try {
@@ -251,12 +242,12 @@ const procurarDocumento = async () => {
       erroMensagem.value = "Nenhum documento encontrado.";
     }
   } catch (error) {
-    erroMensagem.value = error.response?.data?.message || "Erro ao buscar documentos. Tente novamente.";
+    erroMensagem.value =
+      error.response?.data?.message ||
+      "Erro ao buscar documentos. Tente novamente.";
     console.error("Erro ao procurar documentos:", error);
   }
-
 };
-
 
 // Watch para resetar campos ao mudar de aba
 watch(activeTab, (novaAba) => {
@@ -268,32 +259,48 @@ watch(activeTab, (novaAba) => {
 
 // Lista de províncias
 const provincias = [
-  "Maputo", "Maputo Cidade", "Gaza", "Inhambane", "Sofala",
-  "Manica", "Tete", "Zambézia", "Nampula", "Niassa", "Cabo Delgado"
+  "Maputo",
+  "Maputo Cidade",
+  "Gaza",
+  "Inhambane",
+  "Sofala",
+  "Manica",
+  "Tete",
+  "Zambézia",
+  "Nampula",
+  "Niassa",
+  "Cabo Delgado",
 ];
 
 // Lista de tipos de documentos
 const tipo_documentos = [
-  "Bilhete de Identidade", "Passaporte", "Cartão de Eleitor",
-  "Cartão de Estudante", "Carta de Condução", "Seguro do Veículo",
-  "Livrete", "Cartão de Identidade Militar"
+  "Bilhete de Identidade",
+  "Passaporte",
+  "Cartão de Eleitor",
+  "Cartão de Estudante",
+  "Carta de Condução",
+  "Seguro do Veículo",
+  "Livrete",
+  "Cartão de Identidade Militar",
 ];
 
 // Função para reportar status da recuperação de um documento
 const reportarStatus = () => {
-  console.log('Protocolo de Recuperação:', protocolo.value, 'Nome:', nome_completo.value);
+  console.log(
+    "Protocolo de Recuperação:",
+    protocolo.value,
+    "Nome:",
+    nome_completo.value
+  );
 };
-
-
-
 
 const verificarAssinaturaAntesDeSolicitar = async (documento) => {
   try {
     const token = localStorage.getItem("token");
-    const response = await api.get('/pagamentos/assinatura/ativa', {
+    const response = await api.get("/pagamentos/assinatura/ativa", {
       headers: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (response.data.ativa) {
@@ -308,52 +315,63 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
       }
     } else {
       alert("Você precisa de uma assinatura ativa para solicitar documentos.");
-      router.push('/assinaturas');
+      router.push("/assinaturas");
     }
   } catch (error) {
     console.error("Erro ao verificar assinatura:", error);
     alert("Erro ao verificar assinatura. Tente novamente.");
   }
 };
-
-
 </script>
 
 <template>
   <section class="py-7">
     <div class="container">
       <!-- Conteúdo de Navegação -->
-<ul class="nav nav-pills nav-fill custom-nav p-2" role="tablist">
-  <li class="nav-item">
-    <a class="nav-link"
-       :class="{ active: activeTab === 'procurar' }"
-       @click.prevent="activeTab = 'procurar'"
-       role="tab"
-       aria-selected="true">
-      <i class="bi bi-search me-2"></i> Procurar
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link"
-       :class="{ active: activeTab === 'cadastrar' }"
-       @click.prevent="activeTab = 'cadastrar'"
-       role="tab"
-       aria-selected="false">
-      <i class="bi bi-flag me-2"></i> Reportar
-    </a>
-  </li>
-</ul>
+      <ul class="nav nav-pills nav-fill custom-nav p-2" role="tablist">
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            :class="{ active: activeTab === 'procurar' }"
+            @click.prevent="activeTab = 'procurar'"
+            role="tab"
+            aria-selected="true"
+          >
+            <i class="bi bi-search me-2"></i> Procurar
+          </a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            :class="{ active: activeTab === 'cadastrar' }"
+            @click.prevent="activeTab = 'cadastrar'"
+            role="tab"
+            aria-selected="false"
+          >
+            <i class="bi bi-flag me-2"></i> Reportar
+          </a>
+        </li>
+      </ul>
       <!-- Conteúdo das abas -->
       <div class="tab-content">
         <!-- Aba Procurar (Formulário para busca de documentos) -->
-        <div v-if="activeTab === 'procurar'" class="tab-pane fade show active" id="procurar-tabs-simple">
+        <div
+          v-if="activeTab === 'procurar'"
+          class="tab-pane fade show active"
+          id="procurar-tabs-simple"
+        >
           <form @submit.prevent="procurarDocumento" class="form">
             <div class="row">
               <!-- Seletor de Tipo de Filtro -->
               <div class="col-md-12 mb-3">
-                <label for="tipoFiltro" class="form-label fw-bold ">Escolha o tipo de filtro</label>
-                <select id="tipoFiltro" class="form-control borda-destacada form-select zoom-field"
-                  v-model="tipoFiltro">
+                <label for="tipoFiltro" class="form-label fw-bold"
+                  >Escolha o tipo de filtro</label
+                >
+                <select
+                  id="tipoFiltro"
+                  class="form-control borda-destacada form-select zoom-field"
+                  v-model="tipoFiltro"
+                >
                   <option value="nome">Nome Completo</option>
                   <option value="tipo">Tipo de Documento</option>
                   <option value="provincia">Província</option>
@@ -363,38 +381,78 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
 
               <!-- Campo para Nome Completo (Exibido se o filtro for por nome) -->
               <div v-if="tipoFiltro === 'nome'" class="col-md-12 mb-3">
-                <label for="nomeRec" class="form-label fw-bold">Nome Completo</label>
-                <input type="text" id="nomeRec" class="form-control borda-destacadanome" v-model="nome_completoRec"
-                  placeholder="Ex: João Silva" required />
+                <label for="nomeRec" class="form-label fw-bold"
+                  >Nome Completo</label
+                >
+                <input
+                  type="text"
+                  id="nomeRec"
+                  class="form-control borda-destacadanome"
+                  v-model="nome_completoRec"
+                  placeholder="Ex: João Silva"
+                  required
+                />
               </div>
-
-
 
               <!-- Campo para Tipo de Documento (Exibido se o filtro for por tipo) -->
               <div v-if="tipoFiltro === 'tipo'" class="col-md-12 mb-3">
-                <label for="tipoDocumento" class="form-label fw-bold">Tipo de Documento</label>
-                <select id="tipoDocumento" class="form-control borda-destacada form-select zoom-field"
-                  v-model="tipo_documentoRec" required>
-                  <option disabled value="">Selecione o Tipo de Documento</option>
-                  <option v-for="tipo in tipo_documentos" :key="tipo" :value="tipo">{{ tipo }}</option>
+                <label for="tipoDocumento" class="form-label fw-bold"
+                  >Tipo de Documento</label
+                >
+                <select
+                  id="tipoDocumento"
+                  class="form-control borda-destacada form-select zoom-field"
+                  v-model="tipo_documentoRec"
+                  required
+                >
+                  <option disabled value="">
+                    Selecione o Tipo de Documento
+                  </option>
+                  <option
+                    v-for="tipo in tipo_documentos"
+                    :key="tipo"
+                    :value="tipo"
+                  >
+                    {{ tipo }}
+                  </option>
                 </select>
               </div>
 
               <!-- Campo para Província (Exibido se o filtro for por província) -->
               <div v-if="tipoFiltro === 'provincia'" class="col-md-12 mb-3">
-                <label for="provinciaRec" class="form-label fw-bold">Província</label>
-                <select id="provinciaRec" class="form-control destacada form-select zoom-field" v-model="provinciaRec"
-                  required>
+                <label for="provinciaRec" class="form-label fw-bold"
+                  >Província</label
+                >
+                <select
+                  id="provinciaRec"
+                  class="form-control destacada form-select zoom-field"
+                  v-model="provinciaRec"
+                  required
+                >
                   <option disabled value="">Selecione a Província</option>
-                  <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                  <option
+                    v-for="provincia in provincias"
+                    :key="provincia"
+                    :value="provincia"
+                  >
+                    {{ provincia }}
+                  </option>
                 </select>
               </div>
 
               <!-- Campo para Número de Documento (Exibido se o filtro for por número) -->
               <div v-if="tipoFiltro === 'numero'" class="col-md-12 mb-3">
-                <label for="numero_documentoRec" class="form-label fw-bold">Número de Documento</label>
-                <input type="text" id="numero_documentoRec" class="form-control borda-destacada"
-                  v-model="numero_documentoRec" placeholder="Ex: 123456789" required />
+                <label for="numero_documentoRec" class="form-label fw-bold"
+                  >Número de Documento</label
+                >
+                <input
+                  type="text"
+                  id="numero_documentoRec"
+                  class="form-control borda-destacada"
+                  v-model="numero_documentoRec"
+                  placeholder="Ex: 123456789"
+                  required
+                />
               </div>
 
               <!-- Exibição da Mensagem de Erro -->
@@ -403,19 +461,32 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
               </div>-->
 
               <!-- Mensagem de erro com botão de redirecionamento -->
-              <div v-if="erroMensagem && documentosEncontrados.length === 0 && nome_completoRec"
-                class="text-center mt-4 p-4 rounded shadow-sm animate-fade-in" style="background-color: #f8f9fa;">
+              <div
+                v-if="
+                  erroMensagem &&
+                  documentosEncontrados.length === 0 &&
+                  nome_completoRec
+                "
+                class="text-center mt-4 p-4 rounded shadow-sm animate-fade-in"
+                style="background-color: #f8f9fa"
+              >
                 <p class="text-danger fw-bold fs-5 mb-3">{{ erroMensagem }}</p>
 
                 <!-- Mensagem motivacional -->
                 <p class="text-muted fst-italic fs-6 mensagem-motivacional">
-                  Não desanime {{ nome_completoRec.split(' ')[0] }}! Muitas pessoas encontram seus documentos depois de
-                  alguns dias, especialmente quando são
-                  registrados na plataforma.</p>
+                  Não desanime {{ nome_completoRec.split(" ")[0] }}! Muitas
+                  pessoas encontram seus documentos depois de alguns dias,
+                  especialmente quando são registrados na plataforma.
+                </p>
 
                 <!-- Botão com destaque -->
-                <button @click="activeTab = 'cadastrar'" class="btn btn-success btn-lg mt-3 px-4 py-2 btn-zoom"
-                  style="transition: 0.3s;" @mouseover="hover = true" @mouseleave="hover = false">
+                <button
+                  @click="activeTab = 'cadastrar'"
+                  class="btn btn-success btn-lg mt-3 px-4 py-2 btn-zoom"
+                  style="transition: 0.3s"
+                  @mouseover="hover = true"
+                  @mouseleave="hover = false"
+                >
                   📢 Não encontrou? Cadastre aqui
                 </button>
               </div>
@@ -423,7 +494,12 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
               <br />
               <!-- Botão para Procurar Documento -->
               <div class="text-center">
-                <button type="submit" class="btn btn-purple w-100 btn-lg shadow">Procurar</button>
+                <button
+                  type="submit"
+                  class="btn btn-purple w-100 btn-lg shadow"
+                >
+                  Procurar
+                </button>
               </div>
             </div>
           </form>
@@ -437,26 +513,26 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
                     <th>Nome</th>
                     <th>Tipo de Documento</th>
                     <th>Acção</th>
-
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="doc in documentosEncontrados" :key="doc.numero_documento" class="table-row">
+                  <tr
+                    v-for="doc in documentosEncontrados"
+                    :key="doc.numero_documento"
+                    class="table-row"
+                  >
                     <td>{{ doc.nome_completo }}</td>
                     <td>{{ doc.tipo_documento }}</td>
                     <td className="btn-zoom">
-
                       <!-- Button trigger modal -->
                       <MaterialButton
-  variant="gradient"
-  color="success"
-  @click="verificarAssinaturaAntesDeSolicitar(doc)"
->
-  Solicitar
-</MaterialButton>
-
+                        variant="gradient"
+                        color="success"
+                        @click="verificarAssinaturaAntesDeSolicitar(doc)"
+                      >
+                        Solicitar
+                      </MaterialButton>
                     </td>
-
                   </tr>
                 </tbody>
               </table>
@@ -465,57 +541,128 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
         </div>
 
         <!-- Aba Cadastrar (Formulario para cadastro de documentos) -->
-        <div v-if="activeTab === 'cadastrar'" class="tab-pane fade show active" id="cadastrar-tabs-simple">
+        <div
+          v-if="activeTab === 'cadastrar'"
+          class="tab-pane fade show active"
+          id="cadastrar-tabs-simple"
+        >
           <form @submit.prevent="cadastrarDocumento" class="form">
             <div class="row">
               <!-- Tipo de Documento -->
               <div class="col-md-12 mb-3">
-                <label for="tipoDocumento" class="form-label fw-bold">Tipo de Documento</label>
-                <select id="tipoDocumento" class="form-control borda-destacada form-select zoom-field"
-                  v-model="tipo_documento" required>
-                  <option disabled value="">Selecione o Tipo de Documento</option>
-                  <option v-for="tipo in tipo_documentos" :key="tipo" :value="tipo">{{ tipo }}</option>
+                <label for="tipoDocumento" class="form-label fw-bold"
+                  >Tipo de Documento</label
+                >
+                <select
+                  id="tipoDocumento"
+                  class="form-control borda-destacada form-select zoom-field"
+                  v-model="tipo_documento"
+                  required
+                >
+                  <option disabled value="">
+                    Selecione o Tipo de Documento
+                  </option>
+                  <option
+                    v-for="tipo in tipo_documentos"
+                    :key="tipo"
+                    :value="tipo"
+                  >
+                    {{ tipo }}
+                  </option>
                 </select>
               </div>
 
               <!-- Bilhete de Identidade -->
-              <div v-if="tipo_documento === 'Bilhete de Identidade'" class="col-md-12 mb-3">
+              <div
+                v-if="tipo_documento === 'Bilhete de Identidade'"
+                class="col-md-12 mb-3"
+              >
                 <!-- Campo para Nome Completo -->
                 <div class="col-md-12 mb-3">
-                  <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
-                  <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
-                    v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
-                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                  <label for="nomeSolicitante" class="form-label fw-bold"
+                    >Nome completo conforme o documento</label
+                  >
+                  <input
+                    type="text"
+                    id="nomeSolicitante"
+                    class="form-control zoom-field borda-destacadanome"
+                    v-model="nome_completo"
+                    placeholder="Ex: João Silva"
+                    maxlength="50"
+                    required
+                    @blur="validarNome"
+                  />
+                  <div v-if="nomeError" class="text-warning visible">
+                    {{ nomeError }}
+                  </div>
                   <!-- Adicionada a classe 'visible' -->
                 </div>
                 <!-- Campo para Número do Documento -->
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold">Número do Bi</label>
-                  <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
-                    v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
+                  <label for="numeroDocumento" class="form-label fw-bold"
+                    >Número do Bi</label
+                  >
+                  <input
+                    type="text"
+                    id="numeroDocumento"
+                    class="form-control zoom-field borda-destacada"
+                    v-model="numero_documento"
+                    placeholder="Ex: 123"
+                    maxlength="15"
+                    required
+                  />
                 </div>
                 <!-- Campo para Província -->
                 <div class="col-md-12 mb-3">
-                  <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
-                    perdido</label>
-                  <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
-                    required>
+                  <label for="provincia" class="form-label fw-bold">
+                    Província Local onde foi encontrado ou perdido</label
+                  >
+                  <select
+                    id="provincia"
+                    class="form-control borda-destacada form-select zoom-field"
+                    v-model="provincia"
+                    required
+                  >
                     <option disabled value="">Selecione o local</option>
-                    <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                    <option
+                      v-for="provincia in provincias"
+                      :key="provincia"
+                      :value="provincia"
+                    >
+                      {{ provincia }}
+                    </option>
                   </select>
                 </div>
                 <!-- Campo para Contacto -->
                 <div class="col-md-12 mb-3">
-                  <label for="contato" class="form-label fw-bold">Contacto</label>
-                  <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
-                    placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
-                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
+                  <label for="contato" class="form-label fw-bold"
+                    >Contacto</label
+                  >
+                  <input
+                    type="tel"
+                    id="contato"
+                    class="form-control zoom-field borda-destacada"
+                    v-model="contacto"
+                    placeholder="Ex: 84 123 4567"
+                    maxlength="9"
+                    required
+                    @blur="validarContacto"
+                  />
+                  <div v-if="contactoError" class="text-warning visible">
+                    {{ contactoError }}
+                  </div>
                 </div>
                 <!-- Campo para Origem (Se é dono ou encontrou) -->
                 <div class="col-md-12 mb-3">
-                  <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
-                  <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
-                    required>
+                  <label for="origem" class="form-label fw-bold"
+                    >Você é o dono ou apenas encontrou?</label
+                  >
+                  <select
+                    id="origem"
+                    class="form-control borda-destacada form-select zoom-field"
+                    v-model="origem"
+                    required
+                  >
                     <option disabled value="">Escolha uma opção</option>
                     <option value="proprietario">Sou o dono</option>
                     <option value="reportado">Apenas encontrei</option>
@@ -523,53 +670,110 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
                 </div>
                 <!-- Campo para Concordância com Termos -->
                 <div class="col-md-12 mb-3">
-                  <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
-                    labelClass="ms-3 mb-0">
-                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
-                        Condições</u></router-link>..
+                  <MaterialSwitch
+                    class="mb-4 d-flex align-items-center"
+                    id="flexSwitchCheckDefault"
+                    labelClass="ms-3 mb-0"
+                  >
+                    Eu concordo com os
+                    <router-link to="/termsconditions" class="text-dark"
+                      ><u>Termos e Condições</u></router-link
+                    >..
                   </MaterialSwitch>
                 </div>
-
               </div>
 
               <!-- Passaporte -->
-              <div v-if="tipo_documento === 'Passaporte'" class="col-md-12 mb-3">
+              <div
+                v-if="tipo_documento === 'Passaporte'"
+                class="col-md-12 mb-3"
+              >
                 <!-- Campo para Nome Completo -->
                 <div class="col-md-12 mb-3">
-                  <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
-                  <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
-                    v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
-                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                  <label for="nomeSolicitante" class="form-label fw-bold"
+                    >Nome completo conforme o documento</label
+                  >
+                  <input
+                    type="text"
+                    id="nomeSolicitante"
+                    class="form-control zoom-field borda-destacadanome"
+                    v-model="nome_completo"
+                    placeholder="Ex: João Silva"
+                    maxlength="50"
+                    required
+                    @blur="validarNome"
+                  />
+                  <div v-if="nomeError" class="text-warning visible">
+                    {{ nomeError }}
+                  </div>
                   <!-- Adicionada a classe 'visible' -->
                 </div>
                 <!-- Campo para Número do Documento -->
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold">Número do Passaporte</label>
-                  <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
-                    v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
+                  <label for="numeroDocumento" class="form-label fw-bold"
+                    >Número do Passaporte</label
+                  >
+                  <input
+                    type="text"
+                    id="numeroDocumento"
+                    class="form-control zoom-field borda-destacada"
+                    v-model="numero_documento"
+                    placeholder="Ex: 123"
+                    maxlength="15"
+                    required
+                  />
                 </div>
                 <!-- Campo para Província -->
                 <div class="col-md-12 mb-3">
-                  <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
-                    perdido</label>
-                  <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
-                    required>
+                  <label for="provincia" class="form-label fw-bold">
+                    Província Local onde foi encontrado ou perdido</label
+                  >
+                  <select
+                    id="provincia"
+                    class="form-control borda-destacada form-select zoom-field"
+                    v-model="provincia"
+                    required
+                  >
                     <option disabled value="">Selecione o local</option>
-                    <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                    <option
+                      v-for="provincia in provincias"
+                      :key="provincia"
+                      :value="provincia"
+                    >
+                      {{ provincia }}
+                    </option>
                   </select>
                 </div>
                 <!-- Campo para Contacto -->
                 <div class="col-md-12 mb-3">
-                  <label for="contato" class="form-label fw-bold">Contacto</label>
-                  <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
-                    placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
-                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
+                  <label for="contato" class="form-label fw-bold"
+                    >Contacto</label
+                  >
+                  <input
+                    type="tel"
+                    id="contato"
+                    class="form-control zoom-field borda-destacada"
+                    v-model="contacto"
+                    placeholder="Ex: 84 123 4567"
+                    maxlength="9"
+                    required
+                    @blur="validarContacto"
+                  />
+                  <div v-if="contactoError" class="text-warning visible">
+                    {{ contactoError }}
+                  </div>
                 </div>
                 <!-- Campo para Origem (Se é dono ou encontrou) -->
                 <div class="col-md-12 mb-3">
-                  <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
-                  <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
-                    required>
+                  <label for="origem" class="form-label fw-bold"
+                    >Você é o dono ou apenas encontrou?</label
+                  >
+                  <select
+                    id="origem"
+                    class="form-control borda-destacada form-select zoom-field"
+                    v-model="origem"
+                    required
+                  >
                     <option disabled value="">Escolha uma opção</option>
                     <option value="proprietario">Sou o dono</option>
                     <option value="reportado">Apenas encontrei</option>
@@ -577,52 +781,110 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
                 </div>
                 <!-- Campo para Concordância com Termos -->
                 <div class="col-md-12 mb-3">
-                  <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
-                    labelClass="ms-3 mb-0">
-                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
-                        Condições</u></router-link>..
+                  <MaterialSwitch
+                    class="mb-4 d-flex align-items-center"
+                    id="flexSwitchCheckDefault"
+                    labelClass="ms-3 mb-0"
+                  >
+                    Eu concordo com os
+                    <router-link to="/termsconditions" class="text-dark"
+                      ><u>Termos e Condições</u></router-link
+                    >..
                   </MaterialSwitch>
                 </div>
               </div>
 
               <!-- Carta de Condução -->
-              <div v-if="tipo_documento === 'Carta de Condução'" class="col-md-12 mb-3">
+              <div
+                v-if="tipo_documento === 'Carta de Condução'"
+                class="col-md-12 mb-3"
+              >
                 <!-- Campo para Nome Completo -->
                 <div class="col-md-12 mb-3">
-                  <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
-                  <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
-                    v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
-                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                  <label for="nomeSolicitante" class="form-label fw-bold"
+                    >Nome completo conforme o documento</label
+                  >
+                  <input
+                    type="text"
+                    id="nomeSolicitante"
+                    class="form-control zoom-field borda-destacadanome"
+                    v-model="nome_completo"
+                    placeholder="Ex: João Silva"
+                    maxlength="50"
+                    required
+                    @blur="validarNome"
+                  />
+                  <div v-if="nomeError" class="text-warning visible">
+                    {{ nomeError }}
+                  </div>
                   <!-- Adicionada a classe 'visible' -->
                 </div>
                 <!-- Campo para Número do Documento -->
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold">Número da Carta de Condução</label>
-                  <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
-                    v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
+                  <label for="numeroDocumento" class="form-label fw-bold"
+                    >Número da Carta de Condução</label
+                  >
+                  <input
+                    type="text"
+                    id="numeroDocumento"
+                    class="form-control zoom-field borda-destacada"
+                    v-model="numero_documento"
+                    placeholder="Ex: 123"
+                    maxlength="15"
+                    required
+                  />
                 </div>
                 <!-- Campo para Província -->
                 <div class="col-md-12 mb-3">
-                  <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
-                    perdido</label>
-                  <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
-                    required>
+                  <label for="provincia" class="form-label fw-bold">
+                    Província Local onde foi encontrado ou perdido</label
+                  >
+                  <select
+                    id="provincia"
+                    class="form-control borda-destacada form-select zoom-field"
+                    v-model="provincia"
+                    required
+                  >
                     <option disabled value="">Selecione o local</option>
-                    <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                    <option
+                      v-for="provincia in provincias"
+                      :key="provincia"
+                      :value="provincia"
+                    >
+                      {{ provincia }}
+                    </option>
                   </select>
                 </div>
                 <!-- Campo para Contacto -->
                 <div class="col-md-12 mb-3">
-                  <label for="contato" class="form-label fw-bold">Contacto</label>
-                  <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
-                    placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
-                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
+                  <label for="contato" class="form-label fw-bold"
+                    >Contacto</label
+                  >
+                  <input
+                    type="tel"
+                    id="contato"
+                    class="form-control zoom-field borda-destacada"
+                    v-model="contacto"
+                    placeholder="Ex: 84 123 4567"
+                    maxlength="9"
+                    required
+                    @blur="validarContacto"
+                  />
+                  <div v-if="contactoError" class="text-warning visible">
+                    {{ contactoError }}
+                  </div>
                 </div>
                 <!-- Campo para Origem (Se é dono ou encontrou) -->
                 <div class="col-md-12 mb-3">
-                  <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
-                  <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
-                    required>
+                  <label for="origem" class="form-label fw-bold"
+                    >Você é o dono ou apenas encontrou?</label
+                  >
+                  <select
+                    id="origem"
+                    class="form-control borda-destacada form-select zoom-field"
+                    v-model="origem"
+                    required
+                  >
                     <option disabled value="">Escolha uma opção</option>
                     <option value="proprietario">Sou o dono</option>
                     <option value="reportado">Apenas encontrei</option>
@@ -630,52 +892,110 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
                 </div>
                 <!-- Campo para Concordância com Termos -->
                 <div class="col-md-12 mb-3">
-                  <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
-                    labelClass="ms-3 mb-0">
-                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
-                        Condições</u></router-link>..
+                  <MaterialSwitch
+                    class="mb-4 d-flex align-items-center"
+                    id="flexSwitchCheckDefault"
+                    labelClass="ms-3 mb-0"
+                  >
+                    Eu concordo com os
+                    <router-link to="/termsconditions" class="text-dark"
+                      ><u>Termos e Condições</u></router-link
+                    >..
                   </MaterialSwitch>
                 </div>
               </div>
 
               <!-- Cartão de Estudante -->
-              <div v-if="tipo_documento === 'Cartão de Estudante'" class="col-md-12 mb-3">
+              <div
+                v-if="tipo_documento === 'Cartão de Estudante'"
+                class="col-md-12 mb-3"
+              >
                 <!-- Campo para Nome Completo -->
                 <div class="col-md-12 mb-3">
-                  <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
-                  <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
-                    v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
-                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                  <label for="nomeSolicitante" class="form-label fw-bold"
+                    >Nome completo conforme o documento</label
+                  >
+                  <input
+                    type="text"
+                    id="nomeSolicitante"
+                    class="form-control zoom-field borda-destacadanome"
+                    v-model="nome_completo"
+                    placeholder="Ex: João Silva"
+                    maxlength="50"
+                    required
+                    @blur="validarNome"
+                  />
+                  <div v-if="nomeError" class="text-warning visible">
+                    {{ nomeError }}
+                  </div>
                   <!-- Adicionada a classe 'visible' -->
                 </div>
                 <!-- Campo para Número do Documento -->
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold">Número do Cartão de Estudante</label>
-                  <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
-                    v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
+                  <label for="numeroDocumento" class="form-label fw-bold"
+                    >Número do Cartão de Estudante</label
+                  >
+                  <input
+                    type="text"
+                    id="numeroDocumento"
+                    class="form-control zoom-field borda-destacada"
+                    v-model="numero_documento"
+                    placeholder="Ex: 123"
+                    maxlength="15"
+                    required
+                  />
                 </div>
                 <!-- Campo para Província -->
                 <div class="col-md-12 mb-3">
-                  <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
-                    perdido</label>
-                  <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
-                    required>
+                  <label for="provincia" class="form-label fw-bold">
+                    Província Local onde foi encontrado ou perdido</label
+                  >
+                  <select
+                    id="provincia"
+                    class="form-control borda-destacada form-select zoom-field"
+                    v-model="provincia"
+                    required
+                  >
                     <option disabled value="">Selecione o local</option>
-                    <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                    <option
+                      v-for="provincia in provincias"
+                      :key="provincia"
+                      :value="provincia"
+                    >
+                      {{ provincia }}
+                    </option>
                   </select>
                 </div>
                 <!-- Campo para Contacto -->
                 <div class="col-md-12 mb-3">
-                  <label for="contato" class="form-label fw-bold">Contacto</label>
-                  <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
-                    placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
-                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
+                  <label for="contato" class="form-label fw-bold"
+                    >Contacto</label
+                  >
+                  <input
+                    type="tel"
+                    id="contato"
+                    class="form-control zoom-field borda-destacada"
+                    v-model="contacto"
+                    placeholder="Ex: 84 123 4567"
+                    maxlength="9"
+                    required
+                    @blur="validarContacto"
+                  />
+                  <div v-if="contactoError" class="text-warning visible">
+                    {{ contactoError }}
+                  </div>
                 </div>
                 <!-- Campo para Origem (Se é dono ou encontrou) -->
                 <div class="col-md-12 mb-3">
-                  <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
-                  <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
-                    required>
+                  <label for="origem" class="form-label fw-bold"
+                    >Você é o dono ou apenas encontrou?</label
+                  >
+                  <select
+                    id="origem"
+                    class="form-control borda-destacada form-select zoom-field"
+                    v-model="origem"
+                    required
+                  >
                     <option disabled value="">Escolha uma opção</option>
                     <option value="proprietario">Sou o dono</option>
                     <option value="reportado">Apenas encontrei</option>
@@ -683,52 +1003,110 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
                 </div>
                 <!-- Campo para Concordância com Termos -->
                 <div class="col-md-12 mb-3">
-                  <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
-                    labelClass="ms-3 mb-0">
-                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
-                        Condições</u></router-link>..
+                  <MaterialSwitch
+                    class="mb-4 d-flex align-items-center"
+                    id="flexSwitchCheckDefault"
+                    labelClass="ms-3 mb-0"
+                  >
+                    Eu concordo com os
+                    <router-link to="/termsconditions" class="text-dark"
+                      ><u>Termos e Condições</u></router-link
+                    >..
                   </MaterialSwitch>
                 </div>
               </div>
 
               <!-- Cartão de Eleitor -->
-              <div v-if="tipo_documento === 'Cartão de Eleitor'" class="col-md-12 mb-3">
+              <div
+                v-if="tipo_documento === 'Cartão de Eleitor'"
+                class="col-md-12 mb-3"
+              >
                 <!-- Campo para Nome Completo -->
                 <div class="col-md-12 mb-3">
-                  <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
-                  <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
-                    v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
-                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                  <label for="nomeSolicitante" class="form-label fw-bold"
+                    >Nome completo conforme o documento</label
+                  >
+                  <input
+                    type="text"
+                    id="nomeSolicitante"
+                    class="form-control zoom-field borda-destacadanome"
+                    v-model="nome_completo"
+                    placeholder="Ex: João Silva"
+                    maxlength="50"
+                    required
+                    @blur="validarNome"
+                  />
+                  <div v-if="nomeError" class="text-warning visible">
+                    {{ nomeError }}
+                  </div>
                   <!-- Adicionada a classe 'visible' -->
                 </div>
                 <!-- Campo para Número do Documento -->
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold">Número do Cartão de Eleitor</label>
-                  <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
-                    v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
+                  <label for="numeroDocumento" class="form-label fw-bold"
+                    >Número do Cartão de Eleitor</label
+                  >
+                  <input
+                    type="text"
+                    id="numeroDocumento"
+                    class="form-control zoom-field borda-destacada"
+                    v-model="numero_documento"
+                    placeholder="Ex: 123"
+                    maxlength="15"
+                    required
+                  />
                 </div>
                 <!-- Campo para Província -->
                 <div class="col-md-12 mb-3">
-                  <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
-                    perdido</label>
-                  <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
-                    required>
+                  <label for="provincia" class="form-label fw-bold">
+                    Província Local onde foi encontrado ou perdido</label
+                  >
+                  <select
+                    id="provincia"
+                    class="form-control borda-destacada form-select zoom-field"
+                    v-model="provincia"
+                    required
+                  >
                     <option disabled value="">Selecione o local</option>
-                    <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                    <option
+                      v-for="provincia in provincias"
+                      :key="provincia"
+                      :value="provincia"
+                    >
+                      {{ provincia }}
+                    </option>
                   </select>
                 </div>
                 <!-- Campo para Contacto -->
                 <div class="col-md-12 mb-3">
-                  <label for="contato" class="form-label fw-bold">Contacto</label>
-                  <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
-                    placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
-                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
+                  <label for="contato" class="form-label fw-bold"
+                    >Contacto</label
+                  >
+                  <input
+                    type="tel"
+                    id="contato"
+                    class="form-control zoom-field borda-destacada"
+                    v-model="contacto"
+                    placeholder="Ex: 84 123 4567"
+                    maxlength="9"
+                    required
+                    @blur="validarContacto"
+                  />
+                  <div v-if="contactoError" class="text-warning visible">
+                    {{ contactoError }}
+                  </div>
                 </div>
                 <!-- Campo para Origem (Se é dono ou encontrou) -->
                 <div class="col-md-12 mb-3">
-                  <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
-                  <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
-                    required>
+                  <label for="origem" class="form-label fw-bold"
+                    >Você é o dono ou apenas encontrou?</label
+                  >
+                  <select
+                    id="origem"
+                    class="form-control borda-destacada form-select zoom-field"
+                    v-model="origem"
+                    required
+                  >
                     <option disabled value="">Escolha uma opção</option>
                     <option value="proprietario">Sou o dono</option>
                     <option value="reportado">Apenas encontrei</option>
@@ -736,52 +1114,110 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
                 </div>
                 <!-- Campo para Concordância com Termos -->
                 <div class="col-md-12 mb-3">
-                  <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
-                    labelClass="ms-3 mb-0">
-                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
-                        Condições</u></router-link>..
+                  <MaterialSwitch
+                    class="mb-4 d-flex align-items-center"
+                    id="flexSwitchCheckDefault"
+                    labelClass="ms-3 mb-0"
+                  >
+                    Eu concordo com os
+                    <router-link to="/termsconditions" class="text-dark"
+                      ><u>Termos e Condições</u></router-link
+                    >..
                   </MaterialSwitch>
                 </div>
               </div>
 
               <!-- Seguro do Veículo -->
-              <div v-if="tipo_documento === 'Seguro do Veículo'" class="col-md-12 mb-3">
+              <div
+                v-if="tipo_documento === 'Seguro do Veículo'"
+                class="col-md-12 mb-3"
+              >
                 <!-- Campo para Nome Completo -->
                 <div class="col-md-12 mb-3">
-                  <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
-                  <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
-                    v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
-                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                  <label for="nomeSolicitante" class="form-label fw-bold"
+                    >Nome completo conforme o documento</label
+                  >
+                  <input
+                    type="text"
+                    id="nomeSolicitante"
+                    class="form-control zoom-field borda-destacadanome"
+                    v-model="nome_completo"
+                    placeholder="Ex: João Silva"
+                    maxlength="50"
+                    required
+                    @blur="validarNome"
+                  />
+                  <div v-if="nomeError" class="text-warning visible">
+                    {{ nomeError }}
+                  </div>
                   <!-- Adicionada a classe 'visible' -->
                 </div>
                 <!-- Campo para Número do Documento -->
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold">Número do Seguro do Veículo</label>
-                  <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
-                    v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
+                  <label for="numeroDocumento" class="form-label fw-bold"
+                    >Número do Seguro do Veículo</label
+                  >
+                  <input
+                    type="text"
+                    id="numeroDocumento"
+                    class="form-control zoom-field borda-destacada"
+                    v-model="numero_documento"
+                    placeholder="Ex: 123"
+                    maxlength="15"
+                    required
+                  />
                 </div>
                 <!-- Campo para Província -->
                 <div class="col-md-12 mb-3">
-                  <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
-                    perdido</label>
-                  <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
-                    required>
+                  <label for="provincia" class="form-label fw-bold">
+                    Província Local onde foi encontrado ou perdido</label
+                  >
+                  <select
+                    id="provincia"
+                    class="form-control borda-destacada form-select zoom-field"
+                    v-model="provincia"
+                    required
+                  >
                     <option disabled value="">Selecione o local</option>
-                    <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                    <option
+                      v-for="provincia in provincias"
+                      :key="provincia"
+                      :value="provincia"
+                    >
+                      {{ provincia }}
+                    </option>
                   </select>
                 </div>
                 <!-- Campo para Contacto -->
                 <div class="col-md-12 mb-3">
-                  <label for="contato" class="form-label fw-bold">Contacto</label>
-                  <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
-                    placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
-                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
+                  <label for="contato" class="form-label fw-bold"
+                    >Contacto</label
+                  >
+                  <input
+                    type="tel"
+                    id="contato"
+                    class="form-control zoom-field borda-destacada"
+                    v-model="contacto"
+                    placeholder="Ex: 84 123 4567"
+                    maxlength="9"
+                    required
+                    @blur="validarContacto"
+                  />
+                  <div v-if="contactoError" class="text-warning visible">
+                    {{ contactoError }}
+                  </div>
                 </div>
                 <!-- Campo para Origem (Se é dono ou encontrou) -->
                 <div class="col-md-12 mb-3">
-                  <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
-                  <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
-                    required>
+                  <label for="origem" class="form-label fw-bold"
+                    >Você é o dono ou apenas encontrou?</label
+                  >
+                  <select
+                    id="origem"
+                    class="form-control borda-destacada form-select zoom-field"
+                    v-model="origem"
+                    required
+                  >
                     <option disabled value="">Escolha uma opção</option>
                     <option value="proprietario">Sou o dono</option>
                     <option value="reportado">Apenas encontrei</option>
@@ -789,10 +1225,15 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
                 </div>
                 <!-- Campo para Concordância com Termos -->
                 <div class="col-md-12 mb-3">
-                  <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
-                    labelClass="ms-3 mb-0">
-                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
-                        Condições</u></router-link>..
+                  <MaterialSwitch
+                    class="mb-4 d-flex align-items-center"
+                    id="flexSwitchCheckDefault"
+                    labelClass="ms-3 mb-0"
+                  >
+                    Eu concordo com os
+                    <router-link to="/termsconditions" class="text-dark"
+                      ><u>Termos e Condições</u></router-link
+                    >..
                   </MaterialSwitch>
                 </div>
               </div>
@@ -801,40 +1242,90 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
               <div v-if="tipo_documento === 'Livrete'" class="col-md-12 mb-3">
                 <!-- Campo para Nome Completo -->
                 <div class="col-md-12 mb-3">
-                  <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
-                  <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
-                    v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
-                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                  <label for="nomeSolicitante" class="form-label fw-bold"
+                    >Nome completo conforme o documento</label
+                  >
+                  <input
+                    type="text"
+                    id="nomeSolicitante"
+                    class="form-control zoom-field borda-destacadanome"
+                    v-model="nome_completo"
+                    placeholder="Ex: João Silva"
+                    maxlength="50"
+                    required
+                    @blur="validarNome"
+                  />
+                  <div v-if="nomeError" class="text-warning visible">
+                    {{ nomeError }}
+                  </div>
                   <!-- Adicionada a classe 'visible' -->
                 </div>
                 <!-- Campo para Número do Documento -->
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold">Número do Livrete</label>
-                  <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
-                    v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
+                  <label for="numeroDocumento" class="form-label fw-bold"
+                    >Número do Livrete</label
+                  >
+                  <input
+                    type="text"
+                    id="numeroDocumento"
+                    class="form-control zoom-field borda-destacada"
+                    v-model="numero_documento"
+                    placeholder="Ex: 123"
+                    maxlength="15"
+                    required
+                  />
                 </div>
                 <!-- Campo para Província -->
                 <div class="col-md-12 mb-3">
-                  <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
-                    perdido</label>
-                  <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
-                    required>
+                  <label for="provincia" class="form-label fw-bold">
+                    Província Local onde foi encontrado ou perdido</label
+                  >
+                  <select
+                    id="provincia"
+                    class="form-control borda-destacada form-select zoom-field"
+                    v-model="provincia"
+                    required
+                  >
                     <option disabled value="">Selecione o local</option>
-                    <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                    <option
+                      v-for="provincia in provincias"
+                      :key="provincia"
+                      :value="provincia"
+                    >
+                      {{ provincia }}
+                    </option>
                   </select>
                 </div>
                 <!-- Campo para Contacto -->
                 <div class="col-md-12 mb-3">
-                  <label for="contato" class="form-label fw-bold">Contacto</label>
-                  <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
-                    placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
-                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
+                  <label for="contato" class="form-label fw-bold"
+                    >Contacto</label
+                  >
+                  <input
+                    type="tel"
+                    id="contato"
+                    class="form-control zoom-field borda-destacada"
+                    v-model="contacto"
+                    placeholder="Ex: 84 123 4567"
+                    maxlength="9"
+                    required
+                    @blur="validarContacto"
+                  />
+                  <div v-if="contactoError" class="text-warning visible">
+                    {{ contactoError }}
+                  </div>
                 </div>
                 <!-- Campo para Origem (Se é dono ou encontrou) -->
                 <div class="col-md-12 mb-3">
-                  <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
-                  <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
-                    required>
+                  <label for="origem" class="form-label fw-bold"
+                    >Você é o dono ou apenas encontrou?</label
+                  >
+                  <select
+                    id="origem"
+                    class="form-control borda-destacada form-select zoom-field"
+                    v-model="origem"
+                    required
+                  >
                     <option disabled value="">Escolha uma opção</option>
                     <option value="proprietario">Sou o dono</option>
                     <option value="reportado">Apenas encontrei</option>
@@ -842,52 +1333,110 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
                 </div>
                 <!-- Campo para Concordância com Termos -->
                 <div class="col-md-12 mb-3">
-                  <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
-                    labelClass="ms-3 mb-0">
-                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
-                        Condições</u></router-link>..
+                  <MaterialSwitch
+                    class="mb-4 d-flex align-items-center"
+                    id="flexSwitchCheckDefault"
+                    labelClass="ms-3 mb-0"
+                  >
+                    Eu concordo com os
+                    <router-link to="/termsconditions" class="text-dark"
+                      ><u>Termos e Condições</u></router-link
+                    >..
                   </MaterialSwitch>
                 </div>
               </div>
 
               <!-- Cartão de Identidade Militar -->
-              <div v-if="tipo_documento === 'Cartão de Identidade Militar'" class="col-md-12 mb-3">
+              <div
+                v-if="tipo_documento === 'Cartão de Identidade Militar'"
+                class="col-md-12 mb-3"
+              >
                 <!-- Campo para Nome Completo -->
                 <div class="col-md-12 mb-3">
-                  <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
-                  <input type="text" id="nomeSolicitante" class="form-control zoom-field borda-destacadanome"
-                    v-model="nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
-                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
+                  <label for="nomeSolicitante" class="form-label fw-bold"
+                    >Nome completo conforme o documento</label
+                  >
+                  <input
+                    type="text"
+                    id="nomeSolicitante"
+                    class="form-control zoom-field borda-destacadanome"
+                    v-model="nome_completo"
+                    placeholder="Ex: João Silva"
+                    maxlength="50"
+                    required
+                    @blur="validarNome"
+                  />
+                  <div v-if="nomeError" class="text-warning visible">
+                    {{ nomeError }}
+                  </div>
                   <!-- Adicionada a classe 'visible' -->
                 </div>
                 <!-- Campo para Número do Documento -->
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold">Número do Cartão de Identidade Militar</label>
-                  <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada"
-                    v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
+                  <label for="numeroDocumento" class="form-label fw-bold"
+                    >Número do Cartão de Identidade Militar</label
+                  >
+                  <input
+                    type="text"
+                    id="numeroDocumento"
+                    class="form-control zoom-field borda-destacada"
+                    v-model="numero_documento"
+                    placeholder="Ex: 123"
+                    maxlength="15"
+                    required
+                  />
                 </div>
                 <!-- Campo para Província -->
                 <div class="col-md-12 mb-3">
-                  <label for="provincia" class="form-label fw-bold"> Província Local onde foi encontrado ou
-                    perdido</label>
-                  <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia"
-                    required>
+                  <label for="provincia" class="form-label fw-bold">
+                    Província Local onde foi encontrado ou perdido</label
+                  >
+                  <select
+                    id="provincia"
+                    class="form-control borda-destacada form-select zoom-field"
+                    v-model="provincia"
+                    required
+                  >
                     <option disabled value="">Selecione o local</option>
-                    <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
+                    <option
+                      v-for="provincia in provincias"
+                      :key="provincia"
+                      :value="provincia"
+                    >
+                      {{ provincia }}
+                    </option>
                   </select>
                 </div>
                 <!-- Campo para Contacto -->
                 <div class="col-md-12 mb-3">
-                  <label for="contato" class="form-label fw-bold">Contacto</label>
-                  <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto"
-                    placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
-                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
+                  <label for="contato" class="form-label fw-bold"
+                    >Contacto</label
+                  >
+                  <input
+                    type="tel"
+                    id="contato"
+                    class="form-control zoom-field borda-destacada"
+                    v-model="contacto"
+                    placeholder="Ex: 84 123 4567"
+                    maxlength="9"
+                    required
+                    @blur="validarContacto"
+                  />
+                  <div v-if="contactoError" class="text-warning visible">
+                    {{ contactoError }}
+                  </div>
                 </div>
                 <!-- Campo para Origem (Se é dono ou encontrou) -->
                 <div class="col-md-12 mb-3">
-                  <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
-                  <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem"
-                    required>
+                  <label for="origem" class="form-label fw-bold"
+                    >Você é o dono ou apenas encontrou?</label
+                  >
+                  <select
+                    id="origem"
+                    class="form-control borda-destacada form-select zoom-field"
+                    v-model="origem"
+                    required
+                  >
                     <option disabled value="">Escolha uma opção</option>
                     <option value="proprietario">Sou o dono</option>
                     <option value="reportado">Apenas encontrei</option>
@@ -895,49 +1444,65 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
                 </div>
                 <!-- Campo para Concordância com Termos -->
                 <div class="col-md-12 mb-3">
-                  <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault"
-                    labelClass="ms-3 mb-0">
-                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e
-                        Condições</u></router-link>..
+                  <MaterialSwitch
+                    class="mb-4 d-flex align-items-center"
+                    id="flexSwitchCheckDefault"
+                    labelClass="ms-3 mb-0"
+                  >
+                    Eu concordo com os
+                    <router-link to="/termsconditions" class="text-dark"
+                      ><u>Termos e Condições</u></router-link
+                    >..
                   </MaterialSwitch>
                 </div>
               </div>
-
             </div>
             <!--CAMPOS COMUNS-->
 
             <!-- Campo para Data da Perda -->
-            <div class="col-md-12 mb-3" style="display: none;">
-              <label for="dataPerda" class="form-label fw-bold">
-                Data
-              </label>
-              <input type="date" id="dataPerda" class="form-control zoom-field " v-model="data_perda" required />
+            <div class="col-md-12 mb-3" style="display: none">
+              <label for="dataPerda" class="form-label fw-bold"> Data </label>
+              <input
+                type="date"
+                id="dataPerda"
+                class="form-control zoom-field"
+                v-model="data_perda"
+                required
+              />
             </div>
-
 
             <!-- Botão para Cadastrar Documento -->
             <div class="text-center">
-              <button type="submit" class="btn btn-purple w-100 btn-lg shadow">Cadastrar</button>
+              <button type="submit" class="btn btn-purple w-100 btn-lg shadow">
+                Cadastrar
+              </button>
             </div>
             <div class="text-center">
               <!-- Mensagem de sucesso -->
-              <p v-if="mensagemSucesso" class="alert-success btn btn-purple w-100 btn-lg shadow visible">
+              <p
+                v-if="mensagemSucesso"
+                class="alert-success btn btn-purple w-100 btn-lg shadow visible"
+              >
                 {{ mensagemSucesso }}
               </p>
 
               <!-- Mensagem de erro -->
-              <p v-if="mensagemErro" class="alert-danger btn btn-purple w-100 btn-lg shadow visible">
+              <p
+                v-if="mensagemErro"
+                class="alert-danger btn btn-purple w-100 btn-lg shadow visible"
+              >
                 {{ mensagemErro }}
               </p>
             </div>
           </form>
         </div>
 
-
-
         <!-- Aba Documentos Reportados -->
-        <div v-if="activeTab === 'documentosReportados'" class="tab-pane fade show active"
-          id="documentosReportados-tabs-simple">
+        <div
+          v-if="activeTab === 'documentosReportados'"
+          class="tab-pane fade show active"
+          id="documentosReportados-tabs-simple"
+        >
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
@@ -950,7 +1515,11 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="documento in documentosReportados" :key="documento.numero_documento" class="table-row">
+                <tr
+                  v-for="documento in documentosReportados"
+                  :key="documento.numero_documento"
+                  class="table-row"
+                >
                   <td>{{ documento.nome_completo }}</td>
                   <td>{{ documento.tipo_documento }}</td>
                   <td>{{ documento.numero_documento }}</td>
@@ -961,14 +1530,18 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
             </table>
             <!-- Nota explicativa -->
             <div class="tab-pane fade show active">
-              <strong>Nota:</strong> Esta é a lista de documentos perdidos registrados por alguém que os encontrou.
+              <strong>Nota:</strong> Esta é a lista de documentos perdidos
+              registrados por alguém que os encontrou.
             </div>
           </div>
         </div>
 
         <!-- Aba Documentos Proprietários -->
-        <div v-if="activeTab === 'documentosProprietarios'" class="tab-pane fade show active"
-          id="documentosProprietarios-tabs-simple">
+        <div
+          v-if="activeTab === 'documentosProprietarios'"
+          class="tab-pane fade show active"
+          id="documentosProprietarios-tabs-simple"
+        >
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
@@ -982,7 +1555,11 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="documento in documentosProprietarios" :key="documento.numero_documento" class="table-row">
+                <tr
+                  v-for="documento in documentosProprietarios"
+                  :key="documento.numero_documento"
+                  class="table-row"
+                >
                   <td>{{ documento.nome_completo }}</td>
                   <td>{{ documento.tipo_documento }}</td>
                   <td>{{ documento.numero_documento }}</td>
@@ -994,25 +1571,21 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
             </table>
             <!-- Nota explicativa -->
             <div class="tab-pane fade show active">
-              <strong>Nota:</strong> Esta é a lista de documentos perdidos reportados pelos seus donos.
+              <strong>Nota:</strong> Esta é a lista de documentos perdidos
+              reportados pelos seus donos.
             </div>
           </div>
         </div>
-
       </div>
     </div>
-    
   </section>
 </template>
 
-
 <style scoped>
-
-
 .custom-nav {
   background: #f9fbf9;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .custom-nav .nav-link {
@@ -1042,13 +1615,13 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
 .gradient-background {
   background: linear-gradient(
     180deg,
-    #fccfcf 15%, 
-    #fbe1e5 25%, 
-    #c6d2fc 35%, 
-    #f8f9fa 45%, 
+    #fccfcf 15%,
+    #fbe1e5 25%,
+    #c6d2fc 35%,
+    #f8f9fa 45%,
     #ffffff 90%
   );
-  background-size: 100% 200%;  /* Dobra a altura para animar o gradiente */
+  background-size: 100% 200%; /* Dobra a altura para animar o gradiente */
   animation: gradientMove 6s ease infinite;
 }
 
@@ -1075,9 +1648,6 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
   color: #007bff;
   /* Cor do texto ao passar o cursor */
 }
-
-
-
 
 /* Estilo para os botões de navegação */
 .nav-link {
@@ -1169,7 +1739,8 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
 .table tbody tr {
   background-color: #f9f9f9;
   border-radius: 8px;
-  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .table tbody tr:hover {
@@ -1244,7 +1815,6 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
   /* Adiciona o efeito de pulsar */
 }
 
-
 /* Efeiro de Mensagem de Envio e Erro  de Cadastro */
 
 @keyframes pulse {
@@ -1297,9 +1867,6 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
   /* Adiciona o efeito de pulsar para erro */
 }
 
-
-
-
 .animate-fade-in {
   animation: fadeIn 1s ease-in-out;
 }
@@ -1322,7 +1889,6 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
 
 /* Estilo da mensagem motivacional com efeito de digitação */
 .mensagem-motivacional {
-
   color: #856404;
   font-style: italic;
   font-size: 1rem;
@@ -1374,7 +1940,8 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
     /* Centraliza o texto */
     height: 0;
     /* Inicializa altura como 0 */
-    animation: typingVertical 4s steps(60) 1s forwards, blink 0.75s step-end infinite;
+    animation: typingVertical 4s steps(60) 1s forwards,
+      blink 0.75s step-end infinite;
     /* Animação de digitação vertical */
   }
 }
@@ -1397,7 +1964,6 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
     /* Ajuste adicional para telas muito pequenas */
   }
 }
-
 
 /* Classe de animação de zoom in e zoom out */
 .btn-zoom {
@@ -1442,8 +2008,6 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
   /* Roxo */
   box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
 }
-
-
 
 .blur {
   box-shadow: inset 0px 0px 2px rgba(254, 254, 254, 0.8196078431);

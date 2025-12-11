@@ -40,8 +40,8 @@ onMounted(() => {
                   >
                     <h3 class="text-white">Informações de contato</h3>
                     <p class="text-white opacity-8 mb-4">
-                      Preencha o formulário e nossa equipe entrará em contato com você dentro
-                      24 horas.
+                      Preencha o formulário e nossa equipe entrará em contato
+                      com você dentro 24 horas.
                     </p>
                     <div class="d-flex p-2 text-white">
                       <div>
@@ -66,9 +66,7 @@ onMounted(() => {
                         <i class="fas fa-map-marker-alt text-sm"></i>
                       </div>
                       <div class="ps-3">
-                        <span class="text-sm opacity-8"
-                          >Maputo, Museu</span
-                        >
+                        <span class="text-sm opacity-8">Maputo, Museu</span>
                       </div>
                     </div>
                     <div class="mt-4">

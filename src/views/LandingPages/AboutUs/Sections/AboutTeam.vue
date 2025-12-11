@@ -18,8 +18,8 @@ import marquez from "@/assets/img/ivana-square.jpg";
             A Equipe Executiva
           </h3>
           <p class="text-white opacity-8 mb-0">
-            Não há nada que eu realmente quisesse fazer na vida que não fosse capaz
-            fique bom em. Essa é minha habilidade.
+            Não há nada que eu realmente quisesse fazer na vida que não fosse
+            capaz fique bom em. Essa é minha habilidade.
           </p>
         </div>
       </div>
@@ -33,7 +33,7 @@ import marquez from "@/assets/img/ivana-square.jpg";
             description="Líder estratégico da empresa, responsável por definir a visão, missão e direção do negócio. Supervisiona todas as operações."
           />
         </div>
-        
+
         <div class="col-lg-6 col-12">
           <HorizontalTeamCard
             class="mt-4"
@@ -43,7 +43,6 @@ import marquez from "@/assets/img/ivana-square.jpg";
             description="Responsável pela gestão financeira da empresa, assegurando que todas as transações sejam registradas com precisão"
           />
         </div>
-
       </div>
       <div class="row mt-4">
         <div class="col-lg-6 col-12">

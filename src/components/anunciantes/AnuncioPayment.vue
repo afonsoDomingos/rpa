@@ -8,7 +8,7 @@
             <span class="num num-purple">1</span> Pacote
           </h2>
           <div class="package-info">
-            <p class="package-name">{{ props.formData.name || 'Anúncio' }}</p>
+            <p class="package-name">{{ props.formData.name || "Anúncio" }}</p>
             <p class="package-details">{{ totalPrice }} MZN</p>
           </div>
         </section>
@@ -19,15 +19,31 @@
             <span class="num num-green">2</span> Método
           </h2>
           <div class="payment-methods">
-            <label class="method-label" :class="{ active: selectedMethod === 'mpesa' }">
-              <input type="radio" v-model="selectedMethod" value="mpesa" class="hidden" />
+            <label
+              class="method-label"
+              :class="{ active: selectedMethod === 'mpesa' }"
+            >
+              <input
+                type="radio"
+                v-model="selectedMethod"
+                value="mpesa"
+                class="hidden"
+              />
               <div class="method-card mpesa">
                 <img :src="mpesaIcon" alt="M-Pesa" class="method-logo" />
                 <span>M-Pesa</span>
               </div>
             </label>
-            <label class="method-label" :class="{ active: selectedMethod === 'emola' }">
-              <input type="radio" v-model="selectedMethod" value="emola" class="hidden" />
+            <label
+              class="method-label"
+              :class="{ active: selectedMethod === 'emola' }"
+            >
+              <input
+                type="radio"
+                v-model="selectedMethod"
+                value="emola"
+                class="hidden"
+              />
               <div class="method-card emola">
                 <img :src="emolaIcon" alt="Emola" class="method-logo" />
                 <span>Emola</span>
@@ -59,7 +75,11 @@
         </section>
 
         <!-- BOTÃO -->
-        <button type="submit" class="btn" :disabled="loading || !isPhoneValid || !props.anuncioId">
+        <button
+          type="submit"
+          class="btn"
+          :disabled="loading || !isPhoneValid || !props.anuncioId"
+        >
           <span v-if="!loading">Pagar {{ totalPrice }} MZN</span>
           <span v-else>Processando...</span>
         </button>
@@ -68,172 +88,185 @@
         <div v-if="successMessage" class="success-msg">
           <p>{{ successMessage }}</p>
         </div>
-        <p v-if="errorMessage" class="error-text global-error">{{ errorMessage }}</p>
+        <p v-if="errorMessage" class="error-text global-error">
+          {{ errorMessage }}
+        </p>
       </form>
     </main>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import api from '@/api'
-import mpesaIcon from '@/assets/img/Mpesa.png'
-import emolaIcon from '@/assets/img/Emola.png'
-import { sendMetaEvent } from '@/utils/meta'
+import { ref, computed, watch, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import api from "@/api";
+import mpesaIcon from "@/assets/img/Mpesa.png";
+import emolaIcon from "@/assets/img/Emola.png";
+import { sendMetaEvent } from "@/utils/meta";
 
 const props = defineProps({
   weeks: { type: Number, required: true },
   formData: { type: Object, required: true },
-  anuncioId: { type: String, required: true }
-})
+  anuncioId: { type: String, required: true },
+});
 
-const router = useRouter()
+const router = useRouter();
 
 // Preços fixos (como no teu backend antigo)
-const PRICES = [500, 1000, 1500, 2000]
+const PRICES = [500, 1000, 1500, 2000];
 
 const totalPrice = computed(() => {
-  const index = props.weeks - 1
-  return (index >= 0 && index < 4) ? PRICES[index] : 0
-})
+  const index = props.weeks - 1;
+  return index >= 0 && index < 4 ? PRICES[index] : 0;
+});
 
-const selectedMethod = ref('mpesa')  // padrão M-Pesa
-const phone = ref('')
-const phoneError = ref('')
-const loading = ref(false)
-const successMessage = ref('')
-const errorMessage = ref('')
+const selectedMethod = ref("mpesa"); // padrão M-Pesa
+const phone = ref("");
+const phoneError = ref("");
+const loading = ref(false);
+const successMessage = ref("");
+const errorMessage = ref("");
 
 // Placeholder dinâmico por operadora
 const placeholder = computed(() => {
-  return selectedMethod.value === 'mpesa' ? '84 123 4567' : '86 123 4567'
-})
+  return selectedMethod.value === "mpesa" ? "84 123 4567" : "86 123 4567";
+});
 
 // Validação correta por operadora
 const isPhoneValid = computed(() => {
-  const num = phone.value.replace(/\D/g, '')
-  if (num.length !== 9) return false
-  if (selectedMethod.value === 'mpesa') return /^84|85/.test(num)
-  if (selectedMethod.value === 'emola') return /^86|87/.test(num)
-  return false
-})
+  const num = phone.value.replace(/\D/g, "");
+  if (num.length !== 9) return false;
+  if (selectedMethod.value === "mpesa") return /^84|85/.test(num);
+  if (selectedMethod.value === "emola") return /^86|87/.test(num);
+  return false;
+});
 
 // Formatação bonita (84 123 4567)
 const formatPhone = () => {
-  let digits = phone.value.replace(/\D/g, '').slice(0, 9)
+  let digits = phone.value.replace(/\D/g, "").slice(0, 9);
   if (digits.length >= 6) {
-    phone.value = digits.replace(/(\d{2})(\d{3})(\d{4})/, '$1 $2 $3')
+    phone.value = digits.replace(/(\d{2})(\d{3})(\d{4})/, "$1 $2 $3");
   } else if (digits.length >= 3) {
-    phone.value = digits.replace(/(\d{2})(\d{3})/, '$1 $2 ')
+    phone.value = digits.replace(/(\d{2})(\d{3})/, "$1 $2 ");
   } else {
-    phone.value = digits
+    phone.value = digits;
   }
-}
+};
 
 const validatePhone = () => {
   if (!phone.value) {
-    phoneError.value = ''
-    return
+    phoneError.value = "";
+    return;
   }
   if (!isPhoneValid.value) {
-    if (selectedMethod.value === 'mpesa') {
-      phoneError.value = 'M-Pesa: use 84 ou 85'
+    if (selectedMethod.value === "mpesa") {
+      phoneError.value = "M-Pesa: use 84 ou 85";
     } else {
-      phoneError.value = 'Emola: use 86 ou 87'
+      phoneError.value = "Emola: use 86 ou 87";
     }
   } else {
-    phoneError.value = ''
+    phoneError.value = "";
   }
-}
+};
 
 // Revalidar quando mudar de método
 watch(selectedMethod, () => {
-  validatePhone()
-  formatPhone()
-})
+  validatePhone();
+  formatPhone();
+});
 
 // Recuperar telefone salvo
 onMounted(() => {
-  const saved = localStorage.getItem('paymentPhone')
+  const saved = localStorage.getItem("paymentPhone");
   if (saved) {
-    phone.value = saved.replace(/^258/, '').replace(/(\d{2})(\d{3})(\d{4})/, '$1 $2 $3')
-    validatePhone()
+    phone.value = saved
+      .replace(/^258/, "")
+      .replace(/(\d{2})(\d{3})(\d{4})/, "$1 $2 $3");
+    validatePhone();
   }
-})
+});
 
 // === PAGAMENTO (EXATAMENTE COMO O ANTIGO QUE FUNCIONAVA) ===
 const handlePayment = async () => {
-  validatePhone()
+  validatePhone();
 
   if (!selectedMethod.value || !isPhoneValid.value || !props.anuncioId) {
-    errorMessage.value = 'Preencha todos os campos corretamente.'
-    return
+    errorMessage.value = "Preencha todos os campos corretamente.";
+    return;
   }
 
   if (props.weeks < 1 || props.weeks > 4) {
-    errorMessage.value = 'Selecione uma duração válida.'
-    return
+    errorMessage.value = "Selecione uma duração válida.";
+    return;
   }
 
-  loading.value = true
-  errorMessage.value = ''
-  successMessage.value = ''
+  loading.value = true;
+  errorMessage.value = "";
+  successMessage.value = "";
 
-  const cleanPhone = phone.value.replace(/\D/g, '')
-  const fullPhone = `258${cleanPhone}`
+  const cleanPhone = phone.value.replace(/\D/g, "");
+  const fullPhone = `258${cleanPhone}`;
 
   const payload = {
     amount: totalPrice.value,
     method: selectedMethod.value,
     phone: fullPhone,
-    type: 'anuncio',
+    type: "anuncio",
     anuncioId: props.anuncioId,
-    weeks: props.weeks
-  }
+    weeks: props.weeks,
+  };
 
-  console.log('Enviando pagamento:', payload)
+  console.log("Enviando pagamento:", payload);
 
   try {
-    const res = await api.post('/pagamentos/processar', payload, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    })
+    const res = await api.post("/pagamentos/processar", payload, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
 
     if (res.data.sucesso) {
       // Evento Meta Purchase (mantido)
-      await sendMetaEvent('Purchase', {
+      await sendMetaEvent("Purchase", {
         value: totalPrice.value,
-        currency: 'MZN',
-        content_ids: ['anuncio_pago'],
-        content_name: `Anúncio - ${props.weeks} semana${props.weeks > 1 ? 's' : ''}`,
-        num_items: 1
-      })
+        currency: "MZN",
+        content_ids: ["anuncio_pago"],
+        content_name: `Anúncio - ${props.weeks} semana${
+          props.weeks > 1 ? "s" : ""
+        }`,
+        num_items: 1,
+      });
 
-      successMessage.value = 'Pagamento iniciado! Aguarde a confirmação no seu telemóvel.'
-      localStorage.setItem('paymentPhone', fullPhone)
-      localStorage.removeItem('anuncieState')
+      successMessage.value =
+        "Pagamento iniciado! Aguarde a confirmação no seu telemóvel.";
+      localStorage.setItem("paymentPhone", fullPhone);
+      localStorage.removeItem("anuncieState");
 
       // Redireciona após 30 segundos (como no antigo)
       setTimeout(() => {
-        router.push('/meus-anuncios')
-      }, 30000)
+        router.push("/meus-anuncios");
+      }, 30000);
     } else {
-      errorMessage.value = res.data.mensagem || 'Pagamento não iniciado.'
+      errorMessage.value = res.data.mensagem || "Pagamento não iniciado.";
     }
   } catch (err) {
-    errorMessage.value = err.response?.data?.mensagem || 'Erro de conexão. Tente novamente.'
-    console.error('Erro no pagamento:', err.response?.data)
+    errorMessage.value =
+      err.response?.data?.mensagem || "Erro de conexão. Tente novamente.";
+    console.error("Erro no pagamento:", err.response?.data);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 </script>
 
 <!-- ESTILO MANTIDO 100% IGUAL AO TEU ATUAL -->
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
 
 .input-group.error-border {
   border-color: #ef4444;
@@ -278,7 +311,7 @@ const handlePayment = async () => {
   background: rgba(30, 30, 30, 0.9);
   padding: 0.75rem;
   border-radius: 0.6rem;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .section-title {
@@ -302,15 +335,21 @@ const handlePayment = async () => {
   justify-content: center;
 }
 
-.num-purple { background: #7c3aed; }
-.num-green { background: #10b981; }
-.num-blue { background: #3b82f6; }
+.num-purple {
+  background: #7c3aed;
+}
+.num-green {
+  background: #10b981;
+}
+.num-blue {
+  background: #3b82f6;
+}
 
 .package-info {
   padding: 0.75rem;
-  background: rgba(124,58,237,0.1);
+  background: rgba(124, 58, 237, 0.1);
   border-radius: 0.5rem;
-  border: 1.5px dashed rgba(124,58,237,0.35);
+  border: 1.5px dashed rgba(124, 58, 237, 0.35);
 }
 
 .package-name {
@@ -345,16 +384,24 @@ const handlePayment = async () => {
   gap: 0.5rem;
   padding: 1rem;
   border-radius: 0.6rem;
-  background: rgba(255,255,255,0.05);
-  border: 1.5px solid rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s;
 }
 
-.method-card.mpesa { border-color: #10b981; }
-.method-card.emola { border-color: #f59e0b; }
+.method-card.mpesa {
+  border-color: #10b981;
+}
+.method-card.emola {
+  border-color: #f59e0b;
+}
 
-.method-label.active .method-card.mpesa { background: rgba(16,185,129,0.15); }
-.method-label.active .method-card.emola { background: rgba(251,146,60,0.15); }
+.method-label.active .method-card.mpesa {
+  background: rgba(16, 185, 129, 0.15);
+}
+.method-label.active .method-card.emola {
+  background: rgba(251, 146, 60, 0.15);
+}
 
 .method-logo {
   width: 2.5rem;
@@ -362,13 +409,15 @@ const handlePayment = async () => {
   object-fit: contain;
 }
 
-.group { margin-bottom: 0.5rem; }
+.group {
+  margin-bottom: 0.5rem;
+}
 
 .input-group {
   display: flex;
   align-items: center;
-  background: rgba(0,0,0,0.6);
-  border: 1.25px solid rgba(255,255,255,0.12);
+  background: rgba(0, 0, 0, 0.6);
+  border: 1.25px solid rgba(255, 255, 255, 0.12);
   border-radius: 0.4rem;
   overflow: hidden;
 }
@@ -377,7 +426,7 @@ const handlePayment = async () => {
   padding: 0.5rem 0.75rem;
   color: #777;
   font-size: 0.85rem;
-  border-right: 1px solid rgba(255,255,255,0.12);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .input {
@@ -390,14 +439,18 @@ const handlePayment = async () => {
   outline: none;
 }
 
-.input::placeholder { color: #777; }
+.input::placeholder {
+  color: #777;
+}
 
 .input-group:focus-within {
   border-color: #7c3aed;
-  box-shadow: 0 0 0 2px rgba(124,58,237,0.1);
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
 }
 
-.hidden { display: none; }
+.hidden {
+  display: none;
+}
 
 .btn {
   grid-column: 1 / -1;
@@ -432,7 +485,7 @@ const handlePayment = async () => {
   grid-column: 1 / -1;
   margin-top: 1rem;
   padding: 1rem;
-  background: rgba(16,185,129,0.15);
+  background: rgba(16, 185, 129, 0.15);
   border: 1.5px solid #10b981;
   border-radius: 0.6rem;
   color: #10b981;
@@ -448,8 +501,16 @@ const handlePayment = async () => {
 }
 
 @media (min-width: 768px) {
-  .grid { grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
-  .section { grid-column: span 1; }
-  .btn, .success-msg { grid-column: 1 / -1; }
+  .grid {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+  }
+  .section {
+    grid-column: span 1;
+  }
+  .btn,
+  .success-msg {
+    grid-column: 1 / -1;
+  }
 }
 </style>

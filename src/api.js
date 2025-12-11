@@ -1,5 +1,5 @@
 // src/api/index.js
-import axios from 'axios';
+import axios from "axios";
 
 // Aqui estamos configurando o endpoint da API
 //const api = axios.create({
@@ -12,16 +12,16 @@ import axios from 'axios';
 //});
 
 const api = axios.create({
-  baseURL: 'https://apirpa.onrender.com/api',
-  timeout: 60000,  // 60 SEGUNDOS - COBRE COLD START + RETRIES DO BACKEND
+  baseURL: "https://apirpa.onrender.com/api",
+  timeout: 60000, // 60 SEGUNDOS - COBRE COLD START + RETRIES DO BACKEND
   headers: {
-    'Content-Type': 'application/json'
-  }
+    "Content-Type": "application/json",
+  },
 });
 
 // Interceptor para injetar o token JWT em todas as requisições
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token'); // certifique-se de usar a mesma chave usada no login
+  const token = localStorage.getItem("token"); // certifique-se de usar a mesma chave usada no login
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -41,7 +41,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error('API Error:', error.response?.data || error.message);
+    console.error("API Error:", error.response?.data || error.message);
     return Promise.reject(error);
   }
 );

@@ -8,7 +8,6 @@ import MaterialButton from "@/components/MaterialButton.vue";
 // image
 import profilePic from "@/assets/img/vibeprofile.jpg";
 
-
 // material-input
 import setMaterialInput from "@/assets/js/material-input";
 onMounted(() => {
@@ -63,12 +62,21 @@ onMounted(() => {
                 </div>
               </div>
               <p class="text-lg mb-0">
-                A Recupera Aqui, desenvolvida pela Techvibe sob a liderança do CEO Afonso Domingos apelidado por Vibe, foi criada para resolver um problema que afeta inúmeras pessoas: a perda de documentos importantes. Em um mundo onde a documentação pessoal é fundamental para a realização de atividades cotidianas, perder um documento pode resultar em frustrações e complicações desnecessárias.
-                <br />Reconhecendo essa necessidade, a Recupera Aqui visa oferecer uma solução eficiente e acessível, permitindo que indivíduos se conectem facilmente para registrar e recuperar documentos perdidos. Com um sistema intuitivo, buscamos transformar a experiência de recuperação em um processo simples e colaborativo.
+                A Recupera Aqui, desenvolvida pela Techvibe sob a liderança do
+                CEO Afonso Domingos apelidado por Vibe, foi criada para resolver
+                um problema que afeta inúmeras pessoas: a perda de documentos
+                importantes. Em um mundo onde a documentação pessoal é
+                fundamental para a realização de atividades cotidianas, perder
+                um documento pode resultar em frustrações e complicações
+                desnecessárias.
+                <br />Reconhecendo essa necessidade, a Recupera Aqui visa
+                oferecer uma solução eficiente e acessível, permitindo que
+                indivíduos se conectem facilmente para registrar e recuperar
+                documentos perdidos. Com um sistema intuitivo, buscamos
+                transformar a experiência de recuperação em um processo simples
+                e colaborativo.
                 <br />
-                <a
-                  href="javascript:;"
-                  class="text-success icon-move-right"
+                <a href="javascript:;" class="text-success icon-move-right"
                   >Mais Sobre mim
                   <i class="fas fa-arrow-right text-sm ms-1"></i>
                 </a>

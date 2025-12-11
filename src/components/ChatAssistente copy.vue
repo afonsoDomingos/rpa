@@ -3,33 +3,58 @@
     <div class="chat-header" @click="toggle">
       <span class="chat-avatar">
         <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-          <circle cx="16" cy="16" r="16" fill="#fff"/>
-          <ellipse cx="16" cy="19" rx="10" ry="7" fill="#e6e6fa"/>
-          <ellipse cx="16" cy="13" rx="7" ry="7" fill="#800080"/>
-          <ellipse cx="13.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff"/>
-          <ellipse cx="18.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff"/>
-          <rect x="13" y="16" width="6" height="2" rx="1" fill="#fff"/>
+          <circle cx="16" cy="16" r="16" fill="#fff" />
+          <ellipse cx="16" cy="19" rx="10" ry="7" fill="#e6e6fa" />
+          <ellipse cx="16" cy="13" rx="7" ry="7" fill="#800080" />
+          <ellipse cx="13.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff" />
+          <ellipse cx="18.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff" />
+          <rect x="13" y="16" width="6" height="2" rx="1" fill="#fff" />
         </svg>
       </span>
       <span class="chat-title">Rpa.Ai</span>
       <button class="close-btn" @click.stop="toggle">×</button>
     </div>
 
-    <div class="chat-desc"> Assistente Virtual</div>
+    <div class="chat-desc">Assistente Virtual</div>
 
     <div class="chat-body">
       <!-- Menu suspenso de perguntas -->
       <div class="faq-menu-wrapper">
-        <button class="faq-toggle-btn" @click="faqOpen = !faqOpen" :aria-expanded="faqOpen.toString()" aria-controls="faqMenuList">
+        <button
+          class="faq-toggle-btn"
+          @click="faqOpen = !faqOpen"
+          :aria-expanded="faqOpen.toString()"
+          aria-controls="faqMenuList"
+        >
           <span>❓ Perguntas Frequentes</span>
-          <svg v-if="!faqOpen" width="18" height="18" viewBox="0 0 20 20"><path d="M5 8l5 5 5-5" stroke="#800080" stroke-width="2" fill="none"/></svg>
-          <svg v-else width="18" height="18" viewBox="0 0 20 20"><path d="M15 12l-5-5-5 5" stroke="#800080" stroke-width="2" fill="none"/></svg>
+          <svg v-if="!faqOpen" width="18" height="18" viewBox="0 0 20 20">
+            <path
+              d="M5 8l5 5 5-5"
+              stroke="#800080"
+              stroke-width="2"
+              fill="none"
+            />
+          </svg>
+          <svg v-else width="18" height="18" viewBox="0 0 20 20">
+            <path
+              d="M15 12l-5-5-5 5"
+              stroke="#800080"
+              stroke-width="2"
+              fill="none"
+            />
+          </svg>
         </button>
         <transition name="faq-fade">
           <div v-show="faqOpen" class="faq-menu" id="faqMenuList" role="menu">
             <ul class="faq-list">
               <li v-for="p in predefinidas" :key="p.id">
-                <button class="faq-btn" @click="responderFaq(p.id)" role="menuitem">{{ p.pergunta }}</button>
+                <button
+                  class="faq-btn"
+                  @click="responderFaq(p.id)"
+                  role="menuitem"
+                >
+                  {{ p.pergunta }}
+                </button>
               </li>
             </ul>
           </div>
@@ -54,88 +79,137 @@
       </div>
 
       <div class="chat-messages" ref="chatMessagesRef" @scroll="handleScroll">
-        <div v-for="(msg, i) in messages" :key="'msg-' + i" :class="['msg', msg.from]">
+        <div
+          v-for="(msg, i) in messages"
+          :key="'msg-' + i"
+          :class="['msg', msg.from]"
+        >
           <span v-if="msg.from === 'bot'" class="msg-bot-avatar">
             <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
-              <circle cx="16" cy="16" r="16" fill="#fff"/>
-              <ellipse cx="16" cy="19" rx="10" ry="7" fill="#e6e6fa"/>
-              <ellipse cx="16" cy="13" rx="7" ry="7" fill="#800080"/>
-              <ellipse cx="13.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff"/>
-              <ellipse cx="18.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff"/>
-              <rect x="13" y="16" width="6" height="2" rx="1" fill="#fff"/>
+              <circle cx="16" cy="16" r="16" fill="#fff" />
+              <ellipse cx="16" cy="19" rx="10" ry="7" fill="#e6e6fa" />
+              <ellipse cx="16" cy="13" rx="7" ry="7" fill="#800080" />
+              <ellipse cx="13.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff" />
+              <ellipse cx="18.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff" />
+              <rect x="13" y="16" width="6" height="2" rx="1" fill="#fff" />
             </svg>
           </span>
-          <span class="msg-text" v-if="msg.from === 'bot'" v-html="msg.text"></span>
+          <span
+            class="msg-text"
+            v-if="msg.from === 'bot'"
+            v-html="msg.text"
+          ></span>
           <span class="msg-text" v-else>{{ msg.text }}</span>
         </div>
-        <button v-show="showScrollBtn" class="scroll-to-bottom-btn" @click="scrollToBottom" aria-label="Rolar para o fim do chat">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M19 12l-7 7-7-7" stroke="#800080" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button
+          v-show="showScrollBtn"
+          class="scroll-to-bottom-btn"
+          @click="scrollToBottom"
+          aria-label="Rolar para o fim do chat"
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 5v14M19 12l-7 7-7-7"
+              stroke="#800080"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
         </button>
       </div>
     </div>
 
+    <form class="chat-footer" @submit.prevent="send">
+      <input
+        v-model="input"
+        type="text"
+        placeholder="Digite ou fale sua mensagem..."
+        autocomplete="off"
+      />
 
+      <!-- Botão de microfone -->
+      <button
+        type="button"
+        class="mic-btn"
+        :class="{ recording: isRecording, disabled: !micSupported }"
+        @click="toggleRecording"
+        :disabled="!micSupported || isProcessingAudio || isRecording"
+        :title="
+          micSupported
+            ? isRecording
+              ? 'Escutando...'
+              : 'Clique para falar'
+            : 'Microfone não suportado'
+        "
+        style="padding: 2px; font-size: 10px"
+      >
+        <svg
+          v-if="!isRecording"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <path
+            d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4Z"
+            fill="currentColor"
+          />
+          <path
+            d="M19 11v1a7 7 0 0 1-14 0v-1M12 19v4M8 23h8"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <svg v-else width="12" height="12" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="3" fill="currentColor">
+            <animate
+              attributeName="r"
+              values="3;6;3"
+              dur="1s"
+              repeatCount="indefinite"
+            />
+            <animate
+              attributeName="opacity"
+              values="1;0.3;1"
+              dur="1s"
+              repeatCount="indefinite"
+            />
+          </circle>
+        </svg>
+      </button>
 
-
-
-
- <form class="chat-footer" @submit.prevent="send">
-  <input
-    v-model="input"
-    type="text"
-    placeholder="Digite ou fale sua mensagem..."
-    autocomplete="off"
-  />
-
-  <!-- Botão de microfone -->
-  <button 
-    type="button" 
-    class="mic-btn"
-    :class="{ 'recording': isRecording, 'disabled': !micSupported }"
-    @click="toggleRecording"
-    :disabled="!micSupported || isProcessingAudio || isRecording"
-    :title="micSupported ? (isRecording ? 'Escutando...' : 'Clique para falar') : 'Microfone não suportado'"
-    style="padding: 2px; font-size: 10px;"
-  >
-    <svg v-if="!isRecording" width="12" height="12" viewBox="0 0 24 24" fill="none">
-      <path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4Z" fill="currentColor"/>
-      <path d="M19 11v1a7 7 0 0 1-14 0v-1M12 19v4M8 23h8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <svg v-else width="12" height="12" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="3" fill="currentColor">
-        <animate attributeName="r" values="3;6;3" dur="1s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
-      </circle>
-    </svg>
-  </button>
-
-  <button 
-    type="submit"
-    style="padding: 2px 6px; font-size: 10px;"
-  >
-    Enviar
-  </button>
-</form>
-
-
-
-
-
-
+      <button type="submit" style="padding: 2px 6px; font-size: 10px">
+        Enviar
+      </button>
+    </form>
   </div>
 
-  <button v-show="!open" class="chat-fab" @click="toggle" aria-label="Falar com Assistente">
+  <button
+    v-show="!open"
+    class="chat-fab"
+    @click="toggle"
+    aria-label="Falar com Assistente"
+  >
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="12" fill="#800080"/>
-      <path d="M12 17c2.8 0 5-2.2 5-5V9a5 5 0 0 0-10 0v3c0 2.8 2.2 5 5 5Zm-3-5V9a3 3 0 0 1 6 0v3a3 3 0 0 1-6 0Zm8 0a5.98 5.98 0 0 1-2 4.47V20h-4v-1.53A5.98 5.98 0 0 1 7 12" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12" cy="12" r="12" fill="#800080" />
+      <path
+        d="M12 17c2.8 0 5-2.2 5-5V9a5 5 0 0 0-10 0v3c0 2.8 2.2 5 5 5Zm-3-5V9a3 3 0 0 1 6 0v3a3 3 0 0 1-6 0Zm8 0a5.98 5.98 0 0 1-2 4.47V20h-4v-1.53A5.98 5.98 0 0 1 7 12"
+        stroke="#fff"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
     </svg>
   </button>
 </template>
 
 <script setup>
-import axios from 'axios';
+import axios from "axios";
 import api from "../api"; // Sua instância da API existente
-import { ref, nextTick, onUpdated, onMounted, onUnmounted } from 'vue';
+import { ref, nextTick, onUpdated, onMounted, onUnmounted } from "vue";
 
 const open = ref(false);
 const input = ref("");
@@ -155,42 +229,114 @@ let recordingTimer = null;
 // Estados para o fluxo de busca de documentos
 const buscandoDocumento = ref(false);
 const dadosDocumento = ref({
-  nome_completo: '',
-  tipo_documento: '',
-  numero_documento: '',
-  provincia: '',
-  etapa: 'inicial' // inicial, coletando_nome, coletando_tipo, coletando_numero, coletando_provincia, finalizando
+  nome_completo: "",
+  tipo_documento: "",
+  numero_documento: "",
+  provincia: "",
+  etapa: "inicial", // inicial, coletando_nome, coletando_tipo, coletando_numero, coletando_provincia, finalizando
 });
 
 const predefinidas = [
-  { id: 1, pergunta: '🔐 1. Como criar uma conta?', resposta: 'Para criar uma conta, preencha seu nome, e-mail e senha.<br>Depois é só fazer login e começar a usar a plataforma normalmente.<br><a href="/" style="color:#800080;text-decoration:underline;">Clique aqui para fazer login</a>.' },
-  { id: 2, pergunta: '🔑 2. Como fazer login?', resposta: 'Informe seu e-mail e senha cadastrados.<br>Você será direcionado(a) para a tela principal da plataforma.<br><a href="/" style="color:#800080;text-decoration:underline;">Ir para login</a>.' },
-  { id: 3, pergunta: '🔍 3. Como procurar um documento?', resposta: 'Vá até a aba "Procurar", escolha o filtro desejado.<br>Clique em "Buscar" e veja se há algum resultado disponível.' },
-  { id: 4, pergunta: '📥 4. Como solicitar um documento?', resposta: 'Se o documento for encontrado, clique em "Solicitar".<br>Será necessário ter uma assinatura ativa (Mensal ou Anual) para prosseguir.<br><a href="/assinaturas" style="color:#800080;text-decoration:underline;">Clique aqui para ver planos de assinatura</a> (opcional).' },
-  { id: 5, pergunta: '💳 5. Como fazer uma assinatura?', resposta: 'Escolha um dos planos disponíveis:\n– 📅 Mensal: 150 MZN\n– 📆 Anual: 650 MZN\nApós o pagamento, sua assinatura será ativada imediatamente.' },
-  { id: 6, pergunta: '📢 6. Como reportar um documento?', resposta: 'Se não encontrar o documento, vá à aba "Reportar".\nPreencha os dados do documento perdido e envie.\nVocê será notificado se alguém encontrá-lo.' },
-  { id: 7, pergunta: '📁 7. Como guardar um documento?', resposta: 'Acesse "Guardar Documento", preencha os dados e clique em salvar.\nO documento ficará disponível na sua conta, com opção de gerar PDF.' },
-  { id: 8, pergunta: '📄 8. Como gerar um PDF?', resposta: 'Após guardar um documento, clique em "Gerar PDF".\nUm arquivo será criado automaticamente com os dados preenchidos.' },
-  { id: 9, pergunta: '🔁 9. Como renovar a assinatura?', resposta: 'Quando sua assinatura expirar, clique em "Renovar" no painel.\nEscolha o plano desejado e continue acessando todos os recursos.' },
-  { id: 10, pergunta: '❓ 10. Como posso receber ajuda?', resposta: 'Você pode digitar perguntas como:\n"Assinar", "Reportar documento", "PDF", "Renovar" ou "Guardar".\nOu clique no botão "Ajuda" para ver todas as opções.' },
-  { id: 11, pergunta: '🔎 11. Perdi meu documento', resposta: 'Vou te ajudar a procurar seu documento! Primeiro preciso de algumas informações.' }
+  {
+    id: 1,
+    pergunta: "🔐 1. Como criar uma conta?",
+    resposta:
+      'Para criar uma conta, preencha seu nome, e-mail e senha.<br>Depois é só fazer login e começar a usar a plataforma normalmente.<br><a href="/" style="color:#800080;text-decoration:underline;">Clique aqui para fazer login</a>.',
+  },
+  {
+    id: 2,
+    pergunta: "🔑 2. Como fazer login?",
+    resposta:
+      'Informe seu e-mail e senha cadastrados.<br>Você será direcionado(a) para a tela principal da plataforma.<br><a href="/" style="color:#800080;text-decoration:underline;">Ir para login</a>.',
+  },
+  {
+    id: 3,
+    pergunta: "🔍 3. Como procurar um documento?",
+    resposta:
+      'Vá até a aba "Procurar", escolha o filtro desejado.<br>Clique em "Buscar" e veja se há algum resultado disponível.',
+  },
+  {
+    id: 4,
+    pergunta: "📥 4. Como solicitar um documento?",
+    resposta:
+      'Se o documento for encontrado, clique em "Solicitar".<br>Será necessário ter uma assinatura ativa (Mensal ou Anual) para prosseguir.<br><a href="/assinaturas" style="color:#800080;text-decoration:underline;">Clique aqui para ver planos de assinatura</a> (opcional).',
+  },
+  {
+    id: 5,
+    pergunta: "💳 5. Como fazer uma assinatura?",
+    resposta:
+      "Escolha um dos planos disponíveis:\n– 📅 Mensal: 150 MZN\n– 📆 Anual: 650 MZN\nApós o pagamento, sua assinatura será ativada imediatamente.",
+  },
+  {
+    id: 6,
+    pergunta: "📢 6. Como reportar um documento?",
+    resposta:
+      'Se não encontrar o documento, vá à aba "Reportar".\nPreencha os dados do documento perdido e envie.\nVocê será notificado se alguém encontrá-lo.',
+  },
+  {
+    id: 7,
+    pergunta: "📁 7. Como guardar um documento?",
+    resposta:
+      'Acesse "Guardar Documento", preencha os dados e clique em salvar.\nO documento ficará disponível na sua conta, com opção de gerar PDF.',
+  },
+  {
+    id: 8,
+    pergunta: "📄 8. Como gerar um PDF?",
+    resposta:
+      'Após guardar um documento, clique em "Gerar PDF".\nUm arquivo será criado automaticamente com os dados preenchidos.',
+  },
+  {
+    id: 9,
+    pergunta: "🔁 9. Como renovar a assinatura?",
+    resposta:
+      'Quando sua assinatura expirar, clique em "Renovar" no painel.\nEscolha o plano desejado e continue acessando todos os recursos.',
+  },
+  {
+    id: 10,
+    pergunta: "❓ 10. Como posso receber ajuda?",
+    resposta:
+      'Você pode digitar perguntas como:\n"Assinar", "Reportar documento", "PDF", "Renovar" ou "Guardar".\nOu clique no botão "Ajuda" para ver todas as opções.',
+  },
+  {
+    id: 11,
+    pergunta: "🔎 11. Perdi meu documento",
+    resposta:
+      "Vou te ajudar a procurar seu documento! Primeiro preciso de algumas informações.",
+  },
 ];
 
 const messages = ref([
-  { from: 'bot', text: 'Olá! Como posso ajudar você?<br>💡 <strong>Dica:</strong> Se perdeu algum documento, só me dizer que eu ajudo a procurar automaticamente!<br><br>🎤 <strong>Novo:</strong> Agora você pode falar comigo usando o microfone!<br><br>Selecione uma pergunta abaixo ou digite/fale sua dúvida.' }
+  {
+    from: "bot",
+    text: "Olá! Como posso ajudar você?<br>💡 <strong>Dica:</strong> Se perdeu algum documento, só me dizer que eu ajudo a procurar automaticamente!<br><br>🎤 <strong>Novo:</strong> Agora você pode falar comigo usando o microfone!<br><br>Selecione uma pergunta abaixo ou digite/fale sua dúvida.",
+  },
 ]);
 
 // Lista de tipos de documentos
 const tipo_documentos = [
-  "Bilhete de Identidade", "Passaporte", "Cartão de Eleitor",
-  "Cartão de Estudante", "Carta de Condução", "Seguro do Veículo",
-  "Livrete", "Cartão de Identidade Militar"
+  "Bilhete de Identidade",
+  "Passaporte",
+  "Cartão de Eleitor",
+  "Cartão de Estudante",
+  "Carta de Condução",
+  "Seguro do Veículo",
+  "Livrete",
+  "Cartão de Identidade Militar",
 ];
 
 // Lista de províncias
 const provincias = [
-  "Maputo", "Maputo Cidade", "Gaza", "Inhambane", "Sofala",
-  "Manica", "Tete", "Zambézia", "Nampula", "Niassa", "Cabo Delgado"
+  "Maputo",
+  "Maputo Cidade",
+  "Gaza",
+  "Inhambane",
+  "Sofala",
+  "Manica",
+  "Tete",
+  "Zambézia",
+  "Nampula",
+  "Niassa",
+  "Cabo Delgado",
 ];
 
 const API_URL = "https://apirpa.onrender.com";
@@ -210,8 +356,9 @@ onUnmounted(() => {
 async function checkMicrophoneSupport() {
   try {
     // Verificar se Web Speech API está disponível
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
     if (!SpeechRecognition) {
       micSupported.value = false;
       return;
@@ -219,7 +366,7 @@ async function checkMicrophoneSupport() {
 
     micSupported.value = true;
   } catch (error) {
-    console.warn('Web Speech API não disponível:', error);
+    console.warn("Web Speech API não disponível:", error);
     micSupported.value = false;
   }
 }
@@ -245,7 +392,7 @@ async function startRecording() {
     // Timer para mostrar tempo
     recordingTimer = setInterval(() => {
       recordingTime.value++;
-      
+
       // Parar automaticamente após 10 segundos (limite da Web Speech API)
       if (recordingTime.value >= 10) {
         clearInterval(recordingTimer);
@@ -255,25 +402,26 @@ async function startRecording() {
 
     // Usar Web Speech API diretamente
     const transcription = await speechToText();
-    
+
     // Processar resultado
     if (transcription && transcription.trim()) {
       input.value = transcription;
-      messages.value.push({ from: 'user', text: `🎤 ${transcription}` });
+      messages.value.push({ from: "user", text: `🎤 ${transcription}` });
       await processMessage(transcription);
     } else {
-      typeWriter('❌ Não consegui entender o áudio. Tente falar mais claramente.');
+      typeWriter(
+        "❌ Não consegui entender o áudio. Tente falar mais claramente."
+      );
     }
-    
   } catch (error) {
-    console.error('Erro no reconhecimento de voz:', error);
+    console.error("Erro no reconhecimento de voz:", error);
     typeWriter(`❌ ${error.message}`);
   } finally {
     // Resetar estados
     isRecording.value = false;
     isProcessingAudio.value = false;
-    input.value = '';
-    
+    input.value = "";
+
     if (recordingTimer) {
       clearInterval(recordingTimer);
       recordingTimer = null;
@@ -291,59 +439,60 @@ async function startRecording() {
 async function speechToText() {
   return new Promise((resolve, reject) => {
     // Verificar se Web Speech API está disponível
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
     if (!SpeechRecognition) {
-      reject(new Error('Reconhecimento de fala não suportado neste navegador'));
+      reject(new Error("Reconhecimento de fala não suportado neste navegador"));
       return;
     }
-    
+
     const recognition = new SpeechRecognition();
-    
+
     // Configurações do reconhecimento
-    recognition.lang = 'pt-PT'; // Português
+    recognition.lang = "pt-PT"; // Português
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
-    
+
     // Quando obter resultado
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
       resolve(transcript);
     };
-    
+
     // Em caso de erro
     recognition.onerror = (event) => {
-      let errorMessage = 'Erro no reconhecimento de voz';
-      
-      switch(event.error) {
-        case 'no-speech':
-          errorMessage = 'Nenhuma fala detectada. Tente falar mais alto.';
+      let errorMessage = "Erro no reconhecimento de voz";
+
+      switch (event.error) {
+        case "no-speech":
+          errorMessage = "Nenhuma fala detectada. Tente falar mais alto.";
           break;
-        case 'audio-capture':
-          errorMessage = 'Microfone não disponível.';
+        case "audio-capture":
+          errorMessage = "Microfone não disponível.";
           break;
-        case 'not-allowed':
-          errorMessage = 'Permissão negada. Permita o acesso ao microfone.';
+        case "not-allowed":
+          errorMessage = "Permissão negada. Permita o acesso ao microfone.";
           break;
-        case 'network':
-          errorMessage = 'Erro de rede. Verifique sua conexão.';
+        case "network":
+          errorMessage = "Erro de rede. Verifique sua conexão.";
           break;
       }
-      
+
       reject(new Error(errorMessage));
     };
-    
+
     // Quando terminar (sem resultado)
     recognition.onend = () => {
       // Se chegou até aqui sem onresult, significa que não captou nada
     };
-    
+
     // Iniciar reconhecimento
     try {
       recognition.start();
     } catch (error) {
-      reject(new Error('Erro ao iniciar reconhecimento de voz'));
+      reject(new Error("Erro ao iniciar reconhecimento de voz"));
     }
   });
 }
@@ -360,14 +509,25 @@ function toggle() {
 // Função para detectar se o usuário quer buscar documento perdido
 function detectarBuscaDocumento(mensagem) {
   const palavrasChave = [
-    'perdi', 'perdeu', 'perder', 'documento perdido', 'documento',
-    'bi perdido', 'passaporte perdido', 'carta perdida', 'perda',
-    'encontrar documento', 'procurar documento', 'buscar documento',
-    'bilhete de identidade', 'passaporte', 'carta de condução'
+    "perdi",
+    "perdeu",
+    "perder",
+    "documento perdido",
+    "documento",
+    "bi perdido",
+    "passaporte perdido",
+    "carta perdida",
+    "perda",
+    "encontrar documento",
+    "procurar documento",
+    "buscar documento",
+    "bilhete de identidade",
+    "passaporte",
+    "carta de condução",
   ];
-  
+
   const mensagemLower = mensagem.toLowerCase();
-  return palavrasChave.some(palavra => mensagemLower.includes(palavra));
+  return palavrasChave.some((palavra) => mensagemLower.includes(palavra));
 }
 
 // Processar mensagem (texto ou voz)
@@ -402,33 +562,39 @@ async function processMessage(userMsg) {
 // Função para processar o fluxo de coleta de dados do documento
 async function processarFluxoDocumento(mensagem) {
   const etapa = dadosDocumento.value.etapa;
-  
+
   switch (etapa) {
-    case 'inicial':
-      dadosDocumento.value.etapa = 'coletando_nome';
-      typeWriter('📋 Entendi! Vou te ajudar a procurar seu documento.<br><br>Primeiro, me diga: <strong>qual é o nome completo que está no documento?</strong>');
+    case "inicial":
+      dadosDocumento.value.etapa = "coletando_nome";
+      typeWriter(
+        "📋 Entendi! Vou te ajudar a procurar seu documento.<br><br>Primeiro, me diga: <strong>qual é o nome completo que está no documento?</strong>"
+      );
       break;
-      
-    case 'coletando_nome':
+
+    case "coletando_nome":
       if (mensagem.trim().length < 3) {
-        typeWriter('❌ Por favor, digite um nome válido com pelo menos 3 caracteres.');
+        typeWriter(
+          "❌ Por favor, digite um nome válido com pelo menos 3 caracteres."
+        );
         return;
       }
       dadosDocumento.value.nome_completo = mensagem.trim();
-      dadosDocumento.value.etapa = 'coletando_tipo';
-      
-      let opcoesDocumentos = '<strong>Que tipo de documento você perdeu?</strong><br><br>';
+      dadosDocumento.value.etapa = "coletando_tipo";
+
+      let opcoesDocumentos =
+        "<strong>Que tipo de documento você perdeu?</strong><br><br>";
       tipo_documentos.forEach((tipo, index) => {
         opcoesDocumentos += `${index + 1}. ${tipo}<br>`;
       });
-      opcoesDocumentos += '<br>💬 Digite o <strong>número</strong> ou o <strong>nome completo</strong> do documento:';
-      
+      opcoesDocumentos +=
+        "<br>💬 Digite o <strong>número</strong> ou o <strong>nome completo</strong> do documento:";
+
       typeWriter(opcoesDocumentos);
       break;
-      
-    case 'coletando_tipo':
-      let tipoSelecionado = '';
-      
+
+    case "coletando_tipo":
+      let tipoSelecionado = "";
+
       // Verificar se é um número
       if (/^\d+$/.test(mensagem.trim())) {
         const index = parseInt(mensagem.trim()) - 1;
@@ -437,49 +603,62 @@ async function processarFluxoDocumento(mensagem) {
         }
       } else {
         // Procurar por nome (busca flexível)
-        const tipoEncontrado = tipo_documentos.find(tipo => 
-          tipo.toLowerCase().includes(mensagem.trim().toLowerCase()) ||
-          mensagem.trim().toLowerCase().includes(tipo.toLowerCase())
+        const tipoEncontrado = tipo_documentos.find(
+          (tipo) =>
+            tipo.toLowerCase().includes(mensagem.trim().toLowerCase()) ||
+            mensagem.trim().toLowerCase().includes(tipo.toLowerCase())
         );
         if (tipoEncontrado) {
           tipoSelecionado = tipoEncontrado;
         }
       }
-      
+
       if (!tipoSelecionado) {
-        typeWriter('❌ Tipo de documento não reconhecido. Por favor, escolha um número de 1 a ' + tipo_documentos.length + ' ou digite o nome exato.');
+        typeWriter(
+          "❌ Tipo de documento não reconhecido. Por favor, escolha um número de 1 a " +
+            tipo_documentos.length +
+            " ou digite o nome exato."
+        );
         return;
       }
-      
+
       dadosDocumento.value.tipo_documento = tipoSelecionado;
-      dadosDocumento.value.etapa = 'coletando_numero';
-      
-      typeWriter(`✅ Documento: <strong>${tipoSelecionado}</strong><br><br>📋 Se souber, me diga o <strong>número do documento</strong>.<br><br>💡 <em>Se não lembrar, pode digitar "não sei" ou "pular"</em>`);
+      dadosDocumento.value.etapa = "coletando_numero";
+
+      typeWriter(
+        `✅ Documento: <strong>${tipoSelecionado}</strong><br><br>📋 Se souber, me diga o <strong>número do documento</strong>.<br><br>💡 <em>Se não lembrar, pode digitar "não sei" ou "pular"</em>`
+      );
       break;
-      
-    case 'coletando_numero':
+
+    case "coletando_numero":
       const mensagemNumero = mensagem.trim().toLowerCase();
-      
-      if (mensagemNumero === 'não sei' || mensagemNumero === 'nao sei' || mensagemNumero === 'pular') {
-        dadosDocumento.value.numero_documento = '';
+
+      if (
+        mensagemNumero === "não sei" ||
+        mensagemNumero === "nao sei" ||
+        mensagemNumero === "pular"
+      ) {
+        dadosDocumento.value.numero_documento = "";
       } else {
         dadosDocumento.value.numero_documento = mensagem.trim();
       }
-      
-      dadosDocumento.value.etapa = 'coletando_provincia';
-      
-      let opcoesProvincias = '<strong>Em que província você perdeu o documento?</strong><br><br>';
+
+      dadosDocumento.value.etapa = "coletando_provincia";
+
+      let opcoesProvincias =
+        "<strong>Em que província você perdeu o documento?</strong><br><br>";
       provincias.forEach((provincia, index) => {
         opcoesProvincias += `${index + 1}. ${provincia}<br>`;
       });
-      opcoesProvincias += '<br>💬 Digite o <strong>número</strong> ou o <strong>nome da província</strong>:';
-      
+      opcoesProvincias +=
+        "<br>💬 Digite o <strong>número</strong> ou o <strong>nome da província</strong>:";
+
       typeWriter(opcoesProvincias);
       break;
-      
-    case 'coletando_provincia':
-      let provinciaSelecionada = '';
-      
+
+    case "coletando_provincia":
+      let provinciaSelecionada = "";
+
       // Verificar se é um número
       if (/^\d+$/.test(mensagem.trim())) {
         const index = parseInt(mensagem.trim()) - 1;
@@ -488,23 +667,28 @@ async function processarFluxoDocumento(mensagem) {
         }
       } else {
         // Procurar por nome
-        const provinciaEncontrada = provincias.find(provincia => 
-          provincia.toLowerCase().includes(mensagem.trim().toLowerCase()) ||
-          mensagem.trim().toLowerCase().includes(provincia.toLowerCase())
+        const provinciaEncontrada = provincias.find(
+          (provincia) =>
+            provincia.toLowerCase().includes(mensagem.trim().toLowerCase()) ||
+            mensagem.trim().toLowerCase().includes(provincia.toLowerCase())
         );
         if (provinciaEncontrada) {
           provinciaSelecionada = provinciaEncontrada;
         }
       }
-      
+
       if (!provinciaSelecionada) {
-        typeWriter('❌ Província não reconhecida. Por favor, escolha um número de 1 a ' + provincias.length + ' ou digite o nome exato.');
+        typeWriter(
+          "❌ Província não reconhecida. Por favor, escolha um número de 1 a " +
+            provincias.length +
+            " ou digite o nome exato."
+        );
         return;
       }
-      
+
       dadosDocumento.value.provincia = provinciaSelecionada;
-      dadosDocumento.value.etapa = 'finalizando';
-      
+      dadosDocumento.value.etapa = "finalizando";
+
       // Realizar a busca
       await realizarBuscaDocumento();
       break;
@@ -513,12 +697,14 @@ async function processarFluxoDocumento(mensagem) {
 
 // Função para buscar o documento na base de dados
 async function realizarBuscaDocumento() {
-  typeWriter('🔍 Buscando seu documento na nossa base de dados...<br><br>⏳ <em>Por favor aguarde...</em>');
-  
+  typeWriter(
+    "🔍 Buscando seu documento na nossa base de dados...<br><br>⏳ <em>Por favor aguarde...</em>"
+  );
+
   try {
     // Montar parâmetros para a busca
     let params = {};
-    
+
     if (dadosDocumento.value.nome_completo) {
       params.nome_completo = dadosDocumento.value.nome_completo;
     }
@@ -531,17 +717,18 @@ async function realizarBuscaDocumento() {
     if (dadosDocumento.value.provincia) {
       params.provincia = dadosDocumento.value.provincia;
     }
-    
+
     // Fazer a consulta na API existente
-    const response = await api.get('/documentos', { params });
+    const response = await api.get("/documentos", { params });
     const documentosEncontrados = response.data;
-    
+
     // Exibir resultados
     await exibirResultadosBusca(documentosEncontrados);
-    
   } catch (error) {
-    console.error('Erro ao buscar documentos:', error);
-    typeWriter('❌ Ocorreu um erro ao buscar o documento. Tente novamente mais tarde ou use a busca manual na aba "Procurar".');
+    console.error("Erro ao buscar documentos:", error);
+    typeWriter(
+      '❌ Ocorreu um erro ao buscar o documento. Tente novamente mais tarde ou use a busca manual na aba "Procurar".'
+    );
     resetarFluxoDocumento();
   }
 }
@@ -549,12 +736,14 @@ async function realizarBuscaDocumento() {
 // Função para exibir os resultados da busca
 async function exibirResultadosBusca(documentos) {
   if (documentos.length === 0) {
-    const nomeUsuario = dadosDocumento.value.nome_completo.split(' ')[0];
-    
-    typeWriter(`❌ <strong>Documento não encontrado</strong><br><br>Olá ${nomeUsuario}, infelizmente não encontrei seu documento na nossa base de dados.<br><br>🤔 <strong>Mas não desanime!</strong><br><br>📋 <strong>O que você pode fazer:</strong><br>1️⃣ Cadastre seu documento na aba <strong>"Reportar"</strong><br>2️⃣ Assim, se alguém encontrá-lo, você será notificado!<br><br>💡 <em>Muitas pessoas encontram seus documentos alguns dias depois de cadastrá-los na plataforma.</em><br><br>Quer que eu te redirecione para o cadastro?`);
+    const nomeUsuario = dadosDocumento.value.nome_completo.split(" ")[0];
+
+    typeWriter(
+      `❌ <strong>Documento não encontrado</strong><br><br>Olá ${nomeUsuario}, infelizmente não encontrei seu documento na nossa base de dados.<br><br>🤔 <strong>Mas não desanime!</strong><br><br>📋 <strong>O que você pode fazer:</strong><br>1️⃣ Cadastre seu documento na aba <strong>"Reportar"</strong><br>2️⃣ Assim, se alguém encontrá-lo, você será notificado!<br><br>💡 <em>Muitas pessoas encontram seus documentos alguns dias depois de cadastrá-los na plataforma.</em><br><br>Quer que eu te redirecione para o cadastro?`
+    );
   } else {
     let resultadoTexto = `🎉 <strong>Ótimas notícias!</strong><br><br>Encontrei <strong>${documentos.length} documento(s)</strong> que pode(m) ser o seu:<br><br>`;
-    
+
     documentos.forEach((doc, index) => {
       resultadoTexto += `📄 <strong>Resultado ${index + 1}:</strong><br>`;
       resultadoTexto += `👤 Nome: ${doc.nome_completo}<br>`;
@@ -566,12 +755,12 @@ async function exibirResultadosBusca(documentos) {
       resultadoTexto += `📅 Data: ${doc.data_perda}<br>`;
       resultadoTexto += `<br>`;
     });
-    
+
     resultadoTexto += `✅ <strong>Próximo passo:</strong><br>Vá até a aba <strong>"Procurar"</strong> para solicitar o documento oficialmente.<br><br>💡 <em>Você precisará de uma assinatura ativa para solicitar.</em><br><br><a href="/assinaturas" style="color:#800080;text-decoration:underline;">Ver planos de assinatura</a>`;
-    
+
     typeWriter(resultadoTexto);
   }
-  
+
   resetarFluxoDocumento();
 }
 
@@ -579,11 +768,11 @@ async function exibirResultadosBusca(documentos) {
 function resetarFluxoDocumento() {
   buscandoDocumento.value = false;
   dadosDocumento.value = {
-    nome_completo: '',
-    tipo_documento: '',
-    numero_documento: '',
-    provincia: '',
-    etapa: 'inicial'
+    nome_completo: "",
+    tipo_documento: "",
+    numero_documento: "",
+    provincia: "",
+    etapa: "inicial",
   };
 }
 
@@ -591,21 +780,21 @@ async function send() {
   if (!input.value.trim()) return;
 
   const userMsg = input.value.trim();
-  messages.value.push({ from: 'user', text: userMsg });
+  messages.value.push({ from: "user", text: userMsg });
 
   input.value = "";
   await processMessage(userMsg);
 }
 
 function responderFaq(id) {
-  const pergunta = predefinidas.find(p => p.id === id);
+  const pergunta = predefinidas.find((p) => p.id === id);
   if (pergunta) {
-    messages.value.push({ from: 'user', text: pergunta.pergunta });
-    
+    messages.value.push({ from: "user", text: pergunta.pergunta });
+
     // Se for a pergunta sobre documento perdido, iniciar fluxo
     if (id === 11) {
       buscandoDocumento.value = true;
-      processarFluxoDocumento('perdi meu documento');
+      processarFluxoDocumento("perdi meu documento");
     } else {
       typeWriter(pergunta.resposta);
     }
@@ -622,8 +811,11 @@ function typeWriter(text, callback) {
   function type() {
     if (i < text.length) {
       current += text[i++];
-      if (messages.value.length === 0 || messages.value[messages.value.length - 1].from !== 'bot') {
-        messages.value.push({ from: 'bot', text: current });
+      if (
+        messages.value.length === 0 ||
+        messages.value[messages.value.length - 1].from !== "bot"
+      ) {
+        messages.value.push({ from: "bot", text: current });
       } else {
         messages.value[messages.value.length - 1].text = current;
       }
@@ -663,7 +855,7 @@ onUpdated(() => {
 });
 </script>
 
-<style scoped> 
+<style scoped>
 .faq-select-box {
   margin-bottom: 10px;
 }
@@ -678,7 +870,7 @@ onUpdated(() => {
 }
 .faq-select-box select:focus {
   border-color: #800080;
-  box-shadow: 0 0 4px rgba(128,0,128,0.2);
+  box-shadow: 0 0 4px rgba(128, 0, 128, 0.2);
   outline: none;
 }
 
@@ -717,8 +909,13 @@ onUpdated(() => {
 }
 
 @keyframes recording-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
 }
 
 .processing-status {
@@ -750,8 +947,12 @@ onUpdated(() => {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Botão de microfone */
@@ -797,7 +998,7 @@ onUpdated(() => {
   border-radius: 10px;
   padding: 10px 8px 8px 8px;
   margin-bottom: 10px;
-  box-shadow: 0 1px 4px rgba(128,0,128,0.06);
+  box-shadow: 0 1px 4px rgba(128, 0, 128, 0.06);
 }
 .faq-title {
   font-weight: 600;
@@ -837,7 +1038,7 @@ onUpdated(() => {
   max-width: 95vw;
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(60,60,60,0.18);
+  box-shadow: 0 4px 24px rgba(60, 60, 60, 0.18);
   z-index: 10000;
   display: flex;
   flex-direction: column;
@@ -896,7 +1097,7 @@ onUpdated(() => {
   background: #e6e6fa;
   color: #800080;
   border: 1.5px solid #d1c4e9;
-  box-shadow: 0 2px 8px rgba(128,0,128,0.07);
+  box-shadow: 0 2px 8px rgba(128, 0, 128, 0.07);
   align-self: flex-start;
   padding: 7px 13px;
   border-radius: 14px;
@@ -963,7 +1164,7 @@ onUpdated(() => {
   background: linear-gradient(135deg, #800080 60%, #198754 100%);
   color: #fff;
   border: none;
-  box-shadow: 0 4px 16px rgba(60,60,60,0.15);
+  box-shadow: 0 4px 16px rgba(60, 60, 60, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -973,7 +1174,7 @@ onUpdated(() => {
 }
 .chat-fab:hover {
   background: linear-gradient(135deg, #198754 60%, #800080 100%);
-  box-shadow: 0 6px 20px rgba(128,0,128,0.25);
+  box-shadow: 0 6px 20px rgba(128, 0, 128, 0.25);
   transform: scale(1.1) rotate(-10deg);
 }
 
@@ -1023,14 +1224,16 @@ onUpdated(() => {
   width: 100%;
   background: #f3f3f7;
   border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(128,0,128,0.13);
+  box-shadow: 0 4px 16px rgba(128, 0, 128, 0.13);
   z-index: 10;
   padding: 10px 8px 8px 8px;
 }
-.faq-fade-enter-active, .faq-fade-leave-active {
+.faq-fade-enter-active,
+.faq-fade-leave-active {
   transition: opacity 0.18s;
 }
-.faq-fade-enter-from, .faq-fade-leave-to {
+.faq-fade-enter-from,
+.faq-fade-leave-to {
   opacity: 0;
 }
 
@@ -1047,7 +1250,7 @@ onUpdated(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(128,0,128,0.10);
+  box-shadow: 0 2px 8px rgba(128, 0, 128, 0.1);
   cursor: pointer;
   z-index: 20;
   transition: background 0.18s, border 0.18s;

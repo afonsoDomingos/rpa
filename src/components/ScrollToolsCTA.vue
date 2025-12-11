@@ -39,47 +39,63 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 
-const router = useRouter()
-const isExpanded = ref(false)
-const showTrigger = ref(false)
+const router = useRouter();
+const isExpanded = ref(false);
+const showTrigger = ref(false);
 
 const tools = [
-  { name: 'Gerador de CV',          icon: 'bi bi-file-earmark-person', route: 'CVGenerator' },
-  { name: 'Meus Anúncios',          icon: 'bi bi-megaphone',           route: 'MeusAnuncios' },
-  { name: 'Feed da Comunidade',     icon: 'bi bi-people-fill',         route: 'ComunidadeRpa' },
-  { name: 'Guardar Documentos',     icon: 'bi bi-folder-plus',         route: 'GuardarDocumentos' },
-  { name: 'Rastreador de Viaturas', icon: 'bi bi-car-front',           route: 'Viaturas' },
-]
+  {
+    name: "Gerador de CV",
+    icon: "bi bi-file-earmark-person",
+    route: "CVGenerator",
+  },
+  { name: "Meus Anúncios", icon: "bi bi-megaphone", route: "MeusAnuncios" },
+  {
+    name: "Feed da Comunidade",
+    icon: "bi bi-people-fill",
+    route: "ComunidadeRpa",
+  },
+  {
+    name: "Guardar Documentos",
+    icon: "bi bi-folder-plus",
+    route: "GuardarDocumentos",
+  },
+  {
+    name: "Rastreador de Viaturas",
+    icon: "bi bi-car-front",
+    route: "Viaturas",
+  },
+];
 
 onMounted(() => {
-  let triggered = false
+  let triggered = false;
   const handleScroll = () => {
     if (!triggered && window.scrollY > 280) {
-      showTrigger.value = true
-      triggered = true
-      window.removeEventListener('scroll', handleScroll)
+      showTrigger.value = true;
+      triggered = true;
+      window.removeEventListener("scroll", handleScroll);
 
       // Some automaticamente em 7 segundos se não clicar
       setTimeout(() => {
         if (!isExpanded.value) {
-          showTrigger.value = false
+          showTrigger.value = false;
         }
-      }, 7000)
+      }, 7000);
     }
-  }
-  window.addEventListener('scroll', handleScroll)
-})
+  };
+  window.addEventListener("scroll", handleScroll);
+});
 
 const goTo = (route) => {
-  isExpanded.value = false
+  isExpanded.value = false;
   setTimeout(() => {
-    router.push({ name: route })
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, 100)
-}
+    router.push({ name: route });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, 100);
+};
 </script>
 
 <style scoped>
@@ -120,7 +136,9 @@ const goTo = (route) => {
   box-shadow: 0 10px 28px rgba(128, 0, 128, 0.45);
 }
 
-.mini-bar:hover i { color: white; }
+.mini-bar:hover i {
+  color: white;
+}
 
 /* Barra expandida com ícones */
 .tools-expanded {
@@ -190,7 +208,9 @@ const goTo = (route) => {
   transition: opacity 0.2s;
 }
 
-.tool-icon:hover .tooltip { opacity: 1; }
+.tool-icon:hover .tooltip {
+  opacity: 1;
+}
 
 /* Botão X */
 .close-btn {
@@ -223,18 +243,42 @@ const goTo = (route) => {
 
 /* Animações rápidas */
 @keyframes float {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(-6px); }
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-6px);
+  }
 }
 
-.quick-fade-enter-active, .quick-fade-leave-active { transition: all 0.28s ease; }
-.quick-fade-enter-from, .quick-fade-leave-to { opacity: 0; transform: translateX(-50%) scale(0.88); }
+.quick-fade-enter-active,
+.quick-fade-leave-active {
+  transition: all 0.28s ease;
+}
+.quick-fade-enter-from,
+.quick-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) scale(0.88);
+}
 
-.fast-slide-enter-active, .fast-slide-leave-active { transition: all 0.26s ease; }
-.fast-slide-enter-from { opacity: 0; transform: translateX(-50%) translateY(50px); }
-.fast-slide-leave-to { opacity: 0; transform: translateX(-50%) translateY(30px); }
+.fast-slide-enter-active,
+.fast-slide-leave-active {
+  transition: all 0.26s ease;
+}
+.fast-slide-enter-from {
+  opacity: 0;
+  transform: translateX(-50%) translateY(50px);
+}
+.fast-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(30px);
+}
 
-.fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s;
+}
 
 /* Mobile */
 @media (max-width: 480px) {
@@ -244,9 +288,20 @@ const goTo = (route) => {
     font-size: 0.85rem;
     gap: 6px;
   }
-  .mini-bar i { font-size: 1.1rem; }
-  .tools-expanded { padding: 12px 18px; gap: 14px; bottom: 14px; }
-  .tool-icon { width: 48px; height: 48px; }
-  .tool-icon i { font-size: 1.4rem; }
+  .mini-bar i {
+    font-size: 1.1rem;
+  }
+  .tools-expanded {
+    padding: 12px 18px;
+    gap: 14px;
+    bottom: 14px;
+  }
+  .tool-icon {
+    width: 48px;
+    height: 48px;
+  }
+  .tool-icon i {
+    font-size: 1.4rem;
+  }
 }
 </style>

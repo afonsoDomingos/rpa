@@ -2,8 +2,6 @@
 //Vue Material Kit 2 components
 import MaterialAvatar from "@/components/MaterialAvatar.vue";
 
-
-
 // image
 import team4 from "@/assets/img/team-4.jpg";
 </script>

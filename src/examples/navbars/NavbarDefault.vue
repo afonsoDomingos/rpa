@@ -42,7 +42,10 @@
 
       <!-- BOTÃO ASSINATURAS (mobile) -->
       <a
-        @click="$router.push({ name: 'Assinaturas' }); fecharDropdown()"
+        @click="
+          $router.push({ name: 'Assinaturas' });
+          fecharDropdown();
+        "
         class="btn btn-sm mb-0 ms-auto d-lg-none d-block btn-assinatura"
         role="button"
       >
@@ -103,7 +106,9 @@
               <div class="row">
                 <div class="col-12 px-4 py-2">
                   <div class="position-relative">
-                    <div class="dropdown-header text-dark font-weight-bolder px-1">
+                    <div
+                      class="dropdown-header text-dark font-weight-bolder px-1"
+                    >
                       Página Principal
                     </div>
                     <RouterLink
@@ -128,7 +133,9 @@
                       Autor
                     </RouterLink>
 
-                    <div class="dropdown-header text-dark font-weight-bolder px-0 mt-3">
+                    <div
+                      class="dropdown-header text-dark font-weight-bolder px-0 mt-3"
+                    >
                       Conta
                     </div>
                     <RouterLink
@@ -177,7 +184,10 @@
               <button
                 v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'dashboard' }); fecharDropdown()"
+                @click="
+                  $router.push({ name: 'dashboard' });
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-speedometer2 text-warning"></i> Dashboard
               </button>
@@ -186,7 +196,10 @@
               <button
                 v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'AdminAssinaturas' }); fecharDropdown()"
+                @click="
+                  $router.push({ name: 'AdminAssinaturas' });
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-wallet2 text-success"></i> Pagamentos
               </button>
@@ -195,15 +208,22 @@
               <button
                 v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'AdminAnuncios' }); fecharDropdown()"
+                @click="
+                  $router.push({ name: 'AdminAnuncios' });
+                  fecharDropdown();
+                "
               >
-                <i class="bi bi-megaphone-fill text-purple"></i> Gerenciar Anúncios
+                <i class="bi bi-megaphone-fill text-purple"></i> Gerenciar
+                Anúncios
               </button>
 
               <!-- Meus Pagamentos -->
               <button
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'MeusPagamentos' }); fecharDropdown()"
+                @click="
+                  $router.push({ name: 'MeusPagamentos' });
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-credit-card text-primary"></i> Meus Pagamentos
               </button>
@@ -211,7 +231,10 @@
               <!-- Meus Documentos -->
               <button
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'MeusDocumentos' }); fecharDropdown()"
+                @click="
+                  $router.push({ name: 'MeusDocumentos' });
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-folder2-open text-info"></i> Meus Documentos
               </button>
@@ -221,7 +244,10 @@
               <!-- Sair -->
               <button
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2 text-danger"
-                @click="logout(); fecharDropdown()"
+                @click="
+                  logout();
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-box-arrow-right"></i> Sair
               </button>
@@ -267,37 +293,55 @@
               <!-- Meus Anúncios (todos os usuários) -->
               <button
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'MeusAnuncios' }); fecharDropdown()"
+                @click="
+                  $router.push({ name: 'MeusAnuncios' });
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-megaphone text-purple"></i> Meus Anúncios
               </button>
 
               <button
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'ComunidadeRpa' }); fecharDropdown()"
+                @click="
+                  $router.push({ name: 'ComunidadeRpa' });
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-people-fill text-info"></i> Feed de publicações
               </button>
 
               <button
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'CVGenerator' }); fecharDropdown()"
+                @click="
+                  $router.push({ name: 'CVGenerator' });
+                  fecharDropdown();
+                "
               >
-                <i class="bi bi-file-earmark-person text-warning"></i> Gerador de Currículo
+                <i class="bi bi-file-earmark-person text-warning"></i> Gerador
+                de Currículo
               </button>
 
               <button
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'GuardarDocumentos' }); fecharDropdown()"
+                @click="
+                  $router.push({ name: 'GuardarDocumentos' });
+                  fecharDropdown();
+                "
               >
-                <i class="bi bi-folder-plus text-success"></i> Armazenar Documentos
+                <i class="bi bi-folder-plus text-success"></i> Armazenar
+                Documentos
               </button>
 
               <button
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="$router.push({ name: 'Viaturas' }); fecharDropdown()"
+                @click="
+                  $router.push({ name: 'Viaturas' });
+                  fecharDropdown();
+                "
               >
-                <i class="bi bi-car-front text-success"></i> Rastreador de Viaturas
+                <i class="bi bi-car-front text-success"></i> Rastreador de
+                Viaturas
               </button>
             </div>
           </li>
@@ -307,7 +351,10 @@
             <a
               class="btn btn-sm mb-0 ms-2 btn-assinatura"
               role="button"
-              @click="$router.push({ name: 'Assinaturas' }); fecharDropdown()"
+              @click="
+                $router.push({ name: 'Assinaturas' });
+                fecharDropdown();
+              "
             >
               Assinatura
             </a>
@@ -330,7 +377,9 @@ const hovering = ref(false); // hover do olho/logo
 
 // Fecha dropdown e menu mobile
 function fecharDropdown() {
-  const dropdown = bootstrap.Dropdown.getInstance(dropdownMenu.value?.parentElement);
+  const dropdown = bootstrap.Dropdown.getInstance(
+    dropdownMenu.value?.parentElement
+  );
   if (dropdown) dropdown.hide();
 
   const collapse = bootstrap.Collapse.getInstance(navbarCollapse.value);
@@ -365,7 +414,9 @@ const buscarUsuario = async () => {
       return;
     }
 
-    const { data } = await axios.get("https://apirpa.onrender.com/api/auth/usuarios");
+    const { data } = await axios.get(
+      "https://apirpa.onrender.com/api/auth/usuarios"
+    );
     if (!Array.isArray(data)) return;
 
     usuario.value = data.find((u) => u.email === emailLogado);

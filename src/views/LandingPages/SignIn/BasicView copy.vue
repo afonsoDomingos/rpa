@@ -1,111 +1,119 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import axios from 'axios';
+import axios from "axios";
 
 import NavbarDefault from "../../../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../../../examples/footers/FooterDefault.vue";
 import MaterialButton from "@/components/MaterialButton.vue";
 import MaterialSwitch from "@/components/MaterialSwitch.vue";
 
-const email = ref('');
-const nome = ref('');
-const password = ref('');
-const newEmail = ref('');
-const newPassword = ref('');
-const confirmPassword = ref('');
-
+const email = ref("");
+const nome = ref("");
+const password = ref("");
+const newEmail = ref("");
+const newPassword = ref("");
+const confirmPassword = ref("");
 
 // Adicione estes estados para controle de visualização das senhas
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
 const showLoginPassword = ref(false);
 
-
 const router = useRouter();
 
 const setBodyClass = (className) => {
-  console.log('[setBodyClass] Alterando classe do body para:', className);
+  console.log("[setBodyClass] Alterando classe do body para:", className);
   document.body.className = className;
 };
 
 const login = async () => {
   const inputEmail = email.value.trim().toLowerCase();
   const senhaLogin = password.value.trim();
-  console.log('[login] Tentando login com:', { email: inputEmail });
+  console.log("[login] Tentando login com:", { email: inputEmail });
 
   if (!inputEmail || !senhaLogin) {
-    console.warn('[login] Campos obrigatórios não preenchidos.');
-    alert('Por favor, preencha o e-mail e a senha.');
+    console.warn("[login] Campos obrigatórios não preenchidos.");
+    alert("Por favor, preencha o e-mail e a senha.");
     return;
   }
 
   try {
-    const response = await axios.post('https://apirpa.onrender.com/api/auth/login', {
-      email: inputEmail,
-      senha: senhaLogin,
-    });
-    console.log('[login] Login bem-sucedido. Resposta:', response.data);
+    const response = await axios.post(
+      "https://apirpa.onrender.com/api/auth/login",
+      {
+        email: inputEmail,
+        senha: senhaLogin,
+      }
+    );
+    console.log("[login] Login bem-sucedido. Resposta:", response.data);
 
-    localStorage.setItem('email', inputEmail);
-    localStorage.setItem('token', response.data.token);
+    localStorage.setItem("email", inputEmail);
+    localStorage.setItem("token", response.data.token);
 
-    await router.push(response.data.redirectUrl || '/home');
+    await router.push(response.data.redirectUrl || "/home");
   } catch (error) {
-    console.error('[login] Erro ao logar:', error);
+    console.error("[login] Erro ao logar:", error);
     if (error.response?.status === 400 || error.response?.status === 401) {
-      alert(error.response.data.msg || 'Credenciais inválidas. Verifique seu e-mail e senha.');
+      alert(
+        error.response.data.msg ||
+          "Credenciais inválidas. Verifique seu e-mail e senha."
+      );
     } else {
-      alert('Erro ao tentar logar. Tente novamente mais tarde.');
+      alert("Erro ao tentar logar. Tente novamente mais tarde.");
     }
   }
 };
-
 
 const register = async () => {
   const nomeUsuario = nome.value.trim();
   const emailUsuario = newEmail.value.trim().toLowerCase();
   const senhaUsuario = newPassword.value.trim();
   const senhaConfirmacao = confirmPassword.value.trim();
-  console.log('[register] Tentando registrar:', { nome: nomeUsuario, email: emailUsuario });
+  console.log("[register] Tentando registrar:", {
+    nome: nomeUsuario,
+    email: emailUsuario,
+  });
 
   if (!nomeUsuario || !emailUsuario || !senhaUsuario || !senhaConfirmacao) {
-    console.warn('[register] Campos obrigatórios não preenchidos.');
-    return alert('Por favor, preencha todos os campos!');
+    console.warn("[register] Campos obrigatórios não preenchidos.");
+    return alert("Por favor, preencha todos os campos!");
   }
 
   if (senhaUsuario !== senhaConfirmacao) {
-    console.warn('[register] Senhas não coincidem.');
-    return alert('As senhas não coincidem!');
+    console.warn("[register] Senhas não coincidem.");
+    return alert("As senhas não coincidem!");
   }
 
   try {
-    const res = await axios.post('https://apirpa.onrender.com/api/auth/register', {
-      nome: nomeUsuario,
-      email: emailUsuario,
-      senha: senhaUsuario,
-      role: 'cliente'
-    });
-    console.log('[register] Registro bem-sucedido. Resposta:', res.data);
+    const res = await axios.post(
+      "https://apirpa.onrender.com/api/auth/register",
+      {
+        nome: nomeUsuario,
+        email: emailUsuario,
+        senha: senhaUsuario,
+        role: "cliente",
+      }
+    );
+    console.log("[register] Registro bem-sucedido. Resposta:", res.data);
 
-    alert('Cadastro realizado com sucesso!');
-    router.push('/');
+    alert("Cadastro realizado com sucesso!");
+    router.push("/");
 
     // Limpar os campos
-    nome.value = '';
-    newEmail.value = '';
-    newPassword.value = '';
-    confirmPassword.value = '';
+    nome.value = "";
+    newEmail.value = "";
+    newPassword.value = "";
+    confirmPassword.value = "";
   } catch (error) {
-    console.error('[register] Erro no registro:', error);
+    console.error("[register] Erro no registro:", error);
     if (error.response?.status === 400) {
-      alert(error.response.data.msg || 'Erro: e-mail já cadastrado.');
+      alert(error.response.data.msg || "Erro: e-mail já cadastrado.");
     } else {
-      alert('Erro ao registrar. Tente novamente.');
+      alert("Erro ao registrar. Tente novamente.");
     }
   }
 };
-
 </script>
 
 <template>
@@ -113,28 +121,51 @@ const register = async () => {
 
   <div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n6">
     <div class="container page-header container">
-
       <div class="content first-content">
         <div class="first-column text-center">
           <h2 class="title title-primary">Bem-vindo!</h2>
-          <p class="description description-primary">Para continuar conectado conosco</p>
-          <p class="description description-primary">faça login com suas informações pessoais</p>
-          <button @click="setBodyClass('sign-in-js')" class="btn btn-primary">Entrar</button>
+          <p class="description description-primary">
+            Para continuar conectado conosco
+          </p>
+          <p class="description description-primary">
+            faça login com suas informações pessoais
+          </p>
+          <button @click="setBodyClass('sign-in-js')" class="btn btn-primary">
+            Entrar
+          </button>
         </div>
 
         <div class="second-column">
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
-              <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">Criar uma conta</h4>
+            <div
+              class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1"
+            >
+              <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">
+                Criar uma conta
+              </h4>
               <div class="row mt-3 text-center">
-                <div class="col-2 ms-auto"><a class="btn btn-link px-3" href="#"><i class="fab fa-facebook text-white text-lg"></i></a></div>
-                <div class="col-2 px-1"><a class="btn btn-link px-3" href="#"><i class="fab fa-github text-white text-lg"></i></a></div>
-                <div class="col-2 me-auto"><a class="btn btn-link px-3" href="#"><i class="fab fa-google text-white text-lg"></i></a></div>
+                <div class="col-2 ms-auto">
+                  <a class="btn btn-link px-3" href="#"
+                    ><i class="fab fa-facebook text-white text-lg"></i
+                  ></a>
+                </div>
+                <div class="col-2 px-1">
+                  <a class="btn btn-link px-3" href="#"
+                    ><i class="fab fa-github text-white text-lg"></i
+                  ></a>
+                </div>
+                <div class="col-2 me-auto">
+                  <a class="btn btn-link px-3" href="#"
+                    ><i class="fab fa-google text-white text-lg"></i
+                  ></a>
+                </div>
               </div>
             </div>
           </div>
 
-          <p class="description description-second">Insira seus dados ou use seu e-mail para se registrar:</p>
+          <p class="description description-second">
+            Insira seus dados ou use seu e-mail para se registrar:
+          </p>
 
           <form @submit.prevent="register" class="form">
             <label class="label-input">
@@ -144,7 +175,12 @@ const register = async () => {
 
             <label class="label-input">
               <i class="far fa-envelope icon-modify"></i>
-              <input v-model="newEmail" type="email" placeholder="E-mail" required />
+              <input
+                v-model="newEmail"
+                type="email"
+                placeholder="E-mail"
+                required
+              />
             </label>
 
             <label class="label-input">
@@ -155,8 +191,14 @@ const register = async () => {
                 placeholder="Senha"
                 required
               />
-              <span class="toggle-password" @click="showPassword = !showPassword" style="cursor:pointer; margin-left:8px;">
-                <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              <span
+                class="toggle-password"
+                @click="showPassword = !showPassword"
+                style="cursor: pointer; margin-left: 8px"
+              >
+                <i
+                  :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
+                ></i>
               </span>
             </label>
 
@@ -168,20 +210,35 @@ const register = async () => {
                 placeholder="Confirmar Senha"
                 required
               />
-              <span class="toggle-password" @click="showConfirmPassword = !showConfirmPassword" style="cursor:pointer; margin-left:8px;">
-                <i :class="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              <span
+                class="toggle-password"
+                @click="showConfirmPassword = !showConfirmPassword"
+                style="cursor: pointer; margin-left: 8px"
+              >
+                <i
+                  :class="
+                    showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'
+                  "
+                ></i>
               </span>
             </label>
 
             <div class="text-center">
-              <MaterialButton type="submit" variant="gradient" color="success" fullWidth>
+              <MaterialButton
+                type="submit"
+                variant="gradient"
+                color="success"
+                fullWidth
+              >
                 Registrar
               </MaterialButton>
             </div>
 
             <p class="mt-4 text-sm text-center">
               Já possui uma conta?
-              <a href="#" class="text-success text-gradient font-weight-bold">Acesse agora.</a>
+              <a href="#" class="text-success text-gradient font-weight-bold"
+                >Acesse agora.</a
+              >
             </p>
           </form>
         </div>
@@ -191,28 +248,55 @@ const register = async () => {
         <div class="first-column text-center">
           <h2 class="title title-primary">Olá, amigo!</h2>
           <p class="description description-primary">Insira seus dados</p>
-          <p class="description description-primary">e comece a jornada conosco</p>
-          <button @click="setBodyClass('sign-up-js')" class="btn btn-primary">Registrar</button>
+          <p class="description description-primary">
+            e comece a jornada conosco
+          </p>
+          <button @click="setBodyClass('sign-up-js')" class="btn btn-primary">
+            Registrar
+          </button>
         </div>
 
         <div class="second-column">
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
-              <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">Faça Login</h4>
+            <div
+              class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1"
+            >
+              <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">
+                Faça Login
+              </h4>
               <div class="row mt-3 text-center">
-                <div class="col-2 ms-auto"><a class="btn btn-link px-3" href="#"><i class="fab fa-facebook text-white text-lg"></i></a></div>
-                <div class="col-2 px-1"><a class="btn btn-link px-3" href="#"><i class="fab fa-github text-white text-lg"></i></a></div>
-                <div class="col-2 me-auto"><a class="btn btn-link px-3" href="#"><i class="fab fa-google text-white text-lg"></i></a></div>
+                <div class="col-2 ms-auto">
+                  <a class="btn btn-link px-3" href="#"
+                    ><i class="fab fa-facebook text-white text-lg"></i
+                  ></a>
+                </div>
+                <div class="col-2 px-1">
+                  <a class="btn btn-link px-3" href="#"
+                    ><i class="fab fa-github text-white text-lg"></i
+                  ></a>
+                </div>
+                <div class="col-2 me-auto">
+                  <a class="btn btn-link px-3" href="#"
+                    ><i class="fab fa-google text-white text-lg"></i
+                  ></a>
+                </div>
               </div>
             </div>
           </div>
 
-          <p class="description description-second">Insira seu e-mail e senha para entrar:</p>
+          <p class="description description-second">
+            Insira seu e-mail e senha para entrar:
+          </p>
 
           <form @submit.prevent="login" class="form">
             <label class="label-input">
               <i class="far fa-envelope icon-modify"></i>
-              <input v-model="email" type="email" placeholder="E-mail" required />
+              <input
+                v-model="email"
+                type="email"
+                placeholder="E-mail"
+                required
+              />
             </label>
 
             <label class="label-input">
@@ -223,24 +307,41 @@ const register = async () => {
                 placeholder="Senha"
                 required
               />
-              <span class="toggle-password" @click="showLoginPassword = !showLoginPassword" style="cursor:pointer; margin-left:8px;">
-                <i :class="showLoginPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              <span
+                class="toggle-password"
+                @click="showLoginPassword = !showLoginPassword"
+                style="cursor: pointer; margin-left: 8px"
+              >
+                <i
+                  :class="showLoginPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
+                ></i>
               </span>
             </label>
 
-            <MaterialSwitch class="d-flex align-items-center mb-3" id="rememberMe" labelClass="mb-0 ms-3">
+            <MaterialSwitch
+              class="d-flex align-items-center mb-3"
+              id="rememberMe"
+              labelClass="mb-0 ms-3"
+            >
               Lembre de mim
             </MaterialSwitch>
 
             <div class="text-center">
-              <MaterialButton type="submit" variant="gradient" color="success" fullWidth>
+              <MaterialButton
+                type="submit"
+                variant="gradient"
+                color="success"
+                fullWidth
+              >
                 Entrar
               </MaterialButton>
             </div>
 
             <p class="mt-4 text-sm text-center">
               Ainda não possui uma conta?
-              <a href="#" class="text-success text-gradient font-weight-bold">Crie agora.</a>
+              <a href="#" class="text-success text-gradient font-weight-bold"
+                >Crie agora.</a
+              >
             </p>
           </form>
         </div>
@@ -251,11 +352,9 @@ const register = async () => {
   <FooterDefault />
 </template>
 
-
 <style scoped>
-@import url('https://use.fontawesome.com/releases/v5.8.2/css/all.css');
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap');
-
+@import url("https://use.fontawesome.com/releases/v5.8.2/css/all.css");
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap");
 
 * {
   margin: 0;
@@ -264,7 +363,7 @@ const register = async () => {
 }
 
 body {
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
 }
 
 .container {
@@ -277,8 +376,6 @@ body {
   margin-top: 10%;
 }
 
-
-
 .content {
   background-color: #fff8ff;
   border-radius: 15px;
@@ -290,8 +387,6 @@ body {
   align-items: center;
   position: relative;
 }
-
-
 
 .content::before {
   content: "";
@@ -313,7 +408,6 @@ body {
   top: 0;
   z-index: 1;
 }
-
 
 .title {
   font-size: 28px;
@@ -360,7 +454,7 @@ body {
 .btn-primary {
   background-color: #28a745;
   border: 1px solid #fff;
-  transition: background-color .5s;
+  transition: background-color 0.5s;
 }
 
 .btn-primary:hover {
@@ -371,7 +465,7 @@ body {
 .btn-second {
   background-color: #800080;
   border: 1px solid #800080;
-  transition: background-color .5s;
+  transition: background-color 0.5s;
 }
 
 .btn-second:hover {
@@ -410,7 +504,7 @@ body {
 }
 
 .link-social-media .item-social-media {
-  transition: background-color .5s;
+  transition: background-color 0.5s;
 }
 
 .link-social-media:hover .item-social-media {
@@ -492,8 +586,6 @@ input:-webkit-autofill {
   text-transform: capitalize;
 }
 
-
-
 .sign-in-js .first-content .first-column {
   z-index: -1;
 }
@@ -538,10 +630,8 @@ input:-webkit-autofill {
   z-index: 13;
 }
 
-
 /* DESLOCAMENTO CONTEÚDO ATRÁS DO CONTENT:BEFORE*/
 .sign-in-js .first-content .second-column {
-
   z-index: -1;
   position: relative;
   animation: deslocamentoEsq 1.3s;
@@ -558,7 +648,6 @@ input:-webkit-autofill {
 /*ANIMAÇÃOO CSS PARA O CONTEÚDO*/
 
 @keyframes deslocamentoEsq {
-
   from {
     left: 0;
     opacity: 1;
@@ -567,14 +656,14 @@ input:-webkit-autofill {
 
   25% {
     left: -80px;
-    opacity: .5;
+    opacity: 0.5;
 
     /* z-index: 12; NÃO HÁ NECESSIDADE */
   }
 
   50% {
     left: -100px;
-    opacity: .2;
+    opacity: 0.2;
     /* z-index: 12; NÃO HÁ NECESSIDADE */
   }
 
@@ -585,9 +674,7 @@ input:-webkit-autofill {
   }
 }
 
-
 @keyframes deslocamentoDir {
-
   from {
     left: 0;
     z-index: 12;
@@ -610,11 +697,9 @@ input:-webkit-autofill {
   }
 }
 
-
 /*ANIMAÇÃO CSS*/
 
 @keyframes slidein {
-
   from {
     left: 0;
     width: 40%;
@@ -642,7 +727,6 @@ input:-webkit-autofill {
 }
 
 @keyframes slideout {
-
   from {
     left: 60%;
     width: 40%;
@@ -668,9 +752,6 @@ input:-webkit-autofill {
     width: 40%;
   }
 }
-
-
-
 
 /* Responsividade aprimorada para telas pequenas */
 

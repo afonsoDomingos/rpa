@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import { ref, reactive, nextTick, computed } from 'vue'
 import html2pdf from 'html2pdf.js'
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue"

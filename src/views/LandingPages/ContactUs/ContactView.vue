@@ -26,7 +26,8 @@ onMounted(() => {
         <DefaultNavbar
           :sticky="true"
           :action="{
-            route: 'https://docs.google.com/forms/d/e/1FAIpQLSdLO0mga6ygr6oVlCHQ6Hgt48baiZuQlXTzPRYynhXv0etD3g/viewform',
+            route:
+              'https://docs.google.com/forms/d/e/1FAIpQLSdLO0mga6ygr6oVlCHQ6Hgt48baiZuQlXTzPRYynhXv0etD3g/viewform',
             color: 'bg-gradient-success',
             label: 'Reportar',
           }"
@@ -68,8 +69,8 @@ onMounted(() => {
               <div class="card-body">
                 <p class="pb-3">
                   Para mais perguntas, incluindo oportunidades de parceria,
-                  envie um e-mail para info@recuperaaqui.co.mz ou entre em contato usando nosso
-                  formulário de contato.
+                  envie um e-mail para info@recuperaaqui.co.mz ou entre em
+                  contato usando nosso formulário de contato.
                 </p>
                 <form id="contact-form" method="post" autocomplete="off">
                   <div class="card-body p-0 my-3">

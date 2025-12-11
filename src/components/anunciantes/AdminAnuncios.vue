@@ -16,7 +16,11 @@
     <div v-else>
       <!-- SKELETON LOADING (novo) -->
       <div v-if="loading" class="grid-anuncios">
-        <div v-for="n in 6" :key="'skeleton-' + n" class="anuncio-card skeleton">
+        <div
+          v-for="n in 6"
+          :key="'skeleton-' + n"
+          class="anuncio-card skeleton"
+        >
           <div class="anuncio-img skeleton-img"></div>
           <div class="anuncio-info">
             <h3 class="skeleton-line"></h3>
@@ -70,7 +74,11 @@
       <!-- BARRA DE FILTROS -->
       <div class="filters-bar">
         <div class="filter-controls">
-          <select v-model="filtroStatus" @change="aplicarFiltro" class="filter-select">
+          <select
+            v-model="filtroStatus"
+            @change="aplicarFiltro"
+            class="filter-select"
+          >
             <option value="todos">Todos os anúncios</option>
             <option value="active">Apenas ativos</option>
             <option value="pending">Apenas pendentes</option>
@@ -91,367 +99,453 @@
 
       <!-- GRID DE ANÚNCIOS -->
       <div class="grid-anuncios">
-        <div v-for="(ad, i) in anunciosFiltrados" :key="ad._id" class="anuncio-card Hiring" :style="{ '--i': i }">
-          <div class="anuncio-status" :class="ad.status">{{ getStatusText(ad.status) }}</div>
-          <img :src="ad.image" :alt="ad.name" class="anuncio-img" @error="handleImageError" @load="onImageLoad" />
+        <div
+          v-for="(ad, i) in anunciosFiltrados"
+          :key="ad._id"
+          class="anuncio-card Hiring"
+          :style="{ '--i': i }"
+        >
+          <div class="anuncio-status" :class="ad.status">
+            {{ getStatusText(ad.status) }}
+          </div>
+          <img
+            :src="ad.image"
+            :alt="ad.name"
+            class="anuncio-img"
+            @error="handleImageError"
+            @load="onImageLoad"
+          />
 
           <div class="anuncio-info">
             <h3 class="anuncio-titulo">{{ ad.name }}</h3>
             <p class="anuncio-desc">{{ ad.description }}</p>
-            <div class="anuncio-preco"><i class="bi bi-currency-exchange"></i> {{ formatPrice(ad.price) }}</div>
-            <div class="anuncio-user">{{ ad.userName || 'Anônimo' }} <small v-if="ad.userEmail">({{ ad.userEmail }})</small></div>
+            <div class="anuncio-preco">
+              <i class="bi bi-currency-exchange"></i>
+              {{ formatPrice(ad.price) }}
+            </div>
+            <div class="anuncio-user">
+              {{ ad.userName || "Anônimo" }}
+              <small v-if="ad.userEmail">({{ ad.userEmail }})</small>
+            </div>
           </div>
 
           <div class="anuncio-stats">
-            <div class="stat-row"><i class="bi bi-eye"></i> Visualizações: <strong>{{ ad.views || 0 }}</strong></div>
-            <div class="stat-row"><i class="bi bi-whatsapp"></i> Cliques: <strong>{{ ad.clicks || 0 }}</strong></div>
-            <div v-if="ad.expiresAt" class="stat-row"><i class="bi bi-clock"></i> Expira: {{ formatDate(ad.expiresAt) }}</div>
+            <div class="stat-row">
+              <i class="bi bi-eye"></i> Visualizações:
+              <strong>{{ ad.views || 0 }}</strong>
+            </div>
+            <div class="stat-row">
+              <i class="bi bi-whatsapp"></i> Cliques:
+              <strong>{{ ad.clicks || 0 }}</strong>
+            </div>
+            <div v-if="ad.expiresAt" class="stat-row">
+              <i class="bi bi-clock"></i> Expira: {{ formatDate(ad.expiresAt) }}
+            </div>
           </div>
 
           <div class="anuncio-acoes">
-            <button @click="abrirStats(ad)" class="btn-stats"><i class="bi bi-graph-up"></i><span class="btn-text">Estatísticas</span></button>
-            <button @click="toggleStatus(ad)" :class="['btn-status', ad.status === 'paused' ? 'btn-ativar' : 'btn-pausar']">
-              <i :class="ad.status === 'paused' ? 'bi bi-play' : 'bi bi-pause'"></i>
-              <span class="btn-text">{{ ad.status === 'paused' ? 'Ativar' : 'Pausar' }}</span>
+            <button @click="abrirStats(ad)" class="btn-stats">
+              <i class="bi bi-graph-up"></i
+              ><span class="btn-text">Estatísticas</span>
             </button>
-            <button @click="confirmarRemocao(ad._id)" class="btn-remover"><i class="bi bi-trash"></i><span class="btn-text">Remover</span></button>
+            <button
+              @click="toggleStatus(ad)"
+              :class="[
+                'btn-status',
+                ad.status === 'paused' ? 'btn-ativar' : 'btn-pausar',
+              ]"
+            >
+              <i
+                :class="ad.status === 'paused' ? 'bi bi-play' : 'bi bi-pause'"
+              ></i>
+              <span class="btn-text">{{
+                ad.status === "paused" ? "Ativar" : "Pausar"
+              }}</span>
+            </button>
+            <button @click="confirmarRemocao(ad._id)" class="btn-remover">
+              <i class="bi bi-trash"></i><span class="btn-text">Remover</span>
+            </button>
           </div>
         </div>
       </div>
 
       <!-- MODAL (igual) -->
       <!-- MODAL TOTALMENTE REFORMULADO -->
-<div v-if="modalAberto" class="modal-overlay" @click="fecharModal">
-  <div class="modal-content pro-stats-modal" @click.stop>
-    <header class="modal-header">
-      <h2>
-        <i class="bi bi-graph-up-arrow"></i>
-        Estatísticas Detalhadas: {{ anuncioModal?.name }}
-      </h2>
-      <button @click="fecharModal" class="modal-close"><i class="bi bi-x-lg"></i></button>
-    </header>
+      <div v-if="modalAberto" class="modal-overlay" @click="fecharModal">
+        <div class="modal-content pro-stats-modal" @click.stop>
+          <header class="modal-header">
+            <h2>
+              <i class="bi bi-graph-up-arrow"></i>
+              Estatísticas Detalhadas: {{ anuncioModal?.name }}
+            </h2>
+            <button @click="fecharModal" class="modal-close">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </header>
 
-    <div class="modal-body">
-      <!-- 4 CARDS PRINCIPAIS -->
-      <div class="stats-grid">
-        <div class="stat-card big">
-          <i class="bi bi-eye"></i>
-          <h3>{{ formatNumber(anuncioModal?.views || 0) }}</h3>
-          <p>Visualizações</p>
-        </div>
-        <div class="stat-card big">
-          <i class="bi bi-whatsapp"></i>
-          <h3>{{ formatNumber(anuncioModal?.clicks || 0) }}</h3>
-          <p>Cliques Totais</p>
-        </div>
-        <div class="stat-card big">
-          <i class="bi bi-people"></i>
-          <h3>{{ formatNumber(anuncioModal?.impressions || 0) }}</h3>
-          <p>Impressões</p>
-        </div>
-        <div class="stat-card big ctr">
-          <i class="bi bi-percent"></i>
-          <h3>{{ ctrTotal.toFixed(2) }}%</h3>
-          <p>Taxa de Cliques (CTR)</p>
-        </div>
-      </div>
+          <div class="modal-body">
+            <!-- 4 CARDS PRINCIPAIS -->
+            <div class="stats-grid">
+              <div class="stat-card big">
+                <i class="bi bi-eye"></i>
+                <h3>{{ formatNumber(anuncioModal?.views || 0) }}</h3>
+                <p>Visualizações</p>
+              </div>
+              <div class="stat-card big">
+                <i class="bi bi-whatsapp"></i>
+                <h3>{{ formatNumber(anuncioModal?.clicks || 0) }}</h3>
+                <p>Cliques Totais</p>
+              </div>
+              <div class="stat-card big">
+                <i class="bi bi-people"></i>
+                <h3>{{ formatNumber(anuncioModal?.impressions || 0) }}</h3>
+                <p>Impressões</p>
+              </div>
+              <div class="stat-card big ctr">
+                <i class="bi bi-percent"></i>
+                <h3>{{ ctrTotal.toFixed(2) }}%</h3>
+                <p>Taxa de Cliques (CTR)</p>
+              </div>
+            </div>
 
-      <!-- GRÁFICO PREMIUM -->
-      <div class="chart-wrapper">
-        <div class="chart-header">
-          
-          <div class="chart-legend">
-            <span><i class="dot" style="background:#8b5cf6"></i> Cliques</span>
-            <span><i class="dot" style="background:#10b981"></i> Visualizações</span>
-            <span><i class="dot" style="background:#f59e0b"></i> CTR (%)</span>
+            <!-- GRÁFICO PREMIUM -->
+            <div class="chart-wrapper">
+              <div class="chart-header">
+                <div class="chart-legend">
+                  <span
+                    ><i class="dot" style="background: #8b5cf6"></i>
+                    Cliques</span
+                  >
+                  <span
+                    ><i class="dot" style="background: #10b981"></i>
+                    Visualizações</span
+                  >
+                  <span
+                    ><i class="dot" style="background: #f59e0b"></i> CTR
+                    (%)</span
+                  >
+                </div>
+              </div>
+              <div
+                v-if="anuncioModal?.statsHistory?.length"
+                class="chart-container"
+              >
+                <canvas ref="chartRef"></canvas>
+              </div>
+              <div v-else class="no-data">
+                <i class="bi bi-bar-chart-line"></i>
+                Ainda sem dados suficientes para exibir o gráfico
+              </div>
+            </div>
           </div>
         </div>
-        <div v-if="anuncioModal?.statsHistory?.length" class="chart-container">
-          <canvas ref="chartRef"></canvas>
-        </div>
-        <div v-else class="no-data">
-          <i class="bi bi-bar-chart-line"></i>
-          Ainda sem dados suficientes para exibir o gráfico
-        </div>
       </div>
-    </div>
-  </div>
-</div>
     </div>
   </div>
 </template>
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
-import api from '@/api'
-import io from 'socket.io-client'
-import Chart from 'chart.js/auto'
+import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
+import { useRouter } from "vue-router";
+import api from "@/api";
+import io from "socket.io-client";
+import Chart from "chart.js/auto";
 
-const router = useRouter()
-const anuncios = ref([])
-const loading = ref(true)
-const error = ref('')
-const filtroStatus = ref('todos')
-const filtroUsuario = ref('')
-const modalAberto = ref(false)
-const anuncioModal = ref(null)
-const chartRef = ref(null)
-let chart = null
-let socket = null
+const router = useRouter();
+const anuncios = ref([]);
+const loading = ref(true);
+const error = ref("");
+const filtroStatus = ref("todos");
+const filtroUsuario = ref("");
+const modalAberto = ref(false);
+const anuncioModal = ref(null);
+const chartRef = ref(null);
+let chart = null;
+let socket = null;
 
 // Debounce reutilizável (mais limpo)
 const useDebounce = (fn, delay = 400) => {
-  let timer
+  let timer;
   return (...args) => {
-    clearTimeout(timer)
-    timer = setTimeout(() => fn(...args), delay)
-  }
-}
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+};
 
 // Filtros combinados (status + busca por texto no frontend)
 const anunciosFiltrados = computed(() => {
-  let list = anuncios.value
+  let list = anuncios.value;
 
-  if (filtroStatus.value !== 'todos') {
-    list = list.filter(a => a.status === filtroStatus.value)
+  if (filtroStatus.value !== "todos") {
+    list = list.filter((a) => a.status === filtroStatus.value);
   }
 
   if (filtroUsuario.value.trim()) {
-    const termo = filtroUsuario.value.toLowerCase().trim()
-    list = list.filter(ad =>
-      (ad.userName?.toLowerCase().includes(termo)) ||
-      (ad.userEmail?.toLowerCase().includes(termo))
-    )
+    const termo = filtroUsuario.value.toLowerCase().trim();
+    list = list.filter(
+      (ad) =>
+        ad.userName?.toLowerCase().includes(termo) ||
+        ad.userEmail?.toLowerCase().includes(termo)
+    );
   }
 
-  return list
-})
+  return list;
+});
 
 const countByStatus = computed(() => {
-  const c = { active: 0, pending: 0, paused: 0 }
-  anuncios.value.forEach(a => {
-    if (c[a.status] !== undefined) c[a.status]++
-  })
-  return c
-})
+  const c = { active: 0, pending: 0, paused: 0 };
+  anuncios.value.forEach((a) => {
+    if (c[a.status] !== undefined) c[a.status]++;
+  });
+  return c;
+});
 
-const totalAnuncios = computed(() => anuncios.value.length)
+const totalAnuncios = computed(() => anuncios.value.length);
 
 const aplicarFiltro = async () => {
-  loading.value = true
-  error.value = ''
+  loading.value = true;
+  error.value = "";
   try {
-    const params = new URLSearchParams()
-    if (filtroStatus.value !== 'todos') params.append('status', filtroStatus.value)
-    if (filtroUsuario.value.trim()) params.append('usuario', filtroUsuario.value.trim())
+    const params = new URLSearchParams();
+    if (filtroStatus.value !== "todos")
+      params.append("status", filtroStatus.value);
+    if (filtroUsuario.value.trim())
+      params.append("usuario", filtroUsuario.value.trim());
 
-    const res = await api.get(`/anuncios/admin${params.toString() ? `?${params}` : ''}`)
-    anuncios.value = Array.isArray(res.data) ? res.data : []
+    const res = await api.get(
+      `/anuncios/admin${params.toString() ? `?${params}` : ""}`
+    );
+    anuncios.value = Array.isArray(res.data) ? res.data : [];
   } catch (err) {
-    error.value = err.response?.status === 401 ? 'Sessão expirada.' :
-                  err.response?.status === 403 ? 'Acesso negado.' :
-                  err.response?.data?.mensagem || 'Erro ao carregar.'
+    error.value =
+      err.response?.status === 401
+        ? "Sessão expirada."
+        : err.response?.status === 403
+        ? "Acesso negado."
+        : err.response?.data?.mensagem || "Erro ao carregar.";
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
-const formatPrice = v => new Intl.NumberFormat('pt-MZ', { style: 'currency', currency: 'MZN', minimumFractionDigits: 0 }).format(v)
-const formatDate = d => new Date(d).toLocaleDateString('pt-MZ')
+const formatPrice = (v) =>
+  new Intl.NumberFormat("pt-MZ", {
+    style: "currency",
+    currency: "MZN",
+    minimumFractionDigits: 0,
+  }).format(v);
+const formatDate = (d) => new Date(d).toLocaleDateString("pt-MZ");
 
 // Corrigido o nome da função
-const getStatusText = (s) => ({
-  active: 'Ativo',
-  pending: 'Pendente',
-  paused: 'Pausado'
-}[s] || 'Indefinido')
+const getStatusText = (s) =>
+  ({
+    active: "Ativo",
+    pending: "Pendente",
+    paused: "Pausado",
+  }[s] || "Indefinido");
 
-const handleImageError = e => { e.target.src = '/img/placeholder-ad.jpg'; e.target.classList.add('error') }
-const onImageLoad = e => e.target.classList.add('loaded')
+const handleImageError = (e) => {
+  e.target.src = "/img/placeholder-ad.jpg";
+  e.target.classList.add("error");
+};
+const onImageLoad = (e) => e.target.classList.add("loaded");
 
 const toggleStatus = async (ad) => {
-  const novo = ad.status === 'paused' ? 'active' : 'paused'
-  if (!confirm(`Deseja ${novo === 'active' ? 'ativar' : 'pausar'} este anúncio?`)) return
+  const novo = ad.status === "paused" ? "active" : "paused";
+  if (
+    !confirm(`Deseja ${novo === "active" ? "ativar" : "pausar"} este anúncio?`)
+  )
+    return;
   try {
-    await api.patch(`/anuncios/admin/${ad._id}/status`, { status: novo })
-    ad.status = novo
-  } catch (e) { alert(e.response?.data?.mensagem || 'Erro') }
-}
+    await api.patch(`/anuncios/admin/${ad._id}/status`, { status: novo });
+    ad.status = novo;
+  } catch (e) {
+    alert(e.response?.data?.mensagem || "Erro");
+  }
+};
 
 const confirmarRemocao = async (id) => {
-  if (!confirm('Remover permanentemente este anúncio?')) return
+  if (!confirm("Remover permanentemente este anúncio?")) return;
   try {
-    await api.delete(`/anuncios/admin/${id}`)
-    anuncios.value = anuncios.value.filter(a => a._id !== id)
-  } catch (e) { alert(e.response?.data?.mensagem || 'Erro') }
-}
+    await api.delete(`/anuncios/admin/${id}`);
+    anuncios.value = anuncios.value.filter((a) => a._id !== id);
+  } catch (e) {
+    alert(e.response?.data?.mensagem || "Erro");
+  }
+};
 
 const abrirStats = async (ad) => {
   try {
-    const res = await api.get(`/anuncios/admin/${ad._id}/stats`)
-    anuncioModal.value = { ...ad, ...res.data }
-    modalAberto.value = true
-    await nextTick()
-    criarOuAtualizarGrafico()
-  } catch (e) { alert('Erro ao carregar estatísticas') }
-}
+    const res = await api.get(`/anuncios/admin/${ad._id}/stats`);
+    anuncioModal.value = { ...ad, ...res.data };
+    modalAberto.value = true;
+    await nextTick();
+    criarOuAtualizarGrafico();
+  } catch (e) {
+    alert("Erro ao carregar estatísticas");
+  }
+};
 
 const fecharModal = () => {
-  modalAberto.value = false
-  anuncioModal.value = null
-  if (chart) { chart.destroy(); chart = null }
-}
+  modalAberto.value = false;
+  anuncioModal.value = null;
+  if (chart) {
+    chart.destroy();
+    chart = null;
+  }
+};
 
-const recarregar = () => aplicarFiltro()
+const recarregar = () => aplicarFiltro();
 
 // Adiciona estes helpers no <script setup>
 const formatNumber = (num) => {
-  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M'
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
-  return num.toString()
-}
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
+  if (num >= 1000) return (num / 1000).toFixed(1) + "K";
+  return num.toString();
+};
 
 const ctrTotal = computed(() => {
-  if (!anuncioModal.value) return 0
-  const views = anuncioModal.value.views || 0
-  const clicks = anuncioModal.value.clicks || 0
-  return views > 0 ? (clicks / views) * 100 : 0
-})
+  if (!anuncioModal.value) return 0;
+  const views = anuncioModal.value.views || 0;
+  const clicks = anuncioModal.value.clicks || 0;
+  return views > 0 ? (clicks / views) * 100 : 0;
+});
 
 // GRÁFICO TOTALMENTE REFORMULADO
 const criarOuAtualizarGrafico = () => {
-  if (!chartRef.value || !anuncioModal.value?.statsHistory?.length) return
+  if (!chartRef.value || !anuncioModal.value?.statsHistory?.length) return;
 
-  const history = anuncioModal.value.statsHistory
-  const labels = history.map(h => {
-    const date = new Date(h.date)
-    const day = date.getDate()
-    const month = date.toLocaleString('pt-MZ', { month: 'short' })
-    return `${day} ${month}`
-  })
+  const history = anuncioModal.value.statsHistory;
+  const labels = history.map((h) => {
+    const date = new Date(h.date);
+    const day = date.getDate();
+    const month = date.toLocaleString("pt-MZ", { month: "short" });
+    return `${day} ${month}`;
+  });
 
-  const clicksData = history.map(h => h.clicks || 0)
-  const viewsData = history.map(h => h.views || 0)
-  const ctrData = history.map(h => {
-    const v = h.views || 0
-    return v > 0 ? ((h.clicks || 0) / v) * 100 : 0
-  })
+  const clicksData = history.map((h) => h.clicks || 0);
+  const viewsData = history.map((h) => h.views || 0);
+  const ctrData = history.map((h) => {
+    const v = h.views || 0;
+    return v > 0 ? ((h.clicks || 0) / v) * 100 : 0;
+  });
 
-  if (chart) chart.destroy()
+  if (chart) chart.destroy();
 
-  chart = new Chart(chartRef.value.getContext('2d'), {
-    type: 'line',
+  chart = new Chart(chartRef.value.getContext("2d"), {
+    type: "line",
     data: {
       labels,
       datasets: [
         {
-          label: 'Cliques',
+          label: "Cliques",
           data: clicksData,
-          borderColor: '#8b5cf6',
-          backgroundColor: 'rgba(139, 92, 246, 0.15)',
+          borderColor: "#8b5cf6",
+          backgroundColor: "rgba(139, 92, 246, 0.15)",
           fill: true,
           tension: 0.4,
-          pointBackgroundColor: '#8b5cf6',
+          pointBackgroundColor: "#8b5cf6",
           pointRadius: 5,
-          pointHoverRadius: 8
+          pointHoverRadius: 8,
         },
         {
-          label: 'Visualizações',
+          label: "Visualizações",
           data: viewsData,
-          borderColor: '#10b981',
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          borderColor: "#10b981",
+          backgroundColor: "rgba(16, 185, 129, 0.1)",
           fill: false,
           tension: 0.4,
-          pointBackgroundColor: '#10b981',
+          pointBackgroundColor: "#10b981",
           pointRadius: 4,
-          borderWidth: 3
+          borderWidth: 3,
         },
         {
-          label: 'CTR (%)',
+          label: "CTR (%)",
           data: ctrData,
-          borderColor: '#f59e0b',
-          backgroundColor: 'rgba(245, 158, 11, 0.1)',
+          borderColor: "#f59e0b",
+          backgroundColor: "rgba(245, 158, 11, 0.1)",
           fill: false,
           tension: 0.3,
-          yAxisID: 'y1',
+          yAxisID: "y1",
           pointRadius: 3,
-          borderDash: [5, 5]
-        }
-      ]
+          borderDash: [5, 5],
+        },
+      ],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
+      interaction: { mode: "index", intersect: false },
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: 'rgba(0,0,0,0.9)',
-          titleColor: '#e2e8f0',
-          bodyColor: '#e2e8f0',
+          backgroundColor: "rgba(0,0,0,0.9)",
+          titleColor: "#e2e8f0",
+          bodyColor: "#e2e8f0",
           cornerRadius: 12,
           displayColors: true,
           callbacks: {
             label: (ctx) => {
-              if (ctx.dataset.label === 'CTR (%)') {
-                return ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%`
+              if (ctx.dataset.label === "CTR (%)") {
+                return ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%`;
               }
-              return ` ${ctx.dataset.label}: ${formatNumber(ctx.parsed.y)}`
-            }
-          }
-        }
+              return ` ${ctx.dataset.label}: ${formatNumber(ctx.parsed.y)}`;
+            },
+          },
+        },
       },
       scales: {
         y: {
           beginAtZero: true,
-          grid: { color: 'rgba(255,255,255,0.06)' },
-          ticks: { color: '#94a3b8', callback: value => formatNumber(value) }
+          grid: { color: "rgba(255,255,255,0.06)" },
+          ticks: { color: "#94a3b8", callback: (value) => formatNumber(value) },
         },
         y1: {
-          position: 'right',
+          position: "right",
           beginAtZero: true,
           max: 100,
           grid: { drawOnChartArea: false },
-          ticks: { color: '#f59e0b', callback: value => value + '%' }
+          ticks: { color: "#f59e0b", callback: (value) => value + "%" },
         },
         x: {
           grid: { display: false },
-          ticks: { color: '#94a3b8' }
-        }
-      }
-    }
-  })
-}
+          ticks: { color: "#94a3b8" },
+        },
+      },
+    },
+  });
+};
 
 onMounted(() => {
-  aplicarFiltro()
-  socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', { transports: ['websocket'] })
+  aplicarFiltro();
+  socket = io(import.meta.env.VITE_API_URL || "http://localhost:5000", {
+    transports: ["websocket"],
+  });
 
-  socket.on('anuncio:view', (data) => {
-    const ad = anuncios.value.find(a => a._id === data.anuncioId)
-    if (ad) ad.views = data.views
-  })
+  socket.on("anuncio:view", (data) => {
+    const ad = anuncios.value.find((a) => a._id === data.anuncioId);
+    if (ad) ad.views = data.views;
+  });
 
-  socket.on('anuncio:click', (data) => {
-    const ad = anuncios.value.find(a => a._id === data.anuncioId)
-    if (ad) ad.clicks = data.clicks
-  })
-})
+  socket.on("anuncio:click", (data) => {
+    const ad = anuncios.value.find((a) => a._id === data.anuncioId);
+    if (ad) ad.clicks = data.clicks;
+  });
+});
 
 onUnmounted(() => {
-  if (socket) socket.disconnect()
-  if (chart) chart.destroy()
-})
+  if (socket) socket.disconnect();
+  if (chart) chart.destroy();
+});
 </script>
 
-
-
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
-@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css");
 
 /* Força Poppins em tudo */
-* { font-family: 'Poppins', sans-serif !important; }
+* {
+  font-family: "Poppins", sans-serif !important;
+}
 
 .admin-anuncios {
   min-height: 100vh;
@@ -461,18 +555,22 @@ onUnmounted(() => {
 }
 
 /* ============= ESTADOS (loading/error) ============= */
-.loading-state, .error-state {
+.loading-state,
+.error-state {
   text-align: center;
   margin-top: 6rem;
   opacity: 0.9;
 }
-.loading-state i, .error-state i {
+.loading-state i,
+.error-state i {
   font-size: 2.5rem;
   margin-bottom: 1rem;
   display: block;
   color: #7c3aed;
 }
-.error-state i { color: #ff6b6b; }
+.error-state i {
+  color: #ff6b6b;
+}
 .retry-btn {
   background: #7c3aed;
   color: #fff;
@@ -483,7 +581,10 @@ onUnmounted(() => {
   transition: 0.3s;
   font-weight: 600;
 }
-.retry-btn:hover { background: #6d28d9; transform: translateY(-1px); }
+.retry-btn:hover {
+  background: #6d28d9;
+  transform: translateY(-1px);
+}
 
 /* ============= HEADER PREMIUM ============= */
 .premium-header {
@@ -519,25 +620,46 @@ onUnmounted(() => {
 }
 
 .cstat::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: 16px;
   padding: 2px;
-  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  background: linear-gradient(
+    135deg,
+    var(--gradient-start),
+    var(--gradient-end)
+  );
   mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
   opacity: 0.6;
   transition: opacity 0.3s ease;
 }
 
-.cstat:hover::before { opacity: 1; }
-.cstat:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); }
+.cstat:hover::before {
+  opacity: 1;
+}
+.cstat:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
 
-.cstat.total   { --gradient-start: #6366f1; --gradient-end: #8b5cf6; }
-.cstat.active  { --gradient-start: #34d399; --gradient-end: #10b981; }
-.cstat.pending { --gradient-start: #fbbf24; --gradient-end: #f59e0b; }
-.cstat.paused  { --gradient-start: #94a3b8; --gradient-end: #64748b; }
+.cstat.total {
+  --gradient-start: #6366f1;
+  --gradient-end: #8b5cf6;
+}
+.cstat.active {
+  --gradient-start: #34d399;
+  --gradient-end: #10b981;
+}
+.cstat.pending {
+  --gradient-start: #fbbf24;
+  --gradient-end: #f59e0b;
+}
+.cstat.paused {
+  --gradient-start: #94a3b8;
+  --gradient-end: #64748b;
+}
 
 .cstat-value {
   font-size: 1.65rem;
@@ -588,7 +710,10 @@ onUnmounted(() => {
   transform: translateY(-3px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
-.back-button i { font-size: 1.3rem; color: #c4b5fd; }
+.back-button i {
+  font-size: 1.3rem;
+  color: #c4b5fd;
+}
 
 .title-section .page-title {
   font-size: 2.1rem;
@@ -599,7 +724,10 @@ onUnmounted(() => {
   align-items: center;
   gap: 0.9rem;
 }
-.title-section .page-title i { color: #a78bfa; font-size: 2rem; }
+.title-section .page-title i {
+  color: #a78bfa;
+  font-size: 2rem;
+}
 
 .page-subtitle {
   margin: 0.4rem 0 0;
@@ -625,13 +753,37 @@ onUnmounted(() => {
   backdrop-filter: blur(8px);
   transition: all 0.3s ease;
 }
-.stat-badge:hover { transform: translateY(-4px); box-shadow: 0 8px 18px rgba(0,0,0,0.25); }
-.stat-badge.total   { border-color: #818cf8; }
-.stat-badge.active  { border-color: #34d399; }
-.stat-badge.pending { border-color: #fbbf24; }
-.stat-badge.paused  { border-color: #94a3b8; }
-.stat-badge .number { display: block; font-size: 1.6rem; font-weight: 800; line-height: 1; color: #fff; }
-.stat-badge .label { font-size: 0.78rem; margin-top: 0.35rem; opacity: 0.85; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-badge:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+}
+.stat-badge.total {
+  border-color: #818cf8;
+}
+.stat-badge.active {
+  border-color: #34d399;
+}
+.stat-badge.pending {
+  border-color: #fbbf24;
+}
+.stat-badge.paused {
+  border-color: #94a3b8;
+}
+.stat-badge .number {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+}
+.stat-badge .label {
+  font-size: 0.78rem;
+  margin-top: 0.35rem;
+  opacity: 0.85;
+  color: #cbd5e1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
 /* ============= BARRA DE FILTROS ============= */
 .filters-bar {
@@ -658,7 +810,9 @@ onUnmounted(() => {
   font-weight: 500;
   min-width: 200px;
 }
-.search-box { position: relative; }
+.search-box {
+  position: relative;
+}
 .search-box i {
   position: absolute;
   left: 1.1rem;
@@ -678,7 +832,9 @@ onUnmounted(() => {
   width: 300px;
   max-width: 100%;
 }
-.search-input::placeholder { color: rgba(255,255,255,0.5); }
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
 
 /* ============= GRID DE ANÚNCIOS ============= */
 .grid-anuncios {
@@ -692,9 +848,9 @@ onUnmounted(() => {
 /* ============= CARD (mantido exatamente como você queria) ============= */
 .anuncio-card {
   position: relative;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(18px);
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 1rem;
   padding: 1rem;
   transition: all 0.3s ease;
@@ -705,7 +861,10 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
 }
-.anuncio-card:hover { transform: translateY(-6px); box-shadow: 0 12px 32px rgba(0,0,0,0.35); }
+.anuncio-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
 
 .anuncio-status {
   position: absolute;
@@ -719,9 +878,18 @@ onUnmounted(() => {
   letter-spacing: 0.5px;
   z-index: 2;
 }
-.anuncio-status.active { background: #4caf50; color: #fff; }
-.anuncio-status.pending { background: #ff9800; color: #fff; }
-.anuncio-status.paused { background: #9e9e9e; color: #fff; }
+.anuncio-status.active {
+  background: #4caf50;
+  color: #fff;
+}
+.anuncio-status.pending {
+  background: #ff9800;
+  color: #fff;
+}
+.anuncio-status.paused {
+  background: #9e9e9e;
+  color: #fff;
+}
 
 .anuncio-img {
   width: 100%;
@@ -733,10 +901,17 @@ onUnmounted(() => {
   transition: opacity 0.4s ease;
   background: #1a1a1a;
 }
-.anuncio-img.loaded { opacity: 1; }
-.anuncio-img.error { opacity: 0.7; }
+.anuncio-img.loaded {
+  opacity: 1;
+}
+.anuncio-img.error {
+  opacity: 0.7;
+}
 
-.anuncio-info { flex: 1; margin-bottom: 0.8rem; }
+.anuncio-info {
+  flex: 1;
+  margin-bottom: 0.8rem;
+}
 .anuncio-titulo {
   font-size: 1.05rem;
   font-weight: 600;
@@ -764,12 +939,15 @@ onUnmounted(() => {
   gap: 0.3rem;
   margin-bottom: 0.3rem;
 }
-.anuncio-user { font-size: 0.8rem; color: #a0a0a0; }
+.anuncio-user {
+  font-size: 0.8rem;
+  color: #a0a0a0;
+}
 
 .anuncio-stats {
   margin-bottom: 0.8rem;
   padding: 0.5rem;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 0.5rem;
 }
 .stat-row {
@@ -780,15 +958,19 @@ onUnmounted(() => {
   color: #d9d9d9;
   margin-bottom: 0.3rem;
 }
-.stat-row:last-child { margin-bottom: 0; }
-.stat-row i { color: #7c3aed; }
+.stat-row:last-child {
+  margin-bottom: 0;
+}
+.stat-row i {
+  color: #7c3aed;
+}
 
 .anuncio-acoes {
   display: flex;
   gap: 0.4rem;
   margin-top: auto;
   padding-top: 0.5rem;
-  border-top: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 .anuncio-acoes button {
   flex: 1;
@@ -806,30 +988,55 @@ onUnmounted(() => {
   min-height: 36px;
   white-space: nowrap;
 }
-.btn-text { display: none; }
-.btn-stats { background: rgba(124, 58, 237, 0.3); color: #fff; }
-.btn-stats:hover { background: rgba(124, 58, 237, 0.5); }
-.btn-pausar { background: #ff9800; color: #fff; }
-.btn-pausar:hover { background: #f57c00; }
-.btn-ativar { background: #4caf50; color: #fff; }
-.btn-ativar:hover { background: #45a049; }
-.btn-remover { background: rgba(239,68,68,0.2); color: #ff6666; }
-.btn-remover:hover { background: rgba(239,68,68,0.35); }
+.btn-text {
+  display: none;
+}
+.btn-stats {
+  background: rgba(124, 58, 237, 0.3);
+  color: #fff;
+}
+.btn-stats:hover {
+  background: rgba(124, 58, 237, 0.5);
+}
+.btn-pausar {
+  background: #ff9800;
+  color: #fff;
+}
+.btn-pausar:hover {
+  background: #f57c00;
+}
+.btn-ativar {
+  background: #4caf50;
+  color: #fff;
+}
+.btn-ativar:hover {
+  background: #45a049;
+}
+.btn-remover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ff6666;
+}
+.btn-remover:hover {
+  background: rgba(239, 68, 68, 0.35);
+}
 
 /* ============= MODAL ============= */
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.8);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 }
 .modal-content {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 1rem;
   width: 90%;
   max-width: 500px;
@@ -841,12 +1048,27 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
-.modal-header h2 { margin: 0; color: #fff; font-size: 1.2rem; }
-.modal-close { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; opacity: 0.7; }
-.modal-close:hover { opacity: 1; }
-.modal-body { padding: 1.5rem; }
+.modal-header h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.2rem;
+}
+.modal-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.modal-close:hover {
+  opacity: 1;
+}
+.modal-body {
+  padding: 1.5rem;
+}
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -856,46 +1078,97 @@ onUnmounted(() => {
 .stat-card {
   text-align: center;
   padding: 1rem;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 0.8rem;
 }
-.stat-card i { font-size: 2rem; color: #7c3aed; margin-bottom: 0.5rem; display: block; }
-.stat-card h3 { margin: 0; font-size: 1.5rem; color: #fff; }
-.stat-card p { margin: 0.3rem 0 0; color: #d9d9d9; font-size: 0.85rem; }
+.stat-card i {
+  font-size: 2rem;
+  color: #7c3aed;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+.stat-card h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #fff;
+}
+.stat-card p {
+  margin: 0.3rem 0 0;
+  color: #d9d9d9;
+  font-size: 0.85rem;
+}
 
 .chart-container {
   position: relative;
   height: 300px;
   margin-top: 1.5rem;
   padding: 1rem;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 0.8rem;
 }
-.no-data { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.95rem; }
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
 
 /* ============= ANIMAÇÃO ============= */
-@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 /* ============= RESPONSIVO ============= */
 @media (max-width: 992px) {
-  .premium-header { flex-direction: column; text-align: center; }
-  .title-section .page-title { font-size: 1.9rem; justify-content: center; }
-  .header-stats { justify-content: center; }
+  .premium-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  .title-section .page-title {
+    font-size: 1.9rem;
+    justify-content: center;
+  }
+  .header-stats {
+    justify-content: center;
+  }
 }
 @media (max-width: 768px) {
-  .admin-anuncios { padding: 1rem; }
-  .grid-anuncios { grid-template-columns: 1fr; gap: 1.5rem; }
-  .filter-controls { flex-direction: column; align-items: stretch; }
-  .filter-select, .search-input { width: 100%; }
-  .back-button { width: 100%; justify-content: center; }
-  .anuncio-acoes button { padding: 0.45rem 0.5rem; font-size: 0.75rem; min-height: 34px; }
-  .btn-text { display: inline; }
+  .admin-anuncios {
+    padding: 1rem;
+  }
+  .grid-anuncios {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .filter-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-select,
+  .search-input {
+    width: 100%;
+  }
+  .back-button {
+    width: 100%;
+    justify-content: center;
+  }
+  .anuncio-acoes button {
+    padding: 0.45rem 0.5rem;
+    font-size: 0.75rem;
+    min-height: 34px;
+  }
+  .btn-text {
+    display: inline;
+  }
 }
 @media (min-width: 769px) {
-  .btn-text { display: inline; }
+  .btn-text {
+    display: inline;
+  }
 }
-
-
 
 /* SKELETON LOADING */
 .skeleton {
@@ -913,7 +1186,9 @@ onUnmounted(() => {
   border-radius: 8px;
   margin-bottom: 0.6rem;
 }
-.skeleton-line.short { width: 70%; }
+.skeleton-line.short {
+  width: 70%;
+}
 .skeleton-btn {
   height: 36px;
   background: #2d1b3a;
@@ -921,8 +1196,13 @@ onUnmounted(() => {
   flex: 1;
 }
 @keyframes pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 0.8; }
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 
 /* Botões: texto só aparece no hover (desktop) */

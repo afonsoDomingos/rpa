@@ -56,7 +56,7 @@ onUnmounted(() => {
       :style="{ backgroundImage: `url(${bg0})` }"
     >
       <span class="mask bg-gradient-dark opacity-6"></span>
-      
+
       <div class="container">
         <div class="row justify-content-center">
           <div class="col-lg-8 text-center mx-auto my-auto">
@@ -69,12 +69,12 @@ onUnmounted(() => {
               <h1>Cartao de Eleitor</h1>
             </div>
             <p class="lead mb-4 text-white opacity-8">
-              Bem-vindo à Rpa, a solução confiável e rápida para a recuperação de documentos perdidos
+              Bem-vindo à Rpa, a solução confiável e rápida para a recuperação
+              de documentos perdidos
             </p>
             <button type="submit" class="btn bg-white text-dark">
               Reportar
             </button>
-
           </div>
         </div>
       </div>
@@ -91,9 +91,10 @@ onUnmounted(() => {
 
 <style scoped>
 @media (max-width: 575.98px) {
-    h1[data-v-5743eab4], .h1[data-v-5743eab4] {
-        font-size: calc(1.125rem + 2.1vw);
-        margin-top: 20%;
-    }
+  h1[data-v-5743eab4],
+  .h1[data-v-5743eab4] {
+    font-size: calc(1.125rem + 2.1vw);
+    margin-top: 20%;
+  }
 }
 </style>

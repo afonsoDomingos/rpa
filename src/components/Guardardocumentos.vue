@@ -6,9 +6,8 @@
       </div>
     </div>
   </div>
-  <br/><br/><br/>
+  <br /><br /><br />
   <div class="container py-4">
-
     <div class="card shadow rounded-4 p-4">
       <h4 class="mb-4 text-center">
         <i class="bi bi-folder-plus text-primary me-2"></i>
@@ -18,15 +17,23 @@
       <!-- Tipo do Documento -->
       <div class="mb-3">
         <label class="form-label">Tipo de Documento</label>
-        <select v-model="form.tipoDocumento" class="form-select borda-destacada">
+        <select
+          v-model="form.tipoDocumento"
+          class="form-select borda-destacada"
+        >
           <option disabled value="">Selecione</option>
-          <option v-for="tipo in tiposDocumento" :key="tipo" :value="tipo">{{ tipo }}</option>
+          <option v-for="tipo in tiposDocumento" :key="tipo" :value="tipo">
+            {{ tipo }}
+          </option>
         </select>
       </div>
 
       <!-- Campos dinâmicos por tipo de documento -->
       <div v-if="form.tipoDocumento" class="row g-3">
-        <template v-for="campo in camposPorTipo[form.tipoDocumento]" :key="campo.key">
+        <template
+          v-for="campo in camposPorTipo[form.tipoDocumento]"
+          :key="campo.key"
+        >
           <div class="col-md-6">
             <label class="form-label">{{ campo.label }}</label>
             <input
@@ -50,37 +57,84 @@
       <div v-if="mensagem" :class="`alert mt-4 ${mensagemTipo}`">
         {{ mensagem }}
       </div>
-
     </div>
 
     <!-- Lista de documentos guardados do próprio usuário -->
     <div class="container mt-5" v-if="documentos.length > 0">
       <h4 class="mb-4 text-primary fw-bold">📁 Meus Documentos Guardados</h4>
 
-      <div v-for="(doc, index) in documentos" :key="doc._id || index" class="card shadow-sm mb-4">
+      <div
+        v-for="(doc, index) in documentos"
+        :key="doc._id || index"
+        class="card shadow-sm mb-4"
+      >
         <div class="card-body">
           <div class="row">
-            <div class="col-md-6" v-if="doc.tipoDocumento"><strong>Tipo:</strong> {{ doc.tipoDocumento }}</div>
-            <div class="col-md-6" v-if="doc.nome"><strong>Nome:</strong> {{ doc.nome }}</div>
-            <div class="col-md-6" v-if="doc.numeroDocumento"><strong>Número:</strong> {{ doc.numeroDocumento }}</div>
-            <div class="col-md-6" v-if="doc.dataEmissao"><strong>Data de Emissão:</strong> {{ formatarData(doc.dataEmissao) }}</div>
-            <div class="col-md-6" v-if="doc.validade"><strong>Validade:</strong> {{ formatarData(doc.validade) }}</div>
-            <div class="col-md-6" v-if="doc.categoria"><strong>Categoria:</strong> {{ doc.categoria }}</div>
-            <div class="col-md-6" v-if="doc.matricula"><strong>Matrícula:</strong> {{ doc.matricula }}</div>
-            <div class="col-md-6" v-if="doc.seguradora"><strong>Seguradora:</strong> {{ doc.seguradora }}</div>
-            <div class="col-md-6" v-if="doc.numeroConta"><strong>Nº Conta:</strong> {{ doc.numeroConta }}</div>
-            <div class="col-md-6" v-if="doc.numeroCartao"><strong>Nº Cartão:</strong> {{ doc.numeroCartao }}</div>
-            <div class="col-md-6" v-if="doc.zonaEleitoral"><strong>Zona Eleitoral:</strong> {{ doc.zonaEleitoral }}</div>
-            <div class="col-md-6" v-if="doc.numeroSegurancaSocial"><strong>Nº Segurança Social:</strong> {{ doc.numeroSegurancaSocial }}</div>
-            <div class="col-md-6" v-if="doc.patente"><strong>Patente:</strong> {{ doc.patente }}</div>
-            <div class="col-md-6" v-if="doc.modelo"><strong>Modelo:</strong> {{ doc.modelo }}</div>
-            <div class="col-md-6" v-if="doc.cartaoVirtualTipo"><strong>Tipo Cartão Virtual:</strong> {{ doc.cartaoVirtualTipo }}</div>
-            <div class="col-md-6" v-if="doc.codigoVirtual"><strong>Código Virtual:</strong> {{ doc.codigoVirtual }}</div>
+            <div class="col-md-6" v-if="doc.tipoDocumento">
+              <strong>Tipo:</strong> {{ doc.tipoDocumento }}
+            </div>
+            <div class="col-md-6" v-if="doc.nome">
+              <strong>Nome:</strong> {{ doc.nome }}
+            </div>
+            <div class="col-md-6" v-if="doc.numeroDocumento">
+              <strong>Número:</strong> {{ doc.numeroDocumento }}
+            </div>
+            <div class="col-md-6" v-if="doc.dataEmissao">
+              <strong>Data de Emissão:</strong>
+              {{ formatarData(doc.dataEmissao) }}
+            </div>
+            <div class="col-md-6" v-if="doc.validade">
+              <strong>Validade:</strong> {{ formatarData(doc.validade) }}
+            </div>
+            <div class="col-md-6" v-if="doc.categoria">
+              <strong>Categoria:</strong> {{ doc.categoria }}
+            </div>
+            <div class="col-md-6" v-if="doc.matricula">
+              <strong>Matrícula:</strong> {{ doc.matricula }}
+            </div>
+            <div class="col-md-6" v-if="doc.seguradora">
+              <strong>Seguradora:</strong> {{ doc.seguradora }}
+            </div>
+            <div class="col-md-6" v-if="doc.numeroConta">
+              <strong>Nº Conta:</strong> {{ doc.numeroConta }}
+            </div>
+            <div class="col-md-6" v-if="doc.numeroCartao">
+              <strong>Nº Cartão:</strong> {{ doc.numeroCartao }}
+            </div>
+            <div class="col-md-6" v-if="doc.zonaEleitoral">
+              <strong>Zona Eleitoral:</strong> {{ doc.zonaEleitoral }}
+            </div>
+            <div class="col-md-6" v-if="doc.numeroSegurancaSocial">
+              <strong>Nº Segurança Social:</strong>
+              {{ doc.numeroSegurancaSocial }}
+            </div>
+            <div class="col-md-6" v-if="doc.patente">
+              <strong>Patente:</strong> {{ doc.patente }}
+            </div>
+            <div class="col-md-6" v-if="doc.modelo">
+              <strong>Modelo:</strong> {{ doc.modelo }}
+            </div>
+            <div class="col-md-6" v-if="doc.cartaoVirtualTipo">
+              <strong>Tipo Cartão Virtual:</strong> {{ doc.cartaoVirtualTipo }}
+            </div>
+            <div class="col-md-6" v-if="doc.codigoVirtual">
+              <strong>Código Virtual:</strong> {{ doc.codigoVirtual }}
+            </div>
           </div>
 
           <div class="mt-3 d-flex gap-2">
-            <button class="btn btn-outline-danger btn-sm" @click="removerDocumento(doc._id)">🗑 Remover</button>
-            <button class="btn btn-outline-primary btn-sm" @click="editarDocumento(doc)">✏️ Editar</button>
+            <button
+              class="btn btn-outline-danger btn-sm"
+              @click="removerDocumento(doc._id)"
+            >
+              🗑 Remover
+            </button>
+            <button
+              class="btn btn-outline-primary btn-sm"
+              @click="editarDocumento(doc)"
+            >
+              ✏️ Editar
+            </button>
           </div>
         </div>
       </div>
@@ -91,111 +145,127 @@
     </div>
 
     <FooterDefault />
-
   </div>
 </template>
 
 <script setup>
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../examples/footers/FooterDefault.vue";
-import { ref, onMounted } from 'vue';
-import api from '../api';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from "vue";
+import api from "../api";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
 const documentos = ref([]);
-const mensagem = ref('');
-const mensagemTipo = ref('');
+const mensagem = ref("");
+const mensagemTipo = ref("");
 
 const form = ref({
   _id: null,
-  tipoDocumento: '',
-  nome: '',
-  numeroDocumento: '',
-  dataEmissao: '',
-  validade: '',
-  categoria: '',
-  matricula: '',
-  seguradora: '',
-  numeroConta: '',
-  numeroCartao: '',
-  zonaEleitoral: '',
-  numeroSegurancaSocial: '',
-  patente: '',
-  modelo: '',
-  cartaoVirtualTipo: '',
-  codigoVirtual: ''
+  tipoDocumento: "",
+  nome: "",
+  numeroDocumento: "",
+  dataEmissao: "",
+  validade: "",
+  categoria: "",
+  matricula: "",
+  seguradora: "",
+  numeroConta: "",
+  numeroCartao: "",
+  zonaEleitoral: "",
+  numeroSegurancaSocial: "",
+  patente: "",
+  modelo: "",
+  cartaoVirtualTipo: "",
+  codigoVirtual: "",
 });
 
 const modalAberto = ref(false);
 
 const tiposDocumento = [
-  'Bilhete de Identidade','Carta de Condução','Seguro do Veículo','Livrete','NUIT','NUIB','Passaporte',
-  'Certidão de Nascimento','Cartão de Eleitor','Cartão da Segurança Social','Cartão de Identidade Militar','Cartões Virtuais'
+  "Bilhete de Identidade",
+  "Carta de Condução",
+  "Seguro do Veículo",
+  "Livrete",
+  "NUIT",
+  "NUIB",
+  "Passaporte",
+  "Certidão de Nascimento",
+  "Cartão de Eleitor",
+  "Cartão da Segurança Social",
+  "Cartão de Identidade Militar",
+  "Cartões Virtuais",
 ];
 
 // Campos por tipo de documento
 const camposPorTipo = {
-  'Bilhete de Identidade': [
-    { key: 'nome', label: 'Nome completo' },
-    { key: 'numeroDocumento', label: 'Número do BI' },
-    { key: 'dataEmissao', label: 'Data de Emissão', type: 'date' },
-    { key: 'validade', label: 'Validade', type: 'date' }
+  "Bilhete de Identidade": [
+    { key: "nome", label: "Nome completo" },
+    { key: "numeroDocumento", label: "Número do BI" },
+    { key: "dataEmissao", label: "Data de Emissão", type: "date" },
+    { key: "validade", label: "Validade", type: "date" },
   ],
-  'Carta de Condução': [
-    { key: 'nome', label: 'Nome completo' },
-    { key: 'numeroDocumento', label: 'Número da Carta' },
-    { key: 'categoria', label: 'Categoria' },
-    { key: 'dataEmissao', label: 'Data de Emissão', type: 'date' },
-    { key: 'validade', label: 'Validade', type: 'date' }
+  "Carta de Condução": [
+    { key: "nome", label: "Nome completo" },
+    { key: "numeroDocumento", label: "Número da Carta" },
+    { key: "categoria", label: "Categoria" },
+    { key: "dataEmissao", label: "Data de Emissão", type: "date" },
+    { key: "validade", label: "Validade", type: "date" },
   ],
   // Adicione os outros tipos de documento da mesma forma...
 };
 
 const fetchDocumentos = async () => {
   try {
-    const token = localStorage.getItem('token');
-    if (!token) return router.push('/login');
-    const res = await api.get('/documentosguardados/meus-documentos', {
-      headers: { Authorization: `Bearer ${token}` }
+    const token = localStorage.getItem("token");
+    if (!token) return router.push("/login");
+    const res = await api.get("/documentosguardados/meus-documentos", {
+      headers: { Authorization: `Bearer ${token}` },
     });
     documentos.value = res.data;
   } catch (err) {
-    mostrarMensagem('Erro ao carregar documentos.', 'alert-danger');
+    mostrarMensagem("Erro ao carregar documentos.", "alert-danger");
   }
 };
 
 const salvarDocumento = async () => {
-  if (!form.value.tipoDocumento) return mostrarMensagem('Selecione o tipo de documento.', 'alert-danger');
+  if (!form.value.tipoDocumento)
+    return mostrarMensagem("Selecione o tipo de documento.", "alert-danger");
   try {
-    const token = localStorage.getItem('token');
-    if (!token) return router.push('/login');
+    const token = localStorage.getItem("token");
+    if (!token) return router.push("/login");
 
     if (form.value._id) {
       const { _id, ...dadosAtualizados } = form.value;
-      await api.put(`/documentosguardados/${_id}`, dadosAtualizados, { headers: { Authorization: `Bearer ${token}` } });
-      const index = documentos.value.findIndex(doc => doc._id === _id);
+      await api.put(`/documentosguardados/${_id}`, dadosAtualizados, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const index = documentos.value.findIndex((doc) => doc._id === _id);
       if (index !== -1) documentos.value[index] = { ...form.value };
-      mostrarMensagem('Documento atualizado com sucesso.', 'alert-success');
+      mostrarMensagem("Documento atualizado com sucesso.", "alert-success");
     } else {
-      const res = await api.post('/documentosguardados', form.value, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api.post("/documentosguardados", form.value, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       documentos.value.push(res.data);
-      mostrarMensagem('Documento guardado com sucesso.', 'alert-success');
+      mostrarMensagem("Documento guardado com sucesso.", "alert-success");
     }
     limparFormulario();
   } catch {
-    mostrarMensagem('Erro ao guardar documento.', 'alert-danger');
+    mostrarMensagem("Erro ao guardar documento.", "alert-danger");
   }
 };
 
 const removerDocumento = async (id) => {
   try {
-    const token = localStorage.getItem('token');
-    await api.delete(`/documentosguardados/${id}`, { headers: { Authorization: `Bearer ${token}` } });
-    documentos.value = documentos.value.filter(doc => doc._id !== id);
-    mostrarMensagem('Documento removido com sucesso.', 'alert-success');
+    const token = localStorage.getItem("token");
+    await api.delete(`/documentosguardados/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    documentos.value = documentos.value.filter((doc) => doc._id !== id);
+    mostrarMensagem("Documento removido com sucesso.", "alert-success");
   } catch {
-    mostrarMensagem('Erro ao remover documento.', 'alert-danger');
+    mostrarMensagem("Erro ao remover documento.", "alert-danger");
   }
 };
 
@@ -204,11 +274,27 @@ const editarDocumento = (doc) => {
   modalAberto.value = true;
 };
 
-const fecharModal = () => { modalAberto.value = false; };
-const salvarEdicao = () => { salvarDocumento(); fecharModal(); };
-const limparFormulario = () => { Object.keys(form.value).forEach(k => form.value[k]=''); form.value._id = null; };
-const mostrarMensagem = (msg, tipo) => { mensagem.value = msg; mensagemTipo.value = tipo; setTimeout(() => { mensagem.value=''; mensagemTipo.value=''; }, 3000); };
-const formatarData = (data) => data ? new Date(data).toLocaleDateString() : '';
+const fecharModal = () => {
+  modalAberto.value = false;
+};
+const salvarEdicao = () => {
+  salvarDocumento();
+  fecharModal();
+};
+const limparFormulario = () => {
+  Object.keys(form.value).forEach((k) => (form.value[k] = ""));
+  form.value._id = null;
+};
+const mostrarMensagem = (msg, tipo) => {
+  mensagem.value = msg;
+  mensagemTipo.value = tipo;
+  setTimeout(() => {
+    mensagem.value = "";
+    mensagemTipo.value = "";
+  }, 3000);
+};
+const formatarData = (data) =>
+  data ? new Date(data).toLocaleDateString() : "";
 
 onMounted(fetchDocumentos);
 </script>

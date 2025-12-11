@@ -8,16 +8,28 @@
         :key="n"
         :class="['pkg', { active: selected === n }]"
         @click="handleSelect(n)"
-        :aria-label="`Selecionar pacote de ${n} ${n === 1 ? 'semana' : 'semanas'} por ${prices[n-1]} MZN`"
+        :aria-label="`Selecionar pacote de ${n} ${
+          n === 1 ? 'semana' : 'semanas'
+        } por ${prices[n - 1]} MZN`"
         type="button"
       >
         <div class="header">
-          <strong>{{ n }} {{ n === 1 ? 'semana' : 'semanas' }}</strong>
-          <svg v-if="selected === n" class="check" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M20 6L9 17l-5-5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <strong>{{ n }} {{ n === 1 ? "semana" : "semanas" }}</strong>
+          <svg
+            v-if="selected === n"
+            class="check"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              d="M20 6L9 17l-5-5"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </div>
-        <span class="price">MZN {{ prices[n-1] }}</span>
+        <span class="price">MZN {{ prices[n - 1] }}</span>
       </button>
     </div>
 
@@ -30,62 +42,73 @@
     >
       <span>Ir para Pagamento</span>
       <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path d="M5 12h14m-7-7v14" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        <path
+          d="M5 12h14m-7-7v14"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+        />
       </svg>
     </button>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, toRefs } from 'vue'
-import { AD_PRICES } from '@/utils/prices'
-import { sendMetaEvent } from '@/utils/meta'
+import { ref, watch, toRefs } from "vue";
+import { AD_PRICES } from "@/utils/prices";
+import { sendMetaEvent } from "@/utils/meta";
 
 const props = defineProps({
   selected: {
     type: Number,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['select', 'pay'])
+const emit = defineEmits(["select", "pay"]);
 
 // Garante que selected seja reativo mesmo vindo do pai
-const { selected } = toRefs(props)
+const { selected } = toRefs(props);
 
 // Preços
-const prices = AD_PRICES || [500, 1000, 1500, 2000]
+const prices = AD_PRICES || [500, 1000, 1500, 2000];
 
 // Força reatividade total (nunca mais falha)
-watch(selected, (newVal) => {
-  console.log('Pacote selecionado:', newVal) // debug opcional
-}, { immediate: true })
+watch(
+  selected,
+  (newVal) => {
+    console.log("Pacote selecionado:", newVal); // debug opcional
+  },
+  { immediate: true }
+);
 
 // Seleção imediata + Meta Pixel
 const handleSelect = (n) => {
-  emit('select', n) // Emite para o pai atualizar imediatamente
+  emit("select", n); // Emite para o pai atualizar imediatamente
 
-  sendMetaEvent('AddToCart', {
-    content_ids: ['pacote_anuncio'],
-    content_name: `Pacote ${n} semana${n > 1 ? 's' : ''}`,
+  sendMetaEvent("AddToCart", {
+    content_ids: ["pacote_anuncio"],
+    content_name: `Pacote ${n} semana${n > 1 ? "s" : ""}`,
     value: prices[n - 1],
-    currency: 'MZN',
-    num_items: 1
-  }).catch(err => {
-    console.warn('Erro Meta Pixel:', err)
-  })
-}
+    currency: "MZN",
+    num_items: 1,
+  }).catch((err) => {
+    console.warn("Erro Meta Pixel:", err);
+  });
+};
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 .packages {
-  font-family: 'Poppins', sans-serif !important;
+  font-family: "Poppins", sans-serif !important;
   padding: 1.5rem;
   color: white;
   text-rendering: optimizeLegibility;
@@ -94,7 +117,7 @@ const handleSelect = (n) => {
 
 .packages .title,
 h2.title {
-  font-family: 'Poppins', sans-serif !important;
+  font-family: "Poppins", sans-serif !important;
   font-weight: 600 !important;
   font-size: 1.35rem !important;
   text-align: center;
@@ -112,7 +135,9 @@ h2.title {
 }
 
 @media (min-width: 640px) {
-  .grid { grid-template-columns: repeat(2, 1fr); }
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .pkg {

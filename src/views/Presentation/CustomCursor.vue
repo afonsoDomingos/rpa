@@ -1,5 +1,9 @@
 <template>
-  <div class="custom-cursor" :class="{ active: isHovering }" :style="cursorStyle"></div>
+  <div
+    class="custom-cursor"
+    :class="{ active: isHovering }"
+    :style="cursorStyle"
+  ></div>
   <div
     v-for="(pulse, index) in pulses"
     :key="index"
@@ -9,63 +13,65 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from "vue";
 // import clickSoundFile from '@/assets/sounds/click.mp3' // removido
 
-const mouseX = ref(0)
-const mouseY = ref(0)
-const cursorX = ref(0)
-const cursorY = ref(0)
+const mouseX = ref(0);
+const mouseY = ref(0);
+const cursorX = ref(0);
+const cursorY = ref(0);
 
-const isHovering = ref(false)
-const pulses = ref([])
+const isHovering = ref(false);
+const pulses = ref([]);
 
 // const clickSound = new Audio(clickSoundFile) // removido
 
 const cursorStyle = computed(() => ({
   left: `${cursorX.value}px`,
   top: `${cursorY.value}px`,
-}))
+}));
 
 function updateMouse(e) {
-  mouseX.value = e.clientX
-  mouseY.value = e.clientY
+  mouseX.value = e.clientX;
+  mouseY.value = e.clientY;
 }
 
 function animateCursor() {
-  const speed = 0.12
-  cursorX.value += (mouseX.value - cursorX.value) * speed
-  cursorY.value += (mouseY.value - cursorY.value) * speed
-  requestAnimationFrame(animateCursor)
+  const speed = 0.12;
+  cursorX.value += (mouseX.value - cursorX.value) * speed;
+  cursorY.value += (mouseY.value - cursorY.value) * speed;
+  requestAnimationFrame(animateCursor);
 }
 
 function checkHover(e) {
-  const target = e.target
-  isHovering.value = !!target.closest('button, a, input, textarea, select, [data-cursor-hover]')
+  const target = e.target;
+  isHovering.value = !!target.closest(
+    "button, a, input, textarea, select, [data-cursor-hover]"
+  );
 }
 
 function triggerClickPulse(e) {
-  pulses.value.push({ x: e.clientX, y: e.clientY })
+  pulses.value.push({ x: e.clientX, y: e.clientY });
   setTimeout(() => {
-    pulses.value.shift()
-  }, 500)
+    pulses.value.shift();
+  }, 500);
 
   // clickSound.currentTime = 0
   // clickSound.play() // removido
 }
 
 onMounted(() => {
-  window.addEventListener('mousemove', updateMouse)
-  window.addEventListener('mousemove', checkHover)
-  window.addEventListener('click', triggerClickPulse)
-  animateCursor()
-})
+  window.addEventListener("mousemove", updateMouse);
+  window.addEventListener("mousemove", checkHover);
+  window.addEventListener("click", triggerClickPulse);
+  animateCursor();
+});
 
 onUnmounted(() => {
-  window.removeEventListener('mousemove', updateMouse)
-  window.removeEventListener('mousemove', checkHover)
-  window.removeEventListener('click', triggerClickPulse)
-})
+  window.removeEventListener("mousemove", updateMouse);
+  window.removeEventListener("mousemove", checkHover);
+  window.removeEventListener("click", triggerClickPulse);
+});
 </script>
 
 <style scoped>
@@ -79,7 +85,8 @@ onUnmounted(() => {
   pointer-events: none;
   transform: translate(-50%, -50%);
   z-index: 9999;
-  transition: width 0.2s ease, height 0.2s ease, background-color 0.2s ease, transform 0.1s ease;
+  transition: width 0.2s ease, height 0.2s ease, background-color 0.2s ease,
+    transform 0.1s ease;
 }
 
 .custom-cursor.active {

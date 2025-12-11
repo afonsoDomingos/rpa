@@ -6,21 +6,40 @@
       <form @submit.prevent="criarUsuario" novalidate>
         <div class="mb-3">
           <label class="form-label">Nome</label>
-          <input type="text" class="form-control borda-destacada" :class="{ 'is-invalid': erro.nome }" v-model="novoUsuario.nome" />
+          <input
+            type="text"
+            class="form-control borda-destacada"
+            :class="{ 'is-invalid': erro.nome }"
+            v-model="novoUsuario.nome"
+          />
           <div class="invalid-feedback">Nome é obrigatório.</div>
         </div>
 
         <div class="mb-3">
           <label class="form-label">Email</label>
-          <input type="email" class="form-control borda-destacada" :class="{ 'is-invalid': erro.email }" v-model="novoUsuario.email" />
+          <input
+            type="email"
+            class="form-control borda-destacada"
+            :class="{ 'is-invalid': erro.email }"
+            v-model="novoUsuario.email"
+          />
           <div class="invalid-feedback">Email válido é obrigatório.</div>
         </div>
 
         <div class="mb-3 position-relative">
           <label class="form-label">Senha</label>
-          <input :type="senhaVisivel ? 'text' : 'password'" class="form-control borda-destacada" :class="{ 'is-invalid': erro.senha }" v-model="novoUsuario.senha" />
-          <i class="bi" :class="senhaVisivel ? 'bi-eye-slash' : 'bi-eye'" @click="senhaVisivel = !senhaVisivel"
-             style="position: absolute; right: 10px; top: 38px; cursor: pointer"></i>
+          <input
+            :type="senhaVisivel ? 'text' : 'password'"
+            class="form-control borda-destacada"
+            :class="{ 'is-invalid': erro.senha }"
+            v-model="novoUsuario.senha"
+          />
+          <i
+            class="bi"
+            :class="senhaVisivel ? 'bi-eye-slash' : 'bi-eye'"
+            @click="senhaVisivel = !senhaVisivel"
+            style="position: absolute; right: 10px; top: 38px; cursor: pointer"
+          ></i>
           <div class="invalid-feedback">Senha é obrigatória.</div>
         </div>
 
@@ -53,47 +72,47 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import api from '../api'
+import { ref } from "vue";
+import api from "../api";
 
-const emit = defineEmits(['usuario-criado'])
+const emit = defineEmits(["usuario-criado"]);
 
-const senhaVisivel = ref(false)
-const erro = ref({ nome: false, email: false, senha: false })
+const senhaVisivel = ref(false);
+const erro = ref({ nome: false, email: false, senha: false });
 
-const mensagemSucesso = ref('')
-const mensagemErro = ref('')
+const mensagemSucesso = ref("");
+const mensagemErro = ref("");
 
 const novoUsuario = ref({
-  nome: '',
-  email: '',
-  senha: '',
-  role: 'cliente'
-})
+  nome: "",
+  email: "",
+  senha: "",
+  role: "cliente",
+});
 
-const validarEmail = (email) => /\S+@\S+\.\S+/.test(email)
+const validarEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
 const criarUsuario = async () => {
-  erro.value.nome = !novoUsuario.value.nome
-  erro.value.email = !validarEmail(novoUsuario.value.email)
-  erro.value.senha = !novoUsuario.value.senha
+  erro.value.nome = !novoUsuario.value.nome;
+  erro.value.email = !validarEmail(novoUsuario.value.email);
+  erro.value.senha = !novoUsuario.value.senha;
 
-  mensagemErro.value = ''
-  mensagemSucesso.value = ''
+  mensagemErro.value = "";
+  mensagemSucesso.value = "";
 
-  if (erro.value.nome || erro.value.email || erro.value.senha) return
+  if (erro.value.nome || erro.value.email || erro.value.senha) return;
 
   try {
-    const res = await api.post('/auth/register', novoUsuario.value)
-    mensagemSucesso.value = res.data.msg || 'Usuário criado com sucesso!'
-    emit('usuario-criado')
-    novoUsuario.value = { nome: '', email: '', senha: '', role: 'cliente' }
-    erro.value = { nome: false, email: false, senha: false }
+    const res = await api.post("/auth/register", novoUsuario.value);
+    mensagemSucesso.value = res.data.msg || "Usuário criado com sucesso!";
+    emit("usuario-criado");
+    novoUsuario.value = { nome: "", email: "", senha: "", role: "cliente" };
+    erro.value = { nome: false, email: false, senha: false };
   } catch (err) {
-    mensagemErro.value = err.response?.data?.msg || 'Erro ao criar usuário'
-    console.error('Erro ao criar usuário:', err)
+    mensagemErro.value = err.response?.data?.msg || "Erro ao criar usuário";
+    console.error("Erro ao criar usuário:", err);
   }
-}
+};
 </script>
 
 <style scoped>
@@ -127,10 +146,12 @@ const criarUsuario = async () => {
   font-weight: 500;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.4s ease;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 </style>

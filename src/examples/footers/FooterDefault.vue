@@ -1,5 +1,4 @@
 <script setup>
-
 import logoDark2 from "@/assets/img/rPa.png";
 defineProps({
   brand: {
@@ -10,8 +9,8 @@ defineProps({
     default: () => ({
       name: "Rpa",
       logo: logoDark2,
-      route: "/"
-    })
+      route: "/",
+    }),
   },
   socials: {
     type: Array,
@@ -20,25 +19,25 @@ defineProps({
     default: () => [
       {
         icon: '<i class="fab fa-facebook text-lg opacity-8"></i>',
-        link: "https://www.facebook.com/profile.php?id=61570930139844&sk=photos"
+        link: "https://www.facebook.com/profile.php?id=61570930139844&sk=photos",
       },
       {
         icon: '<i class="fab fa-linkedin text-lg opacity-8"></i>',
-        link: "https://www.linkedin.com/in/afonso-domingos-6b59361a5/"
+        link: "https://www.linkedin.com/in/afonso-domingos-6b59361a5/",
       },
       {
         icon: '<i class="fab fa-dribbble text-lg opacity-8"></i>',
-        link: "https://recuperaaqui.vercel.app"
+        link: "https://recuperaaqui.vercel.app",
       },
       {
         icon: '<i class="fab fa-github text-lg opacity-8"></i>',
-        link: "https://github.com/afonsoDomingos/rpa"
+        link: "https://github.com/afonsoDomingos/rpa",
       },
       {
         icon: '<i class="fab fa-youtube text-lg opacity-8"></i>',
-        link: "https://www.youtube.com/channel/UClyCqvjCJeQHY21K5SMe2LA"
-      }
-    ]
+        link: "https://www.youtube.com/channel/UClyCqvjCJeQHY21K5SMe2LA",
+      },
+    ],
   },
   menus: {
     type: Array,
@@ -46,7 +45,7 @@ defineProps({
     items: {
       type: Array,
       name: String,
-      href: String
+      href: String,
     },
     default: () => [
       {
@@ -54,59 +53,60 @@ defineProps({
         items: [
           {
             name: "Sobre Nós",
-            href: "about"
+            href: "about",
           },
           {
             name: "Porquê Rpa",
-            href: ""
+            href: "",
           },
           {
             name: "Como Funciona",
-            href: ""
+            href: "",
           },
-          { name: "Equipe", href: "" }
-        ]
+          { name: "Equipe", href: "" },
+        ],
       },
       {
         name: "Redes sociais",
         items: [
-          { name: "Facebook", href: "https://www.facebook.com/profile.php?id=61570930139844&sk=photos" },
+          {
+            name: "Facebook",
+            href: "https://www.facebook.com/profile.php?id=61570930139844&sk=photos",
+          },
           {
             name: "Instagram",
-            href: "https://www.facebook.com/profile.php?id=61570930139844&sk=photos"
+            href: "https://www.facebook.com/profile.php?id=61570930139844&sk=photos",
           },
           {
             name: "Whatsapp",
-            href: "https://www.facebook.com/profile.php?id=61570930139844&sk=photos"
-          }
-        ]
+            href: "https://www.facebook.com/profile.php?id=61570930139844&sk=photos",
+          },
+        ],
       },
       {
         name: "Suporte",
         items: [
           {
             name: "Contacte-nos",
-            href: "contactus"  
+            href: "contactus",
           },
-        
-        ]
+        ],
       },
       {
         name: "Jurídico",
         items: [
           {
             name: "Termos e Condições",
-            href: "termsconditions"
+            href: "termsconditions",
           },
           {
             name: "Política de Privacidade",
-            href: "privacypolicy"
+            href: "privacypolicy",
           },
-          
-        ]
-      }
-    ]
-  }
+        ],
+      },
+    ],
+  },
 });
 </script>
 <template>
@@ -156,7 +156,7 @@ defineProps({
         <div class="col-12">
           <div class="text-center">
             <p class="text-dark my-4 text-sm font-weight-normal">
-              Todos os Direitos Reservados. 
+              Todos os Direitos Reservados.
               {{ new Date().getFullYear() }}
               Rpa By
               <a href="https://www.facebook.com/Techvibemz/" target="_blank"

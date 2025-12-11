@@ -16,8 +16,19 @@
       <!-- BOTÃO NOVO CHAT (só esta linha nova + o botão de fechar) -->
       <!-- BOTÃO NOVO CHAT + FECHAR -->
       <div class="header-right">
-        <button @click.stop="abrirModalNovoChat" class="new-chat-btn" title="Começar novo chat novo">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <button
+          @click.stop="abrirModalNovoChat"
+          class="new-chat-btn"
+          title="Começar novo chat novo"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
             <path d="M12 5v14M5 12h14" />
           </svg>
           <span class="new-chat-text">Novo</span>
@@ -26,28 +37,46 @@
       </div>
     </div>
 
-
-
-    <div class="chat-desc"> Assistente Virtual</div>
+    <div class="chat-desc">Assistente Virtual</div>
 
     <div class="chat-body">
       <!-- Menu suspenso de perguntas -->
       <div class="faq-menu-wrapper">
-        <button class="faq-toggle-btn" @click="faqOpen = !faqOpen" :aria-expanded="faqOpen.toString()"
-          aria-controls="faqMenuList">
+        <button
+          class="faq-toggle-btn"
+          @click="faqOpen = !faqOpen"
+          :aria-expanded="faqOpen.toString()"
+          aria-controls="faqMenuList"
+        >
           <span>❓ Perguntas Frequentes</span>
           <svg v-if="!faqOpen" width="18" height="18" viewBox="0 0 20 20">
-            <path d="M5 8l5 5 5-5" stroke="#800080" stroke-width="2" fill="none" />
+            <path
+              d="M5 8l5 5 5-5"
+              stroke="#800080"
+              stroke-width="2"
+              fill="none"
+            />
           </svg>
           <svg v-else width="18" height="18" viewBox="0 0 20 20">
-            <path d="M15 12l-5-5-5 5" stroke="#800080" stroke-width="2" fill="none" />
+            <path
+              d="M15 12l-5-5-5 5"
+              stroke="#800080"
+              stroke-width="2"
+              fill="none"
+            />
           </svg>
         </button>
         <transition name="faq-fade">
           <div v-show="faqOpen" class="faq-menu" id="faqMenuList" role="menu">
             <ul class="faq-list">
               <li v-for="p in predefinidas" :key="p.id">
-                <button class="faq-btn" @click="responderFaq(p.id)" role="menuitem">{{ p.pergunta }}</button>
+                <button
+                  class="faq-btn"
+                  @click="responderFaq(p.id)"
+                  role="menuitem"
+                >
+                  {{ p.pergunta }}
+                </button>
               </li>
             </ul>
           </div>
@@ -72,7 +101,11 @@
       </div>
 
       <div class="chat-messages" ref="chatMessagesRef" @scroll="handleScroll">
-        <div v-for="(msg, i) in messages" :key="'msg-' + i" :class="['msg', msg.from]">
+        <div
+          v-for="(msg, i) in messages"
+          :key="'msg-' + i"
+          :class="['msg', msg.from]"
+        >
           <span v-if="msg.from === 'bot'" class="msg-bot-avatar">
             <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
               <circle cx="16" cy="16" r="16" fill="#fff" />
@@ -83,84 +116,160 @@
               <rect x="13" y="16" width="6" height="2" rx="1" fill="#fff" />
             </svg>
           </span>
-          <span class="msg-text" v-if="msg.from === 'bot'" v-html="msg.text"></span>
+          <span
+            class="msg-text"
+            v-if="msg.from === 'bot'"
+            v-html="msg.text"
+          ></span>
           <span class="msg-text" v-else>{{ msg.text }}</span>
         </div>
-        <button v-show="showScrollBtn" class="scroll-to-bottom-btn" @click="scrollToBottom"
-          aria-label="Rolar para o fim do chat">
+        <button
+          v-show="showScrollBtn"
+          class="scroll-to-bottom-btn"
+          @click="scrollToBottom"
+          aria-label="Rolar para o fim do chat"
+        >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M12 5v14M19 12l-7 7-7-7" stroke="#800080" stroke-width="2.2" stroke-linecap="round"
-              stroke-linejoin="round" />
+            <path
+              d="M12 5v14M19 12l-7 7-7-7"
+              stroke="#800080"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </button>
       </div>
     </div>
 
-
-
     <form class="chat-footer" @submit.prevent="send">
-      <input v-model="input" type="text" placeholder="Digite ou fale sua mensagem..." autocomplete="off" />
+      <input
+        v-model="input"
+        type="text"
+        placeholder="Digite ou fale sua mensagem..."
+        autocomplete="off"
+      />
 
       <!-- Botão de microfone -->
-      <button type="button" class="mic-btn" :class="{ 'recording': isRecording, 'disabled': !micSupported }"
-        @click="toggleRecording" :disabled="!micSupported || isProcessingAudio || isRecording"
-        :title="micSupported ? (isRecording ? 'Escutando...' : 'Clique para falar') : 'Microfone não suportado'" style="
-      padding: 1.5px 4px; 
-      font-size: 9px; 
-      border-radius: 12px; 
-      border: none;
-      display: flex; 
-      align-items: center; 
-      justify-content: center;
-      background: transparent;
-    ">
-        <svg v-if="!isRecording" width="10" height="10" viewBox="0 0 24 24" fill="none">
-          <path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4Z" fill="#333" />
-          <path d="M19 11v1a7 7 0 0 1-14 0v-1M12 19v4M8 23h8" stroke="#333" stroke-width="2" stroke-linecap="round"
-            stroke-linejoin="round" />
+      <button
+        type="button"
+        class="mic-btn"
+        :class="{ recording: isRecording, disabled: !micSupported }"
+        @click="toggleRecording"
+        :disabled="!micSupported || isProcessingAudio || isRecording"
+        :title="
+          micSupported
+            ? isRecording
+              ? 'Escutando...'
+              : 'Clique para falar'
+            : 'Microfone não suportado'
+        "
+        style="
+          padding: 1.5px 4px;
+          font-size: 9px;
+          border-radius: 12px;
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: transparent;
+        "
+      >
+        <svg
+          v-if="!isRecording"
+          width="10"
+          height="10"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <path
+            d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4Z"
+            fill="#333"
+          />
+          <path
+            d="M19 11v1a7 7 0 0 1-14 0v-1M12 19v4M8 23h8"
+            stroke="#333"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
         <svg v-else width="10" height="10" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="3" fill="#333">
-            <animate attributeName="r" values="3;6;3" dur="1s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite" />
+            <animate
+              attributeName="r"
+              values="3;6;3"
+              dur="1s"
+              repeatCount="indefinite"
+            />
+            <animate
+              attributeName="opacity"
+              values="1;0.3;1"
+              dur="1s"
+              repeatCount="indefinite"
+            />
           </circle>
         </svg>
       </button>
 
-      <button type="submit" style="
-      padding: 1.5px 6px; 
-      font-size: 9px; 
-      border-radius: 12px; 
-      border: none;
-      background: transparent;
-      color: #333;
-    ">
+      <button
+        type="submit"
+        style="
+          padding: 1.5px 6px;
+          font-size: 9px;
+          border-radius: 12px;
+          border: none;
+          background: transparent;
+          color: #333;
+        "
+      >
         Enviar
       </button>
     </form>
-
-
   </div>
 
-  <button v-show="!open && !props.hideFabWhenScrolled" class="chat-fab" @click="toggle"
-    aria-label="Falar com Assistent">
+  <button
+    v-show="!open && !props.hideFabWhenScrolled"
+    class="chat-fab"
+    @click="toggle"
+    aria-label="Falar com Assistent"
+  >
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" fill="#fff" />
-      <path d="M7 10h10M7 14h7" stroke="#800080" stroke-width="2" stroke-linecap="round" />
+      <path
+        d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"
+        fill="#fff"
+      />
+      <path
+        d="M7 10h10M7 14h7"
+        stroke="#800080"
+        stroke-width="2"
+        stroke-linecap="round"
+      />
     </svg>
   </button>
 
   <!-- Modal bonito de confirmação -->
-  <div v-if="modalNovoChat" class="modal-overlay" @click="modalNovoChat = false">
+  <div
+    v-if="modalNovoChat"
+    class="modal-overlay"
+    @click="modalNovoChat = false"
+  >
     <div class="modal-novo-chat" @click.stop>
       <button class="modal-close" @click="modalNovoChat = false">×</button>
       <div class="modal-icon">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#800080" stroke-width="2">
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#800080"
+          stroke-width="2"
+        >
           <path d="M12 5v14M5 12h14" />
         </svg>
       </div>
       <h3>Novo chat</h3>
-      <p>Todas as mensagens serão apagadas.<br>Deseja continuar?</p>
+      <p>Todas as mensagens serão apagadas.<br />Deseja continuar?</p>
       <div class="modal-botoes">
         <button @click="confirmarNovoChat" class="btn-sim">Sim, limpar</button>
         <button @click="modalNovoChat = false" class="btn-nao">Cancelar</button>
@@ -170,17 +279,16 @@
 </template>
 
 <script setup>
-import axios from 'axios';
+import axios from "axios";
 import api from "../api";
-import { ref, nextTick, onUpdated, onMounted, onUnmounted } from 'vue';
-
+import { ref, nextTick, onUpdated, onMounted, onUnmounted } from "vue";
 
 const props = defineProps({
   hideFabWhenScrolled: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
 const open = ref(false);
 const input = ref("");
@@ -200,42 +308,114 @@ let recordingTimer = null;
 // Estados para o fluxo de busca de documentos
 const buscandoDocumento = ref(false);
 const dadosDocumento = ref({
-  nome_completo: '',
-  tipo_documento: '',
-  numero_documento: '',
-  provincia: '',
-  etapa: 'inicial' // inicial, coletando_nome, coletando_tipo, coletando_numero, coletando_provincia, finalizando
+  nome_completo: "",
+  tipo_documento: "",
+  numero_documento: "",
+  provincia: "",
+  etapa: "inicial", // inicial, coletando_nome, coletando_tipo, coletando_numero, coletando_provincia, finalizando
 });
 
 const predefinidas = [
-  { id: 1, pergunta: '🔐 1. Como criar uma conta na Rpa?', resposta: 'Para criar uma conta, preencha seu nome, e-mail e senha.<br>Depois é só fazer login e começar a usar a plataforma normalmente.<br><a href="/" style="color:#800080;text-decoration:underline;">Clique aqui para fazer login</a>.' },
-  { id: 2, pergunta: '🔑 2. Como fazer login na Rpa?', resposta: 'Informe seu e-mail e senha cadastrados.<br>Você será direcionado(a) para a tela principal da plataforma.<br><a href="/" style="color:#800080;text-decoration:underline;">Ir para login</a>.' },
-  { id: 3, pergunta: '🔎 3. Perdi um documento. Como faço para recuperar?', resposta: 'Vou te ajudar a procurar seu documento! Primeiro preciso de algumas informações.' },
-  { id: 4, pergunta: '📥 4. Como solicitar um documento na Rpa?', resposta: 'Se o documento for encontrado, clique em "Solicitar".<br>Será necessário ter uma assinatura ativa (Mensal ou Anual) para prosseguir.<br><a href="/assinaturas" style="color:#800080;text-decoration:underline;">Clique aqui para ver planos de assinatura</a> (opcional).' },
-  { id: 5, pergunta: '💳 5. Como pagar uma assinatura na Rpa?', resposta: 'Escolha um dos planos disponíveis:\n– 📅 Mensal: 150 MZN\n– 📆 Anual: 650 MZN\nApós o pagamento, sua assinatura será ativada imediatamente.' },
-  { id: 6, pergunta: '📢 6. Como reportar um documento na Rpa?', resposta: 'Se não encontrar o documento, vá à aba "Reportar".\nPreencha os dados do documento perdido e envie.\nVocê será notificado se alguém encontrá-lo.' },
-  { id: 7, pergunta: '📁 7. Como guardar um documento na Rpa?', resposta: 'Acesse "Guardar Documento", preencha os dados e clique em salvar.\nO documento ficará disponível na sua conta, com opção de gerar PDF.' },
-  { id: 8, pergunta: '📄 8. Como gerar um PDF na Rpa?', resposta: 'Após guardar um documento, clique em "Gerar PDF".\nUm arquivo será criado automaticamente com os dados preenchidos.' },
-  { id: 9, pergunta: '🔁 9. Como renovar a assinatura na Rpa?', resposta: 'Quando sua assinatura expirar, clique em "Renovar" no painel.\nEscolha o plano desejado e continue acessando todos os recursos.' },
-  { id: 10, pergunta: '❓ 10. Como posso receber ajuda na Rpa?', resposta: 'Você pode digitar perguntas como:\n"Assinar", "Reportar documento", "PDF", "Renovar" ou "Guardar".\nOu clique no botão "Ajuda" para ver todas as opções.' },
-  { id: 11, pergunta: '🔍 11. Como procurar um documento na Rpa?', resposta: 'Vá até a aba "Procurar", escolha o filtro desejado.<br>Clique em "Buscar" e veja se há algum resultado disponível, 🔍 Ou digite "QUERO PROCURAR MEU DOCUMENTO" no chat para iniciar a busca de forma automatica.' }
+  {
+    id: 1,
+    pergunta: "🔐 1. Como criar uma conta na Rpa?",
+    resposta:
+      'Para criar uma conta, preencha seu nome, e-mail e senha.<br>Depois é só fazer login e começar a usar a plataforma normalmente.<br><a href="/" style="color:#800080;text-decoration:underline;">Clique aqui para fazer login</a>.',
+  },
+  {
+    id: 2,
+    pergunta: "🔑 2. Como fazer login na Rpa?",
+    resposta:
+      'Informe seu e-mail e senha cadastrados.<br>Você será direcionado(a) para a tela principal da plataforma.<br><a href="/" style="color:#800080;text-decoration:underline;">Ir para login</a>.',
+  },
+  {
+    id: 3,
+    pergunta: "🔎 3. Perdi um documento. Como faço para recuperar?",
+    resposta:
+      "Vou te ajudar a procurar seu documento! Primeiro preciso de algumas informações.",
+  },
+  {
+    id: 4,
+    pergunta: "📥 4. Como solicitar um documento na Rpa?",
+    resposta:
+      'Se o documento for encontrado, clique em "Solicitar".<br>Será necessário ter uma assinatura ativa (Mensal ou Anual) para prosseguir.<br><a href="/assinaturas" style="color:#800080;text-decoration:underline;">Clique aqui para ver planos de assinatura</a> (opcional).',
+  },
+  {
+    id: 5,
+    pergunta: "💳 5. Como pagar uma assinatura na Rpa?",
+    resposta:
+      "Escolha um dos planos disponíveis:\n– 📅 Mensal: 150 MZN\n– 📆 Anual: 650 MZN\nApós o pagamento, sua assinatura será ativada imediatamente.",
+  },
+  {
+    id: 6,
+    pergunta: "📢 6. Como reportar um documento na Rpa?",
+    resposta:
+      'Se não encontrar o documento, vá à aba "Reportar".\nPreencha os dados do documento perdido e envie.\nVocê será notificado se alguém encontrá-lo.',
+  },
+  {
+    id: 7,
+    pergunta: "📁 7. Como guardar um documento na Rpa?",
+    resposta:
+      'Acesse "Guardar Documento", preencha os dados e clique em salvar.\nO documento ficará disponível na sua conta, com opção de gerar PDF.',
+  },
+  {
+    id: 8,
+    pergunta: "📄 8. Como gerar um PDF na Rpa?",
+    resposta:
+      'Após guardar um documento, clique em "Gerar PDF".\nUm arquivo será criado automaticamente com os dados preenchidos.',
+  },
+  {
+    id: 9,
+    pergunta: "🔁 9. Como renovar a assinatura na Rpa?",
+    resposta:
+      'Quando sua assinatura expirar, clique em "Renovar" no painel.\nEscolha o plano desejado e continue acessando todos os recursos.',
+  },
+  {
+    id: 10,
+    pergunta: "❓ 10. Como posso receber ajuda na Rpa?",
+    resposta:
+      'Você pode digitar perguntas como:\n"Assinar", "Reportar documento", "PDF", "Renovar" ou "Guardar".\nOu clique no botão "Ajuda" para ver todas as opções.',
+  },
+  {
+    id: 11,
+    pergunta: "🔍 11. Como procurar um documento na Rpa?",
+    resposta:
+      'Vá até a aba "Procurar", escolha o filtro desejado.<br>Clique em "Buscar" e veja se há algum resultado disponível, 🔍 Ou digite "QUERO PROCURAR MEU DOCUMENTO" no chat para iniciar a busca de forma automatica.',
+  },
 ];
 
 const messages = ref([
-  { from: 'bot', text: 'Olá! Como posso ajudar?<br>💡 <strong>Dica:</strong> Se perdeu algum documento, só me dizer que eu ajudo a procurar automaticamente!<br><br>🎤 <strong>Novo:</strong> Agora você pode falar comigo usando o microfone!<br><br>Selecione uma pergunta abaixo ou digite/fale sua dúvida.' }
+  {
+    from: "bot",
+    text: "Olá! Como posso ajudar?<br>💡 <strong>Dica:</strong> Se perdeu algum documento, só me dizer que eu ajudo a procurar automaticamente!<br><br>🎤 <strong>Novo:</strong> Agora você pode falar comigo usando o microfone!<br><br>Selecione uma pergunta abaixo ou digite/fale sua dúvida.",
+  },
 ]);
 
 // Lista de tipos de documentos
 const tipo_documentos = [
-  "Bilhete de Identidade", "Passaporte", "Cartão de Eleitor",
-  "Cartão de Estudante", "Carta de Condução", "Seguro do Veículo",
-  "Livrete", "Cartão de Identidade Militar"
+  "Bilhete de Identidade",
+  "Passaporte",
+  "Cartão de Eleitor",
+  "Cartão de Estudante",
+  "Carta de Condução",
+  "Seguro do Veículo",
+  "Livrete",
+  "Cartão de Identidade Militar",
 ];
 
 // Lista de províncias
 const provincias = [
-  "Maputo", "Maputo Cidade", "Gaza", "Inhambane", "Sofala",
-  "Manica", "Tete", "Zambézia", "Nampula", "Niassa", "Cabo Delgado"
+  "Maputo",
+  "Maputo Cidade",
+  "Gaza",
+  "Inhambane",
+  "Sofala",
+  "Manica",
+  "Tete",
+  "Zambézia",
+  "Nampula",
+  "Niassa",
+  "Cabo Delgado",
 ];
 
 const API_URL = "https://apirpa.onrender.com";
@@ -256,7 +436,8 @@ onUnmounted(() => {
 async function checkMicrophoneSupport() {
   try {
     // Verificar se Web Speech API está disponível
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
       micSupported.value = false;
@@ -265,7 +446,7 @@ async function checkMicrophoneSupport() {
 
     micSupported.value = true;
   } catch (error) {
-    console.warn('Web Speech API não disponível:', error);
+    console.warn("Web Speech API não disponível:", error);
     micSupported.value = false;
   }
 }
@@ -305,20 +486,21 @@ async function startRecording() {
     // Processar resultado
     if (transcription && transcription.trim()) {
       input.value = transcription;
-      messages.value.push({ from: 'user', text: `🎤 ${transcription}` });
+      messages.value.push({ from: "user", text: `🎤 ${transcription}` });
       await processMessage(transcription);
     } else {
-      typeWriter('❌ Não consegui entender o áudio. Tente falar mais claramente.');
+      typeWriter(
+        "❌ Não consegui entender o áudio. Tente falar mais claramente."
+      );
     }
-
   } catch (error) {
-    console.error('Erro no reconhecimento de voz:', error);
+    console.error("Erro no reconhecimento de voz:", error);
     typeWriter(`❌ ${error.message}`);
   } finally {
     // Resetar estados
     isRecording.value = false;
     isProcessingAudio.value = false;
-    input.value = '';
+    input.value = "";
 
     if (recordingTimer) {
       clearInterval(recordingTimer);
@@ -337,17 +519,18 @@ async function startRecording() {
 async function speechToText() {
   return new Promise((resolve, reject) => {
     // Verificar se Web Speech API está disponível
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      reject(new Error('Reconhecimento de fala não suportado neste navegador'));
+      reject(new Error("Reconhecimento de fala não suportado neste navegador"));
       return;
     }
 
     const recognition = new SpeechRecognition();
 
     // Configurações do reconhecimento
-    recognition.lang = 'pt-PT'; // Português
+    recognition.lang = "pt-PT"; // Português
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
@@ -360,20 +543,20 @@ async function speechToText() {
 
     // Em caso de erro
     recognition.onerror = (event) => {
-      let errorMessage = 'Erro no reconhecimento de voz';
+      let errorMessage = "Erro no reconhecimento de voz";
 
       switch (event.error) {
-        case 'no-speech':
-          errorMessage = 'Nenhuma fala detectada. Tente falar mais alto';
+        case "no-speech":
+          errorMessage = "Nenhuma fala detectada. Tente falar mais alto";
           break;
-        case 'audio-capture':
-          errorMessage = 'Microfone não disponível.';
+        case "audio-capture":
+          errorMessage = "Microfone não disponível.";
           break;
-        case 'not-allowed':
-          errorMessage = 'Permissão negada. Permita o acesso ao microfone.';
+        case "not-allowed":
+          errorMessage = "Permissão negada. Permita o acesso ao microfone.";
           break;
-        case 'network':
-          errorMessage = 'Erro de rede. Verifique sua conexão.';
+        case "network":
+          errorMessage = "Erro de rede. Verifique sua conexão.";
           break;
       }
 
@@ -389,7 +572,7 @@ async function speechToText() {
     try {
       recognition.start();
     } catch (error) {
-      reject(new Error('Erro ao iniciar reconhecimento de voz'));
+      reject(new Error("Erro ao iniciar reconhecimento de voz"));
     }
   });
 }
@@ -406,11 +589,17 @@ function toggle() {
 // Função para detectar se o usuário quer buscar documento perdido
 function detectarBuscaDocumento(mensagem) {
   const palavrasChave = [
-    'quero procurar meu documento', 'como ver se meu documento esta disponivel?', 'perdi meu bi', 'procura meu documento', 'perdi meu documento', 'Podes me ajudar a procurar meu documento?', 'como pesquisar meu documento?'
+    "quero procurar meu documento",
+    "como ver se meu documento esta disponivel?",
+    "perdi meu bi",
+    "procura meu documento",
+    "perdi meu documento",
+    "Podes me ajudar a procurar meu documento?",
+    "como pesquisar meu documento?",
   ];
 
   const mensagemLower = mensagem.toLowerCase();
-  return palavrasChave.some(palavra => mensagemLower.includes(palavra));
+  return palavrasChave.some((palavra) => mensagemLower.includes(palavra));
 }
 
 // Processar mensagem (texto ou voz)
@@ -442,57 +631,59 @@ async function processMessage(userMsg) {
   }
 }
 
-
-
-
-
-
-const modalNovoChat = ref(false)
+const modalNovoChat = ref(false);
 
 function abrirModalNovoChat() {
-  modalNovoChat.value = true
+  modalNovoChat.value = true;
 }
 
 function confirmarNovoChat() {
-  messages.value = [{
-    from: 'bot',
-    text: 'Olá! Como posso ajudar?<br>Tip: Se perdeu algum documento, só me dizer que eu ajudo a procurar automaticamente!<br><br>New: Agora você pode falar comigo usando o microfone!<br><br>Selecione uma pergunta abaixo ou digite/fale sua dúvida.'
-  }]
-  resetarFluxoDocumento()
-  modalNovoChat.value = false
-  nextTick(() => scrollToBottom())
+  messages.value = [
+    {
+      from: "bot",
+      text: "Olá! Como posso ajudar?<br>Tip: Se perdeu algum documento, só me dizer que eu ajudo a procurar automaticamente!<br><br>New: Agora você pode falar comigo usando o microfone!<br><br>Selecione uma pergunta abaixo ou digite/fale sua dúvida.",
+    },
+  ];
+  resetarFluxoDocumento();
+  modalNovoChat.value = false;
+  nextTick(() => scrollToBottom());
 }
-
 
 // Função para processar o fluxo de coleta de dados do documento
 async function processarFluxoDocumento(mensagem) {
   const etapa = dadosDocumento.value.etapa;
 
   switch (etapa) {
-    case 'inicial':
-      dadosDocumento.value.etapa = 'coletando_nome';
-      typeWriter('📋 Entendi! Vou te ajudar a procurar seu documento.<br><br>Primeiro, me diga: <strong>qual é o nome completo que está no documento?</strong>');
+    case "inicial":
+      dadosDocumento.value.etapa = "coletando_nome";
+      typeWriter(
+        "📋 Entendi! Vou te ajudar a procurar seu documento.<br><br>Primeiro, me diga: <strong>qual é o nome completo que está no documento?</strong>"
+      );
       break;
 
-    case 'coletando_nome':
+    case "coletando_nome":
       if (mensagem.trim().length < 3) {
-        typeWriter('❌ Por favor, digite um nome válido com pelo menos 3 caracteres.');
+        typeWriter(
+          "❌ Por favor, digite um nome válido com pelo menos 3 caracteres."
+        );
         return;
       }
       dadosDocumento.value.nome_completo = mensagem.trim();
-      dadosDocumento.value.etapa = 'coletando_tipo';
+      dadosDocumento.value.etapa = "coletando_tipo";
 
-      let opcoesDocumentos = '<strong>Que tipo de documento você perdeu?</strong><br><br>';
+      let opcoesDocumentos =
+        "<strong>Que tipo de documento você perdeu?</strong><br><br>";
       tipo_documentos.forEach((tipo, index) => {
         opcoesDocumentos += `${index + 1}. ${tipo}<br>`;
       });
-      opcoesDocumentos += '<br>💬 Digite o <strong>número</strong> ou o <strong>nome completo</strong> do documento:';
+      opcoesDocumentos +=
+        "<br>💬 Digite o <strong>número</strong> ou o <strong>nome completo</strong> do documento:";
 
       typeWriter(opcoesDocumentos);
       break;
 
-    case 'coletando_tipo':
-      let tipoSelecionado = '';
+    case "coletando_tipo":
+      let tipoSelecionado = "";
 
       // Verificar se é um número
       if (/^\d+$/.test(mensagem.trim())) {
@@ -502,9 +693,10 @@ async function processarFluxoDocumento(mensagem) {
         }
       } else {
         // Procurar por nome (busca flexível)
-        const tipoEncontrado = tipo_documentos.find(tipo =>
-          tipo.toLowerCase().includes(mensagem.trim().toLowerCase()) ||
-          mensagem.trim().toLowerCase().includes(tipo.toLowerCase())
+        const tipoEncontrado = tipo_documentos.find(
+          (tipo) =>
+            tipo.toLowerCase().includes(mensagem.trim().toLowerCase()) ||
+            mensagem.trim().toLowerCase().includes(tipo.toLowerCase())
         );
         if (tipoEncontrado) {
           tipoSelecionado = tipoEncontrado;
@@ -512,38 +704,50 @@ async function processarFluxoDocumento(mensagem) {
       }
 
       if (!tipoSelecionado) {
-        typeWriter('❌ Tipo de documento não reconhecido. Por favor, escolha um número de 1 a ' + tipo_documentos.length + ' ou digite o nome exato.');
+        typeWriter(
+          "❌ Tipo de documento não reconhecido. Por favor, escolha um número de 1 a " +
+            tipo_documentos.length +
+            " ou digite o nome exato."
+        );
         return;
       }
 
       dadosDocumento.value.tipo_documento = tipoSelecionado;
-      dadosDocumento.value.etapa = 'coletando_numero';
+      dadosDocumento.value.etapa = "coletando_numero";
 
-      typeWriter(`✅ Documento: <strong>${tipoSelecionado}</strong><br><br>📋 Se souber, me diga o <strong>número do documento</strong>.<br><br>💡 <em>Se não lembrar, pode digitar "não sei" ou "pular"</em>`);
+      typeWriter(
+        `✅ Documento: <strong>${tipoSelecionado}</strong><br><br>📋 Se souber, me diga o <strong>número do documento</strong>.<br><br>💡 <em>Se não lembrar, pode digitar "não sei" ou "pular"</em>`
+      );
       break;
 
-    case 'coletando_numero':
+    case "coletando_numero":
       const mensagemNumero = mensagem.trim().toLowerCase();
 
-      if (mensagemNumero === 'não sei' || mensagemNumero === 'nao sei' || mensagemNumero === 'pular') {
-        dadosDocumento.value.numero_documento = '';
+      if (
+        mensagemNumero === "não sei" ||
+        mensagemNumero === "nao sei" ||
+        mensagemNumero === "pular"
+      ) {
+        dadosDocumento.value.numero_documento = "";
       } else {
         dadosDocumento.value.numero_documento = mensagem.trim();
       }
 
-      dadosDocumento.value.etapa = 'coletando_provincia';
+      dadosDocumento.value.etapa = "coletando_provincia";
 
-      let opcoesProvincias = '<strong>Em que província você perdeu o documento?</strong><br><br>';
+      let opcoesProvincias =
+        "<strong>Em que província você perdeu o documento?</strong><br><br>";
       provincias.forEach((provincia, index) => {
         opcoesProvincias += `${index + 1}. ${provincia}<br>`;
       });
-      opcoesProvincias += '<br>💬 Digite o <strong>número</strong> ou o <strong>nome da província</strong>:';
+      opcoesProvincias +=
+        "<br>💬 Digite o <strong>número</strong> ou o <strong>nome da província</strong>:";
 
       typeWriter(opcoesProvincias);
       break;
 
-    case 'coletando_provincia':
-      let provinciaSelecionada = '';
+    case "coletando_provincia":
+      let provinciaSelecionada = "";
 
       // Verificar se é um número
       if (/^\d+$/.test(mensagem.trim())) {
@@ -553,9 +757,10 @@ async function processarFluxoDocumento(mensagem) {
         }
       } else {
         // Procurar por nome
-        const provinciaEncontrada = provincias.find(provincia =>
-          provincia.toLowerCase().includes(mensagem.trim().toLowerCase()) ||
-          mensagem.trim().toLowerCase().includes(provincia.toLowerCase())
+        const provinciaEncontrada = provincias.find(
+          (provincia) =>
+            provincia.toLowerCase().includes(mensagem.trim().toLowerCase()) ||
+            mensagem.trim().toLowerCase().includes(provincia.toLowerCase())
         );
         if (provinciaEncontrada) {
           provinciaSelecionada = provinciaEncontrada;
@@ -563,12 +768,16 @@ async function processarFluxoDocumento(mensagem) {
       }
 
       if (!provinciaSelecionada) {
-        typeWriter('❌ Província não reconhecida. Por favor, escolha um número de 1 a ' + provincias.length + ' ou digite o nome exato.');
+        typeWriter(
+          "❌ Província não reconhecida. Por favor, escolha um número de 1 a " +
+            provincias.length +
+            " ou digite o nome exato."
+        );
         return;
       }
 
       dadosDocumento.value.provincia = provinciaSelecionada;
-      dadosDocumento.value.etapa = 'finalizando';
+      dadosDocumento.value.etapa = "finalizando";
 
       // Realizar a busca
       await realizarBuscaDocumento();
@@ -578,7 +787,9 @@ async function processarFluxoDocumento(mensagem) {
 
 // Função para buscar o documento na base de dados
 async function realizarBuscaDocumento() {
-  typeWriter('🔍 Buscando seu documento na nossa base de dados...<br><br>⏳ <em>Por favor aguarde...</em>');
+  typeWriter(
+    "🔍 Buscando seu documento na nossa base de dados...<br><br>⏳ <em>Por favor aguarde...</em>"
+  );
 
   try {
     // Montar parâmetros para a busca
@@ -598,15 +809,16 @@ async function realizarBuscaDocumento() {
     }
 
     // Fazer a consulta na API existente
-    const response = await api.get('/documentos', { params });
+    const response = await api.get("/documentos", { params });
     const documentosEncontrados = response.data;
 
     // Exibir resultados
     await exibirResultadosBusca(documentosEncontrados);
-
   } catch (error) {
-    console.error('Erro ao buscar documentos:', error);
-    typeWriter('Ola! não encontramos o documento que esta a procura na nossa base de dados. Tente novamente mais tarde ou use a busca manual na aba "Procurar".');
+    console.error("Erro ao buscar documentos:", error);
+    typeWriter(
+      'Ola! não encontramos o documento que esta a procura na nossa base de dados. Tente novamente mais tarde ou use a busca manual na aba "Procurar".'
+    );
     resetarFluxoDocumento();
   }
 }
@@ -614,9 +826,11 @@ async function realizarBuscaDocumento() {
 // Função para exibir os resultados da busca
 async function exibirResultadosBusca(documentos) {
   if (documentos.length === 0) {
-    const nomeUsuario = dadosDocumento.value.nome_completo.split(' ')[0];
+    const nomeUsuario = dadosDocumento.value.nome_completo.split(" ")[0];
 
-    typeWriter(`❌ <strong>Documento não encontrado</strong><br><br>Olá ${nomeUsuario}, infelizmente não encontrei seu documento na nossa base de dados.<br><br>🤔 <strong>Mas não desanime!</strong><br><br>📋 <strong>O que você pode fazer:</strong><br>1️⃣ Cadastre seu documento na aba <strong>"Reportar"</strong><br>2️⃣ Assim, se alguém encontrá-lo, você será notificado!<br><br>💡 <em>Muitas pessoas encontram seus documentos alguns dias depois de cadastrá-los na plataforma.</em><br><br>Quer que eu te redirecione para o cadastro?`);
+    typeWriter(
+      `❌ <strong>Documento não encontrado</strong><br><br>Olá ${nomeUsuario}, infelizmente não encontrei seu documento na nossa base de dados.<br><br>🤔 <strong>Mas não desanime!</strong><br><br>📋 <strong>O que você pode fazer:</strong><br>1️⃣ Cadastre seu documento na aba <strong>"Reportar"</strong><br>2️⃣ Assim, se alguém encontrá-lo, você será notificado!<br><br>💡 <em>Muitas pessoas encontram seus documentos alguns dias depois de cadastrá-los na plataforma.</em><br><br>Quer que eu te redirecione para o cadastro?`
+    );
   } else {
     let resultadoTexto = `🎉 <strong>Ótimas notícias!</strong><br><br>Encontrei <strong>${documentos.length} documento(s)</strong> que pode(m) ser o seu:<br><br>`;
 
@@ -644,11 +858,11 @@ async function exibirResultadosBusca(documentos) {
 function resetarFluxoDocumento() {
   buscandoDocumento.value = false;
   dadosDocumento.value = {
-    nome_completo: '',
-    tipo_documento: '',
-    numero_documento: '',
-    provincia: '',
-    etapa: 'inicial'
+    nome_completo: "",
+    tipo_documento: "",
+    numero_documento: "",
+    provincia: "",
+    etapa: "inicial",
   };
 }
 
@@ -656,21 +870,21 @@ async function send() {
   if (!input.value.trim()) return;
 
   const userMsg = input.value.trim();
-  messages.value.push({ from: 'user', text: userMsg });
+  messages.value.push({ from: "user", text: userMsg });
 
   input.value = "";
   await processMessage(userMsg);
 }
 
 function responderFaq(id) {
-  const pergunta = predefinidas.find(p => p.id === id);
+  const pergunta = predefinidas.find((p) => p.id === id);
   if (pergunta) {
-    messages.value.push({ from: 'user', text: pergunta.pergunta });
+    messages.value.push({ from: "user", text: pergunta.pergunta });
 
     // Se for a pergunta sobre documento perdido, iniciar fluxo
     if (id === 3) {
       buscandoDocumento.value = true;
-      processarFluxoDocumento('perdi meu documento');
+      processarFluxoDocumento("perdi meu documento");
     } else {
       typeWriter(pergunta.resposta);
     }
@@ -687,8 +901,11 @@ function typeWriter(text, callback) {
   function type() {
     if (i < text.length) {
       current += text[i++];
-      if (messages.value.length === 0 || messages.value[messages.value.length - 1].from !== 'bot') {
-        messages.value.push({ from: 'bot', text: current });
+      if (
+        messages.value.length === 0 ||
+        messages.value[messages.value.length - 1].from !== "bot"
+      ) {
+        messages.value.push({ from: "bot", text: current });
       } else {
         messages.value[messages.value.length - 1].text = current;
       }
@@ -727,12 +944,10 @@ onUpdated(() => {
   });
 });
 
-
-
 onMounted(() => {
-  const avatar = document.querySelector('.chat-avatar svg');
-  const olhoEsq = avatar.querySelector('ellipse:nth-child(4)');
-  const olhoDir = avatar.querySelector('ellipse:nth-child(5)');
+  const avatar = document.querySelector(".chat-avatar svg");
+  const olhoEsq = avatar.querySelector("ellipse:nth-child(4)");
+  const olhoDir = avatar.querySelector("ellipse:nth-child(5)");
 
   let mouseX = 0;
   let mouseY = 0;
@@ -768,22 +983,21 @@ onMounted(() => {
     olhoYDir += (12.5 + offsetY - olhoYDir) * 0.2;
 
     // aplicar posições
-    olhoEsq.setAttribute('cx', olhoX);
-    olhoEsq.setAttribute('cy', olhoY);
-    olhoDir.setAttribute('cx', olhoXDir);
-    olhoDir.setAttribute('cy', olhoYDir);
+    olhoEsq.setAttribute("cx", olhoX);
+    olhoEsq.setAttribute("cy", olhoY);
+    olhoDir.setAttribute("cx", olhoXDir);
+    olhoDir.setAttribute("cy", olhoYDir);
 
     requestAnimationFrame(animarOlhos);
   }
 
-  window.addEventListener('mousemove', atualizarMouse);
+  window.addEventListener("mousemove", atualizarMouse);
   animarOlhos();
 
   onUnmounted(() => {
-    window.removeEventListener('mousemove', atualizarMouse);
+    window.removeEventListener("mousemove", atualizarMouse);
   });
 });
-
 </script>
 
 <style scoped>
@@ -842,7 +1056,6 @@ onMounted(() => {
 }
 
 @keyframes recording-pulse {
-
   0%,
   100% {
     opacity: 1;
@@ -1021,7 +1234,6 @@ onMounted(() => {
   border-bottom: 1px solid #eee;
 }
 
-
 .chat-body {
   flex: 1;
   padding: 12px 10px;
@@ -1128,7 +1340,6 @@ onMounted(() => {
   background: #198754;
 }
 
-
 /* Botão do chat no canto inferior direito */
 .chat-fab {
   position: fixed;
@@ -1161,7 +1372,6 @@ onMounted(() => {
     right: 1vw;
     bottom: 1px;
     height: calc(100dvh - 16px);
-
   }
 
   .chat-fab {
@@ -1239,7 +1449,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(128, 0, 128, 0.10);
+  box-shadow: 0 2px 8px rgba(128, 0, 128, 0.1);
   cursor: pointer;
   z-index: 20;
   transition: background 0.18s, border 0.18s;
@@ -1249,9 +1459,6 @@ onMounted(() => {
   background: #e6e6fa;
   border-color: #198754;
 }
-
-
-
 
 /* Botão "Novo Chat" com texto visível */
 .header-right {
@@ -1291,11 +1498,6 @@ onMounted(() => {
   }
 }
 
-
-
-
-
-
 /* Modal bonito de novo chat */
 .modal-overlay {
   position: fixed;
@@ -1309,7 +1511,6 @@ onMounted(() => {
 }
 
 .modal-novo-chat {
-
   background: #fff;
   border-radius: 16px;
   padding: 24px;

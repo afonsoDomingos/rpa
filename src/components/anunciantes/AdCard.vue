@@ -1,7 +1,6 @@
 <template>
   <transition name="slide-slow">
     <div v-if="showAd" class="ad-card-container" @click.self="closeAd">
-      
       <!-- PLACEHOLDER QUANDO NÃO TEM ANÚNCIOS -->
       <div v-if="!activeAds.length" class="ad-placeholder">
         <div class="placeholder-icon">
@@ -36,8 +35,10 @@
           />
 
           <div class="ad-body">
-            <h3 class="ad-title">{{ activeAd.name || 'Anúncio' }}</h3>
-            <p class="ad-description">{{ activeAd.description || 'Sem descrição' }}</p>
+            <h3 class="ad-title">{{ activeAd.name || "Anúncio" }}</h3>
+            <p class="ad-description">
+              {{ activeAd.description || "Sem descrição" }}
+            </p>
 
             <div class="ad-price">
               <i class="bi bi-currency-exchange"></i>
@@ -46,7 +47,9 @@
 
             <div class="ad-action-btn ad-timer-btn">
               <i class="bi bi-clock-history"></i>
-              <span>Falta <strong>{{ countdown }}s</strong></span>
+              <span
+                >Falta <strong>{{ countdown }}s</strong></span
+              >
             </div>
 
             <!-- BOTÃO WHATSAPP -->
@@ -56,7 +59,7 @@
               :disabled="enviandoWhatsapp"
             >
               <i class="bi bi-whatsapp"></i>
-              {{ enviandoWhatsapp ? 'Abrindo...' : 'Contactar' }}
+              {{ enviandoWhatsapp ? "Abrindo..." : "Contactar" }}
             </button>
 
             <button
@@ -68,7 +71,10 @@
               <span>Próximo</span>
             </button>
 
-            <button @click.stop="$router.push('/anuncie')" class="ad-action-btn">
+            <button
+              @click.stop="$router.push('/anuncie')"
+              class="ad-action-btn"
+            >
               <i class="bi bi-plus-circle"></i>
               <span>Anuncie Aqui</span>
             </button>
@@ -80,185 +86,204 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { debounce } from 'lodash'
-import api from '@/api'
+import { ref, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
+import { debounce } from "lodash";
+import api from "@/api";
 
-const router = useRouter()
+const router = useRouter();
 
 // Estado
-const showAd = ref(false)
-const activeAd = ref(null)
-const activeAds = ref([])
-const currentIndex = ref(0)
-const countdown = ref(30)
-const enviandoWhatsapp = ref(false)
+const showAd = ref(false);
+const activeAd = ref(null);
+const activeAds = ref([]);
+const currentIndex = ref(0);
+const countdown = ref(30);
+const enviandoWhatsapp = ref(false);
 
-let timeoutId = null
-let intervalId = null
-let pollingInterval = null
-let reappearTimeout = null
+let timeoutId = null;
+let intervalId = null;
+let pollingInterval = null;
+let reappearTimeout = null;
 
-const ONE_HOUR_MS = 60 * 60 * 1000
+const ONE_HOUR_MS = 60 * 60 * 1000;
 
 // BUSCAR ANÚNCIOS (sempre fresco)
 const fetchActiveAds = async () => {
-  console.log('%cAdCard: Buscando anúncios fresquinhos...', 'color: cyan; font-weight: bold')
+  console.log(
+    "%cAdCard: Buscando anúncios fresquinhos...",
+    "color: cyan; font-weight: bold"
+  );
 
   try {
-    const res = await api.get('/anuncios/ativos', { timeout: 10000 })
-    const data = Array.isArray(res.data) ? res.data : []
+    const res = await api.get("/anuncios/ativos", { timeout: 10000 });
+    const data = Array.isArray(res.data) ? res.data : [];
 
     activeAds.value = data
-      .filter(ad => ad && 
-        (ad.status === 'active' || ad.status === 'Active') && 
-        ad.image && 
-        ad._id
+      .filter(
+        (ad) =>
+          ad &&
+          (ad.status === "active" || ad.status === "Active") &&
+          ad.image &&
+          ad._id
       )
-      .slice(0, 10) // máximo 10 anúncios
+      .slice(0, 10); // máximo 10 anúncios
 
     // Salva no cache para fallback offline
-    localStorage.setItem('cachedAds', JSON.stringify(activeAds.value))
+    localStorage.setItem("cachedAds", JSON.stringify(activeAds.value));
 
     // Se tem anúncios, escolhe um ALEATÓRIO (nunca mais o mesmo toda hora)
     if (activeAds.value.length > 0) {
-      currentIndex.value = Math.floor(Math.random() * activeAds.value.length)
-      activeAd.value = activeAds.value[currentIndex.value]
-      showAd.value = true
-      startCountdown()
-      console.log(`%cMostrando anúncio #${currentIndex.value + 1}/${activeAds.value.length}`, 'color: lime; font-weight: bold')
+      currentIndex.value = Math.floor(Math.random() * activeAds.value.length);
+      activeAd.value = activeAds.value[currentIndex.value];
+      showAd.value = true;
+      startCountdown();
+      console.log(
+        `%cMostrando anúncio #${currentIndex.value + 1}/${
+          activeAds.value.length
+        }`,
+        "color: lime; font-weight: bold"
+      );
     } else {
-      activeAd.value = null
-      showAd.value = true // mostra placeholder
+      activeAd.value = null;
+      showAd.value = true; // mostra placeholder
     }
-
   } catch (err) {
-    console.error('Erro ao buscar anúncios:', err.response || err)
-    
+    console.error("Erro ao buscar anúncios:", err.response || err);
+
     // Tenta carregar do cache se falhar
-    const cached = localStorage.getItem('cachedAds')
+    const cached = localStorage.getItem("cachedAds");
     if (cached) {
-      activeAds.value = JSON.parse(cached)
+      activeAds.value = JSON.parse(cached);
       if (activeAds.value.length > 0) {
-        currentIndex.value = Math.floor(Math.random() * activeAds.value.length)
-        activeAd.value = activeAds.value[currentIndex.value]
-        showAd.value = true
-        startCountdown()
-        console.log('Anúncios carregados do cache (offline)')
+        currentIndex.value = Math.floor(Math.random() * activeAds.value.length);
+        activeAd.value = activeAds.value[currentIndex.value];
+        showAd.value = true;
+        startCountdown();
+        console.log("Anúncios carregados do cache (offline)");
       }
     }
   }
-}
+};
 
 // CONTADOR
 const startCountdown = () => {
-  countdown.value = 30
-  clearTimers()
+  countdown.value = 30;
+  clearTimers();
 
   intervalId = setInterval(() => {
-    if (countdown.value > 0) countdown.value--
-  }, 1000)
+    if (countdown.value > 0) countdown.value--;
+  }, 1000);
 
-  timeoutId = setTimeout(closeAd, 30000)
-}
+  timeoutId = setTimeout(closeAd, 30000);
+};
 
 const nextAd = () => {
-  if (activeAds.value.length <= 1) return
-  clearTimers()
-  currentIndex.value = (currentIndex.value + 1) % activeAds.value.length
-  activeAd.value = activeAds.value[currentIndex.value]
-  startCountdown()
-}
+  if (activeAds.value.length <= 1) return;
+  clearTimers();
+  currentIndex.value = (currentIndex.value + 1) % activeAds.value.length;
+  activeAd.value = activeAds.value[currentIndex.value];
+  startCountdown();
+};
 
-const debouncedNextAd = debounce(nextAd, 300)
+const debouncedNextAd = debounce(nextAd, 300);
 
 // VIEW + CLIQUE
 const registrarView = async (id) => {
-  try { await api.post(`/anuncios/${id}/view`) } catch (err) { console.warn('View não registrada', err) }
-}
+  try {
+    await api.post(`/anuncios/${id}/view`);
+  } catch (err) {
+    console.warn("View não registrada", err);
+  }
+};
 
 const handleWhatsAppClick = async () => {
-  if (enviandoWhatsapp.value) return
-  enviandoWhatsapp.value = true
+  if (enviandoWhatsapp.value) return;
+  enviandoWhatsapp.value = true;
 
-  const ad = activeAd.value
+  const ad = activeAd.value;
 
-  try { await api.post(`/anuncios/${ad._id}/clique`) } catch (err) { console.warn('Clique não registrado', err) }
+  try {
+    await api.post(`/anuncios/${ad._id}/clique`);
+  } catch (err) {
+    console.warn("Clique não registrado", err);
+  }
 
-  let numero = (ad.phone || '258840000000').replace(/\D/g, '')
-  if (numero.length < 9) numero = '258840000000'
+  let numero = (ad.phone || "258840000000").replace(/\D/g, "");
+  if (numero.length < 9) numero = "258840000000";
 
   const mensagem = ad.ctaLink
     ? `Olá! Vi o anúncio: *${ad.name}* — ${ad.ctaLink}`
-    : `Olá! Gostaria de saber mais sobre *${ad.name}* (R${ad.price})`
+    : `Olá! Gostaria de saber mais sobre *${ad.name}* (R${ad.price})`;
 
-  const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`
-  window.open(url, '_blank', 'noopener,noreferrer')
+  const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
+  window.open(url, "_blank", "noopener,noreferrer");
 
-  setTimeout(() => enviandoWhatsapp.value = false, 1500)
-}
+  setTimeout(() => (enviandoWhatsapp.value = false), 1500);
+};
 
 // FECHAR → e forçar atualização fresca quando voltar
 const closeAd = () => {
-  showAd.value = false
-  clearTimers()
-  localStorage.setItem('adLastClosed', Date.now().toString())
+  showAd.value = false;
+  clearTimers();
+  localStorage.setItem("adLastClosed", Date.now().toString());
 
-  clearTimeout(reappearTimeout)
+  clearTimeout(reappearTimeout);
   reappearTimeout = setTimeout(() => {
-    fetchActiveAds() // ← AQUI: busca anúncios novos quando voltar!
-  }, ONE_HOUR_MS)
-}
+    fetchActiveAds(); // ← AQUI: busca anúncios novos quando voltar!
+  }, ONE_HOUR_MS);
+};
 
 const clearTimers = () => {
-  if (timeoutId) clearTimeout(timeoutId)
-  if (intervalId) clearInterval(intervalId)
-  timeoutId = intervalId = null
-}
+  if (timeoutId) clearTimeout(timeoutId);
+  if (intervalId) clearInterval(intervalId);
+  timeoutId = intervalId = null;
+};
 
 const handleImageError = (e) => {
-  e.target.src = '/img/placeholder-ad.jpg'
-}
+  e.target.src = "/img/placeholder-ad.jpg";
+};
 
-const formatPrice = (v) => new Intl.NumberFormat('pt-MZ', { 
-  style: 'currency', 
-  
-  currency: 'MZN', 
-  minimumFractionDigits: 0 
-}).format(v)
+const formatPrice = (v) =>
+  new Intl.NumberFormat("pt-MZ", {
+    style: "currency",
+
+    currency: "MZN",
+    minimumFractionDigits: 0,
+  }).format(v);
 
 // CICLO DE VIDA
 onMounted(() => {
-  fetchActiveAds() // primeira carga
+  fetchActiveAds(); // primeira carga
 
   // Polling a cada 1 minuto (só quando pode ou deve reaparecer)
   pollingInterval = setInterval(() => {
-    const lastClosed = localStorage.getItem('adLastClosed')
-    const canReappearNow = !lastClosed || Date.now() - parseInt(lastClosed) >= ONE_HOUR_MS
+    const lastClosed = localStorage.getItem("adLastClosed");
+    const canReappearNow =
+      !lastClosed || Date.now() - parseInt(lastClosed) >= ONE_HOUR_MS;
 
     if (!showAd.value || canReappearNow) {
-      fetchActiveAds() // sempre fresco
+      fetchActiveAds(); // sempre fresco
     }
-  }, 10 * 60 * 1000) // 10 minutos
+  }, 10 * 60 * 1000); // 10 minutos
 
-  window.addEventListener('newAdCreated', fetchActiveAds)
-})
+  window.addEventListener("newAdCreated", fetchActiveAds);
+});
 
 onUnmounted(() => {
-  clearTimers()
-  if (pollingInterval) clearInterval(pollingInterval)
-  if (reappearTimeout) clearTimeout(reappearTimeout)
-  window.removeEventListener('newAdCreated', fetchActiveAds)
-})
+  clearTimers();
+  if (pollingInterval) clearInterval(pollingInterval);
+  if (reappearTimeout) clearTimeout(reappearTimeout);
+  window.removeEventListener("newAdCreated", fetchActiveAds);
+});
 </script>
 
 <style scoped>
-@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap");
 
 .ad-card-container * {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 .ad-card-container {
@@ -380,13 +405,22 @@ onUnmounted(() => {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(-50%) translateY(0); }
-  50% { transform: translateY(-50%) translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(-50%) translateY(0);
+  }
+  50% {
+    transform: translateY(-50%) translateY(-10px);
+  }
 }
 
 .ad-placeholder,
 .ad-content {
-  background: linear-gradient(135deg, rgba(15, 10, 35, 0.12), rgba(252, 24, 24, 0.15));
+  background: linear-gradient(
+    135deg,
+    rgba(15, 10, 35, 0.12),
+    rgba(252, 24, 24, 0.15)
+  );
   background-size: 200% 200%;
   backdrop-filter: blur(26px);
   -webkit-backdrop-filter: blur(26px);
@@ -497,8 +531,13 @@ onUnmounted(() => {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.85; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
 }
 
 .slide-slow-enter-active,
@@ -529,27 +568,60 @@ onUnmounted(() => {
 
 /* RESPONSIVO */
 @media (max-width: 768px) {
-  .ad-image { height: 160px; }
-  .ad-title { font-size: 1rem; }
-  .ad-price { font-size: 1.1rem; }
+  .ad-image {
+    height: 160px;
+  }
+  .ad-title {
+    font-size: 1rem;
+  }
+  .ad-price {
+    font-size: 1.1rem;
+  }
 }
 
 @media (max-width: 480px) {
-  .ad-image { height: 90px; border-radius: 0.6rem; }
-  .placeholder-icon { width: 32px; height: 32px; font-size: 1rem; }
-  .placeholder-title { font-size: 0.85rem; }
-  .placeholder-subtitle { font-size: 0.65rem; }
-  .ad-placeholder, .ad-content { padding: 0.7rem; border-radius: 1rem; }
-  .ad-title { font-size: 0.8rem; }
-  .ad-description { font-size: 0.65rem; }
-  .ad-price { font-size: 0.9rem; }
+  .ad-image {
+    height: 90px;
+    border-radius: 0.6rem;
+  }
+  .placeholder-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+  .placeholder-title {
+    font-size: 0.85rem;
+  }
+  .placeholder-subtitle {
+    font-size: 0.65rem;
+  }
+  .ad-placeholder,
+  .ad-content {
+    padding: 0.7rem;
+    border-radius: 1rem;
+  }
+  .ad-title {
+    font-size: 0.8rem;
+  }
+  .ad-description {
+    font-size: 0.65rem;
+  }
+  .ad-price {
+    font-size: 0.9rem;
+  }
   .ad-action-btn {
     font-size: 0.62rem;
     padding: 0.25rem 0.9rem;
     gap: 0.25rem;
     height: 30px;
   }
-  .close-btn { width: 24px; height: 24px; top: 0.4rem; right: 0.4rem; font-size: 0.75rem; }
+  .close-btn {
+    width: 24px;
+    height: 24px;
+    top: 0.4rem;
+    right: 0.4rem;
+    font-size: 0.75rem;
+  }
   .ad-sponsored {
     top: 0.4rem;
     left: 0.4rem;
@@ -557,7 +629,8 @@ onUnmounted(() => {
     padding: 0.15rem 0.35rem;
     border-radius: 0.8rem;
   }
-  .ad-sponsored i { font-size: 0.65rem; }
+  .ad-sponsored i {
+    font-size: 0.65rem;
+  }
 }
-
 </style>

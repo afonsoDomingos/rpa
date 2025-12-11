@@ -11,7 +11,8 @@ import MaterialButton from "@/components/MaterialButton.vue";
           variant="gradient"
           color="success"
           data-bs-toggle="modal"
-          data-bs-target="#exampleModal">
+          data-bs-target="#exampleModal"
+        >
           Launch demo modal
         </MaterialButton>
 
@@ -33,7 +34,8 @@ import MaterialButton from "@/components/MaterialButton.vue";
                   color="none"
                   class="btn-close"
                   data-bs-dismiss="modal"
-                  aria-label="Close">
+                  aria-label="Close"
+                >
                 </MaterialButton>
               </div>
               <div class="modal-body">
@@ -50,7 +52,8 @@ import MaterialButton from "@/components/MaterialButton.vue";
                 <MaterialButton
                   variant="gradient"
                   color="dark"
-                  data-bs-dismiss="modal">
+                  data-bs-dismiss="modal"
+                >
                   Close
                 </MaterialButton>
                 <MaterialButton variant="gradient" color="success" class="mb-0">

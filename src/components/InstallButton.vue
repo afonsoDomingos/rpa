@@ -30,88 +30,88 @@
         '--size': p.size + 'px',
         '--delay': p.delay + 's',
         '--duration': p.duration + 's',
-        '--color': p.color
+        '--color': p.color,
       }"
     ></div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from "vue";
 
-const showInstall = ref(false)
-const progress = ref(100)
-const installing = ref(false)
-const particles = ref([])
-let deferredPrompt = null
-let timer = null
+const showInstall = ref(false);
+const progress = ref(100);
+const installing = ref(false);
+const particles = ref([]);
+let deferredPrompt = null;
+let timer = null;
 
 const startProgress = () => {
-  const duration = 7000
-  const startTime = Date.now()
+  const duration = 7000;
+  const startTime = Date.now();
 
   const tick = () => {
-    const elapsed = Date.now() - startTime
-    progress.value = Math.max(0, 100 - (elapsed / duration) * 100)
+    const elapsed = Date.now() - startTime;
+    progress.value = Math.max(0, 100 - (elapsed / duration) * 100);
 
     if (progress.value > 0 && showInstall.value) {
-      timer = requestAnimationFrame(tick)
+      timer = requestAnimationFrame(tick);
     } else {
-      showInstall.value = false
+      showInstall.value = false;
     }
-  }
-  timer = requestAnimationFrame(tick)
-}
+  };
+  timer = requestAnimationFrame(tick);
+};
 
 onMounted(() => {
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault()
-    deferredPrompt = e
-    showInstall.value = true
-    progress.value = 100
-    startProgress()
-  })
-})
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    showInstall.value = true;
+    progress.value = 100;
+    startProgress();
+  });
+});
 
 onUnmounted(() => {
-  if (timer) cancelAnimationFrame(timer)
-})
+  if (timer) cancelAnimationFrame(timer);
+});
 
 const installPWA = async () => {
-  if (!deferredPrompt) return
+  if (!deferredPrompt) return;
 
-  installing.value = true
-  deferredPrompt.prompt()
-  
-  const { outcome } = await deferredPrompt.userChoice
-  installing.value = false
-  deferredPrompt = null
+  installing.value = true;
+  deferredPrompt.prompt();
 
-  if (outcome === 'accepted') {
-    showInstall.value = false
+  const { outcome } = await deferredPrompt.userChoice;
+  installing.value = false;
+  deferredPrompt = null;
+
+  if (outcome === "accepted") {
+    showInstall.value = false;
   } else {
-    progress.value = 0
-    setTimeout(() => showInstall.value = false, 400)
+    progress.value = 0;
+    setTimeout(() => (showInstall.value = false), 400);
   }
 
-  if ('vibrate' in navigator) navigator.vibrate(30)
-}
+  if ("vibrate" in navigator) navigator.vibrate(30);
+};
 
 // === PARTÍCULAS AO SUMIR ===
 const onLeave = (el, done) => {
-  const rect = el.getBoundingClientRect()
-  const centerX = rect.left + rect.width / 2
-  const centerY = rect.top + rect.height / 2
+  const rect = el.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
 
-  const particleCount = 14
-  const newParticles = []
+  const particleCount = 14;
+  const newParticles = [];
 
   for (let i = 0; i < particleCount; i++) {
-    const angle = (Math.PI * 2 * i) / particleCount
-    const velocity = 3 + Math.random() * 4
-    const size = 2 + Math.random() * 3
-    const duration = 0.5 + Math.random() * 0.3
-    const delay = Math.random() * 0.12
+    const angle = (Math.PI * 2 * i) / particleCount;
+    const velocity = 3 + Math.random() * 4;
+    const size = 2 + Math.random() * 3;
+    const duration = 0.5 + Math.random() * 0.3;
+    const delay = Math.random() * 0.12;
 
     newParticles.push({
       x: centerX + Math.cos(angle) * velocity * 15,
@@ -119,17 +119,17 @@ const onLeave = (el, done) => {
       size,
       duration,
       delay,
-      color: Math.random() > 0.5 ? '#a855f7' : '#d946ef'
-    })
+      color: Math.random() > 0.5 ? "#a855f7" : "#d946ef",
+    });
   }
 
-  particles.value = newParticles
+  particles.value = newParticles;
 
   setTimeout(() => {
-    particles.value = []
-    done()
-  }, 800)
-}
+    particles.value = [];
+    done();
+  }, 800);
+};
 </script>
 
 <style scoped>
@@ -159,12 +159,10 @@ const onLeave = (el, done) => {
   display: flex;
   align-items: center;
   gap: clamp(10px, 2.5vw, 14px);
-  box-shadow: 
-    0 14px 36px rgba(0, 0, 0, 0.08),
-    0 4px 12px rgba(0, 0, 0, 0.05),
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.75);
   pointer-events: auto;
-  font-family: 'SF Pro Display', 'Inter', system-ui, sans-serif;
+  font-family: "SF Pro Display", "Inter", system-ui, sans-serif;
 }
 
 /* Ícone menor */
@@ -174,7 +172,7 @@ const onLeave = (el, done) => {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.1));
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1));
 }
 
 /* Textos compactos */
@@ -216,14 +214,24 @@ const onLeave = (el, done) => {
   transform: translateY(-2px);
   box-shadow: 0 10px 24px rgba(128, 0, 255, 0.42);
 }
-.install-btn:active { transform: translateY(0); }
-.install-btn:disabled { opacity: 0.7; cursor: not-allowed; }
-.loading { animation: pulse 1.3s infinite; }
+.install-btn:active {
+  transform: translateY(0);
+}
+.install-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.loading {
+  animation: pulse 1.3s infinite;
+}
 
 /* Barra de progresso fina */
 .progress-track {
   position: absolute;
-  bottom: 0; left: 0; height: 3px; width: 100%;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
   background: rgba(0, 0, 0, 0.07);
   border-radius: 0 0 clamp(18px, 4.5vw, 28px) clamp(18px, 4.5vw, 28px);
   overflow: hidden;
@@ -237,18 +245,42 @@ const onLeave = (el, done) => {
 }
 
 /* ANIMAÇÕES */
-.install-enter-active { animation: zoomInFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.install-leave-active { animation: shrinkFadeOut 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.install-enter-active {
+  animation: zoomInFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.install-leave-active {
+  animation: shrinkFadeOut 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
 
 @keyframes zoomInFade {
-  0% { opacity: 0; transform: scale(0.8); }
-  100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 @keyframes shrinkFadeOut {
-  0% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(0.8); }
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
 }
-@keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
 
 /* PARTÍCULAS MENOR E RÁPIDAS */
 .particles-container {
@@ -273,8 +305,17 @@ const onLeave = (el, done) => {
   top: var(--y);
 }
 @keyframes particleBurst {
-  0% { opacity: 1; transform: translate(-50%, -50%) scale(0); }
-  60% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.1); }
-  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  60% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.7);
+  }
 }
 </style>

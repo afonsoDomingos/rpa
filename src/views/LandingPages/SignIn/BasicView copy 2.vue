@@ -39,7 +39,12 @@ const login = async () => {
 };
 
 const register = async () => {
-  if (!nome.value || !newEmail.value || !newPassword.value || !confirmPassword.value) {
+  if (
+    !nome.value ||
+    !newEmail.value ||
+    !newPassword.value ||
+    !confirmPassword.value
+  ) {
     alert("Preencha todos os campos!");
     return;
   }
@@ -56,7 +61,11 @@ const register = async () => {
     });
     alert("Conta criada com sucesso!");
     modo.value = "login";
-    nome.value = newEmail.value = newPassword.value = confirmPassword.value = "";
+    nome.value =
+      newEmail.value =
+      newPassword.value =
+      confirmPassword.value =
+        "";
   } catch (err) {
     alert(err.response?.data?.msg || "Erro ao registrar. Tente novamente.");
   }
@@ -78,7 +87,10 @@ const register = async () => {
         <button :class="{ active: modo === 'login' }" @click="modo = 'login'">
           <i class="fas fa-sign-in-alt"></i> Entrar
         </button>
-        <button :class="{ active: modo === 'register' }" @click="modo = 'register'">
+        <button
+          :class="{ active: modo === 'register' }"
+          @click="modo = 'register'"
+        >
           <i class="fas fa-user-plus"></i> Cadastrar
         </button>
       </div>
@@ -86,7 +98,12 @@ const register = async () => {
 
     <!-- Login -->
     <transition name="slide-fade" mode="out-in">
-      <form v-if="modo === 'login'" class="form" @submit.prevent="login" key="login">
+      <form
+        v-if="modo === 'login'"
+        class="form"
+        @submit.prevent="login"
+        key="login"
+      >
         <label class="input-group">
           <i class="far fa-envelope"></i>
           <input v-model="email" type="email" placeholder="E-mail" required />
@@ -94,8 +111,17 @@ const register = async () => {
 
         <label class="input-group">
           <i class="fas fa-lock"></i>
-          <input :type="showPass ? 'text' : 'password'" v-model="password" placeholder="Senha" required />
-          <i :class="showPass ? 'fas fa-eye-slash' : 'fas fa-eye'" class="eye" @click="showPass = !showPass"></i>
+          <input
+            :type="showPass ? 'text' : 'password'"
+            v-model="password"
+            placeholder="Senha"
+            required
+          />
+          <i
+            :class="showPass ? 'fas fa-eye-slash' : 'fas fa-eye'"
+            class="eye"
+            @click="showPass = !showPass"
+          ></i>
         </label>
 
         <button type="submit" class="btn pulse">Entrar</button>
@@ -106,24 +132,52 @@ const register = async () => {
       <form v-else class="form" @submit.prevent="register" key="register">
         <label class="input-group">
           <i class="far fa-user"></i>
-          <input v-model="nome" type="text" placeholder="Nome completo" required />
+          <input
+            v-model="nome"
+            type="text"
+            placeholder="Nome completo"
+            required
+          />
         </label>
 
         <label class="input-group">
           <i class="far fa-envelope"></i>
-          <input v-model="newEmail" type="email" placeholder="E-mail" required />
+          <input
+            v-model="newEmail"
+            type="email"
+            placeholder="E-mail"
+            required
+          />
         </label>
 
         <label class="input-group">
           <i class="fas fa-lock"></i>
-          <input :type="showNewPass ? 'text' : 'password'" v-model="newPassword" placeholder="Senha" required />
-          <i :class="showNewPass ? 'fas fa-eye-slash' : 'fas fa-eye'" class="eye" @click="showNewPass = !showNewPass"></i>
+          <input
+            :type="showNewPass ? 'text' : 'password'"
+            v-model="newPassword"
+            placeholder="Senha"
+            required
+          />
+          <i
+            :class="showNewPass ? 'fas fa-eye-slash' : 'fas fa-eye'"
+            class="eye"
+            @click="showNewPass = !showNewPass"
+          ></i>
         </label>
 
         <label class="input-group">
           <i class="fas fa-lock"></i>
-          <input :type="showConfirmPass ? 'text' : 'password'" v-model="confirmPassword" placeholder="Confirmar senha" required />
-          <i :class="showConfirmPass ? 'fas fa-eye-slash' : 'fas fa-eye'" class="eye" @click="showConfirmPass = !showConfirmPass"></i>
+          <input
+            :type="showConfirmPass ? 'text' : 'password'"
+            v-model="confirmPassword"
+            placeholder="Confirmar senha"
+            required
+          />
+          <i
+            :class="showConfirmPass ? 'fas fa-eye-slash' : 'fas fa-eye'"
+            class="eye"
+            @click="showConfirmPass = !showConfirmPass"
+          ></i>
         </label>
 
         <button type="submit" class="btn pulse">Cadastrar</button>
@@ -313,7 +367,13 @@ const register = async () => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

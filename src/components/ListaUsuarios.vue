@@ -7,7 +7,6 @@
       class="form-control borda-destacada mb-3"
     />
 
-
     <div class="table-container">
       <table class="custom-table">
         <thead>
@@ -65,7 +64,7 @@
                   class="btn btn-sm btn-outline-secondary mt-1"
                   @click="senhaVisivel = !senhaVisivel"
                 >
-                  {{ senhaVisivel ? 'Ocultar' : 'Mostrar' }}
+                  {{ senhaVisivel ? "Ocultar" : "Mostrar" }}
                 </button>
               </div>
               <span v-else>••••••••</span>
@@ -76,7 +75,10 @@
                   <button class="btn btn-success btn-sm" @click="salvarEdicao">
                     💾 Salvar
                   </button>
-                  <button class="btn btn-warning btn-sm" @click="cancelarEdicao">
+                  <button
+                    class="btn btn-warning btn-sm"
+                    @click="cancelarEdicao"
+                  >
                     ❌ Cancelar
                   </button>
                 </template>
@@ -100,13 +102,16 @@
         </tbody>
       </table>
     </div>
-        <!-- Coloque logo abaixo do input -->
-<transition name="contador-animado" mode="out-in">
-  <div key="count-{{ usuariosFiltrados.length }}" class="contador-usuarios mb-3">
-    <span>Usuários encontrados:</span>
-    <strong>{{ usuariosFiltrados.length }}</strong>
-  </div>
-</transition>
+    <!-- Coloque logo abaixo do input -->
+    <transition name="contador-animado" mode="out-in">
+      <div
+        key="count-{{ usuariosFiltrados.length }}"
+        class="contador-usuarios mb-3"
+      >
+        <span>Usuários encontrados:</span>
+        <strong>{{ usuariosFiltrados.length }}</strong>
+      </div>
+    </transition>
 
     <div class="d-flex justify-content-between align-items-center mt-3">
       <button
@@ -116,7 +121,9 @@
       >
         ◀ Anterior
       </button>
-      <span class="fw-bold">Página {{ paginaAtual }} de {{ totalPaginas }}</span>
+      <span class="fw-bold"
+        >Página {{ paginaAtual }} de {{ totalPaginas }}</span
+      >
       <button
         class="btn btn-secondary btn-sm"
         @click="paginaAtual++"
@@ -130,7 +137,10 @@
     <transition name="fade">
       <div
         v-if="mensagem"
-        :class="['alert', tipoMensagem === 'sucesso' ? 'alert-success' : 'alert-danger']"
+        :class="[
+          'alert',
+          tipoMensagem === 'sucesso' ? 'alert-success' : 'alert-danger',
+        ]"
         class="mt-3"
         role="alert"
       >
@@ -140,140 +150,154 @@
   </div>
 </template>
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import api from '../api'
+import { ref, computed, onMounted, watch } from "vue";
+import api from "../api";
 
-const props = defineProps(['atualizar'])
+const props = defineProps(["atualizar"]);
 
-const usuarios = ref([])
-const filtro = ref('')
-const paginaAtual = ref(1)
-const porPagina = 5
+const usuarios = ref([]);
+const filtro = ref("");
+const paginaAtual = ref(1);
+const porPagina = 5;
 
-const editandoId = ref(null)
+const editandoId = ref(null);
 const usuarioEditando = ref({
-  nome: '',
-  email: '',
-  role: '',
-  senha: ''
-})
-const senhaVisivel = ref(false)
-
+  nome: "",
+  email: "",
+  role: "",
+  senha: "",
+});
+const senhaVisivel = ref(false);
 
 // Notificações
-const mensagem = ref('')
-const tipoMensagem = ref('') // 'sucesso' ou 'erro'
-const mostrarMensagem = (msg, tipo = 'sucesso') => {
-  mensagem.value = msg
-  tipoMensagem.value = tipo
+const mensagem = ref("");
+const tipoMensagem = ref(""); // 'sucesso' ou 'erro'
+const mostrarMensagem = (msg, tipo = "sucesso") => {
+  mensagem.value = msg;
+  tipoMensagem.value = tipo;
   setTimeout(() => {
-    mensagem.value = ''
-  }, 4000)
-}
-
-
+    mensagem.value = "";
+  }, 4000);
+};
 
 const buscarUsuarios = async () => {
   try {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem("token");
     if (!token) {
-      mostrarMensagem('Token não encontrado. Faça login novamente.', 'erro')
-      return
+      mostrarMensagem("Token não encontrado. Faça login novamente.", "erro");
+      return;
     }
 
-    const { data } = await api.get('/auth/usuarios', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    const { data } = await api.get("/auth/usuarios", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
     // Mapeia cada usuário, adicionando o id baseado no _id do Mongo
-    usuarios.value = data.map(usuario => ({
+    usuarios.value = data.map((usuario) => ({
       ...usuario,
-      id: usuario.id
-    }))
+      id: usuario.id,
+    }));
 
-    console.log('Usuários recebidos e mapeados:', usuarios.value)
+    console.log("Usuários recebidos e mapeados:", usuarios.value);
   } catch (err) {
-    console.error('Erro ao buscar usuários:', err.response?.data || err.message)
-    mostrarMensagem('Erro ao buscar usuários: ' + (err.response?.data?.msg || err.message), 'erro')
+    console.error(
+      "Erro ao buscar usuários:",
+      err.response?.data || err.message
+    );
+    mostrarMensagem(
+      "Erro ao buscar usuários: " + (err.response?.data?.msg || err.message),
+      "erro"
+    );
   }
-}
-
-
+};
 
 const editarUsuario = (usuario) => {
-  editandoId.value = usuario.id
+  editandoId.value = usuario.id;
   usuarioEditando.value = {
     nome: usuario.nome,
     email: usuario.email,
     role: usuario.role,
-    senha: ''
-  }
-  senhaVisivel.value = false
-}
+    senha: "",
+  };
+  senhaVisivel.value = false;
+};
 
 const cancelarEdicao = () => {
-  editandoId.value = null
-  usuarioEditando.value = { nome: '', email: '', role: '', senha: '' }
-  senhaVisivel.value = false
-}
+  editandoId.value = null;
+  usuarioEditando.value = { nome: "", email: "", role: "", senha: "" };
+  senhaVisivel.value = false;
+};
 
 const salvarEdicao = async () => {
   if (!editandoId.value) {
-    mostrarMensagem('ID do usuário não definido.', 'erro')
-    return
+    mostrarMensagem("ID do usuário não definido.", "erro");
+    return;
   }
 
   try {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem("token");
     if (!token) {
-      mostrarMensagem('Token não encontrado. Faça login novamente.', 'erro')
-      return
+      mostrarMensagem("Token não encontrado. Faça login novamente.", "erro");
+      return;
     }
 
     const payload = {
       nome: usuarioEditando.value.nome,
       email: usuarioEditando.value.email,
       role: usuarioEditando.value.role,
-    }
+    };
 
     if (usuarioEditando.value.senha?.trim()) {
-      payload.senha = usuarioEditando.value.senha
+      payload.senha = usuarioEditando.value.senha;
     }
 
     await api.patch(`/auth/usuarios/${editandoId.value}`, payload, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-    mostrarMensagem('Usuário atualizado com sucesso.', 'sucesso')
-    cancelarEdicao()
-    buscarUsuarios()
+    mostrarMensagem("Usuário atualizado com sucesso.", "sucesso");
+    cancelarEdicao();
+    buscarUsuarios();
   } catch (error) {
-    console.error('Erro ao salvar edição:', error.response?.data || error.message)
-    mostrarMensagem('Falha ao salvar usuário: ' + (error.response?.data?.msg || error.message), 'erro')
+    console.error(
+      "Erro ao salvar edição:",
+      error.response?.data || error.message
+    );
+    mostrarMensagem(
+      "Falha ao salvar usuário: " +
+        (error.response?.data?.msg || error.message),
+      "erro"
+    );
   }
-}
+};
 
 const excluirUsuario = async (id) => {
   if (confirm(`Tem certeza que deseja excluir o usuário com ID: ${id}?`)) {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem("token");
     if (!token) {
-      mostrarMensagem('Token não encontrado. Faça login novamente.', 'erro')
-      return
+      mostrarMensagem("Token não encontrado. Faça login novamente.", "erro");
+      return;
     }
 
     try {
       await api.delete(`/auth/usuarios/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      mostrarMensagem('Usuário excluído com sucesso.', 'sucesso')
-      buscarUsuarios()
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      mostrarMensagem("Usuário excluído com sucesso.", "sucesso");
+      buscarUsuarios();
     } catch (error) {
-      console.error('Erro ao excluir usuário:', error.response?.data || error.message)
-      mostrarMensagem('Erro ao excluir usuário: ' + (error.response?.data?.msg || 'Erro desconhecido'), 'erro')
+      console.error(
+        "Erro ao excluir usuário:",
+        error.response?.data || error.message
+      );
+      mostrarMensagem(
+        "Erro ao excluir usuário: " +
+          (error.response?.data?.msg || "Erro desconhecido"),
+        "erro"
+      );
     }
   }
-}
-
+};
 
 const usuariosFiltrados = computed(() =>
   usuarios.value.filter(
@@ -281,27 +305,27 @@ const usuariosFiltrados = computed(() =>
       u.nome.toLowerCase().includes(filtro.value.toLowerCase()) ||
       u.email.toLowerCase().includes(filtro.value.toLowerCase())
   )
-)
+);
 
 const totalPaginas = computed(() =>
   Math.ceil(usuariosFiltrados.value.length / porPagina)
-)
+);
 
 const usuariosFiltradosPaginados = computed(() => {
-  const inicio = (paginaAtual.value - 1) * porPagina
-  return usuariosFiltrados.value.slice(inicio, inicio + porPagina)
-})
+  const inicio = (paginaAtual.value - 1) * porPagina;
+  return usuariosFiltrados.value.slice(inicio, inicio + porPagina);
+});
 
 watch(filtro, () => {
-  paginaAtual.value = 1
-})
+  paginaAtual.value = 1;
+});
 
 watch(totalPaginas, (novo) => {
-  paginaAtual.value = Math.min(paginaAtual.value, novo || 1)
-})
+  paginaAtual.value = Math.min(paginaAtual.value, novo || 1);
+});
 
-onMounted(buscarUsuarios)
-watch(() => props.atualizar, buscarUsuarios)
+onMounted(buscarUsuarios);
+watch(() => props.atualizar, buscarUsuarios);
 </script>
 <style scoped>
 /* Estilo base da borda */
@@ -381,18 +405,16 @@ watch(() => props.atualizar, buscarUsuarios)
   gap: 0.5rem;
 }
 
-
-
-
-
-
 /* Estilo responsivo para tabela */
 @media (max-width: 768px) {
   .custom-table thead {
     display: none;
   }
 
-  .custom-table, .custom-table tbody, .custom-table tr, .custom-table td {
+  .custom-table,
+  .custom-table tbody,
+  .custom-table tr,
+  .custom-table td {
     display: block;
     width: 100%;
   }
@@ -427,23 +449,12 @@ watch(() => props.atualizar, buscarUsuarios)
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
 .contador-usuarios {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #e0f7e9;       /* verde clarinho */
-  color: #2e7d32;            /* verde escuro */
+  background: #e0f7e9; /* verde clarinho */
+  color: #2e7d32; /* verde escuro */
   font-weight: 600;
   padding: 8px 14px;
   border-radius: 12px;
@@ -459,21 +470,20 @@ watch(() => props.atualizar, buscarUsuarios)
 }
 
 /* Animação fade + scale */
-.contador-animado-enter-active, .contador-animado-leave-active {
+.contador-animado-enter-active,
+.contador-animado-leave-active {
   transition: all 0.4s ease;
   position: relative;
   display: inline-block;
 }
-.contador-animado-enter-from, .contador-animado-leave-to {
+.contador-animado-enter-from,
+.contador-animado-leave-to {
   opacity: 0;
   transform: scale(0.8);
 }
-.contador-animado-enter-to, .contador-animado-leave-from {
+.contador-animado-enter-to,
+.contador-animado-leave-from {
   opacity: 1;
   transform: scale(1);
 }
-
 </style>
-
-
-
