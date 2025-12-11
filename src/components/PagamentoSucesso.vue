@@ -2,12 +2,6 @@
   <div class="success-page">
     <div class="success-container">
       <!-- Mensagem Principal -->
-      <h1 class="success-title">
-        Pagamento Confirmado!
-        <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 6 9 17l-5-5"/>
-        </svg>
-      </h1>
       <p class="success-subtitle">
         {{ mensagem || 'Sua assinatura foi ativada com sucesso.' }}
       </p>
@@ -167,12 +161,44 @@ const getConfettiStyle = (index) => {
 .success-page {
   height: 100vh;
   width: 100vw;
-  background: #ffffff;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem 1.5rem;
   overflow: hidden;
+  position: relative;
+}
+
+.success-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(128, 0, 128, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(128, 0, 128, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(128, 0, 128, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.success-page::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 60px,
+    rgba(128, 0, 128, 0.02) 60px,
+    rgba(128, 0, 128, 0.02) 120px
+  );
+  pointer-events: none;
 }
 
 .success-container {
@@ -187,35 +213,20 @@ const getConfettiStyle = (index) => {
   text-align: center;
   padding: 1rem 0;
   overflow-y: auto;
+  position: relative;
+  z-index: 1;
 }
 
 
 
 /* Textos */
-.success-title {
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin: 0 0 0.75rem 0;
-  line-height: 1.2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.check-icon {
-  width: 32px;
-  height: 32px;
-  color: #800080;
-  flex-shrink: 0;
-}
 
 .success-subtitle {
-  font-size: 1rem;
-  color: #666666;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
   margin: 0 0 2rem 0;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* Detalhes do Pagamento */
