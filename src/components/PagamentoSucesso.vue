@@ -74,7 +74,7 @@
 
       <!-- Link de Suporte -->
       <div class="support-link">
-        <p>Precisa de ajuda? <a href="tel:258847877405">Entre em contato</a></p>
+        <p>Precisa de ajuda? <a href="https://wa.me/258847877405" target="_blank" rel="noopener noreferrer">Entre em contacto</a></p>
       </div>
     </div>
 
@@ -210,7 +210,7 @@ const getConfettiStyle = (index) => {
   overflow-y: auto;
   position: relative;
   z-index: 1;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(25px) saturate(180%);
   -webkit-backdrop-filter: blur(25px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.25);
@@ -255,7 +255,7 @@ const getConfettiStyle = (index) => {
 
 /* Detalhes do Pagamento */
 .payment-details {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(15px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
@@ -268,7 +268,7 @@ const getConfettiStyle = (index) => {
 }
 
 .payment-details:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.2);
   border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
@@ -325,7 +325,7 @@ const getConfettiStyle = (index) => {
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(15px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
@@ -334,7 +334,7 @@ const getConfettiStyle = (index) => {
 
 .step-item:hover {
   border-color: rgba(128, 0, 128, 0.6);
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.22);
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 12px 32px rgba(128, 0, 128, 0.4);
 }
@@ -408,7 +408,7 @@ const getConfettiStyle = (index) => {
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.25);
