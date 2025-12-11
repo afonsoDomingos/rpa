@@ -29,6 +29,15 @@
           <p class="text-muted mb-0">Painel administrativo de controle</p>
         </div>
         <div class="d-flex gap-2">
+          <!-- Botão Ativar Notificações Push -->
+          <button 
+            v-if="pushPermission !== 'granted'" 
+            class="btn btn-success" 
+            @click="ativarPushNotifications"
+            title="Ativar notificações push"
+          >
+            <i class="bi bi-bell-fill me-2"></i>Ativar Notificações
+          </button>
           <!-- Badge de Notificações -->
           <button class="btn btn-outline-light position-relative" @click="toggleNotifications">
             <i class="bi bi-bell"></i>
@@ -362,13 +371,27 @@ import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../examples/footers/FooterDefault.vue";
 import { ref, computed, onMounted, watch } from "vue";
 import { useSocketNotifications } from "@/composables/useSocketNotifications";
+import { usePushNotifications } from "@/composables/usePushNotifications";
 
 // Socket.IO Notifications
 const { notifications, unreadCount, markAsRead, clearAll } = useSocketNotifications();
 const showNotifications = ref(false);
 
+// Push Notifications
+const { permission: pushPermission, requestPermission, sendTestNotification } = usePushNotifications();
+
 const toggleNotifications = () => {
   showNotifications.value = !showNotifications.value;
+};
+
+const ativarPushNotifications = async () => {
+  const granted = await requestPermission();
+  if (granted) {
+    mostrarToast('✅ Notificações push ativadas! Você receberá alertas de novos pagamentos.', 'sucesso', 5000);
+    sendTestNotification();
+  } else {
+    mostrarToast('❌ Permissão negada. Ative nas configurações do navegador.', 'erro', 5000);
+  }
 };
 
 const formatTime = (timestamp) => {

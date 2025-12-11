@@ -1,10 +1,14 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { io } from 'socket.io-client';
+import { usePushNotifications } from './usePushNotifications';
 
 export function useSocketNotifications() {
     const socket = ref(null);
     const notifications = ref([]);
     const unreadCount = ref(0);
+
+    // Push Notifications
+    const { permission, showPaymentNotification } = usePushNotifications();
 
     const playNotificationSound = () => {
         try {
@@ -42,6 +46,15 @@ export function useSocketNotifications() {
             unreadCount.value++;
 
             playNotificationSound();
+
+            // Mostra Push Notification (funciona mesmo com app fechado)
+            if (permission.value === 'granted') {
+                showPaymentNotification({
+                    valor: data.data.valor,
+                    pacote: data.data.pacote,
+                    usuario: data.data.usuario?.nome || 'Cliente'
+                });
+            }
         });
 
         socket.value.on('disconnect', () => {
