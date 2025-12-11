@@ -28,9 +28,42 @@
           <h1 class="h3 mb-1 text-white">Gestão de Assinaturas.</h1>
           <p class="text-muted mb-0">Painel administrativo de controle</p>
         </div>
-        <button class="btn btn-purple" @click="carregarPagamentos">
-          <i class="bi bi-arrow-clockwise me-2"></i>Atualizar
-        </button>
+        <div class="d-flex gap-2">
+          <!-- Badge de Notificações -->
+          <button class="btn btn-outline-light position-relative" @click="toggleNotifications">
+            <i class="bi bi-bell"></i>
+            <span v-if="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
+          </button>
+          <button class="btn btn-purple" @click="carregarPagamentos">
+            <i class="bi bi-arrow-clockwise me-2"></i>Atualizar
+          </button>
+        </div>
+      </div>
+
+      <!-- Painel de Notificações -->
+      <div v-if="showNotifications" class="notifications-panel">
+        <div class="notifications-header">
+          <h5 class="mb-0">Notificações</h5>
+          <button class="btn btn-sm btn-link text-white" @click="clearAll">Limpar todas</button>
+        </div>
+        <div class="notifications-body">
+          <div v-if="notifications.length === 0" class="text-center py-4 text-muted">
+            Nenhuma notificação
+          </div>
+          <div 
+            v-for="notif in notifications" 
+            :key="notif.id"
+            class="notification-item"
+            :class="{ unread: !notif.read }"
+            @click="markAsRead(notif.id)"
+          >
+            <div class="notification-icon">💰</div>
+            <div class="notification-content">
+              <p class="mb-1">{{ notif.message }}</p>
+              <small class="text-muted">{{ formatTime(notif.timestamp) }}</small>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Loading -->
@@ -327,7 +360,34 @@
 <script setup>
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../examples/footers/FooterDefault.vue";
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
+import { useSocketNotifications } from "@/composables/useSocketNotifications";
+
+// Socket.IO Notifications
+const { notifications, unreadCount, markAsRead, clearAll } = useSocketNotifications();
+const showNotifications = ref(false);
+
+const toggleNotifications = () => {
+  showNotifications.value = !showNotifications.value;
+};
+
+const formatTime = (timestamp) => {
+  const now = new Date();
+  const diff = Math.floor((now - timestamp) / 1000);
+  
+  if (diff < 60) return 'Agora mesmo';
+  if (diff < 3600) return `${Math.floor(diff / 60)} min atrás`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h atrás`;
+  return timestamp.toLocaleDateString('pt-BR');
+};
+
+// Watch para recarregar pagamentos quando houver nova notificação
+watch(notifications, (newVal) => {
+  if (newVal.length > 0) {
+    // Recarregar automaticamente quando houver novo pagamento
+    carregarPagamentos();
+  }
+});
 
 // Estado
 const pagamentos = ref([]);
@@ -1016,4 +1076,112 @@ p.text-muted {
     min-width: 800px;
   }
 }
+
+/* Notificações Socket.IO */
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.notifications-panel {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 400px;
+  max-height: 600px;
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notifications-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #1a1a1a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notifications-header h5 {
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.notifications-body {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #1a1a1a;
+  display: flex;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.notification-item:hover {
+  background: #111111;
+}
+
+.notification-item.unread {
+  background: rgba(147, 51, 234, 0.05);
+  border-left: 3px solid var(--purple);
+}
+
+.notification-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-content p {
+  color: white;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.notification-content small {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .notifications-panel {
+    right: 10px;
+    left: 10px;
+    width: auto;
+  }
+}
+
 </style>
