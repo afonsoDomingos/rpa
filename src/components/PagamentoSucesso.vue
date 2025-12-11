@@ -164,30 +164,43 @@ const getConfettiStyle = (index) => {
 
 * {
   font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
 }
 
 .success-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+  background: linear-gradient(135deg, #1a0a1f 0%, #2d1b3d 50%, #1a0a1f 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 1rem;
   position: relative;
   overflow: hidden;
 }
 
+.success-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(128, 0, 128, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
 .success-container {
-  max-width: 600px;
+  max-width: 650px;
   width: 100%;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(128, 0, 128, 0.2);
   border-radius: 24px;
-  padding: 3rem;
+  padding: 2.5rem;
   text-align: center;
   position: relative;
   z-index: 1;
+  box-shadow: 0 20px 60px rgba(128, 0, 128, 0.2);
 }
 
 /* Animação de Sucesso */
@@ -208,9 +221,9 @@ const getConfettiStyle = (index) => {
   border-radius: 50%;
   display: block;
   stroke-width: 3;
-  stroke: #14b8a6;
+  stroke: #800080;
   stroke-miterlimit: 10;
-  box-shadow: inset 0 0 0 #14b8a6;
+  box-shadow: inset 0 0 0 #800080;
   animation: fill 0.4s ease-in-out 0.4s forwards, scale 0.3s ease-in-out 0.9s both;
 }
 
@@ -219,7 +232,7 @@ const getConfettiStyle = (index) => {
   stroke-dashoffset: 166;
   stroke-width: 3;
   stroke-miterlimit: 10;
-  stroke: #14b8a6;
+  stroke: #800080;
   fill: none;
   animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
 }
@@ -250,7 +263,7 @@ const getConfettiStyle = (index) => {
 
 @keyframes fill {
   100% {
-    box-shadow: inset 0 0 0 60px #14b8a6;
+    box-shadow: inset 0 0 0 60px #800080;
   }
 }
 
@@ -260,34 +273,41 @@ const getConfettiStyle = (index) => {
   font-weight: 700;
   color: #ffffff;
   margin: 0 0 1rem 0;
-  background: linear-gradient(135deg, #14b8a6, #66bb6a);
+  background: linear-gradient(135deg, #a855f7, #d946ef);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  line-height: 1.2;
 }
 
 .success-subtitle {
   font-size: 1.125rem;
-  color: #a0a0a0;
+  color: #c4b5d0;
   margin: 0 0 2rem 0;
   line-height: 1.6;
 }
 
 /* Detalhes do Pagamento */
 .payment-details {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(128, 0, 128, 0.1);
+  border: 1px solid rgba(128, 0, 128, 0.3);
   border-radius: 16px;
   padding: 1.5rem;
   margin-bottom: 2rem;
+  transition: all 0.3s ease;
+}
+
+.payment-details:hover {
+  background: rgba(128, 0, 128, 0.15);
+  border-color: rgba(128, 0, 128, 0.4);
 }
 
 .detail-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0.875rem 0;
+  border-bottom: 1px solid rgba(128, 0, 128, 0.15);
 }
 
 .detail-row:last-child {
@@ -295,15 +315,19 @@ const getConfettiStyle = (index) => {
 }
 
 .detail-label {
-  font-size: 0.875rem;
-  color: #a0a0a0;
+  font-size: 0.9rem;
+  color: #b8a5c9;
   font-weight: 500;
 }
 
 .detail-value {
-  font-size: 1rem;
+  font-size: 1.05rem;
   color: #ffffff;
   font-weight: 600;
+  background: linear-gradient(135deg, #a855f7, #d946ef);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Próximos Passos */
@@ -313,11 +337,15 @@ const getConfettiStyle = (index) => {
 }
 
 .steps-title {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 600;
   color: #ffffff;
   margin: 0 0 1.5rem 0;
   text-align: center;
+  background: linear-gradient(135deg, #a855f7, #d946ef);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .steps-list {
@@ -330,42 +358,44 @@ const getConfettiStyle = (index) => {
   display: flex;
   gap: 1rem;
   align-items: flex-start;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.25rem;
+  background: rgba(128, 0, 128, 0.08);
+  border: 1px solid rgba(128, 0, 128, 0.2);
   border-radius: 12px;
   transition: all 0.3s ease;
 }
 
 .step-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(128, 0, 128, 0.3);
-  transform: translateX(5px);
+  background: rgba(128, 0, 128, 0.15);
+  border-color: rgba(128, 0, 128, 0.4);
+  transform: translateX(8px);
+  box-shadow: 0 4px 16px rgba(128, 0, 128, 0.2);
 }
 
 .step-icon {
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #800080, #66bb6a);
+  background: linear-gradient(135deg, #800080, #a855f7);
   border-radius: 50%;
   color: #ffffff;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.3);
 }
 
 .step-content h4 {
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 600;
   color: #ffffff;
-  margin: 0 0 0.25rem 0;
+  margin: 0 0 0.35rem 0;
 }
 
 .step-content p {
-  font-size: 0.875rem;
-  color: #a0a0a0;
+  font-size: 0.9rem;
+  color: #b8a5c9;
   margin: 0;
   line-height: 1.5;
 }
@@ -375,61 +405,77 @@ const getConfettiStyle = (index) => {
   display: flex;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .btn-primary,
 .btn-secondary {
   flex: 1;
+  min-width: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 1rem 1.5rem;
+  padding: 1.1rem 1.75rem;
   border: none;
   border-radius: 12px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #800080, #66bb6a);
+  background: linear-gradient(135deg, #800080, #a855f7);
   color: #ffffff;
+  box-shadow: 0 4px 16px rgba(128, 0, 128, 0.3);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(128, 0, 128, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(128, 0, 128, 0.5);
+  background: linear-gradient(135deg, #9333ea, #c084fc);
+}
+
+.btn-primary:active {
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(128, 0, 128, 0.1);
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(128, 0, 128, 0.3);
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(128, 0, 128, 0.2);
+  border-color: rgba(128, 0, 128, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(128, 0, 128, 0.2);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
 }
 
 /* Link de Suporte */
 .support-link {
-  font-size: 0.875rem;
-  color: #a0a0a0;
+  font-size: 0.9rem;
+  color: #b8a5c9;
 }
 
 .support-link a {
-  color: #14b8a6;
+  color: #a855f7;
   text-decoration: none;
   font-weight: 600;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid transparent;
 }
 
 .support-link a:hover {
-  color: #66bb6a;
-  text-decoration: underline;
+  color: #d946ef;
+  border-bottom-color: #d946ef;
 }
 
 /* Confetti Animation */
@@ -465,28 +511,226 @@ const getConfettiStyle = (index) => {
   }
 }
 
-/* Responsivo */
-@media (max-width: 640px) {
+/* Responsivo - Tablets */
+@media (max-width: 768px) {
+  .success-page {
+    padding: 1.5rem 1rem;
+  }
+
   .success-container {
     padding: 2rem 1.5rem;
+    border-radius: 20px;
   }
 
   .success-title {
-    font-size: 2rem;
+    font-size: 2.2rem;
+  }
+
+  .success-subtitle {
+    font-size: 1.05rem;
+  }
+
+  .checkmark-circle,
+  .checkmark {
+    width: 110px;
+    height: 110px;
+  }
+
+  .step-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
+  }
+
+  .step-content h4 {
+    font-size: 1rem;
+  }
+
+  .step-content p {
+    font-size: 0.875rem;
+  }
+
+  .payment-details {
+    padding: 1.25rem;
+  }
+
+  .detail-row {
+    padding: 0.75rem 0;
+  }
+}
+
+/* Responsivo - Mobile */
+@media (max-width: 640px) {
+  .success-page {
+    padding: 1rem 0.75rem;
+  }
+
+  .success-container {
+    padding: 1.75rem 1.25rem;
+    border-radius: 16px;
+  }
+
+  .success-title {
+    font-size: 1.85rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .success-subtitle {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .checkmark-circle,
+  .checkmark {
+    width: 90px;
+    height: 90px;
+  }
+
+  .success-animation {
+    margin-bottom: 1.5rem;
+  }
+
+  .payment-details {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .detail-row {
+    padding: 0.65rem 0;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .detail-label {
+    font-size: 0.85rem;
+  }
+
+  .detail-value {
+    font-size: 0.95rem;
+  }
+
+  .steps-title {
+    font-size: 1.2rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .step-item {
+    padding: 1rem;
+    gap: 0.875rem;
+  }
+
+  .step-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.15rem;
+  }
+
+  .step-content h4 {
+    font-size: 0.95rem;
+  }
+
+  .step-content p {
+    font-size: 0.85rem;
   }
 
   .action-buttons {
     flex-direction: column;
+    gap: 0.875rem;
   }
 
-  .checkmark-circle {
-    width: 100px;
-    height: 100px;
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    min-width: unset;
+    padding: 1rem 1.5rem;
+    font-size: 0.95rem;
   }
 
+  .support-link {
+    font-size: 0.85rem;
+  }
+}
+
+/* Responsivo - Mobile Pequeno */
+@media (max-width: 400px) {
+  .success-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .success-title {
+    font-size: 1.65rem;
+  }
+
+  .success-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .checkmark-circle,
   .checkmark {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
+  }
+
+  .step-item {
+    padding: 0.875rem;
+  }
+
+  .step-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Landscape Mobile */
+@media (max-height: 600px) and (orientation: landscape) {
+  .success-page {
+    padding: 1rem;
+  }
+
+  .success-container {
+    padding: 1.5rem;
+    max-width: 90%;
+  }
+
+  .success-animation {
+    margin-bottom: 1rem;
+  }
+
+  .checkmark-circle,
+  .checkmark {
+    width: 70px;
+    height: 70px;
+  }
+
+  .success-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .success-subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .payment-details,
+  .next-steps {
+    margin-bottom: 1rem;
+  }
+
+  .steps-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .step-item {
+    padding: 0.75rem;
   }
 }
 </style>
