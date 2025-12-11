@@ -210,12 +210,24 @@ const getConfettiStyle = (index) => {
   overflow-y: auto;
   position: relative;
   z-index: 1;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 
@@ -228,19 +240,38 @@ const getConfettiStyle = (index) => {
   color: #ffffff;
   margin: 0 0 2rem 0;
   line-height: 1.6;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 1s ease-out 0.2s both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Detalhes do Pagamento */
 .payment-details {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
   padding: 1.25rem;
   margin-bottom: 2rem;
   width: 100%;
   max-width: 500px;
+  animation: fadeIn 1s ease-out 0.4s both;
+  transition: all 0.3s ease;
+}
+
+.payment-details:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .detail-row {
@@ -272,6 +303,7 @@ const getConfettiStyle = (index) => {
   margin-bottom: 2rem;
   width: 100%;
   max-width: 600px;
+  animation: fadeIn 1s ease-out 0.6s both;
 }
 
 .steps-title {
@@ -293,17 +325,18 @@ const getConfettiStyle = (index) => {
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
-  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .step-item:hover {
-  border-color: #800080;
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.3);
+  border-color: rgba(128, 0, 128, 0.6);
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(128, 0, 128, 0.4);
 }
 
 .step-icon {
@@ -344,6 +377,7 @@ const getConfettiStyle = (index) => {
   margin-bottom: 1.5rem;
   width: 100%;
   max-width: 500px;
+  animation: fadeIn 1s ease-out 0.8s both;
 }
 
 .btn-primary,
@@ -355,11 +389,11 @@ const getConfettiStyle = (index) => {
   gap: 0.5rem;
   padding: 0.875rem 1.5rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-primary {
@@ -369,20 +403,22 @@ const getConfettiStyle = (index) => {
 
 .btn-primary:hover {
   background: #9333ea;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.3);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(128, 0, 128, 0.5);
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(10px);
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .btn-secondary:hover {
-  border-color: #800080;
-  color: #800080;
+  border-color: rgba(128, 0, 128, 0.6);
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
 }
 
 /* Link de Suporte */
