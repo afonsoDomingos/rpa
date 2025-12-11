@@ -88,6 +88,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import backgroundImage from '@/assets/img/mybanner2.jpg';
 
 const router = useRouter();
 const route = useRoute();
@@ -161,7 +162,10 @@ const getConfettiStyle = (index) => {
 .success-page {
   height: 100vh;
   width: 100vw;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background-image: url('@/assets/img/mybanner2.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -177,10 +181,7 @@ const getConfettiStyle = (index) => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: 
-    radial-gradient(circle at 20% 50%, rgba(128, 0, 128, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(128, 0, 128, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 40% 20%, rgba(128, 0, 128, 0.03) 0%, transparent 50%);
+  background: rgba(0, 0, 0, 0.3);
   pointer-events: none;
 }
 
@@ -191,13 +192,7 @@ const getConfettiStyle = (index) => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: repeating-linear-gradient(
-    45deg,
-    transparent,
-    transparent 60px,
-    rgba(128, 0, 128, 0.02) 60px,
-    rgba(128, 0, 128, 0.02) 120px
-  );
+  background: linear-gradient(135deg, rgba(128, 0, 128, 0.1) 0%, transparent 100%);
   pointer-events: none;
 }
 
@@ -211,10 +206,13 @@ const getConfettiStyle = (index) => {
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 1rem 0;
+  padding: 2.5rem 2rem;
   overflow-y: auto;
   position: relative;
   z-index: 1;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 
