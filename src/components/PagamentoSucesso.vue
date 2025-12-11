@@ -210,7 +210,10 @@ const getConfettiStyle = (index) => {
   overflow-y: auto;
   position: relative;
   z-index: 1;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
@@ -222,15 +225,17 @@ const getConfettiStyle = (index) => {
 .success-subtitle {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #2d3748;
+  color: #ffffff;
   margin: 0 0 2rem 0;
   line-height: 1.6;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Detalhes do Pagamento */
 .payment-details {
-  background: #f8f8f8;
-  border: 1px solid #e5e5e5;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 12px;
   padding: 1.25rem;
   margin-bottom: 2rem;
@@ -243,7 +248,7 @@ const getConfettiStyle = (index) => {
   justify-content: space-between;
   align-items: center;
   padding: 0.65rem 0;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .detail-row:last-child {
@@ -252,13 +257,13 @@ const getConfettiStyle = (index) => {
 
 .detail-label {
   font-size: 0.875rem;
-  color: #666666;
+  color: rgba(255, 255, 255, 0.9);
   font-weight: 500;
 }
 
 .detail-value {
   font-size: 0.95rem;
-  color: #1a1a1a;
+  color: #ffffff;
   font-weight: 600;
 }
 
@@ -272,7 +277,7 @@ const getConfettiStyle = (index) => {
 .steps-title {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #ffffff;
   margin: 0 0 1rem 0;
 }
 
@@ -288,15 +293,17 @@ const getConfettiStyle = (index) => {
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: #ffffff;
-  border: 1px solid #e5e5e5;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 12px;
   transition: all 0.3s ease;
 }
 
 .step-item:hover {
   border-color: #800080;
-  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.1);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.3);
 }
 
 .step-icon {
@@ -319,13 +326,13 @@ const getConfettiStyle = (index) => {
 .step-content h4 {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #ffffff;
   margin: 0 0 0.25rem 0;
 }
 
 .step-content p {
   font-size: 0.8rem;
-  color: #666666;
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
   line-height: 1.4;
 }
@@ -367,9 +374,10 @@ const getConfettiStyle = (index) => {
 }
 
 .btn-secondary {
-  background: #ffffff;
-  color: #1a1a1a;
-  border: 1px solid #e5e5e5;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .btn-secondary:hover {
@@ -380,11 +388,11 @@ const getConfettiStyle = (index) => {
 /* Link de Suporte */
 .support-link {
   font-size: 0.875rem;
-  color: #666666;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .support-link a {
-  color: #800080;
+  color: #ffffff;
   text-decoration: none;
   font-weight: 600;
 }
