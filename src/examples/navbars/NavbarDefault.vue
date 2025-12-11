@@ -208,10 +208,7 @@
               <button
                 v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="
-                  $router.push({ name: 'AdminAnuncios' });
-                  fecharDropdown();
-                "
+                @click="navegarParaAdminAnuncios"
               >
                 <i class="bi bi-megaphone-fill text-purple"></i> Gerenciar
                 Anúncios
@@ -448,6 +445,21 @@ const goToCadastrar = () => {
     const element = document.getElementById("cadastrar-tabs-simple");
     if (element) element.scrollIntoView({ behavior: "smooth", block: "start" });
   }, 0);
+};
+
+const navegarParaAdminAnuncios = () => {
+  console.log("Tentando navegar para AdminAnuncios");
+  console.log("Usuário:", usuario.value);
+  console.log("Role:", usuario.value?.role);
+  
+  router.push({ name: 'AdminAnuncios' })
+    .then(() => {
+      console.log("Navegação bem-sucedida para AdminAnuncios");
+      fecharDropdown();
+    })
+    .catch((error) => {
+      console.error("Erro ao navegar para AdminAnuncios:", error);
+    });
 };
 
 const props = defineProps({
