@@ -176,20 +176,22 @@ const getConfettiStyle = (index) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
   overflow: hidden;
 }
 
 .success-container {
   width: 100%;
   max-width: 900px;
-  height: 100%;
-  max-height: 100vh;
+  height: auto;
+  max-height: calc(100vh - 4rem);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
+  padding: 1rem 0;
+  overflow-y: auto;
 }
 
 /* Animação de Sucesso */

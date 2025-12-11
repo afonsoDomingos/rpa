@@ -484,14 +484,15 @@ const ativarPlanoTeste = async () => {
       });
       
       // Redireciona para página de sucesso
-      router.push({
+      await router.push({
         name: 'PagamentoSucesso',
         query: {
           plano: 'Plano de Teste',
           valor: 0,
           metodo: 'Teste Grátis',
           msg: 'Seu período de teste de 5 dias foi ativado!'
-        }
+        },
+        replace: true
       });
     } else {
       errorMessage.value = res.data.mensagem || "Erro ao ativar teste.";
@@ -636,14 +637,15 @@ const handleSubmit = async () => {
       
       // Redireciona para página de sucesso
       const metodoNome = paymentMethods.find(m => m.id === selectedPaymentMethod.value)?.name || selectedPaymentMethod.value;
-      router.push({
+      await router.push({
         name: 'PagamentoSucesso',
         query: {
           plano: selectedPackage.value.name,
           valor: selectedPackage.value.price,
           metodo: metodoNome,
           msg: 'Sua assinatura foi ativada com sucesso!'
-        }
+        },
+        replace: true
       });
     } else {
       errorMessage.value = res.data.mensagem || "Pagamento não concluído.";
@@ -665,7 +667,7 @@ onMounted(() => {
   const params = new URLSearchParams(window.location.search);
   if (params.get("sucesso") === "cartao") {
     // Redireciona para página de sucesso após retorno do Stripe
-    router.push({
+    router.replace({
       name: 'PagamentoSucesso',
       query: {
         plano: selectedPackage.value?.name || 'Assinatura',
