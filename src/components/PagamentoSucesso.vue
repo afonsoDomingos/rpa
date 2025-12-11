@@ -1,18 +1,13 @@
 <template>
   <div class="success-page">
     <div class="success-container">
-      <!-- Animação de Sucesso -->
-      <div class="success-animation">
-        <div class="checkmark-circle">
-          <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-            <circle class="checkmark-circle-path" cx="26" cy="26" r="25" fill="none"/>
-            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-          </svg>
-        </div>
-      </div>
-
       <!-- Mensagem Principal -->
-      <h1 class="success-title">Pagamento Confirmado!</h1>
+      <h1 class="success-title">
+        Pagamento Confirmado!
+        <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6 9 17l-5-5"/>
+        </svg>
+      </h1>
       <p class="success-subtitle">
         {{ mensagem || 'Sua assinatura foi ativada com sucesso.' }}
       </p>
@@ -194,68 +189,7 @@ const getConfettiStyle = (index) => {
   overflow-y: auto;
 }
 
-/* Animação de Sucesso */
-.success-animation {
-  margin-bottom: 1.5rem;
-}
 
-.checkmark-circle {
-  width: 100px;
-  height: 100px;
-  margin: 0 auto;
-}
-
-.checkmark {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  display: block;
-  stroke-width: 3;
-  stroke: #800080;
-  stroke-miterlimit: 10;
-  box-shadow: inset 0 0 0 #800080;
-  animation: fill 0.4s ease-in-out 0.4s forwards, scale 0.3s ease-in-out 0.9s both;
-}
-
-.checkmark-circle-path {
-  stroke-dasharray: 166;
-  stroke-dashoffset: 166;
-  stroke-width: 3;
-  stroke-miterlimit: 10;
-  stroke: #800080;
-  fill: none;
-  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-}
-
-.checkmark-check {
-  transform-origin: 50% 50%;
-  stroke-dasharray: 48;
-  stroke-dashoffset: 48;
-  stroke: #fff;
-  stroke-width: 3;
-  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
-}
-
-@keyframes stroke {
-  100% {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes scale {
-  0%, 100% {
-    transform: none;
-  }
-  50% {
-    transform: scale3d(1.1, 1.1, 1);
-  }
-}
-
-@keyframes fill {
-  100% {
-    box-shadow: inset 0 0 0 60px #800080;
-  }
-}
 
 /* Textos */
 .success-title {
@@ -264,6 +198,17 @@ const getConfettiStyle = (index) => {
   color: #1a1a1a;
   margin: 0 0 0.75rem 0;
   line-height: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.check-icon {
+  width: 32px;
+  height: 32px;
+  color: #800080;
+  flex-shrink: 0;
 }
 
 .success-subtitle {
