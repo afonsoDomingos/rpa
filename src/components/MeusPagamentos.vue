@@ -1304,8 +1304,14 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 16px;
+  flex-wrap: nowrap;
+}
+
+@media (max-width: 576px) {
+  .pagination-container {
+    gap: 8px;
+  }
 }
 
 .pagination-numbers {
@@ -1313,12 +1319,20 @@ onMounted(() => {
   gap: 4px;
   flex-wrap: wrap;
   justify-content: center;
+  flex: 0 1 auto;
+}
+
+@media (max-width: 576px) {
+  .pagination-numbers {
+    gap: 2px;
+  }
 }
 
 /* Botões circulares Anterior/Próximo */
 .pagination-btn-circle {
   width: 40px;
   height: 40px;
+  min-width: 40px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -1328,6 +1342,15 @@ onMounted(() => {
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+@media (max-width: 576px) {
+  .pagination-btn-circle {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
 }
 
 .pagination-btn-circle:hover:not(:disabled) {
@@ -1344,6 +1367,12 @@ onMounted(() => {
   font-size: 20px;
 }
 
+@media (max-width: 576px) {
+  .pagination-btn-circle i {
+    font-size: 18px;
+  }
+}
+
 .pagination-number {
   min-width: 36px;
   height: 36px;
@@ -1358,6 +1387,14 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   padding: 0;
+}
+
+@media (max-width: 576px) {
+  .pagination-number {
+    min-width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
 }
 
 .pagination-number:hover:not(.disabled):not(.active) {
