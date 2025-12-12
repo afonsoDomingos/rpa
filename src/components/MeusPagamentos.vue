@@ -895,45 +895,52 @@ onMounted(() => {
 /* Container - White Theme */
 .pag-container-fluid {
   width: 100%;
-  max-width: 100vw;
-  margin-left: 0;
-  margin-right: 0;
-  padding-left: 0;
-  padding-right: 0;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
   background: #ffffff;
 }
 
 @media (min-width: 992px) {
   .pag-container-fluid {
-    width: 95% !important;
-    max-width: 95vw !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-    border-radius: 18px;
+    padding-left: 48px;
+    padding-right: 48px;
   }
 }
 
-@media (max-width: 991px) {
+@media (max-width: 768px) {
   .pag-container-fluid {
-    width: 90% !important;
-    max-width: 90vw !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
+    padding-left: 16px;
+    padding-right: 16px;
   }
 }
 
 .pag-container-responsive {
-  padding-left: 48px;
-  padding-right: 48px;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 /* Container Principal - Tesla/SpaceX Style */
 .borda-destacada {
   border: none;
   border-radius: 0;
-  padding: 48px 0;
+  padding: 48px 24px;
   background: #ffffff;
   box-shadow: none;
+}
+
+@media (min-width: 992px) {
+  .borda-destacada {
+    padding: 64px 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  .borda-destacada {
+    padding: 32px 16px;
+  }
 }
 
 .borda-destacada:hover {
@@ -984,20 +991,33 @@ onMounted(() => {
 /* Resumo Financeiro - Tesla Style */
 .resumo-financeiro-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
   margin-bottom: 48px;
+}
+
+@media (min-width: 768px) {
+  .resumo-financeiro-container {
+    gap: 24px;
+  }
 }
 
 .resumo-card {
   background: #f8f9fa;
   border: none;
   border-radius: 8px;
-  padding: 28px;
+  padding: 24px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   transition: background 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  .resumo-card {
+    padding: 28px;
+    gap: 20px;
+  }
 }
 
 .resumo-card:hover {
