@@ -12,7 +12,7 @@
   <div
     class="container-fluid pag-container-fluid py-4 my-4 shadow-sm rounded borda-destacada pag-container-responsive"
   >
-    Alerta de Renovação
+    <!-- Alerta de Renovação -->
     <transition name="fade">
       <div
         v-if="alertaRenovacao.mostrar"
@@ -33,7 +33,7 @@
       </div>
     </transition>
 
-    Usuário Dropdown
+    <!-- Usuário Dropdown -->
     <li
       v-if="usuario"
       class="nav-item dropdown dropdown-hover mx-auto mb-4"
@@ -67,7 +67,7 @@
       </ul>
     </li>
 
-    Resumo Financeiro
+    <!-- Resumo Financeiro -->
     <div class="mb-4 resumo-financeiro-container">
       <div class="resumo-card">
         <div class="resumo-icon bg-gradient-primary">
@@ -75,7 +75,7 @@
         </div>
         <div class="resumo-content">
           <span class="resumo-label">Total Pago</span>
-          <span class="resumo-value">MZN {{ totalPago.toFixed(2) }}</span>
+          <span class="resumo-value">{{ formatarMoeda(totalPago) }}</span>
         </div>
       </div>
 
@@ -121,7 +121,7 @@
       </div>
     </div>
 
-    Filtros
+    <!-- Filtros -->
     <div class="mb-4 filtros-container">
       <div class="filtros-wrapper">
         <div class="filtro-group">
@@ -187,7 +187,7 @@
         </button>
       </div>
 
-      Contador de resultados
+      <!-- Contador de resultados -->
       <div v-if="temFiltrosAtivos" class="filtros-info mt-2 text-center">
         <small class="text-light">
           Mostrando {{ pagamentosFiltrados.length }} de
@@ -196,7 +196,7 @@
       </div>
     </div>
 
-    Loading / Erro
+    <!-- Loading / Erro -->
     <transition name="fade">
       <div
         v-if="loading"
@@ -219,9 +219,9 @@
       </div>
     </transition>
 
-    Conteúdo
+    <!-- Conteúdo -->
     <div v-if="!loading && !erro">
-      Desktop Table
+      <!-- Desktop Table -->
       <div class="table-responsive d-none d-md-block">
         <table
           class="table table-dark table-hover align-middle mb-0 payments-table"
@@ -286,7 +286,7 @@
         </table>
       </div>
 
-      Mobile Cards
+      <!-- Mobile Cards -->
       <div class="d-md-none">
         <div
           v-for="pag in paginaAtual"
@@ -364,7 +364,7 @@
         </div>
       </div>
 
-      Paginação
+      <!-- Paginação -->
       <nav v-if="paginas > 1" aria-label="Navegação de páginas" class="mt-4">
         <div class="pagination-container">
           <button
@@ -407,7 +407,7 @@
         </div>
       </nav>
 
-      Empty State
+      <!-- Empty State -->
       <div
         v-if="pagamentosFiltrados.length === 0"
         class="alert alert-warning text-center empty-state"
@@ -430,7 +430,7 @@
       </div>
     </div>
 
-    Modal de Detalhes
+    <!-- Modal de Detalhes -->
     <div
       class="modal fade"
       id="modalDetalhes"
@@ -756,6 +756,10 @@ function formatarData(dataISO) {
     dateStyle: "short",
     timeStyle: "short",
   });
+}
+
+function formatarMoeda(valor) {
+  return `MZN ${Number(valor || 0).toFixed(2)}`;
 }
 
 function getStatusClass(status) {
@@ -1220,7 +1224,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 8px 0;
-  border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .detail-row:last-child {
@@ -1232,13 +1236,13 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   font-weight: 500;
-  color: #9ca3af;
+  color: #6b7280;
   font-size: 0.9rem;
 }
 
 .detail-value {
   font-weight: 500;
-  color: #f3f4f6;
+  color: #1f2937;
   text-align: right;
 }
 
@@ -1291,12 +1295,12 @@ onMounted(() => {
 }
 
 .pagination-number {
-  width: 40px;
+  min-width: 40px;
   height: 40px;
   border-radius: 8px;
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  background: rgba(255, 255, 255, 0.03);
-  color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #1f2937;
   font-weight: 600;
   transition: all 0.2s ease;
   display: inline-flex;
@@ -1306,16 +1310,16 @@ onMounted(() => {
 }
 
 .pagination-number:hover:not(.disabled):not(.active) {
-  background: rgba(99, 102, 241, 0.2);
-  border-color: #6366f1;
+  background: #f9fafb;
+  border-color: #800080;
   transform: translateY(-2px);
 }
 
 .pagination-number.active {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  border-color: #6366f1;
+  background: linear-gradient(135deg, #800080 0%, #9333ea 100%);
+  border-color: #800080;
   color: white;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.3);
 }
 
 .pagination-number.disabled {
@@ -1330,19 +1334,19 @@ onMounted(() => {
   padding: 48px 24px;
   text-align: center;
   border-radius: 12px;
-  background: rgba(251, 191, 36, 0.1);
-  border: 1px solid rgba(251, 191, 36, 0.3);
+  background: #fef3c7;
+  border: 1px solid #fbbf24;
 }
 
-/* Modal - Black */
+/* Modal - White Theme */
 .modal-dark {
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
 }
 
 .modal-header-gradient {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+  background: linear-gradient(135deg, #800080 0%, #9333ea 100%);
+  border-bottom: none;
 }
 
 .modal-content {
@@ -1357,9 +1361,9 @@ onMounted(() => {
 }
 
 .list-group-item-dark {
-  background: rgba(255, 255, 255, 0.02);
-  border-color: rgba(99, 102, 241, 0.2);
-  color: #f3f4f6;
+  background: #f9fafb;
+  border-color: #e5e7eb;
+  color: #1f2937;
 }
 
 .list-group-item {
