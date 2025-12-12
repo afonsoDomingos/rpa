@@ -599,7 +599,7 @@
 <script setup>
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../examples/footers/FooterDefault.vue";
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import api from "../api";
 import * as bootstrap from "bootstrap";
@@ -676,6 +676,11 @@ const temFiltrosAtivos = computed(
     filtros.value.status || filtros.value.pacote || filtros.value.formaPagamento
 );
 
+// Watch para resetar paginação quando filtros mudam
+watch(filtros, () => {
+  paginaAtualIndex.value = 1;
+}, { deep: true });
+
 const paginas = computed(() =>
   Math.ceil(pagamentosFiltrados.value.length / itensPorPagina)
 );
@@ -720,12 +725,12 @@ const totalPago = computed(() =>
   pagamentos.value.reduce((a, b) => a + Number(b.valor || 0), 0)
 );
 
-const ultimoPagamento = computed(
-  () =>
-    [...pagamentos.value.filter((p) => p.status === "pago")].sort(
-      (a, b) => new Date(b.dataPagamento) - new Date(a.dataPagamento)
-    )[0] || null
-);
+const ultimoPagamento = computed(() => {
+  if (pagamentos.value.length === 0) return null;
+  return [...pagamentos.value].sort(
+    (a, b) => new Date(b.dataPagamento) - new Date(a.dataPagamento)
+  )[0];
+});
 
 // Functions
 function diasParaExpirarInfo(dataISO, pacote) {
