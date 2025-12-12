@@ -117,34 +117,34 @@ onMounted(() => {
 .counter-black {
   font-family: "Poppins", sans-serif !important;
   font-weight: 900 !important;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
 }
 
 @media (max-width: 768px) {
-  .counter-black {
-    font-size: 1.2rem;
-  }
-}
-
-@media (max-width: 576px) {
   .counter-black {
     font-size: 1rem;
   }
 }
 
+@media (max-width: 576px) {
+  .counter-black {
+    font-size: 0.85rem;
+  }
+}
+
 .counter-black .description {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
 }
 
 @media (max-width: 768px) {
   .counter-black .description {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
   }
 }
 
 @media (max-width: 576px) {
   .counter-black .description {
-    font-size: 0.6rem;
+    font-size: 0.55rem;
   }
 }
 </style>
