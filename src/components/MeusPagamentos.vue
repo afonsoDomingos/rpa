@@ -1096,31 +1096,42 @@ onMounted(() => {
 .filtros-wrapper {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
   justify-content: flex-start;
 }
 
 .filtro-group {
   flex: 0 0 auto;
-  min-width: 180px;
+  min-width: 160px;
 }
 
 .filtro-select {
-  border-radius: 4px;
-  border: 1px solid #e5e7eb;
-  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+  background: #ffffff;
   color: #171717;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
+  font-weight: 500;
   transition: all 0.2s ease;
-  height: 44px;
-  padding: 0 16px;
+  height: 42px;
+  padding: 0 14px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23171717' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.filtro-select:hover {
+  border-color: #171717;
 }
 
 .filtro-select:focus {
   border-color: #171717;
-  box-shadow: none;
-  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(23, 23, 23, 0.1);
+  background-color: #ffffff;
   color: #171717;
   outline: none;
 }
@@ -1128,22 +1139,25 @@ onMounted(() => {
 .filtro-select option {
   background: #ffffff;
   color: #171717;
+  padding: 12px;
 }
 
 .filtro-limpar {
-  border-radius: 4px;
-  min-width: 100px;
-  height: 44px;
+  border-radius: 8px;
+  min-width: 90px;
+  height: 42px;
   transition: all 0.2s ease;
-  border: 1px solid #e5e7eb;
-  color: #6b7280;
+  border: 2px solid #171717;
+  color: #171717;
   background: transparent;
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
 }
 
 .filtro-limpar:hover:not(:disabled) {
-  background: #f8f9fa;
-  color: #171717;
-  border-color: #171717;
+  background: #171717;
+  color: #ffffff;
 }
 
 .filtro-limpar:disabled {
@@ -1287,21 +1301,20 @@ onMounted(() => {
   text-align: right;
 }
 
-/* Pagination - Improved Layout */
+/* Pagination - Tesla Style */
 .pagination-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .pagination-numbers {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   flex-wrap: wrap;
   justify-content: center;
-  flex: 1;
 }
 
 .pagination-btn {
@@ -1309,26 +1322,58 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  border-radius: 10px;
-  padding: 10px 20px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  min-width: 120px;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-weight: 500;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+  min-width: auto;
+  background: #171717;
+  color: white;
+  border: none;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #333333;
 }
 
 .pagination-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.3;
   cursor: not-allowed;
-  transform: none !important;
 }
 
-.pagination-btn:not(:disabled):hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+.pagination-number {
+  min-width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #171717;
+  font-weight: 500;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
-.pagination-btn-prev {
-  margin-right: auto;
+.pagination-number:hover:not(.disabled):not(.active) {
+  background: #f8f9fa;
+  border-color: #171717;
+}
+
+.pagination-number.active {
+  background: #171717;
+  border-color: #171717;
+  color: white;
+}
+
+.pagination-number.disabled {
+  opacity: 0.3;
+  cursor: default;
+  border: none;
+  background: transparent;
 }
 
 .pagination-btn-next {
