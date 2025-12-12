@@ -86,19 +86,18 @@ onMounted(() => {
 /* Tablet */
 @media (max-width: 991px) {
   .counter-grid {
-    gap: 20px;
+    gap: 16px;
   }
 }
 
-/* Mobile */
+/* Mobile - mantém horizontal */
 @media (max-width: 768px) {
   .counter-section {
-    padding: 24px 16px;
+    padding: 16px 8px;
   }
   
   .counter-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 8px;
     max-width: 100%;
   }
 }
@@ -114,9 +113,15 @@ onMounted(() => {
   font-size: 2rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 991px) {
   .counter-black {
     font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .counter-black {
+    font-size: 1.2rem;
   }
 }
 
@@ -126,7 +131,7 @@ onMounted(() => {
 
 @media (max-width: 768px) {
   .counter-black .description {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
   }
 }
 </style>
