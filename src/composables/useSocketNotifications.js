@@ -1,6 +1,8 @@
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { io } from 'socket.io-client';
 import { usePushNotifications } from './usePushNotifications';
+
+const STORAGE_KEY = 'admin_notifications';
 
 export function useSocketNotifications() {
     const socket = ref(null);
@@ -9,6 +11,37 @@ export function useSocketNotifications() {
 
     // Push Notifications
     const { permission, showPaymentNotification } = usePushNotifications();
+
+    // Carregar notificações do localStorage
+    const loadNotifications = () => {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                notifications.value = parsed.map(n => ({
+                    ...n,
+                    timestamp: new Date(n.timestamp)
+                }));
+                unreadCount.value = notifications.value.filter(n => !n.read).length;
+            }
+        } catch (e) {
+            console.error('Erro ao carregar notificações:', e);
+        }
+    };
+
+    // Salvar notificações no localStorage
+    const saveNotifications = () => {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications.value));
+        } catch (e) {
+            console.error('Erro ao salvar notificações:', e);
+        }
+    };
+
+    // Watch para salvar automaticamente quando houver mudanças
+    watch(notifications, () => {
+        saveNotifications();
+    }, { deep: true });
 
     const playNotificationSound = () => {
         try {
@@ -73,9 +106,11 @@ export function useSocketNotifications() {
     const clearAll = () => {
         notifications.value = [];
         unreadCount.value = 0;
+        localStorage.removeItem(STORAGE_KEY);
     };
 
     onMounted(() => {
+        loadNotifications(); // Carregar notificações salvas
         connectSocket();
     });
 
