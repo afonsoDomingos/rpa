@@ -28,63 +28,105 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="pt-3 pb-4" id="count-stats">
+  <section class="counter-section" id="count-stats">
     <div class="container">
-      <div class="row">
-        <div class="col-lg-9 z-index-2 border-radius-xl mx-auto py-3">
-          <div class="row">
-            <div class="col-md-4 position-relative">
-              <DefaultCounterCard
-                color="success"
-                title="Encontrados"
-                description="Detalhes"
-                :count="documentCount"
-                suffix="+"
-                :duration="3000"
-                divider="vertical"
-                class="counter-black"
-              />
-            </div>
-            <div class="col-md-4 position-relative">
-              <DefaultCounterCard
-                color="success"
-                title="Solicitados"
-                description="Detalhes"
-                :count="solicitacoesCount"
-                suffix="+"
-                :duration="3000"
-                divider="vertical"
-                class="counter-black"
-              />
-            </div>
-            <div class="col-md-4">
-              <DefaultCounterCard
-                color="success"
-                title="Entregues"
-                description="Detalhes"
-                :count="2"
-                :duration="3000"
-                class="counter-black"
-              />
-            </div>
-          </div>
+      <div class="counter-grid">
+        <div class="counter-item">
+          <DefaultCounterCard
+            color="success"
+            title="Encontrados"
+            description="Detalhes"
+            :count="documentCount"
+            suffix="+"
+            :duration="3000"
+            class="counter-black"
+          />
+        </div>
+        <div class="counter-item">
+          <DefaultCounterCard
+            color="success"
+            title="Solicitados"
+            description="Detalhes"
+            :count="solicitacoesCount"
+            suffix="+"
+            :duration="3000"
+            class="counter-black"
+          />
+        </div>
+        <div class="counter-item">
+          <DefaultCounterCard
+            color="success"
+            title="Entregues"
+            description="Detalhes"
+            :count="2"
+            :duration="3000"
+            class="counter-black"
+          />
         </div>
       </div>
     </div>
   </section>
 </template>
 
-<style>
+<style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@900&display=swap");
 
-/* Aplica Poppins Black em todos os títulos e contadores dos cards */
+.counter-section {
+  padding: 32px 0;
+}
 
+.counter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Tablet */
+@media (max-width: 991px) {
+  .counter-grid {
+    gap: 20px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .counter-section {
+    padding: 24px 16px;
+  }
+  
+  .counter-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    max-width: 100%;
+  }
+}
+
+.counter-item {
+  text-align: center;
+}
+
+/* Aplica Poppins Black em todos os títulos e contadores dos cards */
 .counter-black {
   font-family: "Poppins", sans-serif !important;
-  font-weight: 900 !important; /* Mais grosso */
-  font-size: 2rem; /* Aumenta o tamanho do contador */
+  font-weight: 900 !important;
+  font-size: 2rem;
 }
+
+@media (max-width: 768px) {
+  .counter-black {
+    font-size: 1.5rem;
+  }
+}
+
 .counter-black .description {
-  font-size: 1rem; /* Mantém descrição menor */
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .counter-black .description {
+    font-size: 0.875rem;
+  }
 }
 </style>
