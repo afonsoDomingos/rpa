@@ -717,14 +717,14 @@ const paginasVisiveis = computed(() => {
 });
 
 const totalPago = computed(() =>
-  pagamentosFiltrados.value
+  pagamentos.value
     .filter((p) => p.status === "pago")
     .reduce((a, b) => a + Number(b.valor), 0)
 );
 
 const ultimoPagamento = computed(
   () =>
-    [...pagamentosFiltrados.value.filter((p) => p.status === "pago")].sort(
+    [...pagamentos.value.filter((p) => p.status === "pago")].sort(
       (a, b) => new Date(b.dataPagamento) - new Date(a.dataPagamento)
     )[0] || null
 );
@@ -920,41 +920,42 @@ onMounted(() => {
   padding-right: 32px;
 }
 
-/* Borda destacada - Black */
+/* Borda destacada - White Theme */
 .borda-destacada {
-  border: 2px solid #6366f1;
+  border: 1px solid #e5e7eb;
   border-radius: 16px;
   padding: 32px;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
 
 .borda-destacada:hover {
-  border-color: #818cf8;
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+  border-color: #800080;
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.1);
 }
 
-/* User Dropdown - Dark */
+/* User Dropdown - White Theme */
 .user-dropdown {
   transition: all 0.3s ease;
-  background: rgba(99, 102, 241, 0.1);
-  border-color: #6366f1 !important;
-  color: #e0e7ff;
+  background: #f9fafb;
+  border-color: #800080 !important;
+  color: #1f2937;
 }
 
 .user-dropdown:hover {
-  background: rgba(99, 102, 241, 0.2);
+  background: #f3f4f6;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.15);
 }
 
-/* Gradientes */
+/* Gradientes - Purple Theme */
 .bg-gradient-primary {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #800080 0%, #9333ea 100%);
 }
 
 .bg-gradient-info {
-  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
 }
 
 .bg-gradient-success {
@@ -962,16 +963,16 @@ onMounted(() => {
 }
 
 .btn-gradient-primary {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #800080 0%, #9333ea 100%);
   border: none;
   color: white;
   transition: all 0.3s ease;
 }
 
 .btn-gradient-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #6b006b 0%, #7e22ce 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 6px 20px rgba(128, 0, 128, 0.3);
   color: white;
 }
 
@@ -980,7 +981,7 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
-/* Resumo Financeiro - Black */
+/* Resumo Financeiro - White Theme */
 .resumo-financeiro-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -989,25 +990,22 @@ onMounted(() => {
 }
 
 .resumo-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 20px;
   display: flex;
   align-items: center;
   gap: 16px;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .resumo-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
-  border-color: #6366f1;
-  background: rgba(255, 255, 255, 0.05);
+  border-color: #800080;
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.1);
+  transform: translateY(-2px);
 }
-
 .resumo-card-action {
   padding: 12px;
 }
@@ -1031,34 +1029,34 @@ onMounted(() => {
 
 .resumo-label {
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: #6b7280;
   font-weight: 500;
 }
 
 .resumo-value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #f3f4f6;
+  color: #1f2937;
 }
 
 .resumo-value-small {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #f3f4f6;
+  color: #1f2937;
 }
 
 .resumo-subtext {
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: #6b7280;
 }
 
-/* Filtros - Black */
+/* Filtros - White Theme */
 .filtros-container {
-  background: rgba(255, 255, 255, 0.03);
+  background: #ffffff;
   border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
 }
 
 .filtros-wrapper {
@@ -1077,24 +1075,25 @@ onMounted(() => {
 
 .filtro-select {
   border-radius: 10px;
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  background: rgba(255, 255, 255, 0.05);
-  color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #1f2937;
   font-size: 0.95rem;
   transition: all 0.2s ease;
   height: 38px;
 }
 
 .filtro-select:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-  background: rgba(255, 255, 255, 0.08);
-  color: #f3f4f6;
+  border-color: #800080;
+  box-shadow: 0 0 0 3px rgba(128, 0, 128, 0.1);
+  background: #ffffff;
+  color: #1f2937;
+  outline: none;
 }
 
 .filtro-select option {
-  background: #0a0a0a;
-  color: #f3f4f6;
+  background: #ffffff;
+  color: #1f2937;
 }
 
 .filtro-limpar {
@@ -1102,15 +1101,15 @@ onMounted(() => {
   min-width: 100px;
   height: 38px;
   transition: all 0.2s ease;
-  border-color: rgba(255, 255, 255, 0.3);
-  color: #f3f4f6;
+  border-color: #d1d5db;
+  color: #6b7280;
 }
 
 .filtro-limpar:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
+  background-color: #f3f4f6;
+  color: #800080;
   transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.5);
+  border-color: #800080;
 }
 
 .filtro-limpar:disabled {
@@ -1122,22 +1121,22 @@ onMounted(() => {
   animation: fadeIn 0.3s ease;
 }
 
-/* Table - Black */
+/* Table - White Theme */
 .payments-table {
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  background: rgba(255, 255, 255, 0.02);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
 }
 
 .table-dark {
-  --bs-table-bg: rgba(255, 255, 255, 0.02);
-  --bs-table-color: #f3f4f6;
-  --bs-table-border-color: rgba(99, 102, 241, 0.2);
+  --bs-table-bg: #ffffff;
+  --bs-table-color: #1f2937;
+  --bs-table-border-color: #e5e7eb;
 }
 
 .table-header-gradient {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #800080 0%, #9333ea 100%);
 }
 
 .table-header-gradient th {
@@ -1156,12 +1155,12 @@ onMounted(() => {
 }
 
 .payment-row:hover {
-  background-color: rgba(99, 102, 241, 0.15) !important;
-  transform: scale(1.01);
+  background-color: #f9fafb !important;
+  transform: scale(1.005);
 }
 
 .table-active-dark {
-  background-color: rgba(99, 102, 241, 0.15) !important;
+  background-color: #f9fafb !important;
 }
 
 .status-badge {
@@ -1182,24 +1181,23 @@ onMounted(() => {
 
 .btn-action:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.3);
 }
 
-/* Mobile Cards - Black */
+/* Mobile Cards - White Theme */
 .payment-card-dark {
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  border: 1px solid #e5e7eb;
   border-radius: 12px;
   transition: all 0.3s ease;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .payment-card-dark:hover {
-  border-color: #6366f1;
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
-  transform: translateY(-4px);
-  background: rgba(255, 255, 255, 0.05);
+  border-color: #800080;
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.15);
+  transform: translateY(-2px);
 }
 
 .payment-card-dark:active {
