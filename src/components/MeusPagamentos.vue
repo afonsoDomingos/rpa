@@ -368,13 +368,12 @@
       <nav v-if="paginas > 1" aria-label="Navegação de páginas" class="mt-4">
         <div class="pagination-container">
           <button
-            class="btn btn-gradient-primary pagination-btn pagination-btn-prev"
+            class="pagination-btn-circle"
             @click="mudarPagina(paginaAtualIndex - 1)"
             :disabled="paginaAtualIndex === 1"
             aria-label="Página anterior"
           >
             <i class="material-icons">chevron_left</i>
-            <span class="d-none d-sm-inline ms-2">Anterior</span>
           </button>
 
           <div class="pagination-numbers">
@@ -396,12 +395,11 @@
           </div>
 
           <button
-            class="btn btn-gradient-primary pagination-btn pagination-btn-next"
+            class="pagination-btn-circle"
             @click="mudarPagina(paginaAtualIndex + 1)"
             :disabled="paginaAtualIndex === paginas"
             aria-label="Próxima página"
           >
-            <span class="d-none d-sm-inline me-2">Próximo</span>
             <i class="material-icons">chevron_right</i>
           </button>
         </div>
@@ -1306,7 +1304,7 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
@@ -1317,29 +1315,33 @@ onMounted(() => {
   justify-content: center;
 }
 
-.pagination-btn {
+/* Botões circulares Anterior/Próximo */
+.pagination-btn-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  border-radius: 4px;
-  padding: 8px 16px;
-  font-weight: 500;
-  font-size: 0.8rem;
-  transition: all 0.2s ease;
-  min-width: auto;
   background: #171717;
   color: white;
   border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.pagination-btn:hover:not(:disabled) {
+.pagination-btn-circle:hover:not(:disabled) {
   background: #333333;
+  transform: scale(1.05);
 }
 
-.pagination-btn:disabled {
+.pagination-btn-circle:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+}
+
+.pagination-btn-circle i {
+  font-size: 20px;
 }
 
 .pagination-number {
