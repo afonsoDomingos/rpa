@@ -117,18 +117,18 @@ onMounted(() => {
 .counter-black {
   font-family: "Poppins", sans-serif !important;
   font-weight: 900 !important;
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
 @media (max-width: 768px) {
   .counter-black {
-    font-size: 1rem;
+    font-size: 0.85rem;
   }
 }
 
 @media (max-width: 576px) {
   .counter-black {
-    font-size: 0.85rem;
+    font-size: 0.7rem;
   }
 }
 
