@@ -923,23 +923,22 @@ onMounted(() => {
 }
 
 .pag-container-responsive {
-  padding-left: 32px;
-  padding-right: 32px;
+  padding-left: 48px;
+  padding-right: 48px;
 }
 
-/* Borda destacada - White Theme */
+/* Container Principal - Tesla/SpaceX Style */
 .borda-destacada {
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 32px;
+  border: none;
+  border-radius: 0;
+  padding: 48px 0;
   background: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  box-shadow: none;
 }
 
 .borda-destacada:hover {
-  border-color: #800080;
-  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.1);
+  border-color: transparent;
+  box-shadow: none;
 }
 
 /* User Dropdown - White Theme */
@@ -982,43 +981,42 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
-/* Resumo Financeiro - White Theme */
+/* Resumo Financeiro - Tesla Style */
 .resumo-financeiro-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-bottom: 48px;
 }
 
 .resumo-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 20px;
+  background: #f8f9fa;
+  border: none;
+  border-radius: 8px;
+  padding: 28px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  gap: 20px;
+  transition: background 0.3s ease;
 }
 
 .resumo-card:hover {
-  border-color: #800080;
-  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.1);
-  transform: translateY(-2px);
+  background: #f1f3f4;
 }
+
 .resumo-card-action {
-  padding: 12px;
+  padding: 16px;
 }
 
 .resumo-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  background: #171717 !important;
 }
 
 .resumo-content {
@@ -1029,15 +1027,29 @@ onMounted(() => {
 }
 
 .resumo-label {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #6b7280;
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .resumo-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1f2937;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #171717;
+  letter-spacing: -0.5px;
+}
+
+.resumo-value-small {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #171717;
+}
+
+.resumo-subtext {
+  font-size: 0.875rem;
+  color: #6b7280;
 }
 
 .resumo-value-small {
@@ -1051,66 +1063,67 @@ onMounted(() => {
   color: #6b7280;
 }
 
-/* Filtros - White Theme */
+/* Filtros - Tesla Style */
 .filtros-container {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  border: none;
+  margin-bottom: 32px;
 }
 
 .filtros-wrapper {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .filtro-group {
-  flex: 1;
-  min-width: 160px;
-  max-width: 220px;
+  flex: 0 0 auto;
+  min-width: 180px;
 }
 
 .filtro-select {
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  background: #ffffff;
-  color: #1f2937;
-  font-size: 0.95rem;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+  background: #f8f9fa;
+  color: #171717;
+  font-size: 0.875rem;
   transition: all 0.2s ease;
-  height: 38px;
+  height: 44px;
+  padding: 0 16px;
 }
 
 .filtro-select:focus {
-  border-color: #800080;
-  box-shadow: 0 0 0 3px rgba(128, 0, 128, 0.1);
+  border-color: #171717;
+  box-shadow: none;
   background: #ffffff;
-  color: #1f2937;
+  color: #171717;
   outline: none;
 }
 
 .filtro-select option {
   background: #ffffff;
-  color: #1f2937;
+  color: #171717;
 }
 
 .filtro-limpar {
-  border-radius: 10px;
+  border-radius: 4px;
   min-width: 100px;
-  height: 38px;
+  height: 44px;
   transition: all 0.2s ease;
-  border-color: #d1d5db;
+  border: 1px solid #e5e7eb;
   color: #6b7280;
+  background: transparent;
 }
 
 .filtro-limpar:hover:not(:disabled) {
-  background-color: #f3f4f6;
-  color: #800080;
-  transform: translateY(-2px);
-  border-color: #800080;
+  background: #f8f9fa;
+  color: #171717;
+  border-color: #171717;
 }
 
 .filtro-limpar:disabled {
@@ -1122,67 +1135,78 @@ onMounted(() => {
   animation: fadeIn 0.3s ease;
 }
 
-/* Table - White Theme */
+/* Table - Tesla Style */
 .payments-table {
-  border-radius: 12px;
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
   background: #ffffff;
 }
 
 .table-dark {
   --bs-table-bg: #ffffff;
-  --bs-table-color: #1f2937;
-  --bs-table-border-color: #e5e7eb;
+  --bs-table-color: #171717;
+  --bs-table-border-color: #f1f3f4;
 }
 
 .table-header-gradient {
-  background: #800080;
+  background: #171717;
 }
 
 .table-header-gradient th {
-  font-weight: 600;
+  font-weight: 500;
   text-transform: uppercase;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.5px;
-  padding: 16px;
+  padding: 16px 20px;
   border: none;
-  color: white;
+  color: #ffffff;
 }
 
 .payment-row {
-  transition: all 0.2s ease;
+  transition: background 0.2s ease;
   cursor: pointer;
+  border-bottom: 1px solid #f1f3f4;
 }
 
 .payment-row:hover {
-  background-color: #f9fafb !important;
-  transform: scale(1.005);
+  background-color: #f8f9fa !important;
+}
+
+.payment-row td {
+  padding: 20px;
+  font-size: 0.9rem;
+  color: #171717;
 }
 
 .table-active-dark {
-  background-color: #f9fafb !important;
+  background-color: #f8f9fa !important;
 }
 
 .status-badge {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-transform: capitalize;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .btn-action {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  border-radius: 8px;
+  gap: 6px;
+  border-radius: 4px;
   transition: all 0.2s ease;
+  background: #171717;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 0.8rem;
 }
 
 .btn-action:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.3);
+  background: #333333;
 }
 
 /* Mobile Cards - White Theme */
