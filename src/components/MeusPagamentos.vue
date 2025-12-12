@@ -717,9 +717,7 @@ const paginasVisiveis = computed(() => {
 });
 
 const totalPago = computed(() =>
-  pagamentos.value
-    .filter((p) => p.status === "pago")
-    .reduce((a, b) => a + Number(b.valor), 0)
+  pagamentos.value.reduce((a, b) => a + Number(b.valor || 0), 0)
 );
 
 const ultimoPagamento = computed(
@@ -889,7 +887,7 @@ onMounted(() => {
   opacity: 0;
 }
 
-/* Container - Black Theme */
+/* Container - White Theme */
 .pag-container-fluid {
   width: 100%;
   max-width: 100vw;
@@ -897,7 +895,7 @@ onMounted(() => {
   margin-right: 0;
   padding-left: 0;
   padding-right: 0;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  background: #ffffff;
 }
 
 @media (min-width: 992px) {
@@ -953,30 +951,24 @@ onMounted(() => {
   box-shadow: 0 4px 12px rgba(128, 0, 128, 0.15);
 }
 
-/* Gradientes - Purple Theme */
-.bg-gradient-primary {
-  background: linear-gradient(135deg, #800080 0%, #9333ea 100%);
-}
-
-.bg-gradient-info {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-}
-
+/* Gradientes - Apenas Roxo */
+.bg-gradient-primary,
+.bg-gradient-info,
 .bg-gradient-success {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: #800080;
 }
 
 .btn-gradient-primary {
-  background: linear-gradient(135deg, #800080 0%, #9333ea 100%);
+  background: #800080;
   border: none;
   color: white;
   transition: all 0.3s ease;
 }
 
 .btn-gradient-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #6b006b 0%, #7e22ce 100%);
+  background: #6b006b;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(128, 0, 128, 0.3);
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.3);
   color: white;
 }
 
@@ -1140,7 +1132,7 @@ onMounted(() => {
 }
 
 .table-header-gradient {
-  background: linear-gradient(135deg, #800080 0%, #9333ea 100%);
+  background: #800080;
 }
 
 .table-header-gradient th {
@@ -1316,10 +1308,9 @@ onMounted(() => {
 }
 
 .pagination-number.active {
-  background: linear-gradient(135deg, #800080 0%, #9333ea 100%);
+  background: #800080;
   border-color: #800080;
   color: white;
-  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.3);
 }
 
 .pagination-number.disabled {
@@ -1345,7 +1336,7 @@ onMounted(() => {
 }
 
 .modal-header-gradient {
-  background: linear-gradient(135deg, #800080 0%, #9333ea 100%);
+  background: #800080;
   border-bottom: none;
 }
 
