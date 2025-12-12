@@ -72,66 +72,79 @@ onMounted(() => {
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@900&display=swap");
 
 .counter-section {
-  padding: 32px 0;
+  padding: 24px 16px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .counter-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  max-width: 900px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  max-width: 600px;
   margin: 0 auto;
+  flex-wrap: nowrap;
 }
 
-/* Tablet */
-@media (max-width: 991px) {
-  .counter-grid {
-    gap: 16px;
-  }
-}
-
-/* Mobile - mantém horizontal */
-@media (max-width: 768px) {
+/* Mobile */
+@media (max-width: 576px) {
   .counter-section {
-    padding: 16px 8px;
+    padding: 16px 12px;
   }
   
   .counter-grid {
-    gap: 8px;
+    gap: 4px;
     max-width: 100%;
   }
 }
 
 .counter-item {
   text-align: center;
+  flex: 1;
+  min-width: 0;
+  max-width: 180px;
+}
+
+@media (max-width: 576px) {
+  .counter-item {
+    max-width: 100px;
+  }
 }
 
 /* Aplica Poppins Black em todos os títulos e contadores dos cards */
 .counter-black {
   font-family: "Poppins", sans-serif !important;
   font-weight: 900 !important;
-  font-size: 2rem;
+  font-size: 1.5rem;
 }
 
-@media (max-width: 991px) {
-  .counter-black {
-    font-size: 1.5rem;
-  }
-}
-
-@media (max-width: 576px) {
+@media (max-width: 768px) {
   .counter-black {
     font-size: 1.2rem;
   }
 }
 
+@media (max-width: 576px) {
+  .counter-black {
+    font-size: 1rem;
+  }
+}
+
 .counter-black .description {
-  font-size: 1rem;
+  font-size: 0.875rem;
 }
 
 @media (max-width: 768px) {
   .counter-black .description {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .counter-black .description {
+    font-size: 0.6rem;
   }
 }
 </style>
