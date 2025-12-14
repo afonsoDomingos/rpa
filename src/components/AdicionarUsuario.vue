@@ -116,34 +116,69 @@ const criarUsuario = async () => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
+
+.card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  box-shadow: none;
+  font-family: 'Poppins', sans-serif;
+}
+
+.card-title {
+  font-weight: 900;
+  color: #800080;
+}
+
+.form-label {
+  font-weight: 700;
+  color: #495057;
+}
+
 .borda-destacada {
-  border: 1px solid #66bb6a;
-  border-radius: 5px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
   padding: 10px;
   outline: none;
+  transition: all 0.3s ease;
+  background-color: #ffffff;
 }
 
 .borda-destacada:focus {
-  border-color: #800080;
-  box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
+  border-color: #800080; /* Roxo */
+  box-shadow: 0 0 0 0.2rem rgba(128, 0, 128, 0.15);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #800080 0%, #6a006a 100%);
+  border: none;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(128, 0, 128, 0.3);
+  background: linear-gradient(135deg, #6a006a 0%, #800080 100%);
 }
 
 .mensagem-sucesso {
-  background-color: #d1e7dd;
-  color: #0f5132;
-  border: 1px solid #badbcc;
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
   padding: 12px 20px;
-  border-radius: 5px;
-  font-weight: 500;
+  border-radius: 8px;
+  font-weight: 600;
 }
 
 .mensagem-erro {
   background-color: #f8d7da;
-  color: #842029;
-  border: 1px solid #f5c2c7;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
   padding: 12px 20px;
-  border-radius: 5px;
-  font-weight: 500;
+  border-radius: 8px;
+  font-weight: 600;
 }
 
 .fade-enter-active,

@@ -3,6 +3,8 @@ import { onMounted, onUnmounted } from "vue";
 
 import TabelaSolicitacoes from "../TabelaSolicitacoes.vue";
 import DocumentosCharts from "../DocumentosCharts.vue";
+import DashboardOverview from "@/components/DashboardOverview.vue";
+import AtividadesRecentes from "@/components/AtividadesRecentes.vue";
 
 //example components
 import NavbarDefault from "../..//examples/navbars/NavbarDefault.vue";
@@ -12,7 +14,6 @@ import Header from "../../examples/Header.vue";
 
 //Vue Material Kit 2 components
 import Verdocumentosadmin from "@/components/Verdocumentosadmin.vue";
-//import ListaUsuarios from "@/components/ListaUsuarios.vue";
 
 import UsuariosView from "../../components/UsuariosView.vue";
 
@@ -176,17 +177,30 @@ const solicitarDocumento = async () => {
   </Header>
 
   <div class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n6">
+    <!-- Novo: Dashboard Overview com KPIs -->
+    <DashboardOverview />
+    
+    <!-- Novo: Atividades Recentes -->
+    <AtividadesRecentes />
+    
     <!-- Componente para Exibir Documentos -->
-    <!-- Tabela de solicitações abaixo -->
-    <!-- Importação do Componente de Gráficos -->
-    <section class="py-5">
+    <section class="py-5" id="usuarios" data-section="usuarios">
       <UsuariosView />
     </section>
-    <DocumentosCharts />
-    <Verdocumentosadmin />
+    
+    <div id="charts" data-section="charts">
+      <DocumentosCharts />
+    </div>
+    
+    <div id="verdocumentosadmin" data-section="verdocumentosadmin">
+      <Verdocumentosadmin />
+    </div>
 
     <!-- Tabela de solicitações abaixo -->
-    <TabelaSolicitacoes :solicitacoes="solicitacoes" />
+    <div id="solicitacoes" data-section="solicitacoes">
+      <TabelaSolicitacoes :solicitacoes="solicitacoes" />
+    </div>
+    
     <!-- Componente para Contador de Apresentação -->
     <PresentationCounter />
   </div>

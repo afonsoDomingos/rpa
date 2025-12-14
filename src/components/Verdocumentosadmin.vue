@@ -298,8 +298,8 @@ const atualizarStatus = async (documento) => {
 </script>
 
 <template>
-  <section class="py-7">
-    <div class="container">
+  <section class="verdocumentos-wrapper py-7">
+    <div class="verdocumentos-container">
       <!-- Conteúdo de Navegação -->
       <ul class="nav nav-pills nav-fill custom-nav-admin p-2" role="tablist">
         <li class="nav-item">
@@ -668,9 +668,17 @@ const atualizarStatus = async (documento) => {
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css");
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
 
-/* APLICANDO TIPOGRAFIA POPPINS GLOBALMENTE */
-* {
-  font-family: 'Poppins', sans-serif !important;
+/* Wrapper e Container com largura consistente */
+.verdocumentos-wrapper {
+  width: 100%;
+  background-color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+}
+
+.verdocumentos-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
 /* Navegação */

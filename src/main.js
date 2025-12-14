@@ -22,6 +22,9 @@ import "./assets/css/nucleo-svg.css";
 // Material Kit (custom)
 import materialKit from "./material-kit";
 
+// Global Effects & Animations (Garante Poppins e efeitos visuais)
+import "./assets/css/global-effects.css";
+
 // ====================
 // Fontes locais @fontsource v4
 import "@fontsource/roboto/300.css";

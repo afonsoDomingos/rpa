@@ -344,12 +344,11 @@ onMounted(buscarUsuarios);
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css");
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
 
-/* Container Geral */
+/* Container Geral - Remove constraints, let parent control */
 .lista-usuarios-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
+  width: 100%;
   font-family: 'Poppins', sans-serif;
+  background-color: transparent; /* Tema branco */
 }
 
 /* Pesquisa */
@@ -365,26 +364,35 @@ onMounted(buscarUsuarios);
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
   transition: all 0.3s ease;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
 }
 
 .search-bar input:focus {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.15) !important;
+  border-color: #800080; /* Roxo */
 }
 
 /* Tabela */
+.custom-table {
+  background-color: #ffffff; /* Branco */
+}
+
 .custom-table th {
   font-family: 'Poppins', sans-serif;
-  font-weight: 700;
+  font-weight: 900; /* Black */
   text-transform: uppercase;
   font-size: 0.85rem;
   color: #6c757d;
   letter-spacing: 0.5px;
+  background-color: #f8f9fa !important;
 }
 
 .custom-table td {
   vertical-align: middle;
-  font-family: 'Poppins', sans-serif; 
+  font-family: 'Poppins', sans-serif;
+  background-color: #ffffff; 
 }
 
 .avatar-circle {
@@ -428,7 +436,7 @@ onMounted(buscarUsuarios);
 }
 
 .hover-row:hover {
-  background-color: #f8f9fa;
+  background-color: #f8f9fa !important;
   transform: translateX(4px);
 }
 
@@ -439,22 +447,22 @@ onMounted(buscarUsuarios);
   transform: scale(1.15);
 }
 
-/* Badge Contador Estilizado */
+/* Badge Contador com tema roxo */
 .counter-badge {
-  background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
+  background: linear-gradient(135deg, #800080 0%, #6a006a 100%); /* Roxo */
   color: white;
   padding: 10px 24px;
   border-radius: 12px;
   display: inline-flex;
   align-items: center;
-  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.25);
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .counter-badge:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(46, 125, 50, 0.3);
+  box-shadow: 0 8px 16px rgba(128, 0, 128, 0.35);
 }
 
 .counter-badge span:first-child {
@@ -472,7 +480,7 @@ onMounted(buscarUsuarios);
   font-size: 1.5rem;
 }
 
-/* Badges de perfil melhorados */
+/* Badges de perfil com tema roxo */
 .badge {
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
@@ -480,6 +488,11 @@ onMounted(buscarUsuarios);
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
+}
+
+.bg-primary-subtle {
+  background-color: rgba(128, 0, 128, 0.1) !important; /* Roxo claro */
+  color: #800080 !important; /* Roxo */
 }
 
 /* Toasts */
