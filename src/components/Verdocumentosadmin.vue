@@ -1,30 +1,22 @@
 <script setup>
-import api from "../api"; // Importa a instância da API para comunicação com o servidor
-import { ref, onMounted, onUnmounted, watch } from "vue"; // Importa funções do Vue para reatividade e ciclo de vida
-import MaterialSwitch from "@/components/MaterialSwitch.vue"; // Componente para um switch material
+import api from "../api";
+import { ref, onMounted, onUnmounted, watch } from "vue";
+import MaterialSwitch from "@/components/MaterialSwitch.vue";
 import eventBus from "@/eventBus";
-
-//Vue Material Kit 2 components
 import MaterialButton from "@/components/MaterialButton.vue";
+import setNavPills from "@/assets/js/nav-pills.js";
 
-// Estado reativo para controlar a aba ativa
 const activeTab = ref("procurar");
 
-// Ouvir evento vindo do NavBarDefault.vue
 const changeTab = (tabName) => {
   activeTab.value = tabName;
 };
 
-onMounted(() => eventBus.on("changeTab", changeTab));
-onUnmounted(() => eventBus.off("changeTab", changeTab));
-
-// Importação de função para efeitos na navegação de abas
-import setNavPills from "@/assets/js/nav-pills.js";
-
-// Executa a função para configurar o efeito de navegação após a montagem do componente
-onMounted(async () => {
-  await setNavPills();
+onMounted(() => {
+  eventBus.on("changeTab", changeTab);
+  setNavPills();
 });
+onUnmounted(() => eventBus.off("changeTab", changeTab));
 
 // Campos para a aba "Cadastrar"
 const nome_completo = ref("");
@@ -43,7 +35,6 @@ const nome_completoRec = ref("");
 const tipo_documentoRec = ref("");
 const provinciaRec = ref("");
 const numero_documentoRec = ref("");
-//const origemRec = ref('');//
 
 // Lista de documentos
 const documentosDisponiveis = ref([]);
@@ -55,12 +46,12 @@ const documentosEncontrados = ref([]);
 const mensagemErro = ref("");
 const mensagemSucesso = ref("");
 const erroMensagem = ref("");
-const nomeError = ref(""); // Para armazenar erros do nome completo
-const contactoError = ref(""); // Variável para armazenar erros do contacto
+const nomeError = ref("");
+const contactoError = ref("");
 
 // Função de validação do nome completo
 const validarNome = () => {
-  const nomeRegex = /^[A-Za-zÀ-ÿ\s]+$/; // Regex para letras e espaços
+  const nomeRegex = /^[A-Za-zÀ-ÿ\s]+$/;
   if (!nome_completo.value) {
     nomeError.value = "O nome  é obrigatório.";
     return false;
@@ -68,22 +59,21 @@ const validarNome = () => {
     nomeError.value = "O nome completo deve conter apenas letras.";
     return false;
   }
-  nomeError.value = ""; // Limpa o erro se tudo estiver correto
+  nomeError.value = "";
   return true;
 };
 
 // Função de validação do contacto
 const validarContacto = () => {
-  const contactoRegex = /^(84|85|86|87|83)\d{7}$/; // Regex para validar números que começam com 84, 85, 83, 86, 87 ou 83 e têm 9 dígitos
+  const contactoRegex = /^(84|85|86|87|83)\d{7}$/;
   if (!contacto.value) {
     contactoError.value = "O contacto é obrigatório.";
     return false;
   } else if (!contactoRegex.test(contacto.value)) {
-    contactoError.value =
-      "O contacto deve conter 9 dígitos e começar com 84, 85, 86, 87 ou 83.";
+    contactoError.value = "O contacto deve conter 9 dígitos e começar com 84, 85, 86, 87 ou 83.";
     return false;
   }
-  contactoError.value = ""; // Limpa o erro se tudo estiver correto
+  contactoError.value = "";
   return true;
 };
 
@@ -96,13 +86,11 @@ const buscarDocumentos = async () => {
     console.error("Erro ao buscar documentos:", error);
   }
 
-  // Chama as validações do nome  e contacto
   if (!validarNome() || !validarContacto()) {
-    return; // Não prossegue se alguma validação falhar
+    return;
   }
 };
 
-// Funções para buscar documentos específicos
 const buscarDocumentosReportados = async () => {
   try {
     const response = await api.get("/documentos/reportados");
@@ -121,14 +109,12 @@ const buscarDocumentosProprietarios = async () => {
   }
 };
 
-// Executa buscas ao montar o componente
 onMounted(() => {
   buscarDocumentos();
   buscarDocumentosReportados();
   buscarDocumentosProprietarios();
 });
 
-// Função para cadastrar um novo documento perdido
 const cadastrarDocumento = async () => {
   mensagemErro.value = "";
   mensagemSucesso.value = "";
@@ -149,7 +135,6 @@ const cadastrarDocumento = async () => {
 
     mensagemSucesso.value = `Documento cadastrado com sucesso: Nome: ${response.data.nome_completo}, Tipo: ${response.data.tipo_documento}, Número: ${response.data.numero_documento}, Província: ${response.data.provincia}, Data: ${response.data.data_perda}`;
 
-    // Limpar os campos do formulário
     nome_completo.value = "";
     tipo_documento.value = "";
     numero_documento.value = "";
@@ -158,35 +143,25 @@ const cadastrarDocumento = async () => {
     origem.value = "";
     contacto.value = "";
 
-    buscarDocumentos(); // Atualiza a lista de documentos
+    buscarDocumentos();
   } catch (error) {
     console.error("Erro ao cadastrar documento:", error);
-    mensagemErro.value =
-      error.response?.data?.message ||
-      "Erro ao cadastrar. Verifique os dados e tente novamente.";
+    mensagemErro.value = error.response?.data?.message || "Erro ao cadastrar. Verifique os dados e tente novamente.";
   }
 };
 
-// Filtro de busca de documentos
-
-// Estado do filtro
 const tipoFiltro = ref("nome");
 
-// Watch para resetar os campos ao mudar o filtro
 watch(tipoFiltro, (novoValor) => {
   console.log("Filtro alterado para:", novoValor);
   nome_completoRec.value = "";
   tipo_documentoRec.value = "";
   provinciaRec.value = "";
   numero_documentoRec.value = "";
-  // origemRec.value = "";//
 });
 
-// Função para procurar documentos
 const procurarDocumento = async () => {
-  erroMensagem.value = ""; // Reseta o erro
-
-  // Verifica qual filtro está selecionado
+  erroMensagem.value = "";
   let params = {};
 
   if (tipoFiltro.value === "nome" && nome_completoRec.value.trim()) {
@@ -195,21 +170,13 @@ const procurarDocumento = async () => {
     params.tipo_documento = tipo_documentoRec.value;
   } else if (tipoFiltro.value === "provincia" && provinciaRec.value) {
     params.provincia = provinciaRec.value;
-  } else if (
-    tipoFiltro.value === "numero" &&
-    numero_documentoRec.value.trim()
-  ) {
-    // Adiciona a condição para número de documento
+  } else if (tipoFiltro.value === "numero" && numero_documentoRec.value.trim()) {
     params.numero_documento = numero_documentoRec.value.trim();
-  }
-  //else if (tipoFiltro.value === "origem" && origemRec.value) {
-  // params.origem = origemRec.value;
-  //} //
-  else {
-    erroMensagem.value =
-      "Por favor, preencha o campo correspondente ao filtro selecionado.";
+  } else {
+    erroMensagem.value = "Por favor, preencha o campo correspondente ao filtro selecionado.";
     return;
   }
+
   try {
     const response = await api.get("/documentos", { params });
     documentosEncontrados.value = response.data;
@@ -218,25 +185,20 @@ const procurarDocumento = async () => {
       erroMensagem.value = "Nenhum documento encontrado.";
     }
   } catch (error) {
-    erroMensagem.value =
-      error.response?.data?.message ||
-      "Erro ao buscar documentos. Tente novamente.";
+    erroMensagem.value = error.response?.data?.message || "Erro ao buscar documentos. Tente novamente.";
     console.error("Erro ao procurar documentos:", error);
   }
 };
 
-// Watch para resetar campos ao mudar de aba
 watch(activeTab, (novaAba) => {
   if (novaAba !== "procurar") {
     nome_completoRec.value = "";
     tipo_documentoRec.value = "";
     provinciaRec.value = "";
     numero_documentoRec.value = "";
-    //origemRec.value = "";//
   }
 });
 
-// Lista de províncias
 const provincias = [
   "Maputo",
   "Maputo Cidade",
@@ -251,7 +213,6 @@ const provincias = [
   "Cabo Delgado",
 ];
 
-// Lista de tipos de documentos
 const tipo_documentos = [
   "Bilhete de Identidade",
   "Passaporte",
@@ -263,67 +224,45 @@ const tipo_documentos = [
   "Cartão de Identidade Militar",
 ];
 
-// Função para reportar status da recuperação de um documento
 const reportarStatus = () => {
-  console.log(
-    "Protocolo de Recuperação:",
-    protocolo.value,
-    "Nome:",
-    nome_completo.value
-  );
+  console.log("Protocolo de Recuperação:", protocolo.value, "Nome:", nome_completo.value);
 };
 
-// Referências reativas
-//const documentosReportados = ref([]);
 const isEditModalOpen = ref(false);
-const documentoEditado = ref({}); // Documento sendo editado
+const documentoEditado = ref({});
 
-// Função de editar documento
 const editarDocumento = (documento) => {
-  documentoEditado.value = { ...documento }; // Cria uma cópia do documento para edição
-  isEditModalOpen.value = true; // Abre o modal de edição
+  documentoEditado.value = { ...documento };
+  isEditModalOpen.value = true;
 };
 
-// Função de fechar o modal
 const fecharModal = () => {
   isEditModalOpen.value = false;
-  documentoEditado.value = {}; // Limpa os dados após fechar
+  documentoEditado.value = {};
 };
 
-// Função de salvar edição
 const salvarEdicao = async () => {
   try {
-    await api.put(
-      `/documentos/${documentoEditado.value._id}`,
-      documentoEditado.value
-    );
+    await api.put(`/documentos/${documentoEditado.value._id}`, documentoEditado.value);
 
-    // Atualiza a lista local
-    const index = documentosReportados.value.findIndex(
-      (doc) => doc._id === documentoEditado.value._id
-    );
+    const index = documentosReportados.value.findIndex((doc) => doc._id === documentoEditado.value._id);
     if (index !== -1) {
       documentosReportados.value[index] = { ...documentoEditado.value };
     }
 
-    fecharModal(); // Fecha o modal após a edição
+    fecharModal();
   } catch (error) {
     console.error("Erro ao salvar edição do documento:", error);
   }
 };
 
-// Função de eliminar documento
 const eliminarDocumento = async (documento) => {
-  const confirmacao = confirm(
-    `Tem certeza que deseja eliminar o documento ${documento.numero_documento}?`
-  );
+  const confirmacao = confirm(`Tem certeza que deseja eliminar o documento ${documento.numero_documento}?`);
   if (confirmacao) {
     try {
       await api.delete(`/documentos/${documento._id}`);
 
-      documentosReportados.value = documentosReportados.value.filter(
-        (doc) => doc._id !== documento._id
-      );
+      documentosReportados.value = documentosReportados.value.filter((doc) => doc._id !== documento._id);
       console.log("Documento eliminado:", documento);
     } catch (error) {
       console.error("Erro ao eliminar documento:", error);
@@ -331,14 +270,10 @@ const eliminarDocumento = async (documento) => {
   }
 };
 
-// Chamar a função para buscar documentos ao inicializar
 buscarDocumentos();
 
 const atualizarStatus = async (documento) => {
-  if (
-    !documento.status ||
-    !["Pendente", "Entregue"].includes(documento.status)
-  ) {
+  if (!documento.status || !["Pendente", "Entregue"].includes(documento.status)) {
     alert('Status inválido. Use "Pendente" ou "Entregue".');
     return;
   }
@@ -346,12 +281,10 @@ const atualizarStatus = async (documento) => {
   try {
     await api.patch(`/documentos/${documento._id}/status`, {
       status: documento.status,
-      isAdmin: true, // Garantir acesso administrativo
+      isAdmin: true,
     });
 
-    const index = documentosReportados.value.findIndex(
-      (doc) => doc._id === documento._id
-    );
+    const index = documentosReportados.value.findIndex((doc) => doc._id === documento._id);
     if (index !== -1) {
       documentosReportados.value[index].status = documento.status;
     }
@@ -375,7 +308,6 @@ const atualizarStatus = async (documento) => {
             :class="{ active: activeTab === 'procurar' }"
             @click.prevent="activeTab = 'procurar'"
             role="tab"
-            aria-selected="true"
           >
             <i class="bi bi-search me-2"></i> Procurar Admin
           </a>
@@ -387,7 +319,6 @@ const atualizarStatus = async (documento) => {
             :class="{ active: activeTab === 'cadastrar' }"
             @click.prevent="activeTab = 'cadastrar'"
             role="tab"
-            aria-selected="false"
           >
             <i class="bi bi-flag me-2"></i> Reportar Admin
           </a>
@@ -399,7 +330,6 @@ const atualizarStatus = async (documento) => {
             :class="{ active: activeTab === 'documentosReportados' }"
             @click.prevent="activeTab = 'documentosReportados'"
             role="tab"
-            aria-selected="false"
           >
             <i class="bi bi-file-earmark-text me-2"></i> Reportados Admin
           </a>
@@ -411,32 +341,21 @@ const atualizarStatus = async (documento) => {
             :class="{ active: activeTab === 'documentosProprietarios' }"
             @click.prevent="activeTab = 'documentosProprietarios'"
             role="tab"
-            aria-selected="false"
           >
             <i class="bi bi-person-badge me-2"></i> Proprietários Admin
           </a>
         </li>
       </ul>
+
       <!-- Conteúdo das abas -->
       <div class="tab-content">
-        <!-- Aba Procurar (Formulário para busca de documentos) -->
-        <div
-          v-if="activeTab === 'procurar'"
-          class="tab-pane fade show active"
-          id="procurar-tabs-simple"
-        >
+        <!-- Aba Procurar -->
+        <div v-if="activeTab === 'procurar'" class="tab-pane fade show active">
           <form @submit.prevent="procurarDocumento" class="form">
             <div class="row">
-              <!-- Seletor de Tipo de Filtro -->
               <div class="col-md-12 mb-3">
-                <label for="tipoFiltro" class="form-label fw-bold"
-                  >Escolha o tipo de filtro</label
-                >
-                <select
-                  id="tipoFiltro"
-                  class="form-control borda-destacada form-select zoom-field"
-                  v-model="tipoFiltro"
-                >
+                <label for="tipoFiltro" class="form-label fw-bold">Escolha o tipo de filtro</label>
+                <select id="tipoFiltro" class="form-control borda-destacada form-select zoom-field" v-model="tipoFiltro">
                   <option value="nome">Nome Completo</option>
                   <option value="tipo">Tipo de Documento</option>
                   <option value="provincia">Província</option>
@@ -444,160 +363,72 @@ const atualizarStatus = async (documento) => {
                 </select>
               </div>
 
-              <!-- Campo para Nome Completo (Exibido se o filtro for por nome) -->
               <div v-if="tipoFiltro === 'nome'" class="col-md-12 mb-3">
-                <label for="nomeRec" class="form-label fw-bold"
-                  >Nome Completo</label
-                >
-                <input
-                  type="text"
-                  id="nomeRec"
-                  class="form-control borda-destacadanome"
-                  v-model="nome_completoRec"
-                  placeholder="Ex: João Silva"
-                  required
-                />
+                <label for="nomeRec" class="form-label fw-bold">Nome Completo</label>
+                <input type="text" id="nomeRec" class="form-control borda-destacadanome" v-model="nome_completoRec" placeholder="Ex: João Silva" required />
               </div>
 
-              <!-- Campo para Tipo de Documento (Exibido se o filtro for por tipo) -->
               <div v-if="tipoFiltro === 'tipo'" class="col-md-12 mb-3">
-                <label for="tipoDocumento" class="form-label fw-bold"
-                  >Tipo de Documento</label
-                >
-                <select
-                  id="tipoDocumento"
-                  class="form-control borda-destacada form-select zoom-field"
-                  v-model="tipo_documentoRec"
-                  required
-                >
-                  <option disabled value="">
-                    Selecione o Tipo de Documento
-                  </option>
-                  <option
-                    v-for="tipo in tipo_documentos"
-                    :key="tipo"
-                    :value="tipo"
-                  >
-                    {{ tipo }}
-                  </option>
+                <label for="tipoDocumento" class="form-label fw-bold">Tipo de Documento</label>
+                <select id="tipoDocumento" class="form-control borda-destacada form-select zoom-field" v-model="tipo_documentoRec" required>
+                  <option disabled value="">Selecione o Tipo de Documento</option>
+                  <option v-for="tipo in tipo_documentos" :key="tipo" :value="tipo">{{ tipo }}</option>
                 </select>
               </div>
 
-              <!-- Campo para Província (Exibido se o filtro for por província) -->
               <div v-if="tipoFiltro === 'provincia'" class="col-md-12 mb-3">
-                <label for="provinciaRec" class="form-label fw-bold"
-                  >Província</label
-                >
-                <select
-                  id="provinciaRec"
-                  class="form-control destacada form-select zoom-field"
-                  v-model="provinciaRec"
-                  required
-                >
+                <label for="provinciaRec" class="form-label fw-bold">Província</label>
+                <select id="provinciaRec" class="form-control destacada form-select zoom-field" v-model="provinciaRec" required>
                   <option disabled value="">Selecione a Província</option>
-                  <option
-                    v-for="provincia in provincias"
-                    :key="provincia"
-                    :value="provincia"
-                  >
-                    {{ provincia }}
-                  </option>
+                  <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
                 </select>
               </div>
 
-              <!-- Campo para Número de Documento (Exibido se o filtro for por número) -->
               <div v-if="tipoFiltro === 'numero'" class="col-md-12 mb-3">
-                <label for="numero_documentoRec" class="form-label fw-bold"
-                  >Número de Documento</label
-                >
-                <input
-                  type="text"
-                  id="numero_documentoRec"
-                  class="form-control borda-destacada"
-                  v-model="numero_documentoRec"
-                  placeholder="Ex: 123456789"
-                  required
-                />
+                <label for="numero_documentoRec" class="form-label fw-bold">Número de Documento</label>
+                <input type="text" id="numero_documentoRec" class="form-control borda-destacada" v-model="numero_documentoRec" placeholder="Ex: 123456789" required />
               </div>
 
-              <!-- Exibição da Mensagem de Erro -->
-              <!--<div v-if="erroMensagem" class="text-danger mt-2">
-                {{ erroMensagem }}
-              </div>-->
-
-              <!-- Mensagem de erro com botão de redirecionamento -->
               <div
-                v-if="
-                  erroMensagem &&
-                  documentosEncontrados.length === 0 &&
-                  nome_completoRec
-                "
+                v-if="erroMensagem && documentosEncontrados.length === 0 && nome_completoRec"
                 class="text-center mt-4 p-4 rounded shadow-sm animate-fade-in"
                 style="background-color: #f8f9fa"
               >
                 <p class="text-danger fw-bold fs-5 mb-3">{{ erroMensagem }}</p>
-
-                <!-- Mensagem motivacional -->
                 <p class="text-muted fst-italic fs-6 mensagem-motivacional">
-                  Não desanime {{ nome_completoRec.split(" ")[0] }}! Muitas
-                  pessoas encontram seus documentos depois de alguns dias,
-                  especialmente quando são registrados na plataforma.
+                  Não desanime {{ nome_completoRec.split(" ")[0] }}! Muitas pessoas encontram seus documentos depois de alguns dias, especialmente quando são registrados na plataforma.
                 </p>
-
-                <!-- Botão com destaque -->
-                <button
-                  @click="activeTab = 'cadastrar'"
-                  class="btn btn-success btn-lg mt-3 px-4 py-2 btn-zoom"
-                  style="transition: 0.3s"
-                  @mouseover="hover = true"
-                  @mouseleave="hover = false"
-                >
-                  📢 Não encontrou? Cadastre aqui
-                </button>
+                <button @click="activeTab = 'cadastrar'" class="btn btn-success btn-lg mt-3 px-4 py-2 btn-zoom">📢 Não encontrou? Cadastre aqui</button>
               </div>
 
               <br />
-              <!-- Botão para Procurar Documento -->
               <div class="text-center">
-                <button
-                  type="submit"
-                  class="btn btn-purple w-100 btn-lg shadow"
-                >
-                  Procurar
-                </button>
+                <button type="submit" class="btn btn-purple w-100 btn-lg shadow">Procurar</button>
               </div>
             </div>
           </form>
 
-          <!-- Exibição de Documentos Encontrados -->
+          <!-- Tabela de Busca - COM RESPONSIVIDADE MELHORADA -->
           <div v-if="documentosEncontrados.length > 0" class="mt-4">
-            <div class="table-responsive">
-              <table class="table table-striped">
-                <thead>
+            <div class="table-responsive shadow-sm rounded-4 bg-white">
+              <table class="table mb-0 align-middle custom-table-admin">
+                <thead class="bg-light">
                   <tr>
-                    <th>Nome</th>
-                    <th>Tipo de Documento</th>
-                    <th>Acção</th>
+                    <th class="py-3 ps-4 border-0">Nome</th>
+                    <th class="py-3 border-0">Tipo de Documento</th>
+                    <th class="py-3 pe-4 text-end border-0">Ação</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr
-                    v-for="doc in documentosEncontrados"
-                    :key="doc.numero_documento"
-                    class="table-row"
-                  >
-                    <td>{{ doc.nome_completo }}</td>
-                    <td>{{ doc.tipo_documento }}</td>
-                    <td className="btn-zoom">
-                      <!-- Button trigger modal -->
-                      <MaterialButton
-                        variant="gradient"
-                        color="success"
-                        data-bs-toggle="modal"
-                        data-bs-target="#exampleModal"
-                      >
-                        Solicitar
-                      </MaterialButton>
+                  <tr v-for="doc in documentosEncontrados" :key="doc.numero_documento" class="hover-row-admin">
+                    <td class="ps-4" data-label="Nome">
+                      <span class="fw-semibold text-dark text-truncate-admin">{{ doc.nome_completo }}</span>
+                    </td>
+                    <td data-label="Tipo de Documento">
+                      <span class="text-secondary text-truncate-admin">{{ doc.tipo_documento }}</span>
+                    </td>
+                    <td class="pe-4 text-end" data-label="Ação">
+                      <MaterialButton variant="gradient" color="success" data-bs-toggle="modal" data-bs-target="#exampleModal">Solicitar</MaterialButton>
                     </td>
                   </tr>
                 </tbody>
@@ -606,19 +437,12 @@ const atualizarStatus = async (documento) => {
           </div>
         </div>
 
-        <!-- Aba Cadastrar (Formulario para cadastro de documentos) -->
-        <div
-          v-if="activeTab === 'cadastrar'"
-          class="tab-pane fade show active"
-          id="cadastrar-tabs-simple"
-        >
+        <!-- Aba Cadastrar -->
+        <div v-if="activeTab === 'cadastrar'" class="tab-pane fade show active">
           <form @submit.prevent="cadastrarDocumento" class="form">
             <div class="row">
-              <!-- Campo para Nome Completo -->
               <div class="col-md-12 mb-3">
-                <label for="nomeSolicitante" class="form-label fw-bold"
-                  >Nome completo conforme o documento</label
-                >
+                <label for="nomeSolicitante" class="form-label fw-bold">Nome completo conforme o documento</label>
                 <input
                   type="text"
                   id="nomeSolicitante"
@@ -629,344 +453,199 @@ const atualizarStatus = async (documento) => {
                   required
                   @blur="validarNome"
                 />
-                <div v-if="nomeError" class="text-warning visible">
-                  {{ nomeError }}
-                </div>
-                <!-- Adicionada a classe 'visible' -->
+                <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
               </div>
-              <!-- Campo para Número do Documento -->
+
               <div class="col-md-12 mb-3">
-                <label for="numeroDocumento" class="form-label fw-bold"
-                  >Número do Documento</label
-                >
-                <input
-                  type="text"
-                  id="numeroDocumento"
-                  class="form-control zoom-field borda-destacada"
-                  v-model="numero_documento"
-                  placeholder="Ex: 123"
-                  maxlength="15"
-                  required
-                />
+                <label for="numeroDocumento" class="form-label fw-bold">Número do Documento</label>
+                <input type="text" id="numeroDocumento" class="form-control zoom-field borda-destacada" v-model="numero_documento" placeholder="Ex: 123" maxlength="15" required />
               </div>
-              <!-- Campo para Tipo de Documento -->
+
               <div class="col-md-12 mb-3">
-                <label for="tipoDocumento" class="form-label fw-bold"
-                  >Tipo de Documento</label
-                >
-                <select
-                  id="tipoDocumento"
-                  class="form-control borda-destacada form-select zoom-field"
-                  v-model="tipo_documento"
-                  required
-                >
-                  <option disabled value="">
-                    Selecione o Tipo de Documento
-                  </option>
-                  <option
-                    v-for="tipo_documento in tipo_documentos"
-                    :key="tipo_documento"
-                    :value="tipo_documento"
-                  >
-                    {{ tipo_documento }}
-                  </option>
+                <label for="tipoDocumento" class="form-label fw-bold">Tipo de Documento</label>
+                <select id="tipoDocumento" class="form-control borda-destacada form-select zoom-field" v-model="tipo_documento" required>
+                  <option disabled value="">Selecione o Tipo de Documento</option>
+                  <option v-for="tipo_documento in tipo_documentos" :key="tipo_documento" :value="tipo_documento">{{ tipo_documento }}</option>
                 </select>
               </div>
-              <!-- Campo para Província -->
+
               <div class="col-md-12 mb-3">
-                <label for="provincia" class="form-label fw-bold">
-                  Província Local onde foi encontrado ou perdido</label
-                >
-                <select
-                  id="provincia"
-                  class="form-control borda-destacada form-select zoom-field"
-                  v-model="provincia"
-                  required
-                >
+                <label for="provincia" class="form-label fw-bold">Província Local onde foi encontrado ou perdido</label>
+                <select id="provincia" class="form-control borda-destacada form-select zoom-field" v-model="provincia" required>
                   <option disabled value="">Selecione o local</option>
-                  <option
-                    v-for="provincia in provincias"
-                    :key="provincia"
-                    :value="provincia"
-                  >
-                    {{ provincia }}
-                  </option>
+                  <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
                 </select>
               </div>
-              <!-- Campo para Contacto -->
+
               <div class="col-md-12 mb-3">
                 <label for="contato" class="form-label fw-bold">Contacto</label>
-                <input
-                  type="tel"
-                  id="contato"
-                  class="form-control zoom-field borda-destacada"
-                  v-model="contacto"
-                  placeholder="Ex: 84 123 4567"
-                  maxlength="9"
-                  required
-                  @blur="validarContacto"
-                />
-                <div v-if="contactoError" class="text-warning visible">
-                  {{ contactoError }}
-                </div>
+                <input type="tel" id="contato" class="form-control zoom-field borda-destacada" v-model="contacto" placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
+                <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
               </div>
 
-              <!-- Campo para Data da Perda -->
               <div class="col-md-12 mb-3" style="display: none">
-                <label for="dataPerda" class="form-label fw-bold"> Data </label>
-                <input
-                  type="date"
-                  id="dataPerda"
-                  class="form-control zoom-field"
-                  v-model="data_perda"
-                  required
-                />
+                <label for="dataPerda" class="form-label fw-bold">Data</label>
+                <input type="date" id="dataPerda" class="form-control zoom-field" v-model="data_perda" required />
               </div>
 
-              <!-- Campo para Origem (Se é dono ou encontrou) -->
               <div class="col-md-12 mb-3">
-                <label for="origem" class="form-label fw-bold"
-                  >Você é o dono ou apenas encontrou?</label
-                >
-                <select
-                  id="origem"
-                  class="form-control borda-destacada form-select zoom-field"
-                  v-model="origem"
-                  required
-                >
+                <label for="origem" class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
+                <select id="origem" class="form-control borda-destacada form-select zoom-field" v-model="origem" required>
                   <option disabled value="">Escolha uma opção</option>
                   <option value="proprietario">Sou o dono</option>
                   <option value="reportado">Apenas encontrei</option>
                 </select>
               </div>
-              <!-- Campo para Concordância com Termos -->
+
               <div class="col-md-12 mb-3">
-                <MaterialSwitch
-                  class="mb-4 d-flex align-items-center"
-                  id="flexSwitchCheckDefault"
-                  labelClass="ms-3 mb-0"
-                >
+                <MaterialSwitch class="mb-4 d-flex align-items-center" id="flexSwitchCheckDefault" labelClass="ms-3 mb-0">
                   Eu concordo com os
-                  <router-link to="/termsconditions" class="text-dark"
-                    ><u>Termos e Condições</u></router-link
-                  >..
+                  <router-link to="/termsconditions" class="text-dark"><u>Termos e Condições</u></router-link>..
                 </MaterialSwitch>
               </div>
-              <!-- Botão para Cadastrar Documento -->
+
               <div class="text-center">
-                <button
-                  type="submit"
-                  class="btn btn-purple w-100 btn-lg shadow"
-                >
-                  Cadastrar
-                </button>
+                <button type="submit" class="btn btn-purple w-100 btn-lg shadow">Cadastrar</button>
               </div>
             </div>
             <div class="text-center">
-              <!-- Mensagem de sucesso -->
-              <p
-                v-if="mensagemSucesso"
-                class="alert-success btn btn-purple w-100 btn-lg shadow visible"
-              >
-                {{ mensagemSucesso }}
-              </p>
-
-              <!-- Mensagem de erro -->
-              <p
-                v-if="mensagemErro"
-                class="alert-danger btn btn-purple w-100 btn-lg shadow visible"
-              >
-                {{ mensagemErro }}
-              </p>
+              <p v-if="mensagemSucesso" class="alert-success btn btn-purple w-100 btn-lg shadow visible">{{ mensagemSucesso }}</p>
+              <p v-if="mensagemErro" class="alert-danger btn btn-purple w-100 btn-lg shadow visible">{{ mensagemErro }}</p>
             </div>
           </form>
         </div>
 
-        <!-- Aba Documentos Reportados -->
-        <div
-          v-if="activeTab === 'documentosReportados'"
-          class="tab-pane fade show active"
-          id="documentosReportados-tabs-simple"
-        >
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
+        <!-- Aba Documentos Reportados - COM RESPONSIVIDADE MELHORADA -->
+        <div v-if="activeTab === 'documentosReportados'" class="tab-pane fade show active">
+          <div class="table-responsive shadow-sm rounded-4 bg-white mb-4">
+            <table class="table mb-0 align-middle custom-table-admin">
+              <thead class="bg-light">
                 <tr>
-                  <th>Nome</th>
-                  <th>Tipo de Documento</th>
-                  <th>Número do Documento</th>
-                  <th>Contacto</th>
-                  <th>Província</th>
-                  <th>Data</th>
-                  <th>Ações</th>
-                  <!-- Coluna de ações -->
+                  <th class="py-3 ps-4 border-0">Nome</th>
+                  <th class="py-3 border-0">Tipo de Documento</th>
+                  <th class="py-3 border-0">Número do Documento</th>
+                  <th class="py-3 border-0">Contacto</th>
+                  <th class="py-3 border-0">Província</th>
+                  <th class="py-3 border-0">Data</th>
+                  <th class="py-3 pe-4 text-end border-0">Ações</th>
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="documento in documentosReportados"
-                  :key="documento.numero_documento"
-                  class="table-row"
-                >
-                  <td>{{ documento.nome_completo }}</td>
-                  <td>{{ documento.tipo_documento }}</td>
-                  <td>{{ documento.numero_documento }}</td>
-                  <td>{{ documento.contacto }}</td>
-                  <td>{{ documento.provincia }}</td>
-                  <td>{{ documento.data_perda }}</td>
-                  <td>
-                    <!-- Botão de editar -->
-                    <button
-                      @click="editarDocumento(documento)"
-                      class="btn btn-warning"
-                    >
-                      Editar
-                    </button>
-                    <!-- Botão de eliminar -->
-                    <button
-                      @click="eliminarDocumento(documento)"
-                      class="btn btn-danger"
-                    >
-                      Eliminar
-                    </button>
+                <tr v-for="documento in documentosReportados" :key="documento.numero_documento" class="hover-row-admin">
+                  <td class="ps-4" data-label="Nome" data-icon="person-circle">
+                    <span class="fw-semibold text-dark text-truncate-admin">{{ documento.nome_completo }}</span>
+                  </td>
+                  <td data-label="Tipo de Documento" data-icon="file-earmark">
+                    <span class="text-secondary text-truncate-admin">{{ documento.tipo_documento }}</span>
+                  </td>
+                  <td data-label="Número do Documento" data-icon="hash">
+                    <span class="text-secondary">{{ documento.numero_documento }}</span>
+                  </td>
+                  <td data-label="Contacto" data-icon="telephone">
+                    <span class="text-secondary">{{ documento.contacto }}</span>
+                  </td>
+                  <td data-label="Província" data-icon="geo-alt">
+                    <span class="text-secondary text-truncate-admin">{{ documento.provincia }}</span>
+                  </td>
+                  <td data-label="Data" data-icon="calendar">
+                    <span class="text-secondary">{{ documento.data_perda }}</span>
+                  </td>
+                  <td class="pe-4 text-end" data-label="Ações" data-icon="tools">
+                    <div class="d-flex justify-content-end gap-2 flex-wrap">
+                      <button @click="editarDocumento(documento)" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil-fill"></i> Editar
+                      </button>
+                      <button @click="eliminarDocumento(documento)" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash-fill"></i> Eliminar
+                      </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
             </table>
+          </div>
 
-            <!-- Modal para edição de documento -->
-            <div
-              v-if="isEditModalOpen"
-              class="modal fade show d-block"
-              tabindex="-1"
-              role="dialog"
-              aria-labelledby="editModalLabel"
-              aria-hidden="true"
-            >
-              <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">
-                      Editar Documento
-                    </h5>
-                    <button
-                      type="button"
-                      class="close"
-                      @click="fecharModal"
-                      aria-label="Close"
-                    >
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">
-                    <!-- Formulário de edição -->
-                    <form @submit.prevent="salvarEdicao">
-                      <div class="form-group">
-                        <label for="nome_completo">Nome Completo</label>
-                        <input
-                          v-model="documentoEditado.nome_completo"
-                          type="text"
-                          class="form-control"
-                          id="nome_completo"
-                          required
-                        />
-                      </div>
-                      <div class="form-group">
-                        <label for="tipo_documento">Tipo de Documento</label>
-                        <input
-                          v-model="documentoEditado.tipo_documento"
-                          type="text"
-                          class="form-control"
-                          id="tipo_documento"
-                          required
-                        />
-                      </div>
-                      <div class="form-group">
-                        <label for="numero_documento"
-                          >Número do Documento</label
-                        >
-                        <input
-                          v-model="documentoEditado.numero_documento"
-                          type="text"
-                          class="form-control"
-                          id="numero_documento"
-                          disabled
-                        />
-                      </div>
-                      <div class="form-group">
-                        <label for="provincia">Província</label>
-                        <input
-                          v-model="documentoEditado.provincia"
-                          type="text"
-                          class="form-control"
-                          id="provincia"
-                          required
-                        />
-                      </div>
-                      <div class="form-group">
-                        <label for="data_perda">Data da Perda</label>
-                        <input
-                          v-model="documentoEditado.data_perda"
-                          type="date"
-                          class="form-control"
-                          id="data_perda"
-                          required
-                        />
-                      </div>
-                      <button type="submit" class="btn btn-primary">
-                        Salvar
-                      </button>
-                    </form>
-                  </div>
+          <!-- Modal para edição de documento -->
+          <div v-if="isEditModalOpen" class="modal fade show d-block" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Editar Documento</h5>
+                  <button type="button" class="close" @click="fecharModal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <form @submit.prevent="salvarEdicao">
+                    <div class="form-group">
+                      <label for="nome_completo">Nome Completo</label>
+                      <input v-model="documentoEditado.nome_completo" type="text" class="form-control" id="nome_completo" required />
+                    </div>
+                    <div class="form-group">
+                      <label for="tipo_documento">Tipo de Documento</label>
+                      <input v-model="documentoEditado.tipo_documento" type="text" class="form-control" id="tipo_documento" required />
+                    </div>
+                    <div class="form-group">
+                      <label for="numero_documento">Número do Documento</label>
+                      <input v-model="documentoEditado.numero_documento" type="text" class="form-control" id="numero_documento" disabled />
+                    </div>
+                    <div class="form-group">
+                      <label for="provincia">Província</label>
+                      <input v-model="documentoEditado.provincia" type="text" class="form-control" id="provincia" required />
+                    </div>
+                    <div class="form-group">
+                      <label for="data_perda">Data da Perda</label>
+                      <input v-model="documentoEditado.data_perda" type="date" class="form-control" id="data_perda" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                  </form>
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- Nota explicativa -->
-            <div class="tab-pane fade show active">
-              <strong>Nota:</strong> Esta é a lista de documentos perdidos
-              registrados por alguém que os encontrou.
-            </div>
+          <div class="tab-pane fade show active">
+            <strong>Nota:</strong> Esta é a lista de documentos perdidos registrados por alguém que os encontrou.
           </div>
         </div>
 
-        <!-- Aba Documentos Proprietários -->
-        <div
-          v-if="activeTab === 'documentosProprietarios'"
-          class="tab-pane fade show active"
-          id="documentosProprietarios-tabs-simple"
-        >
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
+        <!-- Aba Documentos Proprietários - COM RESPONSIVIDADE MELHORADA -->
+        <div v-if="activeTab === 'documentosProprietarios'" class="tab-pane fade show active">
+          <div class="table-responsive shadow-sm rounded-4 bg-white mb-4">
+            <table class="table mb-0 align-middle custom-table-admin">
+              <thead class="bg-light">
                 <tr>
-                  <th>Nome</th>
-                  <th>Tipo de Documento</th>
-                  <th>Número do Documento</th>
-                  <th>Província</th>
-                  <th>Contacto</th>
-                  <th>Data</th>
-                  <th>Status</th>
+                  <th class="py-3 ps-4 border-0">Nome</th>
+                  <th class="py-3 border-0">Tipo de Documento</th>
+                  <th class="py-3 border-0">Número do Documento</th>
+                  <th class="py-3 border-0">Província</th>
+                  <th class="py-3 border-0">Contacto</th>
+                  <th class="py-3 border-0">Data</th>
+                  <th class="py-3 pe-4 text-end border-0">Status</th>
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="documento in documentosProprietarios"
-                  :key="documento.numero_documento"
-                  class="table-row"
-                >
-                  <td>{{ documento.nome_completo }}</td>
-                  <td>{{ documento.tipo_documento }}</td>
-                  <td>{{ documento.numero_documento }}</td>
-                  <td>{{ documento.provincia }}</td>
-                  <td>{{ documento.contacto }}</td>
-                  <td>{{ documento.data_perda }}</td>
-                  <td>
-                    <select
-                      v-model="documento.status"
-                      @change="atualizarStatus(documento)"
-                      class="form-select form-select-sm"
-                    >
+                <tr v-for="documento in documentosProprietarios" :key="documento.numero_documento" class="hover-row-admin">
+                  <td class="ps-4" data-label="Nome" data-icon="person-circle">
+                    <span class="fw-semibold text-dark text-truncate-admin">{{ documento.nome_completo }}</span>
+                  </td>
+                  <td data-label="Tipo de Documento" data-icon="file-earmark">
+                    <span class="text-secondary text-truncate-admin">{{ documento.tipo_documento }}</span>
+                  </td>
+                  <td data-label="Número do Documento" data-icon="hash">
+                    <span class="text-secondary">{{ documento.numero_documento }}</span>
+                  </td>
+                  <td data-label="Província" data-icon="geo-alt">
+                    <span class="text-secondary text-truncate-admin">{{ documento.provincia }}</span>
+                  </td>
+                  <td data-label="Contacto" data-icon="telephone">
+                    <span class="text-secondary">{{ documento.contacto }}</span>
+                  </td>
+                  <td data-label="Data" data-icon="calendar">
+                    <span class="text-secondary">{{ documento.data_perda }}</span>
+                  </td>
+                  <td class="pe-4 text-end" data-label="Status" data-icon="clipboard-check">
+                    <select v-model="documento.status" @change="atualizarStatus(documento)" class="form-select form-select-sm">
                       <option value="Pendente">Pendente</option>
                       <option value="Recuperado">Entregue</option>
                     </select>
@@ -974,11 +653,10 @@ const atualizarStatus = async (documento) => {
                 </tr>
               </tbody>
             </table>
-            <!-- Nota explicativa -->
-            <div class="tab-pane fade show active">
-              <strong>Nota:</strong> Esta é a lista de documentos perdidos
-              reportados pelos seus donos.
-            </div>
+          </div>
+
+          <div class="tab-pane fade show active">
+            <strong>Nota:</strong> Esta é a lista de documentos perdidos reportados pelos seus donos.
           </div>
         </div>
       </div>
@@ -987,6 +665,15 @@ const atualizarStatus = async (documento) => {
 </template>
 
 <style scoped>
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css");
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
+
+/* APLICANDO TIPOGRAFIA POPPINS GLOBALMENTE */
+* {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+/* Navegação */
 .custom-nav-admin {
   background: #f9fbf9;
   border-radius: 12px;
@@ -995,7 +682,7 @@ const atualizarStatus = async (documento) => {
 
 .custom-nav-admin .nav-link {
   color: #4b6043;
-  font-weight: 500;
+  font-weight: 700; /* Poppins Bold */
   border-radius: 8px;
   padding: 10px 12px;
   transition: all 0.3s ease;
@@ -1017,357 +704,72 @@ const atualizarStatus = async (documento) => {
   vertical-align: middle;
 }
 
-.nav-link {
-  transition: background-color 0.3s ease, color 0.3s ease;
-  /* Transição suave */
+/* Tabelas Admin - Design Moderno e Responsivo */
+.custom-table-admin {
+  font-family: 'Poppins', sans-serif;
 }
 
-.nav-link:hover {
-  background-color: #f0f0f0;
-  /* Cor de fundo ao passar o cursor */
-  color: #007bff;
-  /* Cor do texto ao passar o cursor */
+.custom-table-admin th {
+  font-weight: 900; /* Poppins Black */
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  color: #6c757d;
+  letter-spacing: 0.5px;
 }
 
-/* Estilo para os botões de navegação */
-.nav-link {
-  color: #800080;
-  /* Cor roxa para o texto da aba */
-  font-weight: 600;
-  border-radius: 30px;
-  padding: 12px 30px;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+.custom-table-admin td {
+  vertical-align: middle;
+  font-weight: 600; /* Poppins SemiBold */
 }
 
-.nav-link:hover {
-  background-color: #800080;
-  /* Cor roxa de fundo ao passar o mouse */
-  color: white;
-  /* Texto branco */
-  transform: scale(1.05);
-  /* Efeito de aumento no tamanho da aba ao passar o mouse */
+.hover-row-admin {
+  transition: all 0.3s ease;
 }
 
-.nav-link.active {
-  background-color: #6a006a;
-  /* Tom de roxo mais escuro para a aba ativa */
-  color: white;
+.hover-row-admin:hover {
+  background-color: #f8f9fa;
+  transform: translateX(4px);
 }
 
-.nav-link:focus {
-  outline: none;
-  /* Remove o contorno ao focar */
+/* Truncamento de textos longos */
+.text-truncate-admin {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
 }
 
-/* Cor roxa para os botões */
+/* Botões */
 .btn-purple {
   background-color: #800080;
-  /* Cor roxa */
   color: white;
   border-radius: 30px;
   border: none;
   padding: 15px 25px;
   font-size: 1.1rem;
+  font-weight: 700;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   width: 100%;
-  /* Garante que o botão tenha a mesma largura que os campos */
 }
 
 .btn-purple:hover {
   background-color: #6a006a;
-  /* Tom de roxo mais escuro */
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
   transform: scale(1.05);
-  /* Efeito de aumento no botão ao passar o mouse */
 }
 
-/* Estilo de zoom nos campos */
 .zoom-field {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .zoom-field:hover {
   transform: scale(1.05);
-  /* Aumenta o tamanho ao passar o mouse */
   box-shadow: 0 0 10px rgba(128, 0, 128, 0.3);
-  /* Sombra roxa suave */
 }
 
-/* Tabela */
-.table {
-  border-radius: 12px;
-  overflow: hidden;
-  border-collapse: separate;
-  border-spacing: 0 10px;
-}
-
-.table th,
-.table td {
-  text-align: center;
-  padding: 12px 20px;
-  font-size: 1rem;
-}
-
-.table th {
-  background-color: #800080;
-  color: white;
-  font-weight: bold;
-}
-
-.table tbody tr {
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  transition: transform 0.3s ease, background-color 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.table tbody tr:hover {
-  transform: scale(1.02);
-  /* Aumento suave ao passar o mouse */
-  background-color: #f1f1f1;
-  /* Cor suave de fundo */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  /* Sombra suave */
-}
-
-.table td {
-  font-size: 0.95rem;
-}
-
-/* Estilo das colunas de status */
-.text-success {
-  color: #28a745;
-  font-weight: bold;
-}
-
-.text-warning {
-  color: #ffc107;
-  font-weight: bold;
-}
-
-.text-danger {
-  color: #dc3545;
-  font-weight: bold;
-}
-
-/* Estilo do botão "Detalhes" */
-.btn-info {
-  background-color: #17a2b8;
-  color: white;
-  border-radius: 12px;
-  padding: 6px 12px;
-  font-size: 0.9rem;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.btn-info:hover {
-  background-color: #138496;
-  /* Tom mais escuro de azul */
-  transform: scale(1.05);
-  /* Aumento suave ao passar o mouse */
-}
-
-/* Estilos gerais de hover */
-.table td:hover {
-  cursor: pointer;
-  background-color: #f1f1f1;
-}
-
-/* Efeiro de erro de mensagem NOME COMPLETO */
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.05);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-.text-warning {
-  animation: pulse 1s infinite;
-  /* Adiciona o efeito de pulsar */
-}
-
-/* Efeiro de Mensagem de Envio e Erro  de Cadastro */
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    color: #28a745;
-    /* Cor padrão para sucesso */
-  }
-
-  50% {
-    transform: scale(1.05);
-    color: rgb(255, 255, 255);
-    /* Cor branco durante o pulsar */
-  }
-
-  100% {
-    transform: scale(1);
-    color: #28a745;
-    /* Retorna para a cor padrão */
-  }
-}
-
-@keyframes pulse-danger {
-  0% {
-    transform: scale(1);
-    color: #dc3545;
-    /* Cor padrão para erro */
-  }
-
-  50% {
-    transform: scale(1.05);
-    color: rgb(255, 255, 255);
-    /* Cor branco durante o pulsar */
-  }
-
-  100% {
-    transform: scale(1);
-    color: #dc3545;
-    /* Retorna para a cor padrão */
-  }
-}
-
-.alert-success {
-  animation: pulse 1s infinite;
-  /* Adiciona o efeito de pulsar para sucesso */
-}
-
-.alert-danger {
-  animation: pulse-danger 1s infinite;
-  /* Adiciona o efeito de pulsar para erro */
-}
-
-.animate-fade-in {
-  animation: fadeIn 1s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.shadow-sm {
-  box-shadow: 0 0.3125rem 0.625rem 0 #80008036 !important;
-}
-
-/* Estilo da mensagem motivacional com efeito de digitação */
-.mensagem-motivacional {
-  color: #856404;
-  font-style: italic;
-  font-size: 1rem;
-  margin-bottom: 5px;
-  overflow: hidden;
-  /* Esconde o texto até ser mostrado */
-  white-space: nowrap;
-  /* Impede quebra de linha */
-  border-right: 3px solid #856404;
-  /* Simula o cursor de digitação */
-  width: 0;
-  /* Inicializa o tamanho do texto como 0 */
-  animation: typing 6s steps(60) 1s forwards, blink 0.75s step-end infinite;
-  /* Animação de digitação */
-}
-
-/* Animação de digitação horizontal (para desktop) */
-@keyframes typing {
-  from {
-    width: 0;
-  }
-
-  to {
-    width: 100%;
-  }
-}
-
-/* Animação de piscada do cursor */
-@keyframes blink {
-  50% {
-    border-color: transparent;
-  }
-}
-
-/* Ajustes para telas menores (dispositivos móveis) */
-@media (max-width: 768px) {
-  .mensagem-motivacional {
-    font-size: 0.9rem;
-    /* Reduz o tamanho da fonte para dispositivos móveis */
-    width: auto;
-    /* Ajusta a largura automaticamente */
-    white-space: normal;
-    /* Permite que o texto quebre em várias linhas */
-    word-wrap: break-word;
-    /* Permite quebra de linha */
-    max-width: 90%;
-    /* Limita a largura para não ocupar toda a tela */
-    margin: 0 auto;
-    /* Centraliza o texto */
-    height: 0;
-    /* Inicializa altura como 0 */
-    animation: typingVertical 4s steps(60) 1s forwards,
-      blink 0.75s step-end infinite;
-    /* Animação de digitação vertical */
-  }
-}
-
-/* Efeito de digitação vertical (para dispositivos móveis) */
-@keyframes typingVertical {
-  from {
-    height: 0;
-  }
-
-  to {
-    height: 100%;
-  }
-}
-
-/* Ajustes para telas muito pequenas (smartphones com menos de 480px) */
-@media (max-width: 480px) {
-  .mensagem-motivacional {
-    font-size: 0.8rem;
-    /* Ajuste adicional para telas muito pequenas */
-  }
-}
-
-/* Classe de animação de zoom in e zoom out */
-.btn-zoom {
-  animation: zoomInOut 1.5s ease-in-out infinite;
-  /* Efeito de zoom contínuo */
-}
-
-/* Animação de zoom in e zoom out */
-@keyframes zoomInOut {
-  0% {
-    transform: scale(1);
-    /* Tamanho original */
-  }
-
-  50% {
-    transform: scale(1.1);
-    /* Aumenta o botão em 10% */
-  }
-
-  100% {
-    transform: scale(1);
-    /* Retorna ao tamanho original */
-  }
-}
-
+.borda-destacada,
 .borda-destacadanome {
   border: 2px solid #66bb6a;
   border-radius: 5px;
@@ -1375,16 +777,195 @@ const atualizarStatus = async (documento) => {
   outline: none;
 }
 
-.borda-destacada {
-  border: 1px solid #66bb6a;
-  border-radius: 5px;
-  padding: 10px;
-  outline: none;
+.borda-destacada:focus,
+.borda-destacadanome:focus {
+  border-color: #800080;
+  box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
 }
 
-.borda-destacada:focus {
-  border-color: #800080;
-  /* Roxo */
-  box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
+/* Labels */
+.form-label {
+  font-weight: 700 !important; /* Poppins Bold */
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Responsividade Mobile Completa */
+@media (max-width: 768px) {
+  .custom-table-admin thead {
+    display: none;
+  }
+
+  .custom-table-admin,
+  .custom-table-admin tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .custom-table-admin tr {
+    display: block;
+    margin-bottom: 1.25rem;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    background: white;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .custom-table-admin tr::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #800080 0%, #6a006a 100%);
+  }
+
+  .custom-table-admin td {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: none;
+    text-align: left !important;
+    position: relative;
+    gap: 0.75rem;
+  }
+
+  .custom-table-admin td::before {
+    content: '';
+    font-family: 'bootstrap-icons';
+    font-size: 1.1rem;
+    color: #667eea;
+    min-width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .custom-table-admin td[data-icon="person-circle"]::before {
+    content: '\f4da';
+  }
+
+  .custom-table-admin td[data-icon="envelope-fill"]::before {
+    content: '\f32f';
+  }
+
+  .custom-table-admin td[data-icon="file-earmark"]::before {
+    content: '\f341';
+  }
+
+  .custom-table-admin td[data-icon="hash"]::before {
+    content: '\f3f2';
+  }
+
+  .custom-table-admin td[data-icon="telephone"]::before {
+    content: '\f675';
+  }
+
+  .custom-table-admin td[data-icon="geo-alt"]::before {
+    content: '\f3d2';
+  }
+
+  .custom-table-admin td[data-icon="calendar"]::before {
+    content: '\f210';
+  }
+
+  .custom-table-admin td[data-icon="tools"]::before {
+    content: '\f698';
+  }
+
+  .custom-table-admin td[data-icon="clipboard-check"]::before {
+    content: '\f28d';
+  }
+
+  .custom-table-admin td > * {
+    flex: 1;
+  }
+
+  .custom-table-admin td[data-label="Nome"] {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    font-weight: 700;
+    font-size: 1.05rem;
+    padding: 1.25rem;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  .custom-table-admin td[data-label="Ações"],
+  .custom-table-admin td[data-label="Status"],
+  .custom-table-admin td[data-label="Ação"] {
+    background-color: #fafbfc;
+    padding: 1rem 1.25rem;
+    justify-content: center;
+  }
+
+  .custom-table-admin td[data-label="Ações"] .d-flex,
+  .custom-table-admin td[data-label="Ação"] .d-flex {
+    justify-content: center !important;
+    gap: 0.75rem;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .custom-table-admin td.ps-4 {
+    padding-left: 1.25rem !important;
+  }
+
+  .custom-table-admin td.pe-4 {
+    padding-right: 1.25rem !important;
+  }
+
+  .text-truncate-admin {
+    max-width: 100%;
+    white-space: normal;
+    word-break: break-word;
+  }
+}
+
+/* Outras animações e estilos mantidos */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.text-warning {
+  animation: pulse 1s infinite;
+}
+
+.alert-success {
+  animation: pulse 1s infinite;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 1s ease-in-out;
+}
+
+.mensagem-motivacional {
+  color: #856404;
+  font-style: italic;
+  font-size: 1rem;
+  margin-bottom: 5px;
+}
+
+.btn-zoom {
+  animation: zoomInOut 1.5s ease-in-out infinite;
+}
+
+@keyframes zoomInOut {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 </style>

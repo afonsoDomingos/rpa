@@ -1,99 +1,162 @@
 <template>
-  <div>
-    <input
-      v-model="filtro"
-      type="text"
-      placeholder="🔍 Filtrar por nome ou email"
-      class="form-control borda-destacada mb-3"
-    />
+  <div class="lista-usuarios-container">
+    <!-- Barra de Filtro e Contador -->
+    <div class="row align-items-center mb-4 g-3">
+      <div class="col-md-8">
+        <div class="search-bar position-relative">
+          <i class="bi bi-search search-icon"></i>
+          <input
+            v-model="filtro"
+            type="text"
+            placeholder="Pesquisar por nome ou email..."
+            class="form-control form-control-lg ps-5 shadow-sm border-0"
+          />
+        </div>
+      </div>
+      <div class="col-md-4 d-flex justify-content-md-end">
+        <transition name="scale" mode="out-in">
+          <div :key="'count-' + usuariosFiltrados.length" class="counter-badge">
+            <span class="text-uppercase">Total</span>
+            <span class="h4 mb-0 ms-2">{{ usuariosFiltrados.length }}</span>
+          </div>
+        </transition>
+      </div>
+    </div>
 
-    <div class="table-container">
-      <table class="custom-table">
-        <thead>
+    <!-- Loading State -->
+    <div v-if="carregando" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <p class="mt-2 text-muted">Carregando usuários...</p>
+    </div>
+
+    <!-- Tabela de Usuários -->
+    <div v-else class="table-responsive shadow-sm rounded-4 bg-white mb-4">
+      <table class="table mb-0 align-middle custom-table">
+        <thead class="bg-light">
           <tr>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Senha</th>
-            <th>Ações</th>
+            <th class="py-3 ps-4 border-0">Usuário</th>
+            <th class="py-3 border-0">Email</th>
+            <th class="py-3 border-0">Perfil</th>
+            <th class="py-3 border-0">Senha</th>
+            <th class="py-3 pe-4 text-end border-0">Ações</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="usuario in usuariosFiltradosPaginados" :key="usuario.id">
-            <td>
-              <input
-                v-if="editandoId === usuario.id"
-                v-model="usuarioEditando.nome"
-                type="text"
-                class="form-control borda-destacada"
-                required
-              />
-              <span v-else>{{ usuario.nome }}</span>
+          <tr v-if="usuariosFiltradosPaginados.length === 0">
+            <td colspan="5" class="text-center py-5 text-muted">
+              Nenhum usuário encontrado.
             </td>
-            <td>
-              <input
-                v-if="editandoId === usuario.id"
-                v-model="usuarioEditando.email"
-                type="email"
-                class="form-control borda-destacada"
-                required
-              />
-              <span v-else>{{ usuario.email }}</span>
+          </tr>
+          <tr
+            v-for="usuario in usuariosFiltradosPaginados"
+            :key="usuario.id"
+            class="hover-row transition-all"
+          >
+            <!-- Nome -->
+            <td class="ps-4" data-label="Nome" data-icon="person-circle">
+              <div v-if="editandoId === usuario.id" class="animate-fade-in">
+                <input
+                  v-model="usuarioEditando.nome"
+                  type="text"
+                  class="form-control form-control-sm"
+                  placeholder="Nome do usuário"
+                />
+              </div>
+              <div v-else class="d-flex align-items-center gap-2">
+                <div class="avatar-circle" :style="{ backgroundColor: getAvatarColor(usuario.nome) }">
+                  {{ usuario.nome.charAt(0).toUpperCase() }}
+                </div>
+                <span class="fw-semibold text-dark">{{ usuario.nome }}</span>
+              </div>
             </td>
-            <td>
-              <select
-                v-if="editandoId === usuario.id"
-                v-model="usuarioEditando.role"
-                class="form-select borda-destacada"
+
+            <!-- Email -->
+            <td data-label="Email" data-icon="envelope-fill">
+              <div v-if="editandoId === usuario.id" class="animate-fade-in">
+                <input
+                  v-model="usuarioEditando.email"
+                  type="email"
+                  class="form-control form-control-sm"
+                />
+              </div>
+              <span v-else class="text-secondary">{{ usuario.email }}</span>
+            </td>
+
+            <!-- Role -->
+            <td data-label="Perfil" data-icon="shield-fill-check">
+              <div v-if="editandoId === usuario.id" class="animate-fade-in">
+                <select v-model="usuarioEditando.role" class="form-select form-select-sm">
+                  <option value="cliente">Cliente</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <span
+                v-else
+                class="badge rounded-pill px-3 py-2"
+                :class="usuario.role === 'admin' ? 'bg-primary-subtle text-primary' : 'bg-success-subtle text-success'"
               >
-                <option value="cliente">Cliente</option>
-                <option value="admin">Admin</option>
-              </select>
-              <span v-else>{{ usuario.role }}</span>
+                <i class="bi" :class="usuario.role === 'admin' ? 'bi-star-fill' : 'bi-person-fill'"></i>
+                {{ usuario.role.toUpperCase() }}
+              </span>
             </td>
-            <td>
-              <div v-if="editandoId === usuario.id">
+
+            <!-- Senha -->
+            <td data-label="Senha" data-icon="key-fill">
+              <div v-if="editandoId === usuario.id" class="d-flex align-items-center gap-2 animate-fade-in">
                 <input
                   :type="senhaVisivel ? 'text' : 'password'"
                   v-model="usuarioEditando.senha"
-                  class="form-control borda-destacada"
-                  placeholder="Nova senha"
+                  class="form-control form-control-sm"
+                  placeholder="Nova senha (opcional)"
                 />
                 <button
                   type="button"
-                  class="btn btn-sm btn-outline-secondary mt-1"
+                  class="btn btn-link p-0 text-decoration-none text-muted"
                   @click="senhaVisivel = !senhaVisivel"
                 >
-                  {{ senhaVisivel ? "Ocultar" : "Mostrar" }}
+                  <i class="bi" :class="senhaVisivel ? 'bi-eye-slash-fill' : 'bi-eye-fill'"></i>
                 </button>
               </div>
-              <span v-else>••••••••</span>
+              <span v-else class="text-muted tracking-widest">••••••••</span>
             </td>
-            <td>
-              <div class="d-flex gap-2 flex-wrap">
+
+            <!-- Ações -->
+            <td class="pe-4 text-end" data-label="Ações" data-icon="tools">
+              <div class="d-flex justify-content-end gap-2 flex-wrap">
                 <template v-if="editandoId === usuario.id">
-                  <button class="btn btn-success btn-sm" @click="salvarEdicao">
-                    💾 Salvar
+                  <button
+                    class="btn btn-success btn-sm d-flex align-items-center gap-1 shadow-sm"
+                    @click="salvarEdicao"
+                    title="Salvar"
+                  >
+                    <i class="bi bi-check-lg"></i>
+                    <span class="d-none d-md-inline">Salvar</span>
                   </button>
                   <button
-                    class="btn btn-warning btn-sm"
+                    class="btn btn-secondary btn-sm d-flex align-items-center gap-1 shadow-sm"
                     @click="cancelarEdicao"
+                    title="Cancelar"
                   >
-                    ❌ Cancelar
+                    <i class="bi bi-x-lg"></i>
+                    <span class="d-none d-md-inline">Cancelar</span>
                   </button>
                 </template>
                 <template v-else>
                   <button
-                    class="btn btn-outline-primary btn-sm"
+                    class="btn btn-outline-primary btn-sm border-0 bg-primary-subtle text-primary hover-scale"
                     @click="editarUsuario(usuario)"
+                    title="Editar"
                   >
-                    ✏️ Editar
+                    <i class="bi bi-pencil-fill"></i>
                   </button>
                   <button
-                    class="btn btn-outline-danger btn-sm"
+                    class="btn btn-outline-danger btn-sm border-0 bg-danger-subtle text-danger hover-scale"
                     @click="excluirUsuario(usuario.id)"
+                    title="Excluir"
                   >
-                    🗑️ Excluir
+                    <i class="bi bi-trash-fill"></i>
                   </button>
                 </template>
               </div>
@@ -101,152 +164,128 @@
           </tr>
         </tbody>
       </table>
-    </div>
-    <!-- Coloque logo abaixo do input -->
-    <transition name="contador-animado" mode="out-in">
-      <div
-        key="count-{{ usuariosFiltrados.length }}"
-        class="contador-usuarios mb-3"
-      >
-        <span>Usuários encontrados:</span>
-        <strong>{{ usuariosFiltrados.length }}</strong>
+
+      <!-- Paginação (dentro do card) -->
+      <div class="d-flex justify-content-end align-items-center p-3 border-top">
+         <div class="pagination-container d-flex align-items-center gap-2">
+          <button
+            class="btn btn-light rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center"
+            style="width: 36px; height: 36px"
+            @click="paginaAtual--"
+            :disabled="paginaAtual === 1"
+          >
+            <i class="bi bi-chevron-left small"></i>
+          </button>
+          <span class="fw-semibold text-muted font-monospace small px-2">
+            Pág. {{ paginaAtual }} / {{ totalPaginas || 1 }}
+          </span>
+          <button
+            class="btn btn-light rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center"
+            style="width: 36px; height: 36px"
+            @click="paginaAtual++"
+            :disabled="paginaAtual === totalPaginas || totalPaginas === 0"
+          >
+            <i class="bi bi-chevron-right small"></i>
+          </button>
+        </div>
       </div>
-    </transition>
-
-    <div class="d-flex justify-content-between align-items-center mt-3">
-      <button
-        class="btn btn-secondary btn-sm"
-        @click="paginaAtual--"
-        :disabled="paginaAtual === 1"
-      >
-        ◀ Anterior
-      </button>
-      <span class="fw-bold"
-        >Página {{ paginaAtual }} de {{ totalPaginas }}</span
-      >
-      <button
-        class="btn btn-secondary btn-sm"
-        @click="paginaAtual++"
-        :disabled="paginaAtual === totalPaginas"
-      >
-        Próxima ▶
-      </button>
     </div>
 
-    <!-- Mensagens de feedback -->
-    <transition name="fade">
-      <div
-        v-if="mensagem"
-        :class="[
-          'alert',
-          tipoMensagem === 'sucesso' ? 'alert-success' : 'alert-danger',
-        ]"
-        class="mt-3"
-        role="alert"
-      >
-        {{ mensagem }}
+    <!-- Gráfico de Crescimento -->
+    <GraficoUsuarios :total="usuarios.length" />
+
+    <!-- Mensagens de feedback (Toast) -->
+    <transition name="toast">
+      <div v-if="mensagem" class="custom-toast" :class="tipoMensagem">
+        <i class="bi" :class="tipoMensagem === 'sucesso' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+        <span>{{ mensagem }}</span>
       </div>
     </transition>
   </div>
 </template>
+
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import api from "../api";
+import GraficoUsuarios from "./GraficoUsuarios.vue";
 
 const props = defineProps(["atualizar"]);
 
+// Estados
 const usuarios = ref([]);
 const filtro = ref("");
 const paginaAtual = ref(1);
 const porPagina = 5;
+const carregando = ref(false);
 
 const editandoId = ref(null);
-const usuarioEditando = ref({
-  nome: "",
-  email: "",
-  role: "",
-  senha: "",
-});
+const usuarioEditando = ref({ nome: "", email: "", role: "", senha: "" });
 const senhaVisivel = ref(false);
 
 // Notificações
 const mensagem = ref("");
 const tipoMensagem = ref(""); // 'sucesso' ou 'erro'
+
 const mostrarMensagem = (msg, tipo = "sucesso") => {
   mensagem.value = msg;
   tipoMensagem.value = tipo;
-  setTimeout(() => {
-    mensagem.value = "";
-  }, 4000);
+  setTimeout(() => (mensagem.value = ""), 4000);
 };
 
+// Função para gerar cores de avatar baseadas no nome
+const getAvatarColor = (nome) => {
+  const colors = [
+    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+    'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+    'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+    'linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%)',
+  ];
+  const index = nome.charCodeAt(0) % colors.length;
+  return colors[index];
+};
+
+// Ações
 const buscarUsuarios = async () => {
+  carregando.value = true;
   try {
     const token = localStorage.getItem("token");
-    if (!token) {
-      mostrarMensagem("Token não encontrado. Faça login novamente.", "erro");
-      return;
-    }
+    if (!token) throw new Error("Token não encontrado.");
 
     const { data } = await api.get("/auth/usuarios", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    // Mapeia cada usuário, adicionando o id baseado no _id do Mongo
-    usuarios.value = data.map((usuario) => ({
-      ...usuario,
-      id: usuario.id,
-    }));
-
-    console.log("Usuários recebidos e mapeados:", usuarios.value);
+    usuarios.value = data.map((u) => ({ ...u, id: u.id }));
   } catch (err) {
-    console.error(
-      "Erro ao buscar usuários:",
-      err.response?.data || err.message
-    );
-    mostrarMensagem(
-      "Erro ao buscar usuários: " + (err.response?.data?.msg || err.message),
-      "erro"
-    );
+    mostrarMensagem(err.response?.data?.msg || err.message, "erro");
+  } finally {
+    carregando.value = false;
   }
 };
 
 const editarUsuario = (usuario) => {
   editandoId.value = usuario.id;
-  usuarioEditando.value = {
-    nome: usuario.nome,
-    email: usuario.email,
-    role: usuario.role,
-    senha: "",
-  };
+  usuarioEditando.value = { ...usuario, senha: "" };
   senhaVisivel.value = false;
 };
 
 const cancelarEdicao = () => {
   editandoId.value = null;
   usuarioEditando.value = { nome: "", email: "", role: "", senha: "" };
-  senhaVisivel.value = false;
 };
 
 const salvarEdicao = async () => {
-  if (!editandoId.value) {
-    mostrarMensagem("ID do usuário não definido.", "erro");
-    return;
-  }
-
   try {
     const token = localStorage.getItem("token");
-    if (!token) {
-      mostrarMensagem("Token não encontrado. Faça login novamente.", "erro");
-      return;
-    }
-
     const payload = {
       nome: usuarioEditando.value.nome,
       email: usuarioEditando.value.email,
       role: usuarioEditando.value.role,
     };
-
     if (usuarioEditando.value.senha?.trim()) {
       payload.senha = usuarioEditando.value.senha;
     }
@@ -255,50 +294,30 @@ const salvarEdicao = async () => {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    mostrarMensagem("Usuário atualizado com sucesso.", "sucesso");
+    mostrarMensagem("Usuário atualizado!", "sucesso");
     cancelarEdicao();
     buscarUsuarios();
   } catch (error) {
-    console.error(
-      "Erro ao salvar edição:",
-      error.response?.data || error.message
-    );
-    mostrarMensagem(
-      "Falha ao salvar usuário: " +
-        (error.response?.data?.msg || error.message),
-      "erro"
-    );
+    mostrarMensagem("Erro ao atualizar: " + (error.response?.data?.msg || error.message), "erro");
   }
 };
 
 const excluirUsuario = async (id) => {
-  if (confirm(`Tem certeza que deseja excluir o usuário com ID: ${id}?`)) {
+  if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
+  
+  try {
     const token = localStorage.getItem("token");
-    if (!token) {
-      mostrarMensagem("Token não encontrado. Faça login novamente.", "erro");
-      return;
-    }
-
-    try {
-      await api.delete(`/auth/usuarios/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      mostrarMensagem("Usuário excluído com sucesso.", "sucesso");
-      buscarUsuarios();
-    } catch (error) {
-      console.error(
-        "Erro ao excluir usuário:",
-        error.response?.data || error.message
-      );
-      mostrarMensagem(
-        "Erro ao excluir usuário: " +
-          (error.response?.data?.msg || "Erro desconhecido"),
-        "erro"
-      );
-    }
+    await api.delete(`/auth/usuarios/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    mostrarMensagem("Usuário removido.", "sucesso");
+    buscarUsuarios();
+  } catch (error) {
+    mostrarMensagem("Erro ao excluir: " + (error.response?.data?.msg || "Erro desconhecido"), "erro");
   }
 };
 
+// Lógica Computada
 const usuariosFiltrados = computed(() =>
   usuarios.value.filter(
     (u) =>
@@ -307,182 +326,447 @@ const usuariosFiltrados = computed(() =>
   )
 );
 
-const totalPaginas = computed(() =>
-  Math.ceil(usuariosFiltrados.value.length / porPagina)
-);
+const totalPaginas = computed(() => Math.ceil(usuariosFiltrados.value.length / porPagina));
 
 const usuariosFiltradosPaginados = computed(() => {
   const inicio = (paginaAtual.value - 1) * porPagina;
   return usuariosFiltrados.value.slice(inicio, inicio + porPagina);
 });
 
-watch(filtro, () => {
-  paginaAtual.value = 1;
-});
-
-watch(totalPaginas, (novo) => {
-  paginaAtual.value = Math.min(paginaAtual.value, novo || 1);
-});
+// Watchers
+watch(filtro, () => (paginaAtual.value = 1));
+watch(() => props.atualizar, buscarUsuarios);
 
 onMounted(buscarUsuarios);
-watch(() => props.atualizar, buscarUsuarios);
 </script>
+
 <style scoped>
-/* Estilo base da borda */
-.borda-destacada {
-  border: 1px solid #66bb6a;
-  border-radius: 5px;
-  padding: 10px;
-  outline: none;
-}
-.borda-destacada:focus {
-  border-color: #800080;
-  box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css");
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap');
+
+/* Container Geral */
+.lista-usuarios-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  font-family: 'Poppins', sans-serif;
 }
 
-/* Tabela estilizada */
-.table-container {
-  overflow-x: auto;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* Pesquisa */
+.search-icon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #adb5bd;
 }
 
-.custom-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: #fff;
+.search-bar input {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
-.custom-table thead {
-  background-color: #66bb6a;
-  color: white;
+
+.search-bar input:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
 }
-.custom-table th,
+
+/* Tabela */
+.custom-table th {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  color: #6c757d;
+  letter-spacing: 0.5px;
+}
+
 .custom-table td {
-  padding: 12px 16px;
-  text-align: left;
-  border-bottom: 1px solid #e0e0e0;
-}
-.custom-table tr:last-child td {
-  border-bottom: none;
-}
-.custom-table tbody tr:hover {
-  background-color: #f9f9f9;
+  vertical-align: middle;
+  font-family: 'Poppins', sans-serif; 
 }
 
-/* Alertas bonitos */
-.alert {
-  transition: opacity 0.5s ease;
-  padding: 12px 18px;
-  border-radius: 6px;
-  font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-}
-.alert-success {
-  background-color: #e0f7e9;
-  color: #2e7d32;
-  border: 1px solid #a5d6a7;
-}
-.alert-danger {
-  background-color: #fdecea;
-  color: #c62828;
-  border: 1px solid #ef9a9a;
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transition: transform 0.3s ease;
+  flex-shrink: 0; /* Previne que o avatar encolha */
 }
 
-/* Animação */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+.avatar-circle:hover {
+  transform: scale(1.1);
 }
 
-/* Outros */
-.gap-2 {
-  gap: 0.5rem;
+/* Truncamento de textos longos - Desktop */
+.custom-table td[data-label="Nome"] .fw-semibold {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* Estilo responsivo para tabela */
+.custom-table td[data-label="Email"] .text-secondary {
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.hover-row {
+  transition: all 0.3s ease;
+}
+
+.hover-row:hover {
+  background-color: #f8f9fa;
+  transform: translateX(4px);
+}
+
+.hover-scale {
+  transition: transform 0.2s;
+}
+.hover-scale:hover {
+  transform: scale(1.15);
+}
+
+/* Badge Contador Estilizado */
+.counter-badge {
+  background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.counter-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(46, 125, 50, 0.3);
+}
+
+.counter-badge span:first-child {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 0.75rem;
+  opacity: 0.9;
+  letter-spacing: 1px;
+}
+
+.counter-badge .h4 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 900;
+  color: white !important;
+  font-size: 1.5rem;
+}
+
+/* Badges de perfil melhorados */
+.badge {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Toasts */
+.custom-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1100;
+}
+.sucesso { background-color: #2e7d32; }
+.erro { background-color: #d32f2f; }
+
+/* Animações */
+.toast-enter-active, .toast-leave-active { transition: all 0.5s ease; }
+.toast-enter-from, .toast-leave-to { opacity: 0; transform: translateY(20px); }
+
+/* Responsividade Mobile - Design Criativo e Moderno */
 @media (max-width: 768px) {
-  .custom-table thead {
-    display: none;
+  .lista-usuarios-container {
+    padding: 0.5rem;
   }
 
+  .custom-table thead { 
+    display: none; 
+  }
+  
   .custom-table,
-  .custom-table tbody,
-  .custom-table tr,
-  .custom-table td {
+  .custom-table tbody {
     display: block;
     width: 100%;
   }
-
+  
   .custom-table tr {
-    margin-bottom: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    padding: 10px;
-    background: #fff;
+    display: block;
+    margin-bottom: 1.25rem;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    background: white;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    animation: slideInUp 0.4s ease-out;
+    transition: all 0.3s ease;
+  }
+
+  .custom-table tr:hover {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+  }
+
+  /* Gradiente decorativo no topo do card */
+  .custom-table tr::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
   }
 
   .custom-table td {
-    padding: 10px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border: none;
+    text-align: left !important;
     position: relative;
-    text-align: left;
-    border-bottom: none;
+    min-height: auto;
+    gap: 0.75rem;
   }
 
+  /* Ícones contextuais antes de cada campo */
   .custom-table td::before {
-    content: attr(data-label);
-    font-weight: bold;
-    color: #555;
-    display: block;
-    margin-bottom: 4px;
+    content: '';
+    font-family: 'bootstrap-icons';
+    font-size: 1.1rem;
+    color: #667eea;
+    min-width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .d-flex {
-    flex-direction: column !important;
-    align-items: flex-start !important;
+  .custom-table td[data-icon="person-circle"]::before {
+    content: '\f4da'; /* person-circle */
+  }
+
+  .custom-table td[data-icon="envelope-fill"]::before {
+    content: '\f32f'; /* envelope-fill */
+  }
+
+  .custom-table td[data-icon="shield-fill-check"]::before {
+    content: '\f565'; /* shield-fill-check */
+  }
+
+  .custom-table td[data-icon="key-fill"]::before {
+    content: '\f424'; /* key-fill */
+  }
+
+  .custom-table td[data-icon="tools"]::before {
+    content: '\f698'; /* tools */
+  }
+
+  /* Wrapper para conteúdo */
+  .custom-table td > * {
+    flex: 1;
+  }
+
+  /* Primeira linha com destaque (nome) */
+  .custom-table td[data-label="Nome"] {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    font-weight: 600;
+    font-size: 1.05rem;
+    padding: 1.25rem;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  .custom-table td[data-label="Nome"] .d-flex {
+    margin: 0;
+    max-width: 100%;
+  }
+
+  .custom-table td[data-label="Nome"] .fw-semibold {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: calc(100% - 60px); /* Espaço para o avatar */
+  }
+
+  .custom-table td[data-label="Email"] {
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.9rem;
+    color: #6c757d;
+  }
+
+  .custom-table td[data-label="Email"] .text-secondary,
+  .custom-table td[data-label="Email"] input {
+    word-break: break-all;
+    overflow-wrap: break-word;
+    max-width: 100%;
+  }
+
+  .custom-table td[data-label="Perfil"] {
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .custom-table td[data-label="Perfil"] .badge {
+    display: inline-flex;
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .custom-table td[data-label="Senha"] {
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .custom-table td[data-label="Ações"] {
+    background-color: #fafbfc;
+    padding: 1rem 1.25rem;
+    justify-content: center;
+  }
+
+  .custom-table td[data-label="Ações"] .d-flex {
+    justify-content: center !important;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .custom-table td[data-label="Ações"] .btn {
+    flex: 1;
+    max-width: 120px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+  }
+
+  /* Remove padding extra no mobile */
+  .custom-table td.ps-4 { 
+    padding-left: 1.25rem !important; 
+  }
+  
+  .custom-table td.pe-4 { 
+    padding-right: 1.25rem !important; 
+  }
+
+  /* Avatar maior e mais bonito no mobile */
+  .avatar-circle {
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  /* Ajusta inputs e selects no modo de edição mobile */
+  .custom-table td input.form-control-sm,
+  .custom-table td select.form-select-sm {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 8px;
+  }
+
+  /* Contador badge responsivo */
+  .counter-badge {
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .counter-badge .h4 {
+    font-size: 1.25rem;
+  }
+
+  /* Search bar mobile */
+  .search-bar input {
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+  }
+
+  /* Animação de entrada dos cards */
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Paginação mobile */
+  .pagination-container {
+    width: 100%;
+    justify-content: center !important;
+  }
+
+  .pagination-container button {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .pagination-container span {
+    font-size: 0.85rem;
+    padding: 0 1rem;
   }
 }
 
-.contador-usuarios {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #e0f7e9; /* verde clarinho */
-  color: #2e7d32; /* verde escuro */
-  font-weight: 600;
-  padding: 8px 14px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.2);
-  font-size: 1.1rem;
-  user-select: none;
-  transition: background-color 0.3s ease;
+/* Tablet - Ajustes intermediários */
+@media (min-width: 769px) and (max-width: 991px) {
+  .custom-table th,
+  .custom-table td {
+    font-size: 0.9rem;
+    padding: 0.75rem !important;
+  }
+
+  .avatar-circle {
+    width: 36px;
+    height: 36px;
+    font-size: 0.95rem;
+  }
 }
 
-.contador-usuarios strong {
-  font-size: 1.4rem;
-  color: #145214;
+/* Animação scale para contador */
+.scale-enter-active,
+.scale-leave-active {
+  transition: all 0.3s ease;
 }
 
-/* Animação fade + scale */
-.contador-animado-enter-active,
-.contador-animado-leave-active {
-  transition: all 0.4s ease;
-  position: relative;
-  display: inline-block;
-}
-.contador-animado-enter-from,
-.contador-animado-leave-to {
+.scale-enter-from,
+.scale-leave-to {
   opacity: 0;
   transform: scale(0.8);
 }
-.contador-animado-enter-to,
-.contador-animado-leave-from {
+
+.scale-enter-to,
+.scale-leave-from {
   opacity: 1;
   transform: scale(1);
 }
