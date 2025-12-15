@@ -55,11 +55,11 @@
       <!-- TOGGLER -->
       <button
         class="navbar-toggler shadow-none ms-2"
+        :class="{ collapsed: !isMenuOpen }"
         type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navigation"
+        @click="toggleNavbar"
         aria-controls="navigation"
-        aria-expanded="false"
+        :aria-expanded="isMenuOpen"
         aria-label="Toggle navigation"
       >
         <span class="navbar-toggler-icon mt-2">
@@ -371,8 +371,36 @@ import olhodedeus from "./olhodedeus.vue"; // Componente do olho
 const dropdownMenu = ref(null);
 const navbarCollapse = ref(null);
 const hovering = ref(false); // hover do olho/logo
+const isMenuOpen = ref(false);
 
-// Fecha dropdown e menu mobile
+onMounted(() => {
+  buscarUsuario();
+
+  // Fecha menu ao clicar em qualquer link
+  nextTick(() => {
+    document
+      .querySelectorAll(".nav-link, .dropdown-item, .btn-assinatura")
+      .forEach((el) => {
+        el.addEventListener("click", (e) => {
+          // Se for um toggle de dropdown, não fechar o menu mobile
+          if (el.getAttribute("data-bs-toggle") === "dropdown") return;
+
+          const collapse = bootstrap.Collapse.getInstance(navbarCollapse.value);
+          if (collapse) collapse.hide();
+        });
+      });
+      
+    // Sincronizar estado do menu com a variável reativa para o ícone do botão
+    if (navbarCollapse.value) {
+      navbarCollapse.value.addEventListener("show.bs.collapse", () => {
+        isMenuOpen.value = true;
+      });
+      navbarCollapse.value.addEventListener("hide.bs.collapse", () => {
+        isMenuOpen.value = false;
+      });
+    }
+  });
+});
 function fecharDropdown() {
   const dropdown = bootstrap.Dropdown.getInstance(
     dropdownMenu.value?.parentElement
@@ -423,24 +451,18 @@ const buscarUsuario = async () => {
   }
 };
 
-onMounted(() => {
-  buscarUsuario();
 
-  // Fecha menu ao clicar em qualquer link
-  nextTick(() => {
-    document
-      .querySelectorAll(".nav-link, .dropdown-item, .btn-assinatura")
-      .forEach((el) => {
-        el.addEventListener("click", (e) => {
-          // Se for um toggle de dropdown, não fechar o menu mobile
-          if (el.getAttribute("data-bs-toggle") === "dropdown") return;
 
-          const collapse = bootstrap.Collapse.getInstance(navbarCollapse.value);
-          if (collapse) collapse.hide();
-        });
-      });
-  });
-});
+// Correção para o botão toggler (X) fechar o menu no mobile
+const toggleNavbar = () => {
+  if (navbarCollapse.value) {
+    const collapse = new bootstrap.Collapse(navbarCollapse.value, {
+      toggle: false, // Não inicializa togglando
+    });
+    collapse.toggle();
+  }
+};
+
 
 const goToCadastrar = () => {
   eventBus.emit("changeTab", "cadastrar");
