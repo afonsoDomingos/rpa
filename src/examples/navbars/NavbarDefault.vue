@@ -77,7 +77,7 @@
       >
         <ul class="navbar-nav navbar-nav-hover ms-auto">
           <!-- ==== PÁGINAS ==== -->
-          <li class="nav-item dropdown mx-2">
+          <li class="nav-item dropdown dropdown-hover mx-2">
             <a
               role="button"
               class="nav-link ps-2 d-flex cursor-pointer align-items-center borda-destacada"
@@ -264,7 +264,7 @@
           </li>
 
           <!-- ==== FERRAMENTAS ==== -->
-          <li class="nav-item dropdown mx-2">
+          <li class="nav-item dropdown dropdown-hover mx-2">
             <a
               role="button"
               class="nav-link ps-2 d-flex cursor-pointer align-items-center"
@@ -431,7 +431,10 @@ onMounted(() => {
     document
       .querySelectorAll(".nav-link, .dropdown-item, .btn-assinatura")
       .forEach((el) => {
-        el.addEventListener("click", () => {
+        el.addEventListener("click", (e) => {
+          // Se for um toggle de dropdown, não fechar o menu mobile
+          if (el.getAttribute("data-bs-toggle") === "dropdown") return;
+
           const collapse = bootstrap.Collapse.getInstance(navbarCollapse.value);
           if (collapse) collapse.hide();
         });
