@@ -399,3 +399,46 @@ onUnmounted(() => {
   transform: scale(1.2) rotate(-15deg);
 }
 </style>
+
+<style>
+/* Global overrides for Material Icons to ensure they load from CDN */
+.material-icons,
+.material-icons-round,
+.material-icons-outlined,
+.material-icons-sharp,
+.material-icons-two-tone {
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;  /* Preferred icon size */
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Support for IE. */
+  font-feature-settings: 'liga';
+}
+
+.material-icons {
+  font-family: 'Material Icons' !important;
+}
+
+.material-icons-round {
+  font-family: 'Material Icons Round' !important;
+}
+
+.material-icons-outlined {
+  font-family: 'Material Icons Outlined' !important;
+}
+</style>

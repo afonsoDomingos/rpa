@@ -6,14 +6,15 @@ import i18n from "./i18n";
 
 // Bootstrap CSS + JS
 import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
+window.bootstrap = bootstrap;
 
 // Font Awesome
 import "@fortawesome/fontawesome-free/css/all.css";
 import "@fortawesome/fontawesome-free/js/all.js";
 
-// Material Icons
-import "material-icons/iconfont/material-icons.css";
+// Bootstrap Icons
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 // Nucleo Icons
 import "./assets/css/nucleo-icons.css";

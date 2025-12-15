@@ -87,7 +87,7 @@
               aria-expanded="false"
             >
               <i
-                class="material-icons opacity-6 me-2 text-md"
+                class="material-icons-round opacity-6 me-2 text-md"
                 :class="getTextColor()"
                 >dashboard</i
               >
@@ -162,7 +162,7 @@
               aria-expanded="false"
             >
               <i
-                class="material-icons opacity-6 me-2 text-md rotatable-profile"
+                class="material-icons-round opacity-6 me-2 text-md rotatable-profile"
                 :class="getTextColor()"
                 >person</i
               >
@@ -258,7 +258,7 @@
               class="nav-link d-flex cursor-pointer align-items-center"
               @click="fecharDropdown"
             >
-              <i class="material-icons opacity-6 me-2 text-md">person</i>
+              <i class="material-icons-round opacity-6 me-2 text-md">person</i>
               Entrar
             </router-link>
           </li>
@@ -448,18 +448,9 @@ const goToCadastrar = () => {
 };
 
 const navegarParaAdminAnuncios = () => {
-  console.log("Tentando navegar para AdminAnuncios");
-  console.log("Usuário:", usuario.value);
-  console.log("Role:", usuario.value?.role);
-  
   router.push({ name: 'AdminAnuncios' })
-    .then(() => {
-      console.log("Navegação bem-sucedida para AdminAnuncios");
-      fecharDropdown();
-    })
-    .catch((error) => {
-      console.error("Erro ao navegar para AdminAnuncios:", error);
-    });
+    .then(() => fecharDropdown())
+    .catch((error) => console.error("Erro ao navegar:", error));
 };
 
 const props = defineProps({
