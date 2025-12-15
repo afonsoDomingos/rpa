@@ -387,6 +387,20 @@
     </div>
   </transition>
 
+  <!-- Toast de Notificação -->
+  <transition name="slide-fade">
+    <div v-if="showToast" class="toast-notification" @click="scrollToTop">
+      <div class="toast-content">
+        <div class="toast-icon">
+          <i class="bi bi-bell-fill"></i>
+        </div>
+        <div class="toast-text">
+          {{ toastMessage }}
+        </div>
+      </div>
+    </div>
+  </transition>
+
   <FooterDefault />
 </template>
 
@@ -411,6 +425,10 @@ const showSupportModal = ref(false);
 // Share Logic
 const showShareModal = ref(false);
 const postToShare = ref(null);
+
+// Toast Notifications
+const showToast = ref(false);
+const toastMessage = ref("");
 
 // Gestão de Imagens
 const fileInput = ref(null);
@@ -441,6 +459,13 @@ socket.on("disconnect", () =>
 
 socket.on("novoPost", (post) => {
   posts.value.unshift({ ...post, showReplies: false, newReply: "" });
+  
+  // Notificar se não fui eu quem postou
+  if (post.autor?._id !== usuario.value?._id) {
+    const nomeAutor = post.autor?.nome || "Alguém";
+    showToastNotification(`Novo post de ${nomeAutor}`);
+  }
+
   if (post.autor?._id !== "685bff7d1b6abc16c490af52") {
     pensandoEm.value = post._id;
     setTimeout(() => {
@@ -675,6 +700,22 @@ const closeShareModal = () => {
   postToShare.value = null;
 };
 
+
+
+// --- Toast Logic ---
+const showToastNotification = (msg) => {
+  toastMessage.value = msg;
+  showToast.value = true;
+  setTimeout(() => {
+    showToast.value = false;
+  }, 4000);
+};
+
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  showToast.value = false;
+};
+
 const shareTo = (platform) => {
   if (!postToShare.value) return;
   
@@ -722,9 +763,10 @@ const formatTime = (timestamp) => {
   return `${days}d`;
 };
 
-onMounted(async () => {
-  await buscarUsuario();
-  await carregarPosts();
+onMounted(() => {
+  buscarUsuario();
+  carregarPosts();
+  socket.connect();
 });
 
 onBeforeUnmount(() => socket.disconnect());
@@ -1346,4 +1388,82 @@ onBeforeUnmount(() => socket.disconnect());
 .btn-share.twitter { background-color: #000000; }
 .btn-share.copy { background-color: #6c757d; }
 
+/* Toast Notification */
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  cursor: pointer;
+}
+
+.toast-content {
+  background: white;
+  padding: 12px 20px;
+  border-radius: 50px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-left: 4px solid #9b59b6;
+}
+
+.toast-icon {
+  background: #f3e5f5;
+  color: #9b59b6;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast-text {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Melhorias na UI de Respostas */
+.replies-section {
+  background: #fdfbf7; /* Tom ligeiramente quente/cinza */
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 12px;
+  border: 1px solid #f0f0f0;
+}
+
+.reply-card {
+  background: white;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  border: 1px solid #f9f9f9;
+}
+
+.reply-input {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  padding: 10px 16px;
+}
+.reply-input:focus {
+  border-color: #9b59b6;
+  box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.1);
+}
+
+/* Animações slide-fade */
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+.slide-fade-leave-active {
+  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(-20px);
+  opacity: 0;
+}
 </style>
