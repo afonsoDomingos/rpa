@@ -77,7 +77,7 @@
       >
         <ul class="navbar-nav navbar-nav-hover ms-auto">
           <!-- ==== PÁGINAS ==== -->
-          <li class="nav-item dropdown dropdown-hover mx-2">
+          <li class="nav-item dropdown mx-2">
             <a
               role="button"
               class="nav-link ps-2 d-flex cursor-pointer align-items-center borda-destacada"
@@ -264,7 +264,7 @@
           </li>
 
           <!-- ==== FERRAMENTAS ==== -->
-          <li class="nav-item dropdown dropdown-hover mx-2">
+          <li class="nav-item dropdown mx-2">
             <a
               role="button"
               class="nav-link ps-2 d-flex cursor-pointer align-items-center"
