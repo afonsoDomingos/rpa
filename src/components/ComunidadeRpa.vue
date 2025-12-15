@@ -167,8 +167,9 @@
           </div>
           
           <!-- Botão de Deletar (Visível apenas para Admin ou Dono do Post) -->
+          <!-- Botão de Deletar (Visível apenas para Admin ou Dono do Post) -->
           <button 
-            v-if="usuario && (usuario.nome === 'RpaAdmin' || post.autor?._id === usuario._id || post.autor?.email === usuario.email)"
+            v-if="canDelete(post)"
             class="delete-btn ms-auto" 
             @click="deletarPost(post)"
             title="Apagar post"
@@ -616,6 +617,26 @@ const deletarPost = async (post) => {
     console.error("Erro ao deletar post:", err);
     alert("Erro ao apagar o post.");
   }
+};
+
+const canDelete = (post) => {
+  if (!usuario.value) return false;
+  
+  // 1. Admin pode tudo (ajuste a condição se tiver flag 'isAdmin' no futuro)
+  if (usuario.value.nome === 'RpaAdmin') return true;
+
+  // 2. Dono do post (comparação segura de IDs como strings)
+  const userId = String(usuario.value._id || '');
+  const authorId = String(post.autor?._id || '');
+  
+  if (userId && authorId && userId === authorId) return true;
+
+  // 3. Fallback: Email
+  if (usuario.value.email && post.autor?.email && usuario.value.email === post.autor.email) {
+    return true;
+  }
+
+  return false;
 };
 
 // --- Lógica de Partilha ---
