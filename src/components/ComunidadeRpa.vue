@@ -226,7 +226,7 @@
             <span>{{ post.replies?.length || 0 }}</span>
           </button>
 
-          <button class="action-button">
+          <button @click="compartilharPost(post)" class="action-button">
             <svg
               width="20"
               height="20"
@@ -355,6 +355,37 @@
     </div>
   </transition>
 
+  <!-- Modal de Partilha (Fallback) -->
+  <transition name="fade">
+    <div v-if="showShareModal" class="modal-overlay" @click.self="closeShareModal">
+      <div class="modal-content-apoio share-modal">
+        <button class="close-modal-btn" @click="closeShareModal">&times;</button>
+        <div class="text-center p-4">
+          <h3 class="mb-3 fw-bold" style="color: #4a148c;">Partilhar Post</h3>
+          <p class="text-secondary mb-4 small">Escolha onde deseja partilhar esta informação.</p>
+          
+          <div class="d-grid gap-3">
+            <button @click="shareTo('whatsapp')" class="btn-share whatsapp">
+              <i class="fab fa-whatsapp me-2"></i> WhatsApp
+            </button>
+            <button @click="shareTo('facebook')" class="btn-share facebook">
+              <i class="fab fa-facebook me-2"></i> Facebook
+            </button>
+            <button @click="shareTo('linkedin')" class="btn-share linkedin">
+              <i class="fab fa-linkedin me-2"></i> LinkedIn
+            </button>
+            <button @click="shareTo('twitter')" class="btn-share twitter">
+              <i class="fab fa-twitter me-2"></i> X (Twitter)
+            </button>
+            <button @click="shareTo('copy')" class="btn-share copy">
+              <i class="bi bi-clipboard me-2"></i> Copiar Texto
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+
   <FooterDefault />
 </template>
 
@@ -375,6 +406,10 @@ const newPostContent = ref("");
 const carregando = ref(false);
 const pensandoEm = ref(null);
 const showSupportModal = ref(false);
+
+// Share Logic
+const showShareModal = ref(false);
+const postToShare = ref(null);
 
 // Gestão de Imagens
 const fileInput = ref(null);
@@ -580,6 +615,67 @@ const deletarPost = async (post) => {
   } catch (err) {
     console.error("Erro ao deletar post:", err);
     alert("Erro ao apagar o post.");
+  }
+};
+
+// --- Lógica de Partilha ---
+const compartilharPost = async (post) => {
+  const shareData = {
+    title: "Comunidade RPA",
+    text: `📢 *RPA Moçambique* \n\n${post.conteudo}\n\n🔗 Saiba mais em: https://rpa.mz`,
+    url: "https://rpa.mz"
+  };
+
+  // Se o browser suportar partilha nativa (Mobile/Moderno), usa-a.
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+    } catch (err) {
+      console.log("Partilha cancelada ou erro:", err);
+    }
+  } else {
+    // Fallback para Modal Customizado
+    postToShare.value = post;
+    showShareModal.value = true;
+  }
+};
+
+const closeShareModal = () => {
+  showShareModal.value = false;
+  postToShare.value = null;
+};
+
+const shareTo = (platform) => {
+  if (!postToShare.value) return;
+  
+  const text = encodeURIComponent(`📢 RPA Moçambique \n\n${postToShare.value.conteudo}\n\n🔗 https://rpa.mz`);
+  const url = encodeURIComponent("https://rpa.mz");
+  
+  let link = "";
+
+  switch (platform) {
+    case 'whatsapp':
+      link = `https://wa.me/?text=${text}`;
+      break;
+    case 'facebook':
+      link = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`;
+      break;
+    case 'linkedin':
+      link = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+      break;
+    case 'twitter': // X
+      link = `https://twitter.com/intent/tweet?text=${text}`;
+      break;
+    case 'copy':
+      navigator.clipboard.writeText(`${postToShare.value.conteudo}\n\nLink: https://rpa.mz`);
+      alert("Texto copiado para a área de transferência!");
+      closeShareModal();
+      return;
+  }
+
+  if (link) {
+    window.open(link, '_blank');
+    closeShareModal();
   }
 };
 
@@ -1187,4 +1283,37 @@ onBeforeUnmount(() => socket.disconnect());
   border-radius: 12px;
   text-transform: uppercase;
 }
+
+.modal-content-apoio.share-modal {
+  max-width: 350px;
+  background: white;
+  border-radius: 20px;
+}
+
+.btn-share {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  color: white;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.btn-share:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-share.whatsapp { background-color: #25D366; }
+.btn-share.facebook { background-color: #1877F2; }
+.btn-share.linkedin { background-color: #0A66C2; }
+.btn-share.twitter { background-color: #000000; }
+.btn-share.copy { background-color: #6c757d; }
+
 </style>
