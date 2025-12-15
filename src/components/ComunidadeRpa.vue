@@ -622,19 +622,28 @@ const deletarPost = async (post) => {
 const canDelete = (post) => {
   if (!usuario.value) return false;
   
-  // 1. Admin pode tudo (ajuste a condição se tiver flag 'isAdmin' no futuro)
+  // 1. Admin pode tudo
   if (usuario.value.nome === 'RpaAdmin') return true;
 
-  // 2. Dono do post (comparação segura de IDs como strings)
-  const userId = String(usuario.value._id || '');
-  const authorId = String(post.autor?._id || '');
-  
+  const userId = String(usuario.value._id || usuario.value.id || '');
+  const userEmail = (usuario.value.email || '').toLowerCase();
+
+  // Tratamento se post.autor for objeto ou apenas ID string
+  let authorId = '';
+  let authorEmail = '';
+
+  if (post.autor && typeof post.autor === 'object') {
+    authorId = String(post.autor._id || post.autor.id || '');
+    authorEmail = (post.autor.email || '').toLowerCase();
+  } else if (post.autor && typeof post.autor === 'string') {
+    authorId = post.autor;
+  }
+
+  // 2. Comparação de IDs
   if (userId && authorId && userId === authorId) return true;
 
-  // 3. Fallback: Email
-  if (usuario.value.email && post.autor?.email && usuario.value.email === post.autor.email) {
-    return true;
-  }
+  // 3. Comparação de Email (Fallback)
+  if (userEmail && authorEmail && userEmail === authorEmail) return true;
 
   return false;
 };
