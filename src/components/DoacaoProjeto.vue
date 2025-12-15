@@ -66,13 +66,8 @@ function copiar(valor) {
 </script>
 
 <style scoped>
-/*@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');*/
-
-/* Importando o Font Awesome localmente */
+/* Fonts Imports */
 @import "@fortawesome/fontawesome-free/css/all.min.css";
-
-/* Importando a fonte Roboto localmente */
 @import "@fontsource/roboto/400.css";
 @import "@fontsource/roboto/500.css";
 @import "@fontsource/roboto/700.css";
@@ -85,118 +80,100 @@ body,
 .doacao-container {
   background: #fff;
   border-radius: 1.25rem;
-  padding: clamp(1rem, 2vw, 2rem) clamp(0.8rem, 3vw, 1.5rem);
-  max-width: 400px;
+  padding: 1.5rem;
+  max-width: 420px;
   width: 100%;
-  margin: 2rem auto;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+  margin: 0 auto;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
   text-align: center;
-  border: 1.5px solid #eee;
-  transition: box-shadow 0.3s ease;
-}
-.doacao-container:hover {
-  box-shadow: 0 6px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f0f0f0;
 }
 
+/* Header Original */
 .doacao-header h3 {
   font-family: "Roboto", sans-serif;
-  font-size: clamp(1rem, 4vw, 1.5rem);
-  padding: clamp(0.5rem, 1vw, 0.7rem) clamp(0.8rem, 2vw, 1rem);
+  font-size: 1.4rem;
+  font-weight: 700;
+  padding: 0.6rem 1.2rem;
   border-radius: 0.75rem;
   background: linear-gradient(135deg, #800080, #9b30ff);
   color: #fff;
-  margin-bottom: 1rem;
-  box-shadow: 0 4px 12px #80008055;
-  animation: brilho 3s infinite ease-in-out;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.doacao-header h3:hover {
-  transform: scale(1.08);
-  box-shadow: 0 6px 20px #9b30ff88;
-}
-@keyframes brilho {
-  0%,
-  100% {
-    box-shadow: 0 4px 12px #80008055;
-  }
-  50% {
-    box-shadow: 0 6px 20px #9b30ff88;
-  }
+  margin-bottom: 0.8rem;
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.3);
+  display: inline-block;
 }
 
 .doacao-desc {
-  font-size: clamp(0.9rem, 3vw, 1rem);
-  color: #555;
-  margin-bottom: 1.3rem;
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 1.5rem;
 }
 
+/* Lista */
 .doacao-list {
   display: flex;
   flex-direction: column;
-  gap: clamp(0.8rem, 2vw, 1rem);
+  gap: 0.8rem;
 }
 
 .doacao-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
   background: #faf7ff;
   border-radius: 0.75rem;
-  padding: clamp(0.4rem, 1vw, 0.6rem) clamp(0.5rem, 2vw, 0.8rem);
-  box-shadow: 0 1px 4px rgba(128, 0, 128, 0.05);
+  padding: 0.6rem 0.8rem;
   border: 1px solid #f0e6fa;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-.doacao-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.15);
+  gap: 0.5rem;
 }
 
+/* Esquerda */
 .doacao-label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  min-width: 0;
 }
 
-.doacao-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 .icon-svg {
-  width: clamp(20px, 4vw, 24px);
-  height: clamp(20px, 4vw, 24px);
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
 }
 
 .doacao-nome {
-  font-size: clamp(0.85rem, 3vw, 1rem);
+  font-size: 0.95rem;
+  font-weight: 600;
   color: #800080;
+  white-space: nowrap;
 }
 
+/* Direita */
 .doacao-right {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  flex-shrink: 0;
+  min-width: 0;
+  flex: 1;
+  justify-content: flex-end;
 }
 
 .doacao-value {
-  font-family: "Roboto", sans-serif;
-  font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+  font-size: 0.9rem;
   color: #333;
   background: #fff;
-  border-radius: 0.375rem;
-  padding: clamp(2px, 0.5vw, 0.5rem);
-  text-align: center;
-  word-break: break-all;
-  min-width: 80px;
+  border-radius: 6px;
+  padding: 4px 8px;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .btn-copiar {
-  width: clamp(28px, 6vw, 32px);
-  height: clamp(28px, 6vw, 32px);
-  font-size: clamp(0.85rem, 2.5vw, 1rem);
+  width: 30px;
+  height: 30px;
   background: #800080;
   color: #fff;
   border: none;
@@ -205,23 +182,19 @@ body,
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0;
+  font-size: 0.9rem;
 }
+
 .btn-copiar:hover {
   background: #198754;
-  transform: scale(1.15);
 }
 
 .copiado-msg {
-  font-family: "Roboto", sans-serif;
-  font-size: clamp(0.9rem, 3vw, 1.08rem);
   color: #198754;
-  margin-top: clamp(0.5rem, 1vw, 1.2rem);
   font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.3rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
 }
 
 .fade-enter-active,
@@ -233,39 +206,13 @@ body,
   opacity: 0;
 }
 
-/* Responsividade para telas pequenas */
-@media (max-width: 480px) {
-  .doacao-item {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.3rem;
-  }
-  .doacao-label {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.2rem;
+/* Ajuste simples para mobile muito pequeno */
+@media (max-width: 360px) {
+  .doacao-container {
+    padding: 1rem;
   }
   .doacao-nome {
     display: none;
-  }
-  .doacao-right {
-    flex-direction: column;
-    gap: 0.2rem;
-    margin-top: 0.3rem;
-    align-items: center;
-  }
-  .doacao-value {
-    font-size: 0.8rem;
-    padding: 2px 4px;
-  }
-  .btn-copiar {
-    width: 24px;
-    height: 24px;
-    font-size: 0.85rem;
-  }
-  .icon-svg {
-    width: 22px;
-    height: 22px;
   }
 }
 </style>

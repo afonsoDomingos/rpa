@@ -270,68 +270,64 @@ const solicitarDocumento = async () => {
     <!-- Componente para Exibir Informações de Apresentação -->
     <PresentationInformation />
 
-    <div class="container">
+    <div class="container mobile-compact-section">
       <div class="row">
-        <div class="d-flex flex-column w-100 text-center p-5 mb-8">
-          <h3>Parceiros</h3>
-          <div class="d-flex justify-content-center mt-3 flex-wrap">
-            <a
-              href="https://www.facebook.com/profile.php?id=61558461805280"
-              data-bs-toggle="tooltip"
-              data-bs-placement="bottom"
-              title="Bootstrap 5 - Most popular front-end component library"
-            >
-              <img
-                :src="logoBootstrap"
-                alt="title"
-                loading="lazy"
-                :style="{ height: '90px' }"
-              />
-            </a>
+        <div class="d-flex flex-column w-100 text-center p-3 mb-4">
+          <h3 class="mb-3">Parceiros</h3>
+          
+          <!-- Carrossel Infinito de Parceiros -->
+          <div class="partners-carousel">
+            <div class="partners-track">
+              <!-- Logos Originais -->
+              <div class="partner-slide">
+                <a href="https://www.facebook.com/profile.php?id=61558461805280" target="_blank">
+                  <img :src="logoBootstrap" alt="Bootstrap" />
+                </a>
+              </div>
+              <div class="partner-slide">
+                <a href="https://www.facebook.com/profile.php?id=61570930139844&sk=photos" target="_blank">
+                  <img :src="logoVue" alt="Vue.js" />
+                </a>
+              </div>
+              <div class="partner-slide">
+                <a href="https://www.facebook.com/Techvibemz/" target="_blank">
+                  <img :src="logoTechvibe" alt="Techvibe" />
+                </a>
+              </div>
 
-            <a
-              href="https://www.facebook.com/profile.php?id=61570930139844&sk=photos"
-              class="mx-3"
-              data-bs-toggle="tooltip"
-              data-bs-placement="bottom"
-              title="Vue.js - Is a Progressive JavaScript Framework"
-            >
-              <img
-                :src="logoVue"
-                alt="title"
-                loading="lazy"
-                :style="{ height: '90px' }"
-              />
-            </a>
-            <a
-              class="opacity-5"
-              href="https://www.facebook.com/Techvibemz/"
-              data-bs-toggle="tooltip"
-              data-bs-placement="bottom"
-              title="Coming Soon"
-            >
-              <img
-                :src="logoTechvibe"
-                alt="title"
-                loading="lazy"
-                :style="{ height: '90px' }"
-              />
-            </a>
+              <!-- Duplicados para efeito infinito -->
+              <div class="partner-slide">
+                <a href="https://www.facebook.com/profile.php?id=61558461805280" target="_blank">
+                  <img :src="logoBootstrap" alt="Bootstrap" />
+                </a>
+              </div>
+              <div class="partner-slide">
+                <a href="https://www.facebook.com/profile.php?id=61570930139844&sk=photos" target="_blank">
+                  <img :src="logoVue" alt="Vue.js" />
+                </a>
+              </div>
+              <div class="partner-slide">
+                <a href="https://www.facebook.com/Techvibemz/" target="_blank">
+                  <img :src="logoTechvibe" alt="Techvibe" />
+                </a>
+              </div>
+            </div>
           </div>
+          
         </div>
       </div>
     </div>
 
-    <div class="py-5">
+    <div class="py-3 mobile-compact-section">
       <div class="container">
-        <div class="row">
-          <div class="col-lg-5 ms-auto">
+        <div class="row align-items-center">
+          <div class="col-lg-5 ms-auto text-center text-lg-start mb-3 mb-lg-0">
             <h4 class="mb-1">Obrigado pelo seu apoio!!</h4>
-            <p class="lead mb-0">
+            <p class="lead mb-0 text-sm">
               E por transformar este projeto em realidade.
             </p>
           </div>
-          <div class="col-lg-5 me-lg-auto my-lg-auto text-lg-end mt-5">
+          <div class="col-lg-5 me-lg-auto text-center text-lg-end">
             <MaterialSocialButton
               route="https://www.linkedin.com/in/afonso-domingos-6b59361a5/"
               component="linkedin"
@@ -573,105 +569,88 @@ const solicitarDocumento = async () => {
   height: 50vh;
 }
 
-/* Media query específica para iPhone SE */
-@media (max-width: 375px) and (max-height: 667px) {
+/* Otimização Mobile e Tablets unificada */
+@media (max-width: 991px) {
   .page-header {
     background-image: url("/src/assets/img/banner2.png") !important;
-    /* Obriga a usar esta imagem */
-    height: 50vh;
-    /* Ajusta a altura para 50% da tela */
+    height: 40vh; /* Altura reduzida para mobile */
+  }
+
+  /* Reduz margens negativas e paddings excessivos no mobile */
+  .card.card-body {
+    margin-top: -40px !important; /* Puxa o cartão mais para cima */
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+  }
+  
+  .py-5 {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+  }
+  
+  .mobile-compact-section {
+    padding-bottom: 1rem !important;
+  }
+    
+  .min-vh-75 {
+    min-height: 40vh !important;
   }
 }
 
-/* Media query específica para iPhone XR E 12 */
-@media (max-width: 414px) and (max-height: 896px) {
-  .page-header {
-    background-image: url("/src/assets/img/banner2.png") !important;
-    /* Obriga a usar esta imagem */
-    height: 50vh;
-    /* Ajusta a altura para 50% da tela */
+/* Carrossel Infinito de Parceiros */
+.partners-carousel {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  padding: 10px 0;
+}
+
+.partners-track {
+  display: flex;
+  width: calc(180px * 6); /* Largura total = largura do slide * total de slides (original + duplicado) */
+  animation: scroll 20s linear infinite;
+}
+
+.partner-slide {
+  width: 180px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.partner-slide img {
+  height: 70px; /* Tamanho controlado para mobile e desktop */
+  opacity: 0.8;
+  transition: opacity 0.3s;
+}
+
+.partner-slide img:hover {
+  opacity: 1;
+}
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-180px * 3)); } /* Move metade da largura total */
+}
+
+/* Ajuste do rodapé para não ficar enorme no mobile */
+@media (max-width: 600px) {
+  .partner-slide {
+    width: 140px; /* Menor no mobile */
+  }
+  .partners-track {
+    width: calc(140px * 6);
+    animation: scroll 15s linear infinite; /* Mais rápido no mobile */
+  }
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(-140px * 3)); }
   }
 }
 
-/* Media query específica para iPhone  14 PROMAX E PIXEL 7 GALAX S8 , S20*/
-@media (max-width: 430px) and (max-height: 932px) {
-  .page-header {
-    background-image: url("/src/assets/img/banner2.png") !important;
-    /* Obriga a usar esta imagem */
-    height: 50vh;
-    /* Ajusta a altura para 50% da tela */
-  }
-}
-
-/* Media query específica para iPAD MIN*/
-@media (max-width: 768px) and (max-height: 1024px) {
-  .page-header {
-    background-image: url("/src/assets/img/banner2.png") !important;
-    /* Obriga a usar esta imagem */
-    height: 50vh;
-    /* Ajusta a altura para 50% da tela */
-  }
-}
-
-/* Media query específica para iPAD AIR*/
-@media (max-width: 820px) and (max-height: 1180px) {
-  .page-header {
-    background-image: url("/src/assets/img/banner2.png") !important;
-    /* Obriga a usar esta imagem */
-    height: 50vh;
-    /* Ajusta a altura para 50% da tela */
-  }
-}
-
-/* Media query específica para iPAD PRO*/
-@media (max-width: 1024px) and (max-height: 1366px) {
-  .page-header {
-    background-image: url("/src/assets/img/banner2.png") !important;
-    /* Obriga a usar esta imagem */
-    height: 50vh;
-    /* Ajusta a altura para 50% da tela */
-  }
-}
-
-/* Media query específica para SURFACE PRO7 ,DUE, GALAX Z FOLD*/
-@media (max-width: 912px) and (max-height: 1368px) {
-  .page-header {
-    background-image: url("/src/assets/img/banner2.png") !important;
-    /* Obriga a usar esta imagem */
-    height: 50vh;
-    /* Ajusta a altura para 50% da tela */
-  }
-}
-
-/* Media query específica para NEXTHUB*/
-@media (max-width: 1280px) and (max-height: 800px) {
-  .page-header {
-    background-image: url("/src/assets/img/banner2.png") !important;
-    /* Obriga a usar esta imagem */
-    height: 50vh;
-    /* Ajusta a altura para 50% da tela */
-  }
-}
-
-/* Media query específica para MOREP */
-@media (max-width: 400px) and (max-height: 645px) {
-  .page-header {
-    background-image: url("/src/assets/img/banner2.png") !important;
-    /* Obriga a usar esta imagem */
-    height: 50vh;
-    /* Ajusta a altura para 50% da tela */
-  }
-}
-
-/* Media query específica para iPhone SE */
-@media (max-width: 400px) and (max-height: 686px) {
-  .page-header {
-    background-image: url("/src/assets/img/banner2.png") !important;
-    /* Obriga a usar esta imagem */
-    height: 50vh;
-    /* Ajusta a altura para 50% da tela */
-  }
-}
 
 .borda-destacadatxt {
   border: 1px solid #707070;

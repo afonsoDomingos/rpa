@@ -34,28 +34,30 @@ import DefaultInfoCard from "../../../examples/cards/infoCards/DefaultInfoCard.v
         <div class="col-lg-6 ms-auto">
           <div class="row justify-content-start">
             <DefaultInfoCard
-              icon="content_copy"
+              class="info-card-hover"
+              icon="content_paste"
               title="Cadastro de Documento"
               description="Registre o documento perdido e forneça os detalhes necessários para iniciar a busca."
             />
             <DefaultInfoCard
-              icon="flip_to_front"
+              class="info-card-hover"
+              icon="query_stats"
               title="Análise do Caso"
               description="Nossa equipe avalia sua solicitação para determinar o melhor caminho de recuperação."
             />
           </div>
-          <div class="row justify-content-start mt-5">
+          <div class="row justify-content-start mt-4">
             <DefaultInfoCard
-              class="mt-3"
-              icon="content_copy"
+              class="mt-3 info-card-hover"
+              icon="travel_explore"
               title="Busca e Verificação"
-              description="Iniciamos a pesquisa para localizar seu documento."
+              description="Iniciamos a pesquisa para localizar seu documento com eficiência."
             />
             <DefaultInfoCard
-              class="mt-3"
-              icon="devices"
+              class="mt-3 info-card-hover"
+              icon="volunteer_activism"
               title="Recuperação e Entrega"
-              description="Assim que o documento for encontrado, nós o entregamos diretamente a você."
+              description="Assim que encontrado, o documento é recuperado e entregue a si."
             />
           </div>
         </div>
@@ -63,3 +65,18 @@ import DefaultInfoCard from "../../../examples/cards/infoCards/DefaultInfoCard.v
     </div>
   </section>
 </template>
+
+<style scoped>
+.info-card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.info-card-hover:hover {
+  transform: translateY(-8px);
+  background-color: #ffffff;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  cursor: default;
+}
+</style>

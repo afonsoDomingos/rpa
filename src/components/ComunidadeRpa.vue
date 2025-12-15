@@ -14,24 +14,90 @@
     <div class="feed-header">
       <h2 class="feed-title">Comunidade Rpa</h2>
       <p class="feed-subtitle">Um espaço para compartilhamentos</p>
+      
+      <button @click="showSupportModal = true" class="btn-apoio mt-3">
+        <i class="bi bi-heart-fill me-2"></i>Apoiar Plataforma
+      </button>
     </div>
 
     <!-- New Post Form -->
     <div class="new-post-card">
-      <div class="new-post-header">
-        <div class="avatar avatar-purple">
-          <span>{{ usuario?.nome?.[0]?.toUpperCase() || "EU" }}</span>
+      <div class="new-post-header d-block">
+        <!-- Tabs de Tipo de Post -->
+        <div class="d-flex gap-2 mb-3">
+          <button 
+            @click="isDocumentReport = false"
+            class="mode-btn"
+            :class="{ active: !isDocumentReport }"
+          >
+            <i class="bi bi-chat-left-text me-2"></i>Post Normal
+          </button>
+          <button 
+            @click="isDocumentReport = true"
+            class="mode-btn"
+            :class="{ active: isDocumentReport }"
+          >
+            <i class="bi bi-file-earmark-person me-2"></i>Relatar Documento
+          </button>
         </div>
-        <textarea
-          v-model="newPostContent"
-          placeholder="Compartilhe algo sobre..."
-          class="post-textarea"
-          rows="3"
-        ></textarea>
+
+        <div class="d-flex gap-3">
+          <div class="avatar avatar-purple">
+            <span>{{ usuario?.nome?.[0]?.toUpperCase() || "EU" }}</span>
+          </div>
+          <div class="w-100">
+            <!-- Campos Específicos para Documento -->
+            <div v-if="isDocumentReport" class="doc-report-fields mb-3">
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <input v-model="docName" class="form-control" placeholder="Nome no Documento" />
+                </div>
+                <div class="col-md-6">
+                  <select v-model="docType" class="form-select">
+                    <option value="" disabled selected>Tipo de Documento</option>
+                    <option>INSS</option>
+                    <option>Bilhete de Identidade (BI)</option>
+                    <option>Carta de Condução</option>
+                    <option>Passaporte</option>
+                    <option>Cartão de Estudante</option>
+                    <option>Dire</option>
+                    <option>Outro</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <input v-model="docContact" class="form-control" placeholder="Seu Contacto (Ex: 84 123 4567)" />
+                </div>
+              </div>
+            </div>
+
+            <textarea
+              v-model="newPostContent"
+              :placeholder="isDocumentReport ? 'Onde encontrou? Detalhes adicionais...' : 'Compartilhe algo sobre...'"
+              class="post-textarea w-100"
+              rows="3"
+            ></textarea>
+            
+            <!-- Preview da Imagem -->
+            <div v-if="previewUrl" class="image-preview mt-3 position-relative">
+              <img :src="previewUrl" class="preview-img" />
+              <button @click="removeImage" class="remove-img-btn">
+                <i class="bi bi-x"></i>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="new-post-footer">
         <div class="post-actions">
-          <button class="action-btn">
+          <!-- Input Invisível -->
+          <input
+            type="file"
+            ref="fileInput"
+            class="d-none"
+            accept="image/*"
+            @change="onFileSelected"
+          />
+          <button class="action-btn" @click="triggerFileInput" title="Adicionar imagem">
             <svg
               width="20"
               height="20"
@@ -63,7 +129,7 @@
         <button
           @click="criarPost"
           class="post-btn"
-          :disabled="!newPostContent.trim()"
+          :disabled="!newPostContent.trim() && !selectedFile"
         >
           Publicar
         </button>
@@ -97,11 +163,32 @@
                 >(Assistente)</small
               >
             </div>
-            <div class="post-time">{{ formatTime(post.createdAt) }}</div>
+          <div class="post-time">{{ formatTime(post.createdAt) }}</div>
           </div>
+          
+          <!-- Botão de Deletar (Visível apenas para Admin ou Dono do Post) -->
+          <button 
+            v-if="usuario && (usuario.nome === 'RpaAdmin' || post.autor?._id === usuario._id || post.autor?.email === usuario.email)"
+            class="delete-btn ms-auto" 
+            @click="deletarPost(post)"
+            title="Apagar post"
+          >
+            <i class="bi bi-trash"></i>
+          </button>
         </div>
 
-        <div class="post-content">{{ post.conteudo }}</div>
+        <div class="post-content">
+          <!-- Renderização Condicional: Se for um Relatório de Documento Formar -->
+          <div v-if="post.conteudo.includes('📄 DOCUMENTO ENCONTRADO')" class="doc-found-card mb-3">
+            <div class="doc-badge"><i class="bi bi-check-circle-fill me-1"></i>Encontrado</div>
+            <p style="white-space: pre-line;">{{ post.conteudo }}</p>
+          </div>
+          <p v-else class="mb-2" style="white-space: pre-line;">{{ post.conteudo }}</p>
+          
+          <div v-if="post.imagem" class="post-image-container mt-2">
+            <img :src="post.imagem" alt="Post image" class="img-fluid rounded-3" loading="lazy" />
+          </div>
+        </div>
 
         <div class="post-actions-bar">
           <button @click="curtirPost(post)" class="action-button">
@@ -258,6 +345,16 @@
     </div>
   </div>
 
+  <!-- Modal de Apoio -->
+  <transition name="fade">
+    <div v-if="showSupportModal" class="modal-overlay" @click.self="showSupportModal = false">
+      <div class="modal-content-apoio">
+        <button class="close-modal-btn" @click="showSupportModal = false">&times;</button>
+        <DoacaoProjeto />
+      </div>
+    </div>
+  </transition>
+
   <FooterDefault />
 </template>
 
@@ -269,6 +366,7 @@ import { useRouter } from "vue-router";
 import { io } from "socket.io-client";
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../examples/footers/FooterDefault.vue";
+import DoacaoProjeto from "./DoacaoProjeto.vue";
 
 const router = useRouter();
 const usuario = ref(null);
@@ -276,6 +374,18 @@ const posts = ref([]);
 const newPostContent = ref("");
 const carregando = ref(false);
 const pensandoEm = ref(null);
+const showSupportModal = ref(false);
+
+// Gestão de Imagens
+const fileInput = ref(null);
+const selectedFile = ref(null);
+const previewUrl = ref(null);
+
+// Gestão de Relatório de Documentos
+const isDocumentReport = ref(false);
+const docName = ref("");
+const docType = ref("");
+const docContact = ref("");
 
 const API_URL = "https://apirpa.onrender.com/api/posts";
 const token = localStorage.getItem("token");
@@ -353,13 +463,90 @@ const carregarPosts = async () => {
 };
 
 const criarPost = async () => {
-  if (!newPostContent.value.trim() || !usuario.value) return;
-  try {
-    await axios.post(API_URL, { conteudo: newPostContent.value }, { headers });
-    newPostContent.value = "";
-  } catch (err) {
-    console.error(err);
+  if (!usuario.value) return;
+
+  // Validação para Relatório de Documento
+  if (isDocumentReport.value) {
+    if (!docName.value || !docType.value || !docContact.value) {
+      alert("Por favor, preencha todos os campos do documento (Nome, Tipo e Contacto).");
+      return;
+    }
   }
+
+  // Se não for relatório, exige conteúdo OU ficheiro
+  if (!isDocumentReport.value && !newPostContent.value.trim() && !selectedFile.value) {
+    return;
+  }
+  
+  try {
+    let finalContent = newPostContent.value;
+
+    // Formatar conteúdo se for um relatório
+    if (isDocumentReport.value) {
+      finalContent = `📄 DOCUMENTO ENCONTRADO
+      
+👤 Nome: ${docName.value}
+🪪 Tipo: ${docType.value}
+📞 Contacto: ${docContact.value}
+
+📝 Detalhes: ${newPostContent.value || "Sem detalhes adicionais."}`;
+    }
+
+    // Se NÃO houver imagem, enviamos como JSON normal
+    if (!selectedFile.value) {
+      await axios.post(
+        API_URL, 
+        { conteudo: finalContent }, 
+        { 
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          } 
+        }
+      );
+    } else {
+      // Se TIVER imagem, enviamos como FormData
+      const formData = new FormData();
+      formData.append("conteudo", finalContent);
+      formData.append("imagem", selectedFile.value);
+
+      await axios.post(API_URL, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    }
+
+    // Limpar form completamente
+    newPostContent.value = "";
+    docName.value = "";
+    docType.value = "";
+    docContact.value = "";
+    isDocumentReport.value = false;
+    removeImage();
+
+  } catch (err) {
+    console.error("Erro ao criar post:", err);
+    alert("Erro ao publicar. Verifique a conexão.");
+  }
+};
+
+const triggerFileInput = () => {
+  fileInput.value?.click();
+};
+
+const onFileSelected = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    selectedFile.value = file;
+    previewUrl.value = URL.createObjectURL(file);
+  }
+};
+
+const removeImage = () => {
+  selectedFile.value = null;
+  previewUrl.value = null;
+  if (fileInput.value) fileInput.value.value = "";
 };
 
 const curtirPost = async (post) => {
@@ -381,6 +568,18 @@ const responderPost = async (post) => {
     post.newReply = "";
   } catch (err) {
     console.error(err);
+  }
+};
+
+const deletarPost = async (post) => {
+  if (!confirm("Tem certeza que deseja apagar este post? Esta ação não pode ser desfeita.")) return;
+  
+  try {
+    await axios.delete(`${API_URL}/${post._id}`, { headers });
+    // O socket vai tratar de remover da lista automáticamente via 'postDeletado'
+  } catch (err) {
+    console.error("Erro ao deletar post:", err);
+    alert("Erro ao apagar o post.");
   }
 };
 
@@ -444,6 +643,75 @@ onBeforeUnmount(() => socket.disconnect());
   font-size: 10px;
   font-weight: 700;
   margin-left: 6px;
+}
+
+/* Botão de Apoio */
+.btn-apoio {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  backdrop-filter: blur(5px);
+}
+
+.btn-apoio:hover {
+  background: white;
+  color: #800080;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Modal de Apoio */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.modal-content-apoio {
+  position: relative;
+  width: 100%;
+  max-width: 450px;
+  animation: slideUp 0.3s ease;
+}
+
+.close-modal-btn {
+  position: absolute;
+  top: -15px;
+  right: -10px;
+  background: white;
+  border: none;
+  font-size: 24px;
+  color: #333;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 .avatar-bot {
@@ -796,35 +1064,127 @@ onBeforeUnmount(() => socket.disconnect());
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
-.reply-send-btn:hover:not(:disabled) {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-.reply-send-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+
+.delete-btn {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Responsivo */
+.delete-btn:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+.reply-send-btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Estilos para Imagens */
+.post-textarea.w-100 {
+  width: 100%;
+}
+
+.image-preview {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.preview-img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  display: block;
+}
+
+.remove-img-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.remove-img-btn:hover {
+  background: rgba(229, 57, 53, 0.9);
+}
+
+.post-image-container img {
+  max-width: 100%;
+  border-radius: 12px;
+  border: 1px solid #f3f4f6;
+  max-height: 500px;
+  object-fit: contain;
+  background: #f9fafb;
+}
+
 @media (max-width: 768px) {
-  .threads-feed {
-    padding: 16px 12px;
+  .post-image-container img {
+    max-height: 350px;
   }
-  .feed-title {
-    font-size: 28px;
-  }
-  .feed-subtitle {
-    font-size: 14px;
-  }
-  .post-textarea {
-    font-size: 14px;
-  }
-  .post-content {
-    font-size: 14px;
-  }
-  .action-button {
-    font-size: 13px;
-    padding: 8px 12px;
-  }
+}
+
+/* Estilos para Tabs e Form de Documentos */
+.mode-btn {
+  border: none;
+  background: #f3f4f6;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  transition: all 0.3s;
+}
+
+.mode-btn.active {
+  background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+  color: white;
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+}
+
+.doc-report-fields input,
+.doc-report-fields select {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.doc-found-card {
+  background: #f0fdf4; /* Verde muito claro */
+  border-left: 4px solid #2e7d32;
+  padding: 16px;
+  border-radius: 8px;
+  position: relative;
+}
+
+.doc-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #2e7d32;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
 }
 </style>
