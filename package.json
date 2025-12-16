@@ -2,7 +2,7 @@
   "name": "vue-material-kit-2",
   "version": "2.0.0",
   "scripts": {
-    "prebuild": "chmod +x node_modules/.bin/vite",
+    "prebuild": "",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview --port 4173",
@@ -48,6 +48,7 @@
     "sass": "1.52.3",
     "sass-loader": "13.0.0",
     "vite": "^2.9.9",
+    "vite-plugin-compression": "^0.5.1",
     "vite-plugin-pwa": "^0.12.8"
   }
 }
