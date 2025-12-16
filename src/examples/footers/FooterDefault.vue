@@ -18,23 +18,23 @@ defineProps({
     link: String,
     default: () => [
       {
-        icon: '<i class="fab fa-facebook text-lg opacity-8"></i>',
+        icon: '<i class="bi bi-facebook text-lg opacity-8"></i>',
         link: "https://www.facebook.com/profile.php?id=61570930139844&sk=photos",
       },
       {
-        icon: '<i class="fab fa-linkedin text-lg opacity-8"></i>',
+        icon: '<i class="bi bi-linkedin text-lg opacity-8"></i>',
         link: "https://www.linkedin.com/in/afonso-domingos-6b59361a5/",
       },
       {
-        icon: '<i class="fab fa-dribbble text-lg opacity-8"></i>',
+        icon: '<i class="bi bi-dribbble text-lg opacity-8"></i>',
         link: "https://recuperaaqui.vercel.app",
       },
       {
-        icon: '<i class="fab fa-github text-lg opacity-8"></i>',
+        icon: '<i class="bi bi-github text-lg opacity-8"></i>',
         link: "https://github.com/afonsoDomingos/rpa",
       },
       {
-        icon: '<i class="fab fa-youtube text-lg opacity-8"></i>',
+        icon: '<i class="bi bi-youtube text-lg opacity-8"></i>',
         link: "https://www.youtube.com/channel/UClyCqvjCJeQHY21K5SMe2LA",
       },
     ],
