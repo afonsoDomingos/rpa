@@ -498,16 +498,13 @@ socket.on("respostaDeletada", ({ postId, replyId }) => {
 
 const buscarUsuario = async () => {
   try {
-    const emailLogado = localStorage.getItem("email");
-    if (!emailLogado) return router.push("/");
     const { data } = await axios.get(
-      "https://apirpa.onrender.com/api/auth/usuarios",
+      "https://apirpa.onrender.com/api/auth/me",
       { headers }
     );
-    usuario.value = data.find((u) => u.email === emailLogado);
-    if (!usuario.value) router.push("/");
+    usuario.value = data;
   } catch (err) {
-    console.error(err);
+    console.error("Erro ao buscar usuário logado:", err);
   }
 };
 

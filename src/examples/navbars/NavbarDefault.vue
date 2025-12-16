@@ -433,21 +433,25 @@ const logout = () => {
 // BUSCAR USUÁRIO LOGADO
 const buscarUsuario = async () => {
   try {
-    const emailLogado = localStorage.getItem("email");
-    if (!emailLogado) {
-      router.push("/");
-      return;
-    }
+    const token = localStorage.getItem("token");
+    // Se não tiver token, apenas não define o usuário (não força redirect)
+    if (!token) return;
 
     const { data } = await axios.get(
-      "https://apirpa.onrender.com/api/auth/usuarios"
+      "https://apirpa.onrender.com/api/auth/me",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
     );
-    if (!Array.isArray(data)) return;
-
-    usuario.value = data.find((u) => u.email === emailLogado);
-    if (!usuario.value) router.push("/");
+    
+    usuario.value = data;
   } catch (error) {
     console.error("Erro ao buscar o usuário:", error);
+    // Se der erro (ex: token expirado), podemos limpar o token
+    // localStorage.removeItem("token");
+    // localStorage.removeItem("email");
   }
 };
 
