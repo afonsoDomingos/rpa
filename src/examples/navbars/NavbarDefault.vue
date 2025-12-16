@@ -367,6 +367,7 @@ import { RouterLink } from "vue-router";
 import { ref, watch, onMounted, nextTick } from "vue";
 import { useWindowsWidth } from "../../assets/js/useWindowsWidth";
 import olhodedeus from "./olhodedeus.vue"; // Componente do olho
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 const dropdownMenu = ref(null);
 const navbarCollapse = ref(null);
@@ -422,12 +423,34 @@ import axios from "axios";
 const router = useRouter();
 const usuario = ref(null);
 
-// LOGOUT
+// LOGOUT COM SWEETALERT
 const logout = () => {
-  localStorage.removeItem("email");
-  usuario.value = null;
-  alert("Logout realizado com sucesso!");
-  router.push("/");
+  Swal.fire({
+    title: "Tem certeza?",
+    text: "Deseja realmente sair da sua conta?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#800080", // Roxo da marca
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Sim, sair",
+    cancelButtonText: "Cancelar"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      localStorage.removeItem("email");
+      usuario.value = null;
+
+      Swal.fire({
+        title: "Saiu!",
+        text: "Logout realizado com sucesso.",
+        icon: "success",
+        confirmButtonColor: "#66bb6a", // Verde da marca
+        timer: 2000,
+        showConfirmButton: false
+      });
+      
+      router.push("/");
+    }
+  });
 };
 
 // BUSCAR USUÁRIO LOGADO

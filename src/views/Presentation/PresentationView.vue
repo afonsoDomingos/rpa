@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
+import Swal from "sweetalert2";
 
 //example components
 import NavbarDefault from "../../examples/navbars/NavbarDefault.vue";
@@ -134,9 +135,14 @@ const solicitarDocumento = async () => {
     return; // Não prossegue se alguma validação falhar
   }
 
-  // Validação adicional (por exemplo, para data de nascimento)
+  // Validação adicional
   if (!data_nascimento.value) {
-    alert("Por favor, preencha a data de nascimento.");
+    Swal.fire({
+      icon: 'warning',
+      title: 'Atenção',
+      text: 'Por favor, preencha a data de nascimento.',
+      confirmButtonColor: '#800080'
+    });
     return;
   }
 
