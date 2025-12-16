@@ -218,16 +218,16 @@ onMounted(async () => {
     <transition name="fade">
       <div class="switcher">
         <button :class="{ active: modo === 'login' }" @click="modo = 'login'">
-          <i class="fas fa-sign-in-alt"></i> Entrar
+          <i class="bi bi-box-arrow-in-right"></i> Entrar
         </button>
         <button :class="{ active: modo === 'register' }" @click="modo = 'register'">
-          <i class="fas fa-user-plus"></i> Cadastrar
+          <i class="bi bi-person-plus"></i> Cadastrar
         </button>
       </div>
     </transition>
 
     <div v-if="isTakingLong && isLoading" class="info-message">
-       <i class="fas fa-server"></i> A acordar o servidor... <br>
+       <i class="bi bi-hdd-network"></i> A acordar o servidor... <br>
        <small style="font-size: 0.75rem">(Isso pode levar alguns segundos)</small>
     </div>
 
@@ -236,15 +236,15 @@ onMounted(async () => {
     <transition name="slide-fade" mode="out-in">
       <form v-if="modo === 'login'" @submit.prevent="login" class="form">
         <label class="input-group">
-          <i class="far fa-envelope"></i>
+          <i class="bi bi-envelope"></i>
           <input v-model="email" type="email" placeholder="E-mail" required />
         </label>
         
        <label class="input-group">
-  <i class="fas fa-lock"></i>
+  <i class="bi bi-lock"></i>
   <input :type="showPass ? 'text' : 'password'" v-model="password" placeholder="Senha" required />
   <span class="eye" @click="showPass = !showPass">
-    <i :class="showPass ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+    <i :class="showPass ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
   </span>
 </label>
 
@@ -262,25 +262,25 @@ onMounted(async () => {
 
       <form v-else @submit.prevent="register" class="form">
         <label class="input-group">
-          <i class="far fa-user"></i>
+          <i class="bi bi-person"></i>
           <input v-model="nome" type="text" placeholder="Nome completo" required />
         </label>
         <label class="input-group">
-          <i class="far fa-envelope"></i>
+          <i class="bi bi-envelope"></i>
           <input v-model="newEmail" type="email" placeholder="E-mail" required />
         </label>
       <label class="input-group">
-  <i class="fas fa-lock"></i>
+  <i class="bi bi-lock"></i>
   <input :type="showNewPass ? 'text' : 'password'" v-model="newPassword" placeholder="Senha" required />
   <span class="eye" @click="showNewPass = !showNewPass">
-    <i :class="showNewPass ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+    <i :class="showNewPass ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
   </span>
 </label>
         <label class="input-group">
-  <i class="fas fa-lock"></i>
+  <i class="bi bi-lock"></i>
   <input :type="showConfirmPass ? 'text' : 'password'" v-model="confirmPassword" placeholder="Confirmar senha" required />
   <span class="eye" @click="showConfirmPass = !showConfirmPass">
-    <i :class="showConfirmPass ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+    <i :class="showConfirmPass ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
   </span>
 </label>
         <button type="submit" class="btn pulse" :disabled="isLoading || !isRegisterValid">
@@ -303,10 +303,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-
-
-/* Importando o Font Awesome localmente */
-@import '@fortawesome/fontawesome-free/css/all.min.css';
 
 /* Para a fonte Poppins */
 @import '@fontsource/poppins/500.css';
@@ -432,13 +428,11 @@ label, .form-label {
   color: #333;
 }
 
+/* .eye Refactored to Flexbox */
 .eye {
-  position: absolute;
-  right: 12px;
+  margin-left: 10px;
   cursor: pointer;
   color: #800080;
-  z-index: 2;
-  pointer-events: auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -446,7 +440,7 @@ label, .form-label {
 }
 
 .eye:hover {
-  color: #0f752f; /* cor ao passar o mouse */
+  color: #0f752f;
   transform: scale(1.2);
 }
 
