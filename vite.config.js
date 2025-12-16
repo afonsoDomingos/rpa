@@ -29,6 +29,9 @@ export default defineConfig({
             type: 'image/png'
           }
         ]
+      },
+      workbox: {
+        maximumFileSizeToCacheInBytes: 5000000
       }
     })
   ],
@@ -44,5 +47,19 @@ export default defineConfig({
     headers: {
       "Content-Security-Policy": ""
     }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vue-vendor': ['vue', 'vue-router', 'pinia'],
+          'ui-vendor': ['bootstrap', '@popperjs/core', '@fortawesome/fontawesome-free', 'material-icons'],
+          'chart-vendor': ['chart.js', 'vue-chartjs'],
+          'maps-vendor': ['leaflet'],
+          'pdf-vendor': ['jspdf', 'html2canvas', 'html2pdf.js'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
   },
 });

@@ -1,100 +1,121 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from "vue-router";
 
-// === TODAS AS SUAS ROTAS ORIGINAIS (NENHUMA FOI REMOVIDA) ===
-import PresentationView from "../views/Presentation/PresentationView.vue";
-import DashboardView from "../views/Presentation/DashboardView.vue";
-import AboutView from "../views/LandingPages/AboutUs/AboutView.vue";
-import ContactView from "../views/LandingPages/ContactUs/ContactView.vue";
-import AuthorView from "../views/LandingPages/Author/AuthorView.vue";
-import SignInBasicView from "../views/LandingPages/SignIn/BasicView.vue";
-
-import SolicitanteModal from "../components/SolicitanteModal.vue";
-import TermsConditions from "../components/TermsConditions.vue";
-import PrivacyPolicy from "../components/PrivacyPolicy.vue";
-import GuardarDocumentos from "../components/Guardardocumentos.vue";
-import Assinaturas from "../components/Assinaturas.vue";
-import MeusPagamentos from "../components/MeusPagamentos.vue";
-import MeusDocumentos from "../components/MeusDocumentos.vue";
-import Viaturas from "../components/viaturas.vue";
-import NoticiasAdmin from "../components/NoticiasAdmin.vue";
-import ComunidadeRpa from "../components/ComunidadeRpa.vue";
-import AdminAssinaturas from "../components/AdminAssinaturas.vue";
-import olhodedeus from "../examples/navbars/olhodedeus.vue";
-import CVGenerator from "../components/CVGenerator.vue";
-import PagamentoSucesso from "../components/PagamentoSucesso.vue";
-
-// === SISTEMA DE ANUNCIANTES (ORGANIZADO) ===
-import AnunciePage from "@/components/anunciantes/AnunciePage.vue";
-import AnuncioPayment from "@/components/anunciantes/AnuncioPayment.vue";
-import MeusAnuncios from "@/components/anunciantes/MeusAnuncios.vue";
+// OBS: As rotas agora usam Lazy Loading (importação dinâmica) para reduzir o bundle inicial
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // === TODAS AS ROTAS ORIGINAIS (NENHUMA FOI REMOVIDA) ===
-    { path: "/", name: "signin-basic", component: SignInBasicView },
-    { path: "/home", name: "presentation", component: PresentationView },
-    { path: "/dashboard/admin", name: "dashboard", component: DashboardView },
-    { path: "/about", name: "about", component: AboutView },
-    { path: "/contactus", name: "contactus", component: ContactView },
+    {
+      path: "/",
+      name: "signin-basic",
+      component: () => import("../views/LandingPages/SignIn/BasicView.vue"),
+    },
+    {
+      path: "/home",
+      name: "presentation",
+      component: () => import("../views/Presentation/PresentationView.vue"),
+    },
+    {
+      path: "/dashboard/admin",
+      name: "dashboard",
+      component: () => import("../views/Presentation/DashboardView.vue"),
+    },
+    {
+      path: "/about",
+      name: "about",
+      component: () => import("../views/LandingPages/AboutUs/AboutView.vue"),
+    },
+    {
+      path: "/contactus",
+      name: "contactus",
+      component: () => import("../views/LandingPages/ContactUs/ContactView.vue"),
+    },
     {
       path: "/pages/landing-pages/author",
       name: "author",
-      component: AuthorView,
+      component: () => import("../views/LandingPages/Author/AuthorView.vue"),
     },
 
     {
       path: "/solicitante",
       name: "SolicitanteModal",
-      component: SolicitanteModal,
+      component: () => import("../components/SolicitanteModal.vue"),
     },
-    { path: "/assinaturas", name: "Assinaturas", component: Assinaturas },
+    {
+      path: "/assinaturas",
+      name: "Assinaturas",
+      component: () => import("../components/Assinaturas.vue"),
+    },
     {
       path: "/meus-documentos",
       name: "MeusDocumentos",
-      component: MeusDocumentos,
+      component: () => import("../components/MeusDocumentos.vue"),
       meta: { requerAutenticacao: true },
     },
     {
       path: "/meus-pagamentos",
       name: "MeusPagamentos",
-      component: MeusPagamentos,
+      component: () => import("../components/MeusPagamentos.vue"),
       meta: { requerAutenticacao: true },
     },
     {
       path: "/guardardocumentos",
       name: "GuardarDocumentos",
-      component: GuardarDocumentos,
+      component: () => import("../components/Guardardocumentos.vue"),
     },
-    { path: "/viaturas", name: "Viaturas", component: Viaturas },
-    { path: "/CVGenerator", name: "CVGenerator", component: CVGenerator },
-    { path: "/noticias", name: "NoticiasAdmin", component: NoticiasAdmin },
-    { path: "/comunidade", name: "ComunidadeRpa", component: ComunidadeRpa },
+    {
+      path: "/viaturas",
+      name: "Viaturas",
+      component: () => import("../components/viaturas.vue"),
+    },
+    {
+      path: "/CVGenerator",
+      name: "CVGenerator",
+      component: () => import("../components/CVGenerator.vue"),
+    },
+    {
+      path: "/noticias",
+      name: "NoticiasAdmin",
+      component: () => import("../components/NoticiasAdmin.vue"),
+    },
+    {
+      path: "/comunidade",
+      name: "ComunidadeRpa",
+      component: () => import("../components/ComunidadeRpa.vue"),
+    },
     {
       path: "/admin/assinaturas",
       name: "AdminAssinaturas",
-      component: AdminAssinaturas,
+      component: () => import("../components/AdminAssinaturas.vue"),
       meta: { requerAutenticacao: true },
     },
-    { path: "/olhodedeus", name: "olhodedeus", component: olhodedeus },
+    {
+      path: "/olhodedeus",
+      name: "olhodedeus",
+      component: () => import("../examples/navbars/olhodedeus.vue"),
+    },
     {
       path: "/termsconditions",
       name: "termsconditions",
-      component: TermsConditions,
+      component: () => import("../components/TermsConditions.vue"),
     },
-    { path: "/privacypolicy", name: "privacypolicy", component: PrivacyPolicy },
+    {
+      path: "/privacypolicy",
+      name: "privacypolicy",
+      component: () => import("../components/PrivacyPolicy.vue"),
+    },
     {
       path: "/pagamento-sucesso",
       name: "PagamentoSucesso",
-      component: PagamentoSucesso,
+      component: () => import("../components/PagamentoSucesso.vue"),
     },
 
-    // === ROTAS DO SISTEMA DE ANÚNCIOS (CORRETAS E ORGANIZADAS) ===
+    // === SISTEMA DE ANÚNCIOS ===
     {
       path: "/anuncie",
       name: "AnunciePage",
-      component: AnunciePage,
+      component: () => import("@/components/anunciantes/AnunciePage.vue"),
     },
     {
       path: "/anuncie/editar",
@@ -105,12 +126,12 @@ const router = createRouter({
     {
       path: "/pagamento-anuncio",
       name: "AnuncioPayment",
-      component: AnuncioPayment,
+      component: () => import("@/components/anunciantes/AnuncioPayment.vue"),
     },
     {
       path: "/meus-anuncios",
       name: "MeusAnuncios",
-      component: MeusAnuncios,
+      component: () => import("@/components/anunciantes/MeusAnuncios.vue"),
       meta: { requerAutenticacao: true },
     },
 
@@ -120,7 +141,7 @@ const router = createRouter({
       component: () => import("@/components/anunciantes/AdminAnuncios.vue"),
       meta: {
         requerAutenticacao: true,
-        requerAdmin: true, // opcional: use no guard para verificar perfil
+        requerAdmin: true,
       },
     },
   ],
