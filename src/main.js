@@ -9,9 +9,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import * as bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js";
 window.bootstrap = bootstrap;
 
-// Font Awesome
-import "@fortawesome/fontawesome-free/css/all.css";
-import "@fortawesome/fontawesome-free/js/all.js";
+// Font Awesome (Somente CSS, removido JS pesado)
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
 // Bootstrap Icons
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -23,18 +22,15 @@ import "./assets/css/nucleo-svg.css";
 // Material Kit (custom)
 import materialKit from "./material-kit";
 
-// Global Effects & Animations (Garante Poppins e efeitos visuais)
+// Global Effects & Animations
 import "./assets/css/global-effects.css";
 
 // ====================
-// Fontes locais @fontsource v4
+// Fontes locais (Mantendo apenas as críticas se necessário, idealmente usar Google Fonts no index.html)
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
-import "@fontsource/roboto/900.css";
-import "@fontsource/roboto-slab/400.css";
-import "@fontsource/roboto-slab/700.css";
 
 // ====================
 // Criar app

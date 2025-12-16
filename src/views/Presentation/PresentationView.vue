@@ -233,7 +233,7 @@ const solicitarDocumento = async () => {
     <div
       class="page-header min-vh-75"
       :style="`background-image: url(${vueMkHeader})`"
-      loading="lazy"
+      fetchpriority="high"
     >
       <div class="container">
         <div class="row">
@@ -280,35 +280,35 @@ const solicitarDocumento = async () => {
             <div class="partners-track">
               <!-- Logos Originais -->
               <div class="partner-slide">
-                <a href="https://www.facebook.com/profile.php?id=61558461805280" target="_blank">
-                  <img :src="logoBootstrap" alt="Bootstrap" />
+                <a href="https://www.facebook.com/profile.php?id=61558461805280" target="_blank" rel="noopener">
+                  <img :src="logoBootstrap" alt="Bootstrap" width="100" height="70" loading="lazy" />
                 </a>
               </div>
               <div class="partner-slide">
-                <a href="https://www.facebook.com/profile.php?id=61570930139844&sk=photos" target="_blank">
-                  <img :src="logoVue" alt="Vue.js" />
+                <a href="https://www.facebook.com/profile.php?id=61570930139844&sk=photos" target="_blank" rel="noopener">
+                  <img :src="logoVue" alt="Vue.js" width="100" height="70" loading="lazy" />
                 </a>
               </div>
               <div class="partner-slide">
-                <a href="https://www.facebook.com/Techvibemz/" target="_blank">
-                  <img :src="logoTechvibe" alt="Techvibe" />
+                <a href="https://www.facebook.com/Techvibemz/" target="_blank" rel="noopener">
+                  <img :src="logoTechvibe" alt="Techvibe" width="100" height="70" loading="lazy" />
                 </a>
               </div>
 
               <!-- Duplicados para efeito infinito -->
               <div class="partner-slide">
-                <a href="https://www.facebook.com/profile.php?id=61558461805280" target="_blank">
-                  <img :src="logoBootstrap" alt="Bootstrap" />
+                <a href="https://www.facebook.com/profile.php?id=61558461805280" target="_blank" rel="noopener">
+                  <img :src="logoBootstrap" alt="Bootstrap" width="100" height="70" loading="lazy" />
                 </a>
               </div>
               <div class="partner-slide">
-                <a href="https://www.facebook.com/profile.php?id=61570930139844&sk=photos" target="_blank">
-                  <img :src="logoVue" alt="Vue.js" />
+                <a href="https://www.facebook.com/profile.php?id=61570930139844&sk=photos" target="_blank" rel="noopener">
+                  <img :src="logoVue" alt="Vue.js" width="100" height="70" loading="lazy" />
                 </a>
               </div>
               <div class="partner-slide">
-                <a href="https://www.facebook.com/Techvibemz/" target="_blank">
-                  <img :src="logoTechvibe" alt="Techvibe" />
+                <a href="https://www.facebook.com/Techvibemz/" target="_blank" rel="noopener">
+                  <img :src="logoTechvibe" alt="Techvibe" width="100" height="70" loading="lazy" />
                 </a>
               </div>
             </div>
