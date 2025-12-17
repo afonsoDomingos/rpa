@@ -258,18 +258,7 @@ const solicitarDocumento = async () => {
       fetchpriority="high"
     >
       <div class="container">
-        <div class="row">
-          <div class="col-lg-7 text-center mx-auto position-relative">
-            <h1
-              class="text-white pt-3 mt-n5 me-2"
-              :style="{ display: 'inline-block ' }"
-            ></h1>
-            <p
-              class="lead text-white px-5 mt-3"
-              :style="{ fontWeight: '500' }"
-            ></p>
-          </div>
-        </div>
+        <!-- Conteúdo removido conforme solicitado -->
       </div>
     </div>
   </Header>
@@ -277,6 +266,8 @@ const solicitarDocumento = async () => {
   <div
     class="card card-body blur shadow-blur mx-3 mx-md-4 mt-n6 gradient-background"
   >
+
+
     <!-- Componente para Exibir Documentos -->
     <Verdocumentos />
 
@@ -291,6 +282,9 @@ const solicitarDocumento = async () => {
     <setPopover />
     <!-- Componente para Exibir Informações de Apresentação -->
     <PresentationInformation />
+
+    <!-- Seção de Depoimentos Movida para baixo -->
+    <PresentationTestimonials />
 
     <div class="container mobile-compact-section">
       <div class="row">
