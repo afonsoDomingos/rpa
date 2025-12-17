@@ -361,6 +361,7 @@ const solicitarDocumento = async () => {
             />
             <MaterialSocialButton
               route="https://www.facebook.com/profile.php?id=61570930139844&sk=photos"
+              component="facebook"
               color="facebook"
               label="facebook"
             />

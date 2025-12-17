@@ -1,13 +1,44 @@
 <script setup>
+import { ref, onMounted, onUnmounted } from "vue";
 import RotatingCard from "../../../examples/cards/rotatingCards/RotatingCard.vue";
 import RotatingCardFront from "../../../examples/cards/rotatingCards/RotatingCardFront.vue";
 import RotatingCardBack from "../../../examples/cards/rotatingCards/RotatingCardBack.vue";
 import DefaultInfoCard from "../../../examples/cards/infoCards/DefaultInfoCard.vue";
+
+const sectionRef = ref(null);
+const isVisible = ref(false);
+
+let observer = null;
+
+onMounted(() => {
+  observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        isVisible.value = true;
+        observer.disconnect(); // Animate only once
+      }
+    },
+    { threshold: 0.2 }
+  );
+
+  if (sectionRef.value) {
+    observer.observe(sectionRef.value);
+  }
+});
+
+onUnmounted(() => {
+  if (observer) observer.disconnect();
+});
 </script>
 <template>
-  <section class="my-5 py-5">
+  <section
+    ref="sectionRef"
+    class="my-5 py-5 transition-section"
+    :class="{ 'fade-up-visible': isVisible }"
+  >
     <div class="container">
       <div class="row align-items-center">
+        <!-- Content remains same -->
         <div class="col-lg-4 ms-auto me-auto p-lg-4 mt-lg-0 mt-4">
           <RotatingCard>
             <RotatingCardFront
@@ -67,6 +98,17 @@ import DefaultInfoCard from "../../../examples/cards/infoCards/DefaultInfoCard.v
 </template>
 
 <style scoped>
+.transition-section {
+  opacity: 0;
+  transform: translateY(60px);
+  transition: opacity 1s ease-out, transform 1s ease-out;
+}
+
+.fade-up-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .info-card-hover {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   padding: 10px;

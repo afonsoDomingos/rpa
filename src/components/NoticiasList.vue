@@ -102,18 +102,18 @@
         <p class="modal-conteudo">{{ conteudoModal.conteudo }}</p>
         <div class="redes-sociais">
           <a href="https://web.facebook.com/recuperaaqui/" target="_blank"
-            ><i class="fab fa-facebook-f"></i
+            ><i class="bi bi-facebook"></i
           ></a>
           <a href="https://www.instagram.com/rpamocambique/" target="_blank"
-            ><i class="fab fa-instagram"></i
+            ><i class="bi bi-instagram"></i
           ></a>
           <a
             href="https://www.linkedin.com/company/rpa-mo%C3%A7ambique"
             target="_blank"
-            ><i class="fab fa-linkedin-in"></i
+            ><i class="bi bi-linkedin"></i
           ></a>
           <a href="https://www.youtube.com/@recuperaqui" target="_blank"
-            ><i class="fab fa-youtube"></i
+            ><i class="bi bi-youtube"></i
           ></a>
         </div>
       </div>
@@ -228,8 +228,8 @@ onUnmounted(pausarAutoScroll);
 /*@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');*/
 
-/* Importando o Font Awesome localmente */
-@import "@fortawesome/fontawesome-free/css/all.min.css";
+/* Importando o Font Awesome localmente - Removido em favor do Bootstrap Icons global */
+/* @import "@fortawesome/fontawesome-free/css/all.min.css"; */
 
 /* Para a fonte Poppins */
 @import "@fontsource/poppins/500.css";
@@ -346,6 +346,7 @@ onUnmounted(pausarAutoScroll);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 6;
+  line-clamp: 6;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -21,8 +21,8 @@ defineProps({
 <template>
   <a :href="route" class="btn me-2" :class="`btn-${color}`" target="_blank">
     <i
-      class="fab"
-      :class="`fa-${component} ${
+      class="bi"
+      :class="`bi-${component} ${
         $attrs.class == 'btn-icon-only' ? 'me-0' : 'me-1'
       }`"
     ></i>
