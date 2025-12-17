@@ -622,7 +622,9 @@ const solicitarDocumento = async () => {
 }
 
 .partners-track {
-  display: flex;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
   width: calc(180px * 6); /* Largura total = largura do slide * total de slides (original + duplicado) */
   animation: scroll 20s linear infinite;
 }
