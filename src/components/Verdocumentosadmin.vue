@@ -1,10 +1,10 @@
-<script setup>
 import api from "../api";
 import { ref, onMounted, onUnmounted, watch } from "vue";
 import MaterialSwitch from "@/components/MaterialSwitch.vue";
 import eventBus from "@/eventBus";
 import MaterialButton from "@/components/MaterialButton.vue";
 import setNavPills from "@/assets/js/nav-pills.js";
+import Swal from "sweetalert2";
 
 const activeTab = ref("procurar");
 
@@ -257,8 +257,18 @@ const salvarEdicao = async () => {
 };
 
 const eliminarDocumento = async (documento) => {
-  const confirmacao = confirm(`Tem certeza que deseja eliminar o documento ${documento.numero_documento}?`);
-  if (confirmacao) {
+  const result = await Swal.fire({
+    title: 'Tem certeza?',
+    text: `Tem certeza que deseja eliminar o documento ${documento.numero_documento}?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#800080',
+    confirmButtonText: 'Sim, eliminar!',
+    cancelButtonText: 'Cancelar'
+  });
+
+  if (result.isConfirmed) {
     try {
       await api.delete(`/documentos/${documento._id}`);
 
@@ -274,7 +284,7 @@ buscarDocumentos();
 
 const atualizarStatus = async (documento) => {
   if (!documento.status || !["Pendente", "Entregue"].includes(documento.status)) {
-    alert('Status inválido. Use "Pendente" ou "Entregue".');
+    Swal.fire({ icon: 'warning', title: 'Status inválido', text: 'Use "Pendente" ou "Entregue".' });
     return;
   }
 
@@ -289,10 +299,16 @@ const atualizarStatus = async (documento) => {
       documentosReportados.value[index].status = documento.status;
     }
 
-    alert("Status atualizado com sucesso!");
+    Swal.fire({
+      title: 'Atualizado!',
+      text: 'Status atualizado com sucesso!',
+      icon: 'success',
+      timer: 2000,
+      showConfirmButton: false
+    });
   } catch (error) {
     console.error("Erro ao atualizar status:", error);
-    alert("Erro ao atualizar status.");
+    Swal.fire({ icon: 'error', title: 'Erro', text: "Erro ao atualizar status." });
   }
 };
 </script>

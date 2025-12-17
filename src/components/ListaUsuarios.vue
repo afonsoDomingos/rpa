@@ -208,6 +208,7 @@
 import { ref, computed, onMounted, watch } from "vue";
 import api from "../api";
 import GraficoUsuarios from "./GraficoUsuarios.vue";
+import Swal from "sweetalert2";
 
 const props = defineProps(["atualizar"]);
 
@@ -303,7 +304,18 @@ const salvarEdicao = async () => {
 };
 
 const excluirUsuario = async (id) => {
-  if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
+  const result = await Swal.fire({
+      title: 'Tem certeza?',
+      text: "Tem certeza que deseja excluir este usuário?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sim, excluir!',
+      cancelButtonText: 'Cancelar'
+  });
+
+  if (!result.isConfirmed) return;
   
   try {
     const token = localStorage.getItem("token");

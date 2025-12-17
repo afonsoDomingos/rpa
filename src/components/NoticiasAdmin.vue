@@ -201,6 +201,7 @@
 import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
+import Swal from "sweetalert2";
 
 const API_BASE = "https://apirpa.onrender.com";
 const API_URL = `${API_BASE}/api/noticias`;
@@ -321,7 +322,19 @@ const salvarNoticia = async () => {
 
 // Remover
 const removerNoticia = async (_id) => {
-  if (!confirm("Tem certeza que deseja remover esta notícia?")) return;
+  const result = await Swal.fire({
+      title: 'Tem certeza?',
+      text: "Tem certeza que deseja remover esta notícia?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6b46c1',
+      confirmButtonText: 'Sim, remover!',
+      cancelButtonText: 'Cancelar'
+  });
+
+  if (!result.isConfirmed) return;
+
   try {
     await axios.delete(`${API_URL}/${_id}`);
     noticias.value = noticias.value.filter((n) => n._id !== _id);

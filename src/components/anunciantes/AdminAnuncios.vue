@@ -249,6 +249,7 @@ import { useRouter } from "vue-router";
 import api from "@/api";
 import io from "socket.io-client";
 import Chart from "chart.js/auto";
+import Swal from "sweetalert2";
 
 const router = useRouter();
 const anuncios = ref([]);
@@ -351,25 +352,70 @@ const onImageLoad = (e) => e.target.classList.add("loaded");
 
 const toggleStatus = async (ad) => {
   const novo = ad.status === "paused" ? "active" : "paused";
-  if (
-    !confirm(`Deseja ${novo === "active" ? "ativar" : "pausar"} este anúncio?`)
-  )
-    return;
+  const acao = novo === "active" ? "ativar" : "pausar";
+  
+  const result = await Swal.fire({
+    title: `Deseja ${acao}?`,
+    text: `Você está prestes a ${acao} este anúncio.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#800080',
+    cancelButtonColor: '#d33',
+    confirmButtonText: `Sim, ${acao}!`,
+    cancelButtonText: 'Cancelar'
+  });
+
+  if (!result.isConfirmed) return;
+
   try {
     await api.patch(`/anuncios/admin/${ad._id}/status`, { status: novo });
     ad.status = novo;
+    Swal.fire({
+      icon: 'success',
+      title: 'Sucesso!',
+      text: `Anúncio ${novo === "active" ? "ativado" : "pausado"} com sucesso.`,
+      timer: 1500,
+      showConfirmButton: false
+    });
   } catch (e) {
-    alert(e.response?.data?.mensagem || "Erro");
+    Swal.fire({
+      icon: 'error',
+      title: 'Erro',
+      text: e.response?.data?.mensagem || "Erro ao alterar status"
+    });
   }
 };
 
 const confirmarRemocao = async (id) => {
-  if (!confirm("Remover permanentemente este anúncio?")) return;
+  const result = await Swal.fire({
+    title: 'Remover permanentemente?',
+    text: "Esta ação não pode ser desfeita!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#800080',
+    confirmButtonText: 'Sim, remover!',
+    cancelButtonText: 'Cancelar'
+  });
+
+  if (!result.isConfirmed) return;
+
   try {
     await api.delete(`/anuncios/admin/${id}`);
     anuncios.value = anuncios.value.filter((a) => a._id !== id);
+    Swal.fire({
+      icon: 'success',
+      title: 'Removido!',
+      text: 'O anúncio foi removido com sucesso.',
+      timer: 1500,
+      showConfirmButton: false
+    });
   } catch (e) {
-    alert(e.response?.data?.mensagem || "Erro");
+    Swal.fire({
+      icon: 'error',
+      title: 'Erro',
+      text: e.response?.data?.mensagem || "Erro ao remover anúncio"
+    });
   }
 };
 
@@ -381,7 +427,11 @@ const abrirStats = async (ad) => {
     await nextTick();
     criarOuAtualizarGrafico();
   } catch (e) {
-    alert("Erro ao carregar estatísticas");
+    Swal.fire({
+      icon: 'error',
+      title: 'Erro',
+      text: "Erro ao carregar estatísticas do anúncio."
+    });
   }
 };
 

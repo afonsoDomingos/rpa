@@ -156,6 +156,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import api from "@/api";
+import Swal from "sweetalert2";
 
 defineEmits(['refresh']);
 
@@ -230,7 +231,11 @@ const scrollToSection = (sectionId) => {
 
 // Função para exportar relatório
 const exportarRelatorio = () => {
-  alert('📊 Funcionalidade de exportação em desenvolvimento!\n\nEm breve você poderá exportar:\n- PDF com gráficos\n- Excel com dados tabulares\n- Filtros customizáveis');
+  Swal.fire({
+    icon: 'info',
+    title: 'Em breve!',
+    html: 'Funcionalidade de exportação em desenvolvimento!<br><br>Em breve você poderá exportar:<br>- PDF com gráficos<br>- Excel com dados tabulares<br>- Filtros customizáveis'
+  });
 };
 
 // Função de refresh

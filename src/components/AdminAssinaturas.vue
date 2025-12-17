@@ -372,6 +372,7 @@ import FooterDefault from "../examples/footers/FooterDefault.vue";
 import { ref, computed, onMounted, watch } from "vue";
 import { useSocketNotifications } from "@/composables/useSocketNotifications";
 import { usePushNotifications } from "@/composables/usePushNotifications";
+import Swal from "sweetalert2";
 
 // Socket.IO Notifications
 const { notifications, unreadCount, markAsRead, clearAll } = useSocketNotifications();
@@ -480,7 +481,19 @@ const fecharModal = () => (pagamentoSelecionado.value = null);
 
 // Excluir pagamento
 const excluirPagamento = async (id) => {
-  if (!confirm("Tem certeza que deseja excluir este pagamento?")) return;
+  const result = await Swal.fire({
+    title: 'Tem certeza?',
+    text: "Deseja realmente excluir este pagamento?",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#800080',
+    confirmButtonText: 'Sim, excluir!',
+    cancelButtonText: 'Cancelar'
+  });
+
+  if (!result.isConfirmed) return;
+
   try {
     const token = localStorage.getItem("token");
     const res = await fetch(`${API_URL}/${id}`, {

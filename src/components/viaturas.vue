@@ -266,6 +266,7 @@
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../examples/footers/FooterDefault.vue";
 import { ref, reactive, computed, onMounted, onBeforeUnmount } from "vue";
+import Swal from "sweetalert2";
 
 // Stats
 const stats = reactive({ recuperadas: 1247, ativas: 89, recompensas: 125000 });
@@ -278,7 +279,7 @@ const statsDisplay = computed(() => ({
 // Search
 const searchForm = reactive({ placa: "", marca: "" });
 const buscarViatura = () =>
-  alert(`Buscando viatura com placa: ${searchForm.placa}`);
+  Swal.fire({ title: 'Buscando...', text: `Buscando viatura com placa: ${searchForm.placa}`, icon: 'info' });
 
 // Report
 const reportForm = reactive({
@@ -337,7 +338,7 @@ const reportarViatura = () => {
     foto: reportForm.fotoPreview,
   };
   viaturasAtivas.value.unshift(nova);
-  alert("Viatura reportada com sucesso!");
+  Swal.fire({ title: 'Sucesso', text: "Viatura reportada com sucesso!", icon: 'success' });
   Object.keys(reportForm).forEach(
     (k) => (reportForm[k] = k === "foto" || k === "fotoPreview" ? null : "")
   );
@@ -503,7 +504,7 @@ const closeZoom = () => {
 };
 
 // Contato
-const contatarProprietario = (id) => alert("Redirecionando para contato...");
+const contatarProprietario = (id) => Swal.fire({ title: 'Contato', text: "Redirecionando para contato...", icon: 'info' });
 </script>
 
 <style scoped>

@@ -191,6 +191,7 @@ import {
 } from "vue";
 import api from "@/api";
 import { sendMetaEvent } from "@/utils/meta";
+import Swal from "sweetalert2";
 
 const emit = defineEmits(["created"]);
 
@@ -288,16 +289,17 @@ const isFormValid = computed(() => {
 });
 
 // Imagem
+
 const onFileChange = (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
   if (!file.type.match("image/(jpeg|png|webp)")) {
-    alert("Apenas JPG, PNG ou WebP.");
+    Swal.fire({ icon: 'warning', title: 'Formato inválido', text: "Apenas JPG, PNG ou WebP." });
     return;
   }
   if (file.size > 2 * 1024 * 1024) {
-    alert("Máximo 2MB.");
+    Swal.fire({ icon: 'warning', title: 'Arquivo muito grande', text: "Máximo 2MB." });
     return;
   }
 

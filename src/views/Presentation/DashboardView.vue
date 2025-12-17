@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, onUnmounted } from "vue";
+import Swal from "sweetalert2";
 
 import TabelaSolicitacoes from "../TabelaSolicitacoes.vue";
 import DocumentosCharts from "../DocumentosCharts.vue";
@@ -103,7 +104,11 @@ const solicitarDocumento = async () => {
 
   // Validação adicional (por exemplo, para data de nascimento)
   if (!data_nascimento.value) {
-    alert("Por favor, preencha a data de nascimento.");
+    Swal.fire({
+      icon: 'warning',
+      title: 'Campo obrigatório',
+      text: "Por favor, preencha a data de nascimento."
+    });
     return;
   }
 

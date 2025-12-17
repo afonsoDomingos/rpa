@@ -363,6 +363,7 @@ import { ref, onMounted, computed, watch, nextTick, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import api from "@/api";
 import Chart from "chart.js/auto";
+import Swal from "sweetalert2";
 
 const router = useRouter();
 
@@ -419,7 +420,7 @@ const onImageLoad = (e) => e.target.classList.add("loaded");
 
 // Carregar anúncios
 const carregarAnuncios = async () => {
-  try {
+    try {
     const token = localStorage.getItem("token");
     if (!token) throw new Error("Token não encontrado");
     const res = await api.get("/anuncios/meus", {
@@ -441,16 +442,38 @@ const recarregar = () => {
   carregarAnuncios();
 };
 
-// Remover anúncio
 const confirmarRemocao = async (id) => {
-  if (!confirm("Tem certeza que deseja remover este anúncio?")) return;
+  const result = await Swal.fire({
+    title: 'Tem certeza?',
+    text: "Deseja realmente remover este anúncio?",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#800080',
+    confirmButtonText: 'Sim, remover!',
+    cancelButtonText: 'Cancelar'
+  });
+
+  if (!result.isConfirmed) return;
+
   try {
     await api.delete(`/anuncios/${id}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     });
     anuncios.value = anuncios.value.filter((a) => a._id !== id);
+    Swal.fire({
+      icon: 'success',
+      title: 'Removido!',
+      text: 'O anúncio foi removido com sucesso.',
+      timer: 2000,
+      showConfirmButton: false
+    });
   } catch (err) {
-    alert(err.response?.data?.mensagem || "Erro ao remover anúncio.");
+    Swal.fire({
+      icon: 'error',
+      title: 'Erro',
+      text: err.response?.data?.mensagem || "Erro ao remover anúncio."
+    });
   }
 };
 
@@ -536,8 +559,9 @@ const onFileChange = (e) => {
   const file = e.target.files[0];
   if (!file) return;
   if (!file.type.match("image/(jpeg|png|webp)"))
-    return alert("Apenas JPG, PNG ou WebP.");
-  if (file.size > 2 * 1024 * 1024) return alert("Máximo 2MB.");
+    return Swal.fire({ icon: 'warning', title: 'Formato inválido', text: "Apenas JPG, PNG ou WebP." });
+  if (file.size > 2 * 1024 * 1024)
+    return Swal.fire({ icon: 'warning', title: 'Arquivo muito grande', text: "Máximo 2MB." });
   editForm.value.image = file;
   newPreviewUrl.value = URL.createObjectURL(file);
 };
@@ -583,7 +607,13 @@ const salvarEdicao = async () => {
           : anuncios.value[index].image,
       };
     }
-    alert("Anúncio atualizado com sucesso!");
+    Swal.fire({
+        icon: 'success',
+        title: 'Sucesso!',
+        text: 'Anúncio atualizado com sucesso!',
+        timer: 2000,
+        showConfirmButton: false
+    });
     fecharEdicao();
   } catch (err) {
     submitError.value = err.response?.data?.mensagem || "Erro ao salvar.";
@@ -592,7 +622,6 @@ const salvarEdicao = async () => {
   }
 };
 
-// Estatísticas
 const abrirEstatisticas = async (ad) => {
   statsAnuncio.value = ad;
   statsModal.value = true;
@@ -601,7 +630,7 @@ const abrirEstatisticas = async (ad) => {
     stats.value = res.data.stats;
     nextTick(() => criarGrafico());
   } catch (err) {
-    alert("Erro ao carregar estatísticas");
+    Swal.fire({ icon: 'error', title: 'Erro', text: "Erro ao carregar estatísticas" });
     fecharEstatisticas();
   }
 };

@@ -44,6 +44,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import Swal from "sweetalert2";
 
 // Componentes
 import AnuncieForm from "@/components/anunciantes/AnuncieForm.vue";
@@ -96,12 +97,12 @@ const onSelectWeeks = (weeks) => {
 // Vai para pagamento
 const goToPayment = () => {
   if (!anuncioId.value) {
-    alert("Erro: Anúncio não foi criado.");
+    Swal.fire({ icon: 'error', title: 'Erro', text: "Anúncio não foi criado." });
     return;
   }
   const weeks = Number(selectedWeeks.value);
   if (!weeks || weeks < 1 || weeks > 4 || !Number.isInteger(weeks)) {
-    alert("Selecione uma duração válida: 1 a 4 semanas.");
+    Swal.fire({ icon: 'warning', title: 'Duração inválida', text: "Selecione uma duração válida: 1 a 4 semanas." });
     return;
   }
   step.value = 3;

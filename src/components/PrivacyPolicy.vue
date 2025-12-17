@@ -41,6 +41,7 @@ onUnmounted(() => {
 });
 
 import api from "../api";
+import Swal from "sweetalert2";
 
 import { ref } from "vue"; // Importando ref para reatividade
 
@@ -110,7 +111,11 @@ const solicitarDocumento = async () => {
 
   // Validação adicional (por exemplo, para data de nascimento)
   if (!data_nascimento.value) {
-    alert("Por favor, preencha a data de nascimento.");
+    Swal.fire({
+      icon: 'warning',
+      title: 'Campo obrigatório',
+      text: "Por favor, preencha a data de nascimento."
+    });
     return;
   }
 
