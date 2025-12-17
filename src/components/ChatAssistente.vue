@@ -928,8 +928,9 @@ function typeWriter(text, callback) {
 function handleScroll() {
   const el = chatMessagesRef.value;
   if (!el) return;
-  // Mostra botão se não estiver no fim (tolerância de 20px)
-  showScrollBtn.value = el.scrollTop + el.clientHeight < el.scrollHeight - 20;
+  // Mostra botão se não estiver no fim (tolerância de 50px)
+  const isAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 50;
+  showScrollBtn.value = !isAtBottom;
 }
 
 function scrollToBottom(behavior = "auto") {
@@ -940,22 +941,9 @@ function scrollToBottom(behavior = "auto") {
         top: el.scrollHeight,
         behavior: behavior,
       });
-      // Força atualização do botão de scroll
-      if (behavior === "auto") {
-        showScrollBtn.value = false;
-      }
     });
   }
 }
-
-onUpdated(() => {
-  nextTick(() => {
-    if (chatMessagesRef.value) {
-      chatMessagesRef.value.scrollTop = chatMessagesRef.value.scrollHeight;
-      showScrollBtn.value = false;
-    }
-  });
-});
 
 onMounted(() => {
   const avatar = document.querySelector(".chat-avatar svg");
