@@ -1,6 +1,12 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import Swal from "sweetalert2";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+const irParaComunidade = () => {
+  router.push({ name: 'ComunidadeRpa' });
+};
 
 //example components
 import NavbarDefault from "../../examples/navbars/NavbarDefault.vue";
@@ -201,6 +207,16 @@ const solicitarDocumento = async () => {
     title="Apoie o Projeto"
   >
     <span class="icon-heart">🤍</span>
+  </button>
+
+  <!-- Botão flutuante de Comunidade -->
+  <button
+    class="btn-comunidade-flutuante"
+    @click="irParaComunidade"
+    aria-label="Ir para Comunidade"
+    title="Comunidade"
+  >
+    <span class="icon-community">👥</span>
   </button>
 
   <!-- Modal de doação -->
@@ -771,6 +787,51 @@ const solicitarDocumento = async () => {
   .btn-doacao-flutuante {
     top: auto !important;
     bottom: 78px !important;
+    right: 18px !important;
+    left: auto !important;
+  }
+}
+
+.btn-comunidade-flutuante {
+  position: fixed;
+  top: 90px;
+  right: 18px;
+  z-index: 1050;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 12px #0002;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+  padding: 0;
+}
+.btn-comunidade-flutuante:hover {
+  background: white;
+  color: #111;
+  border: 1px solid #111;
+  transform: scale(1.13);
+}
+.btn-comunidade-flutuante:hover {
+  background: linear-gradient(135deg, #6610f2 60%, #800080 100%);
+  transform: scale(1.07);
+  color: white;
+}
+.icon-community {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+@media (max-width: 600px) {
+  .btn-comunidade-flutuante {
+    top: auto !important;
+    bottom: 120px !important;
     right: 18px !important;
     left: auto !important;
   }
