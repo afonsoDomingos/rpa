@@ -896,7 +896,7 @@ function responderFaq(id) {
 // Efeito digitação gradual
 function typeWriter(text, callback) {
   let i = 0;
-  const speed = 20;
+  const speed = 20; // Aumentar um pouco a velocidade se necessário
   let current = "";
 
   function type() {
@@ -910,10 +910,14 @@ function typeWriter(text, callback) {
       } else {
         messages.value[messages.value.length - 1].text = current;
       }
-      scrollToBottom();
+      scrollToBottom("auto"); // Scroll instantâneo durante a digitação
       setTimeout(type, speed);
-    } else if (callback) {
-      callback();
+    } else {
+      // Garante scroll final suave
+      scrollToBottom("smooth");
+      if (callback) {
+        callback();
+      }
     }
   }
 
@@ -923,15 +927,22 @@ function typeWriter(text, callback) {
 function handleScroll() {
   const el = chatMessagesRef.value;
   if (!el) return;
-  showScrollBtn.value = el.scrollTop + el.clientHeight < el.scrollHeight - 10;
+  // Mostra botão se não estiver no fim (tolerância de 20px)
+  showScrollBtn.value = el.scrollTop + el.clientHeight < el.scrollHeight - 20;
 }
 
-function scrollToBottom() {
+function scrollToBottom(behavior = "auto") {
   const el = chatMessagesRef.value;
   if (el) {
     nextTick(() => {
-      el.scrollTop = el.scrollHeight;
-      showScrollBtn.value = false;
+      el.scrollTo({
+        top: el.scrollHeight,
+        behavior: behavior,
+      });
+      // Força atualização do botão de scroll
+      if (behavior === "auto") {
+        showScrollBtn.value = false;
+      }
     });
   }
 }
