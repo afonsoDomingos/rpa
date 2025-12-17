@@ -39,7 +39,7 @@
 
     <div class="chat-desc">Assistente Virtual</div>
 
-    <div class="chat-body">
+    <div class="chat-body" ref="chatMessagesRef" @scroll="handleScroll">
       <!-- Menu suspenso de perguntas -->
       <div class="faq-menu-wrapper">
         <button
@@ -101,7 +101,7 @@
         </div>
       </div>
 
-      <div class="chat-messages" ref="chatMessagesRef" @scroll="handleScroll">
+      <div class="chat-messages">
         <div
           v-for="(msg, i) in messages"
           :key="'msg-' + i"
@@ -872,6 +872,7 @@ async function send() {
 
   const userMsg = input.value.trim();
   messages.value.push({ from: "user", text: userMsg });
+  nextTick(() => scrollToBottom());
 
   input.value = "";
   await processMessage(userMsg);
