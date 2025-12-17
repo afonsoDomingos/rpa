@@ -410,6 +410,7 @@ import { ref, onMounted, onBeforeUnmount } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 import { io } from "socket.io-client";
+import Swal from "sweetalert2";
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../examples/footers/FooterDefault.vue";
 import DoacaoProjeto from "./DoacaoProjeto.vue";
@@ -526,7 +527,12 @@ const criarPost = async () => {
   // Validação para Relatório de Documento
   if (isDocumentReport.value) {
     if (!docName.value || !docType.value || !docContact.value) {
-      alert("Por favor, preencha todos os campos do documento (Nome, Tipo e Contacto).");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Atenção',
+        text: 'Por favor, preencha todos os campos do documento (Nome, Tipo e Contacto).',
+        confirmButtonColor: '#800080'
+      });
       return;
     }
   }
@@ -585,7 +591,12 @@ const criarPost = async () => {
 
   } catch (err) {
     console.error("Erro ao criar post:", err);
-    alert("Erro ao publicar. Verifique a conexão.");
+    Swal.fire({
+      icon: 'error',
+      title: 'Erro',
+      text: 'Erro ao publicar. Verifique a conexão.',
+      confirmButtonColor: '#d33'
+    });
   }
 };
 
@@ -630,15 +641,39 @@ const responderPost = async (post) => {
 };
 
 const deletarPost = async (post) => {
-  if (!confirm("Tem certeza que deseja apagar este post? Esta ação não pode ser desfeita.")) return;
-  
-  try {
-    await axios.delete(`${API_URL}/${post._id}`, { headers });
-    // O socket vai tratar de remover da lista automáticamente via 'postDeletado'
-  } catch (err) {
-    console.error("Erro ao deletar post:", err);
-    alert("Erro ao apagar o post.");
-  }
+  Swal.fire({
+    title: 'Tem certeza?',
+    text: "Esta ação não pode ser desfeita e o post será removido permanentemente.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#800080',
+    confirmButtonText: 'Sim, apagar!',
+    cancelButtonText: 'Cancelar'
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`${API_URL}/${post._id}`, { headers });
+        // O socket vai tratar de remover da lista automáticamente via 'postDeletado'
+        Swal.fire({
+          title: 'Apagado!',
+          text: 'O post foi removido com sucesso.',
+          icon: 'success',
+          confirmButtonColor: '#800080',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (err) {
+        console.error("Erro ao deletar post:", err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'Não foi possível apagar o post. Tente novamente.',
+          confirmButtonColor: '#d33'
+        });
+      }
+    }
+  });
 };
 
 const canDelete = (post) => {
@@ -736,7 +771,13 @@ const shareTo = (platform) => {
       break;
     case 'copy':
       navigator.clipboard.writeText(`${postToShare.value.conteudo}\n\nLink: https://rpa.mz`);
-      alert("Texto copiado para a área de transferência!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Copiado!',
+        text: 'Texto copiado para a área de transferência.',
+        timer: 1500,
+        showConfirmButton: false
+      });
       closeShareModal();
       return;
   }

@@ -437,6 +437,7 @@ const logout = () => {
   }).then((result) => {
     if (result.isConfirmed) {
       localStorage.removeItem("email");
+      localStorage.removeItem("token");
       usuario.value = null;
 
       Swal.fire({

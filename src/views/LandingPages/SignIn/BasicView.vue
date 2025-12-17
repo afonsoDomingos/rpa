@@ -3,6 +3,7 @@ import { ref, onMounted, computed, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import NavbarDefault from "../../../examples/navbars/NavbarDefault.vue";
+import Swal from "sweetalert2";
 
 
 
@@ -126,7 +127,15 @@ const register = async () => {
     errorMessage.value = "";
     modo.value = "login";
     nome.value = newEmail.value = newPassword.value = confirmPassword.value = "";
-    alert("Conta criada com sucesso!");
+    
+    // Alerta bonito com SweetAlert2
+    Swal.fire({
+      title: 'Sucesso!',
+      text: 'Conta criada com sucesso!',
+      icon: 'success',
+      confirmButtonColor: '#800080',
+      timer: 3000
+    });
   } catch (err: any) {
     errorMessage.value = err.response?.data?.msg || "Falha no registro. Tente novamente.";
   } finally {
@@ -235,12 +244,12 @@ onMounted(async () => {
 
     <transition name="slide-fade" mode="out-in">
       <form v-if="modo === 'login'" @submit.prevent="login" class="form">
-        <label class="input-group">
+        <label class="custom-input-group">
           <i class="bi bi-envelope"></i>
           <input v-model="email" type="email" placeholder="E-mail" required />
         </label>
         
-       <label class="input-group">
+       <label class="custom-input-group">
   <i class="bi bi-lock"></i>
   <input :type="showPass ? 'text' : 'password'" v-model="password" placeholder="Senha" required />
   <span class="eye" @click="showPass = !showPass">
@@ -261,22 +270,22 @@ onMounted(async () => {
       </form>
 
       <form v-else @submit.prevent="register" class="form">
-        <label class="input-group">
+        <label class="custom-input-group">
           <i class="bi bi-person"></i>
           <input v-model="nome" type="text" placeholder="Nome completo" required />
         </label>
-        <label class="input-group">
+        <label class="custom-input-group">
           <i class="bi bi-envelope"></i>
           <input v-model="newEmail" type="email" placeholder="E-mail" required />
         </label>
-      <label class="input-group">
+      <label class="custom-input-group">
   <i class="bi bi-lock"></i>
   <input :type="showNewPass ? 'text' : 'password'" v-model="newPassword" placeholder="Senha" required />
   <span class="eye" @click="showNewPass = !showNewPass">
     <i :class="showNewPass ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
   </span>
 </label>
-        <label class="input-group">
+        <label class="custom-input-group">
   <i class="bi bi-lock"></i>
   <input :type="showConfirmPass ? 'text' : 'password'" v-model="confirmPassword" placeholder="Confirmar senha" required />
   <span class="eye" @click="showConfirmPass = !showConfirmPass">
@@ -404,28 +413,33 @@ label, .form-label {
   max-width: 320px;
 }
 
-.input-group {
+.custom-input-group {
   position: relative;
   display: flex;
   align-items: center;
+  flex-wrap: nowrap; /* Garante que não quebre linha */
+  width: 100%; /* Ocupa largura total disponível */
   background: #f1f1f1;
   border-radius: 8px;
   padding: 0.6rem 0.8rem;
 }
 
-.input-group i {
+.custom-input-group i {
   color: #800080;
   font-size: 16px;
   margin-right: 0.5rem;
+  flex-shrink: 0; /* Ícone não encolhe */
 }
 
-.input-group input {
+.custom-input-group input {
   flex: 1;
   border: none;
   outline: none;
   background: transparent;
   font-size: 14px;
   color: #333;
+  width: 100%; /* Garante preenchimento */
+  min-width: 0; /* Previne overflow em flex items */
 }
 
 /* .eye Refactored to Flexbox */
@@ -437,6 +451,7 @@ label, .form-label {
   align-items: center;
   justify-content: center;
   transition: color 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0;
 }
 
 .eye:hover {

@@ -7,6 +7,7 @@ import eventBus from "@/eventBus";
 import { Modal } from "bootstrap";
 
 import { useRouter } from "vue-router";
+import Swal from "sweetalert2";
 const router = useRouter();
 
 //Vue Material Kit 2 components
@@ -314,12 +315,26 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
         bootstrapModal.show();
       }
     } else {
-      alert("Você precisa de uma assinatura ativa para solicitar documentos.");
-      router.push("/assinaturas");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Assinatura Necessária',
+        text: 'Você precisa de uma assinatura ativa para solicitar documentos.',
+        confirmButtonColor: '#800080',
+        confirmButtonText: 'Ver Planos'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          router.push("/assinaturas");
+        }
+      });
     }
   } catch (error) {
     console.error("Erro ao verificar assinatura:", error);
-    alert("Erro ao verificar assinatura. Tente novamente.");
+    Swal.fire({
+      icon: 'error',
+      title: 'Erro',
+      text: 'Erro ao verificar assinatura. Tente novamente.',
+      confirmButtonColor: '#d33'
+    });
   }
 };
 </script>
