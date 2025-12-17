@@ -27,9 +27,7 @@ import PresentationPages from "./Sections/PresentationPages.vue";
 import PresentationExample from "./Sections/PresentationExample.vue";
 import data from "./Sections/Data/designBlocksData";
 import BuiltByDevelopers from "./Components/BuiltByDevelopers.vue";
-import PresentationTestimonials from "./Sections/PresentationTestimonials.vue";
-import PresentationInformation from "./Sections/PresentationInformation.vue";
-import FloatingDocs from "../../components/FloatingDocs.vue";
+
 
 // CORRETO
 import AdCard from "../../components/anunciantes/AdCard.vue";
@@ -206,7 +204,7 @@ const solicitarDocumento = async () => {
     aria-label="Apoie o Projeto"
     title="Apoie o Projeto"
   >
-    <span class="icon-heart">🤍</span>
+    <i class="bi bi-heart-fill icon-heart"></i>
   </button>
 
   <!-- Botão flutuante de Comunidade -->
@@ -216,7 +214,7 @@ const solicitarDocumento = async () => {
     aria-label="Ir para Comunidade"
     title="Comunidade"
   >
-    <span class="icon-community">👥</span>
+    <i class="bi bi-people-fill icon-community"></i>
   </button>
 
   <!-- Modal de doação -->
@@ -284,7 +282,7 @@ const solicitarDocumento = async () => {
     <PresentationInformation />
 
     <!-- Seção de Depoimentos Movida para baixo -->
-    <PresentationTestimonials />
+    <!-- <PresentationTestimonials /> (Removido) -->
 
     <div class="container mobile-compact-section">
       <div class="row">
