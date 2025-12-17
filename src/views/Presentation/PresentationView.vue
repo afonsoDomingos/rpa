@@ -41,12 +41,12 @@ import NoticiasList from "../../components/NoticiasList.vue";
 import vueMkHeader from "@/assets/img/banner.jpg";
 
 import wavesWhite from "@/assets/img/waves-white.svg";
-import logoBootstrap from "@/assets/img/logos/bootstrap5.jpg";
+import logoBootstrap from "@/assets/img/logos/rpa.png";
 import logoTailwind from "@/assets/img/logos/icon-tailwind.jpg";
-import logoVue from "@/assets/img/logos/vue.jpg";
+import logoVue from "@/assets/img/logos/payboom.png";
 import logoAngular from "@/assets/img/logos/angular.jpg";
-import logoTechvibe from "@/assets/img/logos/techvibe.jpg";
-import logoReact from "@/assets/img/logos/react.jpg";
+import logoTechvibe from "@/assets/img/logos/techvibe.png";
+import logoMafin from "@/assets/img/logos/madfin.png";
 import logoSketch from "@/assets/img/logos/sketch.jpg";
 
 const showDoacao = ref(false);
@@ -309,6 +309,13 @@ const solicitarDocumento = async () => {
                 </a>
               </div>
 
+
+               <div class="partner-slide">
+                <a href="http://madfin.vercel.app/" target="_blank" rel="noopener">
+                  <img :src="logoMafin" alt="Madfin" width="100" height="70" loading="lazy" />
+                </a>
+              </div>
+
               <!-- Duplicados para efeito infinito -->
               <div class="partner-slide">
                 <a href="https://www.facebook.com/profile.php?id=61558461805280" target="_blank" rel="noopener">
@@ -322,7 +329,11 @@ const solicitarDocumento = async () => {
               </div>
               <div class="partner-slide">
                 <a href="https://www.facebook.com/Techvibemz/" target="_blank" rel="noopener">
-                  <img :src="logoTechvibe" alt="Techvibe" width="100" height="70" loading="lazy" />
+                </a>
+              </div>
+               <div class="partner-slide">
+                <a href="http://madfin.vercel.app/" target="_blank" rel="noopener">
+                  <img :src="logoMafin" alt="Madfin" width="100" height="70" loading="lazy" />
                 </a>
               </div>
             </div>
@@ -625,7 +636,7 @@ const solicitarDocumento = async () => {
   display: flex !important;
   flex-direction: row !important;
   flex-wrap: nowrap !important;
-  width: calc(180px * 6); /* Largura total = largura do slide * total de slides (original + duplicado) */
+  width: calc(180px * 8); /* Largura total = largura do slide * total de slides (4 originais + 4 duplicados) */
   animation: scroll 20s linear infinite;
 }
 
@@ -653,7 +664,7 @@ const solicitarDocumento = async () => {
 
 @keyframes scroll {
   0% { transform: translateX(0); }
-  100% { transform: translateX(calc(-180px * 3)); } /* Move metade da largura total */
+  100% { transform: translateX(calc(-180px * 4)); } /* Move metade da largura total (4 itens) */
 }
 
 /* Ajuste do rodapé para não ficar enorme no mobile */
@@ -662,12 +673,12 @@ const solicitarDocumento = async () => {
     width: 140px; /* Menor no mobile */
   }
   .partners-track {
-    width: calc(140px * 6);
+    width: calc(140px * 8);
     animation: scroll 15s linear infinite; /* Mais rápido no mobile */
   }
   @keyframes scroll {
     0% { transform: translateX(0); }
-    100% { transform: translateX(calc(-140px * 3)); }
+    100% { transform: translateX(calc(-140px * 4)); }
   }
 }
 
