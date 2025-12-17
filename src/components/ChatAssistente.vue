@@ -72,6 +72,7 @@
               <li v-for="p in predefinidas" :key="p.id">
                 <button
                   class="faq-btn"
+                  :class="{ 'faq-btn-highlight': p.id === 3 }"
                   @click="responderFaq(p.id)"
                   role="menuitem"
                 >
@@ -1180,6 +1181,38 @@ onMounted(() => {
 .faq-btn:hover {
   background: #e6e6fa;
   color: #198754;
+}
+
+.faq-btn-highlight {
+  background: linear-gradient(90deg, #e8f5e9, #ffffff) !important;
+  border: 1.5px solid #198754 !important;
+  color: #155724 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(25, 135, 84, 0.2);
+  transform: scale(1.02);
+  margin-top: 5px;
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.faq-btn-highlight::after {
+  content: "✨ Recomendado";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  background: #198754;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  opacity: 0.9;
+}
+
+.faq-btn-highlight:hover {
+  transform: scale(1.04);
+  box-shadow: 0 6px 16px rgba(25, 135, 84, 0.3);
 }
 
 /* Posição original: canto inferior direito */
