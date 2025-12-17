@@ -370,7 +370,6 @@
 <script setup>
 import { ref, onMounted, computed, watch, nextTick, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
-import { useRouter } from "vue-router";
 import api from "@/api";
 import Chart from "chart.js/auto";
 import Swal from "sweetalert2";
