@@ -1,3 +1,4 @@
+<script setup>
 import api from "../api";
 import { ref, onMounted, onUnmounted, watch } from "vue";
 import MaterialSwitch from "@/components/MaterialSwitch.vue";
