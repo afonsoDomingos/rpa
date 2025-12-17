@@ -639,12 +639,16 @@ const solicitarDocumento = async () => {
 
 .partner-slide img {
   height: 70px; /* Tamanho controlado para mobile e desktop */
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
   opacity: 0.8;
-  transition: opacity 0.3s;
+  transition: transform 0.3s ease, opacity 0.3s;
 }
 
 .partner-slide img:hover {
   opacity: 1;
+  transform: scale(1.2);
 }
 
 @keyframes scroll {
