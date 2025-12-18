@@ -455,13 +455,22 @@ onMounted(() => {
   });
 });
 function fecharDropdown() {
-  const dropdown = bootstrap.Dropdown.getInstance(
-    dropdownMenu.value?.parentElement
-  );
-  if (dropdown) dropdown.hide();
+  // Fechar todos os dropdowns abertos
+  const dropdowns = document.querySelectorAll('.dropdown-menu.show');
+  dropdowns.forEach((dropdown) => {
+    const bsDropdown = bootstrap.Dropdown.getInstance(dropdown.previousElementSibling);
+    if (bsDropdown) {
+      bsDropdown.hide();
+    }
+  });
 
-  const collapse = bootstrap.Collapse.getInstance(navbarCollapse.value);
-  if (collapse) collapse.hide();
+  // Fechar o menu mobile se estiver aberto
+  if (navbarCollapse.value) {
+    const collapse = bootstrap.Collapse.getInstance(navbarCollapse.value);
+    if (collapse) {
+      collapse.hide();
+    }
+  }
 }
 
 // Imagens
