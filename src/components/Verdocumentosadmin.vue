@@ -90,6 +90,50 @@ const isMilestone = (pos) => {
   if (pos <= 1000) return pos % 10 === 0;
   return pos % 100 === 0;
 };
+
+const formatUsuario = (u) => {
+  if (!u || u === "undefined" || u === "null") return "Visitante";
+  if (typeof u === 'object') return u.nome || u.name || "Usuário";
+  if (typeof u === 'string' && /^[0-9a-fA-F]{24}$/.test(u)) return "Usuário";
+  return u;
+};
+
+const verDetalhesUsuario = (log) => {
+  const u = log.usuario;
+  let nome = "Visitante";
+  let email = "Não disponível";
+
+  if (typeof u === 'object' && u !== null) {
+    nome = u.nome || u.name || "Usuário";
+    email = u.email || "Sem e-mail registrado";
+  } else if (typeof u === 'string') {
+    nome = u;
+  }
+
+  Swal.fire({
+    title: '<i class="bi bi-person-badge text-purple me-2"></i> Detalhes do Usuário',
+    html: `
+      <div class="text-start p-3 bg-light rounded-4">
+        <div class="mb-3">
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Nome Completo</small>
+          <div class="fw-bold fs-5 text-dark">${nome}</div>
+        </div>
+        <div class="mb-3">
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">E-mail de Contacto</small>
+          <div class="text-purple fw-bold">${email}</div>
+        </div>
+        <div>
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Data da Atividade</small>
+          <div class="text-dark">${new Date(log.data).toLocaleString()}</div>
+        </div>
+      </div>
+    `,
+    showCloseButton: true,
+    confirmButtonText: 'Fechar',
+    confirmButtonColor: '#800080',
+    customClass: { popup: 'border-radius-20' }
+  });
+};
 const statsLoading = ref(false);
 const tipoVistaGrafico = ref('mensal'); // 'diaria' ou 'mensal'
 
@@ -804,33 +848,74 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
           </div>
 
           <div class="table-responsive shadow-lg rounded-4 bg-white overflow-hidden">
-            <table class="table table-hover align-middle mb-0">
-              <thead class="bg-dark text-white">
-                <tr>
-                  <th class="ps-4">Data/Hora</th>
-                  <th>Usuário</th>
-                  <th>Termo Pesquisado</th>
-                  <th>Filtro Utilizado</th>
+            <table class="table table-hover align-middle mb-0 border-0">
+              <thead>
+                <tr class="d-none d-lg-table-row bg-purple-gradient text-white border-0">
+                  <th class="ps-4 py-3 rounded-start-4 border-0">Data e Hora</th>
+                  <th class="py-3 rounded-end-4 border-0">Pesquisa Realizada</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(log, idx) in documentosPaginados" :key="idx" class="table-row" :class="{'is-milestone-row': isMilestone(logsPesquisas.length - ((paginaAtual - 1) * itensPorPagina + idx))}">
-                  <td class="ps-4 font-monospace small">
-                    {{ new Date(log.data).toLocaleString() }}
-                    <span v-if="isMilestone(logsPesquisas.length - ((paginaAtual - 1) * itensPorPagina + idx))" class="badge bg-warning text-dark ms-2">
-                       <i class="bi bi-trophy-fill me-1"></i> MARCO
-                    </span>
-                  </td>
-                  <td>
+                <tr v-for="(log, idx) in documentosPaginados" :key="idx" class="table-row-responsive mb-3" :class="{'is-milestone-row': isMilestone(logsPesquisas.length - ((paginaAtual - 1) * itensPorPagina + idx))}">
+                  
+                  <!-- DESKTOP: DATA -->
+                  <td class="ps-4 d-none d-lg-table-cell meta-column border-0">
                     <div class="d-flex align-items-center">
-                      <div class="avatar-sm bg-purple-soft rounded-circle me-2 d-flex align-items-center justify-content-center">
-                        <i class="bi bi-person text-purple"></i>
+                      <div class="bg-purple-soft p-2 rounded-3 me-3">
+                        <i class="bi bi-calendar2-check text-purple"></i>
                       </div>
-                      <span class="fw-bold">{{ log.usuario || "Visitante" }}</span>
+                      <div>
+                        <div class="text-dark fw-bold" style="font-size: 0.85rem;">{{ new Date(log.data).toLocaleDateString() }}</div>
+                        <small class="text-muted" style="font-size: 0.75rem;">{{ new Date(log.data).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}</small>
+                      </div>
                     </div>
                   </td>
-                  <td><span class="badge bg-light text-dark fw-bold">{{ log.termo }}</span></td>
-                  <td><span class="badge bg-purple-soft">{{ log.filtro }}</span></td>
+
+                  <!-- DESKTOP: PESQUISA -->
+                  <td class="d-none d-lg-table-cell term-column border-0">
+                    <div class="d-flex align-items-center justify-content-between pe-4">
+                      <div class="d-flex align-items-center">
+                        <div class="search-term-pill">
+                          <span class="text-dark fw-bold">{{ log.termo }}</span>
+                        </div>
+                        <span v-if="isMilestone(logsPesquisas.length - ((paginaAtual - 1) * itensPorPagina + idx))" class="ms-3 badge bg-gold-gradient text-dark animate-bounce-soft shadow-sm rounded-pill px-3">
+                          <i class="bi bi-trophy-fill me-1"></i> 
+                          MARCO #{{ logsPesquisas.length - ((paginaAtual - 1) * itensPorPagina + idx) }}
+                        </span>
+                      </div>
+                      <div class="user-peek-option" @click="verDetalhesUsuario(log)" title="Ver detalhes do usuário">
+                        <i class="bi bi-person-circle text-purple opacity-40 hover-opacity-100 fs-5 transition-all cursor-pointer"></i>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- LAYOUT MOBILE EXCLUSIVO (Design Cartão Premium) -->
+                  <td class="d-lg-none p-0 mobile-card-cell border-0">
+                    <div class="mobile-card-inner p-3">
+                      <!-- Status Bar -->
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-purple-soft text-purple rounded-pill px-3 py-2 font-monospace" style="font-size: 0.7rem;">
+                          <i class="bi bi-clock me-1"></i> {{ new Date(log.data).toLocaleString() }}
+                        </span>
+                        <span v-if="isMilestone(logsPesquisas.length - ((paginaAtual - 1) * itensPorPagina + idx))" class="badge bg-gold-gradient text-dark px-3 py-2 rounded-pill shadow-sm fw-bold">
+                           <i class="bi bi-trophy-fill me-1"></i> 
+                           #{{ logsPesquisas.length - ((paginaAtual - 1) * itensPorPagina + idx) }}
+                        </span>
+                      </div>
+                      
+                      <!-- Item Titular -->
+                      <div class="p-3 rounded-4 bg-purple-card-highlight border-start border-5 border-purple shadow-sm position-relative overflow-hidden">
+                        <div class="card-glass-effect"></div>
+                        <small class="text-purple fw-bolder text-uppercase d-block mb-1" style="font-size: 0.6rem; letter-spacing: 1px;">Termo de Pesquisa</small>
+                        <span class="text-dark fw-800 fs-4 position-relative">{{ log.termo }}</span>
+                        
+                        <!-- Usuário (Opção de clique discreta) -->
+                        <div class="position-absolute bottom-0 end-0 p-2 opacity-10 hover-opacity-100 cursor-pointer" @click="verDetalhesUsuario(log)" title="Ver usuário">
+                           <i class="bi bi-person-bounding-box" style="font-size: 1.5rem;"></i>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
                 </tr>
                 <tr v-if="logsPesquisas.length === 0">
                   <td colspan="3" class="text-center py-4 text-muted">Ainda não foram registrados logs de pesquisa.</td>
@@ -1315,6 +1400,177 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
 .is-milestone-row {
   background-color: rgba(255, 193, 7, 0.05) !important;
   border-left: 4px solid #ffc107;
+}
+
+/* Responsividade da Tabela de Logs */
+@media (max-width: 991px) {
+  .table-responsive {
+    border: none !important;
+    background: transparent !important;
+  }
+  
+  .table-row-responsive {
+    display: block;
+    background: white;
+    margin-bottom: 1.2rem;
+    border-radius: 1.2rem !important;
+    padding: 1.2rem;
+    box-shadow: 0 8px 24px rgba(128, 0, 128, 0.08);
+    border: 1px solid rgba(128, 0, 128, 0.1);
+    transition: transform 0.2s ease;
+  }
+  
+  .table-row-responsive td {
+    display: block;
+    width: 100%;
+    padding: 0 !important;
+    text-align: left !important;
+    border: none !important;
+  }
+}
+
+/* Estilos de Organização da Tabela */
+.meta-column { width: 180px; }
+.user-column { width: 150px; }
+.term-column { vertical-align: middle; }
+
+.avatar-xs {
+  width: 24px;
+  height: 24px;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+.bg-purple-soft-light {
+  background-color: rgba(128, 0, 128, 0.03);
+}
+.text-purple-dark {
+  color: #4a004a;
+}
+.fw-800 { font-weight: 800; }
+
+/* DESIGN PREMIUM ROXO (Dashboard Admin) */
+.bg-purple-gradient {
+  background: linear-gradient(135deg, #800080 0%, #4a004a 100%) !important;
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #ffcc33 0%, #ffb300 100%) !important;
+}
+
+.search-term-pill {
+  background: #fdfbff;
+  padding: 0.5rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid rgba(128, 0, 128, 0.08);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.user-peek-option i {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+.opacity-40 { opacity: 0.4; }
+
+.bg-purple-card-highlight {
+  background: linear-gradient(to right, rgba(128, 0, 128, 0.03), rgba(128, 0, 128, 0.01));
+}
+
+.card-glass-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
+}
+
+.animate-bounce-soft {
+  animation: bounce-soft 3s infinite;
+}
+
+@keyframes bounce-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@media (max-width: 991px) {
+  .table-row-responsive {
+    display: block;
+    background: white;
+    margin-bottom: 2rem !important;
+    border-radius: 1.5rem !important;
+    border: 1px solid rgba(128, 0, 128, 0.1);
+    box-shadow: 0 15px 35px rgba(128, 0, 128, 0.05);
+    transition: transform 0.3s ease;
+  }
+  
+  .table-row-responsive:active {
+    transform: scale(0.98);
+  }
+
+  .is-milestone-row {
+    border: 2px solid #ffcc33 !important;
+    background: linear-gradient(to bottom, rgba(255, 204, 51, 0.02), white) !important;
+  }
+}
+
+.hover-opacity-100:hover {
+  opacity: 1 !important;
+}
+
+.right-2 { right: 0.5rem; }
+.top-1 { top: 0.25rem; }
+.cursor-help { cursor: help; }
+
+.search-highlight-box {
+  background: #fdfbff;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(128, 0, 128, 0.1);
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 991px) {
+  .table-row-responsive {
+    display: block;
+    background: white;
+    margin-bottom: 1.5rem;
+    border-radius: 1.25rem !important;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+  }
+  
+  .mobile-card-cell {
+    display: block;
+    width: 100%;
+  }
+
+  .mobile-card-inner {
+    padding: 0.5rem;
+  }
+
+  .is-milestone-row {
+    background: linear-gradient(to right, rgba(255, 193, 7, 0.05), white) !important;
+    border-left: 5px solid #ffc107 !important;
+  }
+}
+
+.animate-bounce {
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-5px); }
+  60% { transform: translateY(-3px); }
 }
 
 .avatar-sm {

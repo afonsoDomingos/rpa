@@ -207,7 +207,7 @@ const procurar = async () => {
   api.post('/documentos/pesquisas', {
     termo: termoPesquisado,
     filtro: tipoFiltro.value,
-    usuario: usuarioLogado.value?.nome || "Visitante",
+    usuario: usuarioLogado.value ? { nome: usuarioLogado.value.nome, email: usuarioLogado.value.email } : "Visitante",
     data: new Date().toISOString()
   }).then(async () => {
     const totalAntigo = totalPesquisas.value;

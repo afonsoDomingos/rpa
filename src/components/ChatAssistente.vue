@@ -857,7 +857,7 @@ async function realizarBuscaDocumento() {
     api.post('/documentos/pesquisas', {
       termo: `Chat: ${termoLog}`,
       filtro: "assistente",
-      usuario: usuarioLogado.value?.nome || "Visitante Chat",
+      usuario: usuarioLogado.value ? { nome: usuarioLogado.value.nome, email: usuarioLogado.value.email } : "Visitante Chat",
       data: new Date().toISOString()
     }).then(async () => {
       const totalAntigo = totalPesquisas.value;
