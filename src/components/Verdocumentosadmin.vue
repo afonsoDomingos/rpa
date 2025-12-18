@@ -1533,24 +1533,12 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
     word-break: break-word;
   }
 
-  .custom-table-admin td > * {
-    text-align: center !important;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-  }
-
-  .custom-table-admin td .badge,
-  .custom-table-admin td code,
-  .custom-table-admin td span,
-  .custom-table-admin td .d-flex {
-    justify-content: center !important;
-    text-align: center !important;
-  }
-
-  .custom-table-admin td .d-inline-block {
+  .custom-table-admin td.d-lg-none {
     display: block !important;
-    margin: 0 auto;
+  }
+
+  .custom-table-admin td.d-none {
+    display: none !important;
   }
 
   .custom-table-admin td::before {
