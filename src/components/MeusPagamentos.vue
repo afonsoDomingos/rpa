@@ -1,4 +1,5 @@
 <template>
+  <!-- Fix HMR Update -->
   <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
     <div class="row gx-0">
       <div class="col-12">
@@ -848,13 +849,27 @@ async function buscarUsuario() {
     const email = localStorage.getItem("email");
     if (!email) return router.push("/");
 
-    const res = await api.get("/auth/usuarios");
-    usuario.value = res.data.find((u) => u.email === email);
+    // Tenta buscar dados completos (pode falhar se não for admin)
+    try {
+      const res = await api.get("/auth/usuarios");
+      if (Array.isArray(res.data)) {
+         usuario.value = res.data.find((u) => u.email === email);
+      }
+    } catch (innerErr) {
+      console.warn("Não foi possível carregar lista de usuários (permissão?), usando fallback.", innerErr);
+    }
 
-    if (!usuario.value) router.push("/");
+    // Fallback se não encontrou ou falhou: usa dados locais/básicos
+    if (!usuario.value) {
+      usuario.value = { 
+        nome: email.split('@')[0], // Nome provisório baseado no email
+        email: email,
+        role: 'user'
+      };
+    }
   } catch (err) {
-    console.error("Erro ao buscar usuário:", err);
-    erro.value = "Erro ao carregar dados do usuário.";
+    console.error("Erro crítico em buscarUsuario:", err);
+    // Não definimos erro.value aqui para não bloquear a tabela de pagamentos
   }
 }
 
@@ -1170,7 +1185,7 @@ onMounted(() => {
 /* Table - Tesla Style */
 .payments-table {
   border-radius: 0;
-  overflow: hidden;
+  /* overflow: hidden; */
   box-shadow: none;
   background: #ffffff;
 }
