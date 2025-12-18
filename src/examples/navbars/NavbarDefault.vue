@@ -40,20 +40,13 @@
         </div>
       </RouterLink>
 
-      <!-- BOTÃO SYNC (Sempre visível no mobile) -->
-      <div class="ms-auto d-lg-none d-flex align-items-center">
-        <a class="nav-link p-1 cursor-pointer" @click="refreshContent">
-          <i class="bi bi-arrow-clockwise fs-4 sync-icon" :class="{'spinning': isSyncing}"></i>
-        </a>
-      </div>
-
       <!-- BOTÃO ASSINATURAS (mobile) -->
       <a
         @click="
           $router.push({ name: 'Assinaturas' });
           fecharDropdown();
         "
-        class="btn btn-sm mb-0 ms-1 d-lg-none d-block btn-assinatura"
+        class="btn btn-sm mb-0 ms-auto d-lg-none d-block btn-assinatura"
         role="button"
       >
         ASSINATURAS
@@ -75,7 +68,6 @@
           <span class="navbar-toggler-bar bar3"></span>
         </span>
       </button>
-
 
       <!-- MENU -->
       <div
@@ -166,8 +158,8 @@
               class="nav-link ps-2 d-flex cursor-pointer align-items-center"
               :class="getTextColor()"
               id="dropdownUser"
+              data-bs-toggle="dropdown"
               aria-expanded="false"
-              @click="toggleDropdown($event)"
             >
               <i
                 class="material-icons-round opacity-6 me-2 text-md rotatable-profile"
@@ -183,68 +175,79 @@
             </a>
 
             <div
+              ref="dropdownMenu"
               class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada"
               aria-labelledby="dropdownUser"
               style="min-width: 180px"
             >
               <!-- Dashboard Admin -->
-              <router-link
+              <button
                 v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
-                :to="{ name: 'dashboard' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="fecharDropdown"
+                @click="
+                  $router.push({ name: 'dashboard' });
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-speedometer2 text-warning"></i> Dashboard
-              </router-link>
+              </button>
 
               <!-- Pagamentos Admin -->
-              <router-link
+              <button
                 v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
-                :to="{ name: 'AdminAssinaturas' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="fecharDropdown"
+                @click="
+                  $router.push({ name: 'AdminAssinaturas' });
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-wallet2 text-success"></i> Pagamentos
-              </router-link>
+              </button>
 
               <!-- **NOVO** Gerenciar Anúncios -->
-              <a
+              <button
                 v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="navegarParaAdminAnuncios"
               >
                 <i class="bi bi-megaphone-fill text-purple"></i> Gerenciar
                 Anúncios
-              </a>
+              </button>
 
               <!-- Meus Pagamentos -->
-              <router-link
-                :to="{ name: 'MeusPagamentos' }"
+              <button
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="fecharDropdown"
+                @click="
+                  $router.push({ name: 'MeusPagamentos' });
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-credit-card text-primary"></i> Meus Pagamentos
-              </router-link>
+              </button>
 
               <!-- Meus Documentos -->
-              <router-link
-                :to="{ name: 'MeusDocumentos' }"
+              <button
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="fecharDropdown"
+                @click="
+                  $router.push({ name: 'MeusDocumentos' });
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-folder2-open text-info"></i> Meus Documentos
-              </router-link>
+              </button>
 
               <div class="dropdown-divider"></div>
 
               <!-- Sair -->
-              <a
+              <button
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2 text-danger"
-                @click="logout(); fecharDropdown();"
-                style="cursor: pointer;"
+                @click="
+                  logout();
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-box-arrow-right"></i> Sair
-              </a>
+              </button>
             </div>
           </li>
 
@@ -267,8 +270,8 @@
               class="nav-link ps-2 d-flex cursor-pointer align-items-center"
               :class="getTextColor()"
               id="dropdownTools"
+              data-bs-toggle="dropdown"
               aria-expanded="false"
-              @click="toggleDropdown($event)"
             >
               <i class="bi bi-gear-fill me-2 rotatable-icon"></i>
               Ferramentas
@@ -285,61 +288,59 @@
               style="min-width: 180px"
             >
               <!-- Meus Anúncios (todos os usuários) -->
-              <router-link
-                :to="{ name: 'MeusAnuncios' }"
+              <button
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="fecharDropdown"
+                @click="
+                  $router.push({ name: 'MeusAnuncios' });
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-megaphone text-purple"></i> Meus Anúncios
-              </router-link>
+              </button>
 
-              <router-link
-                :to="{ name: 'ComunidadeRpa' }"
+              <button
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="fecharDropdown"
+                @click="
+                  $router.push({ name: 'ComunidadeRpa' });
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-people-fill text-info"></i> Feed de publicações
-              </router-link>
+              </button>
 
-              <router-link
-                :to="{ name: 'CVGenerator' }"
+              <button
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="fecharDropdown"
+                @click="
+                  $router.push({ name: 'CVGenerator' });
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-file-earmark-person text-warning"></i> Gerador
                 de Currículo
-              </router-link>
+              </button>
 
-              <router-link
-                :to="{ name: 'GuardarDocumentos' }"
-                class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="fecharDropdown"
+              <button
+                class="dropdown-item border-radius-md d-flex align-items-center gap-2 "
+                @click="
+                  $router.push({ name: 'GuardarDocumentos' });
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-folder-plus text-success"></i> Armazenar
                 Documentos
-              </router-link>
+              </button>
 
-              <router-link
-                :to="{ name: 'Viaturas' }"
+              <button
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="fecharDropdown"
+                @click="
+                  $router.push({ name: 'Viaturas' });
+                  fecharDropdown();
+                "
               >
                 <i class="bi bi-car-front text-success"></i> Rastreador de
                 Viaturas
-              </router-link>
+              </button>
             </div>
-          </li>
-
-          <!-- ==== ATUALIZAR (Sync - Desktop Only) ==== -->
-          <li class="nav-item mx-1 d-none d-lg-block">
-            <a
-              class="nav-link d-flex align-items-center cursor-pointer"
-              :class="getTextColor()"
-              title="Sincronizar dados"
-              @click="refreshContent"
-            >
-              <i class="bi bi-arrow-clockwise text-md sync-icon" :class="{'spinning': isSyncing}"></i>
-            </a>
           </li>
 
           <!-- ==== ASSINATURA (desktop) ==== -->
@@ -372,38 +373,6 @@ const dropdownMenu = ref(null);
 const navbarCollapse = ref(null);
 const hovering = ref(false); // hover do olho/logo
 const isMenuOpen = ref(false);
-const isSyncing = ref(false);
-
-const refreshContent = async () => {
-  if (isSyncing.value) return;
-  isSyncing.value = true;
-  
-  try {
-    // Sincroniza dados globais (usuário, etc)
-    await buscarUsuario();
-    
-    // Notifica outros componentes que devem atualizar seus dados
-    eventBus.emit("refreshData");
-    
-    // Simula um delay visual para o utilizador sentir que algo aconteceu
-    setTimeout(() => {
-      isSyncing.value = false;
-      const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 2000,
-        timerProgressBar: true,
-      });
-      Toast.fire({
-        icon: 'success',
-        title: 'Dados sincronizados'
-      });
-    }, 800);
-  } catch (error) {
-    isSyncing.value = false;
-  }
-};
 
 onMounted(() => {
   buscarUsuario();
@@ -431,45 +400,22 @@ onMounted(() => {
         isMenuOpen.value = false;
       });
     }
+    
+    // FIX MOBILE: Inicializar dropdowns para mobile
+    if (window.innerWidth <= 991) {
+      fixMobileDropdowns();
+    }
   });
 });
 
-// Toggle dropdown manual (para mobile)
-function toggleDropdown(event) {
-  event.preventDefault();
-  event.stopPropagation();
-  
-  const link = event.currentTarget;
-  const dropdownMenu = link.nextElementSibling;
-  
-  if (!dropdownMenu) return;
-  
-  // Fechar outros dropdowns primeiro
-  const outrosDropdowns = document.querySelectorAll('.dropdown-menu.show');
-  outrosDropdowns.forEach((dropdown) => {
-    if (dropdown !== dropdownMenu) {
-      dropdown.classList.remove('show');
-    }
-  });
-  
-  // Toggle no dropdown atual
-  dropdownMenu.classList.toggle('show');
-}
-
 function fecharDropdown() {
-  // Fechar todos os dropdowns removendo a classe .show
-  const dropdowns = document.querySelectorAll('.dropdown-menu.show');
-  dropdowns.forEach((dropdown) => {
-    dropdown.classList.remove('show');
-  });
+  const dropdown = bootstrap.Dropdown.getInstance(
+    dropdownMenu.value?.parentElement
+  );
+  if (dropdown) dropdown.hide();
 
-  // Fechar o menu mobile se estiver aberto
-  if (navbarCollapse.value) {
-    const collapse = bootstrap.Collapse.getInstance(navbarCollapse.value);
-    if (collapse) {
-      collapse.hide();
-    }
-  }
+  const collapse = bootstrap.Collapse.getInstance(navbarCollapse.value);
+  if (collapse) collapse.hide();
 }
 
 // Imagens
@@ -531,6 +477,13 @@ const buscarUsuario = async () => {
     );
     
     usuario.value = data;
+    
+    // FIX MOBILE: Reinitializar dropdowns após login
+    if (window.innerWidth <= 991) {
+      nextTick(() => {
+        fixMobileDropdowns();
+      });
+    }
   } catch (error) {
     console.error("Erro ao buscar o usuário:", error);
     // Se der erro (ex: token expirado), podemos limpar o token
@@ -539,7 +492,34 @@ const buscarUsuario = async () => {
   }
 };
 
-
+// FIX MOBILE: Força dropdowns funcionarem com touch
+const fixMobileDropdowns = () => {
+  if (window.innerWidth > 991) return; // Só no mobile
+  
+  const dropdownToggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+  
+  dropdownToggles.forEach(toggle => {
+    // Remove listeners antigos do Bootstrap que podem bloquear
+    toggle.removeAttribute('data-bs-toggle');
+    
+    // Adiciona listener manual de click
+    toggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const menu = this.nextElementSibling;
+      if (!menu || !menu.classList.contains('dropdown-menu')) return;
+      
+      // Fecha outros dropdowns
+      document.querySelectorAll('.dropdown-menu.show').forEach(m => {
+        if (m !== menu) m.classList.remove('show');
+      });
+      
+      // Toggle no atual
+      menu.classList.toggle('show');
+    });
+  });
+};
 
 // Correção para o botão toggler (X) fechar o menu no mobile
 const toggleNavbar = () => {
@@ -550,7 +530,6 @@ const toggleNavbar = () => {
     collapse.toggle();
   }
 };
-
 
 const goToCadastrar = () => {
   eventBus.emit("changeTab", "cadastrar");
@@ -686,26 +665,12 @@ watch(
   color: #800080 !important;
 }
 
-/* SYNC ICON ANIMATION */
-.sync-icon {
-  font-size: 1.2rem;
-  transition: color 0.3s ease;
-}
-.spinning {
-  animation: spin-around 0.8s linear infinite;
-  color: #800080 !important;
-}
-@keyframes spin-around {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
 /* ESPAÇO PARA NAVBAR FIXA */
 body {
   padding-top: 60px; /* ajuste conforme a altura real */
 }
 
-/* RESPONSIVO */
+/* FIX MOBILE - Força dropdowns funcionarem com touch */
 @media (max-width: 991px) {
   .navbar {
     width: 90%;
@@ -718,64 +683,18 @@ body {
     padding-right: 10px;
   }
 
-  /* FIX MOBILE - Dropdowns clicáveis */
-  .dropdown-menu {
-    position: static !important;
-    transform: none !important;
-    box-shadow: none !important;
-    border: none !important;
-    background: transparent !important;
-    margin-top: 0 !important;
-    padding: 0.5rem 0 !important;
-  }
-
+  /* Força dropdown-item ser clicável */
   .dropdown-item {
-    padding: 0.75rem 1rem !important;
-    margin: 0.25rem 0 !important;
-    border-radius: 8px !important;
-    background: rgba(255, 255, 255, 0.95) !important;
-    color: #344767 !important;
-    pointer-events: auto !important;
+    -webkit-tap-highlight-color: rgba(128, 0, 128, 0.2);
     cursor: pointer !important;
-    touch-action: manipulation !important;
-    -webkit-tap-highlight-color: rgba(128, 0, 128, 0.2) !important;
-    text-decoration: none !important;
-    display: block !important;
-  }
-
-  /* Router-link dentro de dropdown */
-  .dropdown-item.router-link-active,
-  .dropdown-item.router-link-exact-active {
-    background: rgba(128, 0, 128, 0.1) !important;
-    color: #800080 !important;
-  }
-
-  .dropdown-item:active {
-    background: rgba(128, 0, 128, 0.1) !important;
-  }
-
-  /* Garantir que o dropdown toggle funcione */
-  .dropdown-toggle {
     pointer-events: auto !important;
   }
-
-  /* Garantir que tudo seja clicável */
-  .navbar-nav {
+  
+  /* Força toggle funcionar com tap */
+  [data-bs-toggle="dropdown"] {
+    -webkit-tap-highlight-color: rgba(128, 0, 128, 0.2);
+    cursor: pointer !important;
     pointer-events: auto !important;
-  }
-
-  .nav-item {
-    pointer-events: auto !important;
-  }
-
-  /* Remover hover no mobile */
-  .dropdown-hover:hover .dropdown-menu {
-    display: none !important;
-  }
-
-  /* Mostrar dropdown quando .show */
-  .dropdown-menu.show {
-    display: block !important;
   }
 }
 </style>
