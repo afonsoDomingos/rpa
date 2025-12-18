@@ -55,6 +55,20 @@ const contactoError = ref("");
 
 // Estado de Carregamento (Skeletons)
 const isLoading = ref(false);
+const totalPesquisas = ref(0);
+
+const buscarTotalPesquisas = async () => {
+  try {
+    const res = await api.get('/documentos/pesquisas');
+    if (Array.isArray(res.data)) {
+      totalPesquisas.value = res.data.length;
+    } else if (res.data && res.data.pesquisas) {
+      totalPesquisas.value = res.data.pesquisas.length;
+    }
+  } catch (err) {
+    console.error("Erro ao buscar total de pesquisas:", err);
+  }
+};
 
 // Paginação
 const paginaAtual = ref(1);
@@ -261,7 +275,8 @@ onMounted(async () => {
   await Promise.all([
     buscarDocumentos(),
     buscarDocumentosReportados(),
-    buscarDocumentosProprietarios()
+    buscarDocumentosProprietarios(),
+    buscarTotalPesquisas()
   ]);
   isLoading.value = false;
 });
@@ -301,6 +316,7 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
           </a>
         </li>
       </ul>
+
       <!-- Conteúdo das abas -->
       <div class="tab-content">
         <!-- Aba Procurar (Formulário para busca de documentos) -->
@@ -353,6 +369,14 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
                 <button @click="activeTab = 'cadastrar'" class="btn btn-success btn-lg mt-3 px-4 py-2 btn-zoom">
                   📢 Não encontrou? Cadastre aqui
                 </button>
+              </div>
+
+              <!-- Contador de Impacto (Reposicionado para cima do botão) -->
+              <div v-if="totalPesquisas > 0" class="text-center mb-4 animate-fade-in">
+                <div class="d-inline-block py-2 px-4 rounded-pill bg-purple-soft text-purple border shadow-sm stats-badge">
+                  <i class="bi bi-search me-2"></i>
+                  Já foram feitas <strong>{{ totalPesquisas }}</strong> pesquisas
+                </div>
               </div>
 
               <div class="text-center mt-3">
@@ -644,6 +668,27 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
 .btn-outline-purple:hover:not(:disabled) {
   background: #800080;
   color: white;
+}
+
+/* Novo Estilo para o Contador */
+.bg-purple-soft {
+  background-color: rgba(128, 0, 128, 0.08);
+}
+
+.text-purple {
+  color: #800080 !important;
+}
+
+.stats-badge {
+  font-size: 0.95rem;
+  animation: soft-pulse 2s infinite;
+  border: 1px solid rgba(128, 0, 128, 0.2);
+}
+
+@keyframes soft-pulse {
+  0% { transform: scale(1); box-shadow: 0 4px 12px rgba(128, 0, 128, 0.1); }
+  50% { transform: scale(1.02); box-shadow: 0 6px 16px rgba(128, 0, 128, 0.2); }
+  100% { transform: scale(1); box-shadow: 0 4px 12px rgba(128, 0, 128, 0.1); }
 }
 
 .btn-outline-purple:disabled {
