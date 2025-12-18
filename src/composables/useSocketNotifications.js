@@ -53,32 +53,33 @@ export function useSocketNotifications() {
     };
 
     const connected = ref(false);
+    const socketError = ref(null); // Variável para guardar o erro
 
     const connectSocket = () => {
         socket.value = io('https://apirpa.onrender.com', {
-            transports: ['websocket', 'polling'],
+            transports: ['polling', 'websocket'],
             reconnection: true,
             reconnectionDelay: 1000,
-            reconnectionAttempts: 5,
-            // Adicional para debug e estabilidade
+            reconnectionAttempts: 10,
             autoConnect: true,
-            withCredentials: false // Tentar desabilitar para evitar problemas de CORS se o server permitir *
+            withCredentials: false
         });
 
         socket.value.on('connect', () => {
             console.log('✅ Socket conectado! ID:', socket.value.id);
             connected.value = true;
+            socketError.value = null;
         });
 
         socket.value.on('connect_error', (err) => {
             console.error('⚠️ Erro de conexão socket:', err.message);
             connected.value = false;
+            socketError.value = err.message;
         });
 
         socket.value.on('admin:new-payment', (data) => {
             console.log('💰 Novo pagamento recebido!', data);
 
-            // Tratamento robusto dos dados recebidos
             const valor = data.data?.valor || data.valor || 0;
             const pacote = data.data?.pacote || data.pacote || 'Desconhecido';
             const usuarioNome = data.data?.usuario?.nome || 'Cliente';
@@ -125,16 +126,8 @@ export function useSocketNotifications() {
         localStorage.removeItem(STORAGE_KEY);
     };
 
-    return {
-        notifications,
-        unreadCount,
-        markAsRead,
-        clearAll,
-        connected // EXPORTAR
-    };
-
     onMounted(() => {
-        loadNotifications(); // Carregar notificações salvas
+        loadNotifications();
         connectSocket();
     });
 
@@ -148,6 +141,8 @@ export function useSocketNotifications() {
         notifications,
         unreadCount,
         markAsRead,
-        clearAll
+        clearAll,
+        connected,
+        socketError
     };
 }

@@ -22,6 +22,15 @@
         </div>
       </div>
 
+      <!-- Debug Socket Error -->
+      <div v-if="socketError" class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+        <div>
+          <strong>Erro de Conexão:</strong> Não foi possível conectar ao servidor de notificações.<br>
+          <small>Detalhe: {{ socketError }}</small>
+        </div>
+      </div>
+
       <!-- Header -->
       <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 gap-3">
         <div>
@@ -498,7 +507,7 @@ import { usePushNotifications } from "@/composables/usePushNotifications";
 import Swal from "sweetalert2";
 
 // Socket.IO Notifications
-const { notifications, unreadCount, markAsRead, clearAll, connected } = useSocketNotifications();
+const { notifications, unreadCount, markAsRead, clearAll, connected, socketError } = useSocketNotifications();
 const showNotifications = ref(false);
 
 // Push Notifications
