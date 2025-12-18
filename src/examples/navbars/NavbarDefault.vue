@@ -181,60 +181,53 @@
               style="min-width: 180px"
             >
               <!-- Dashboard Admin -->
-              <button
+              <router-link
                 v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
+                :to="{ name: 'dashboard' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="
-                  $router.push({ name: 'dashboard' });
-                  fecharDropdown();
-                "
+                @click="fecharDropdown"
               >
                 <i class="bi bi-speedometer2 text-warning"></i> Dashboard
-              </button>
+              </router-link>
 
               <!-- Pagamentos Admin -->
-              <button
+              <router-link
                 v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
+                :to="{ name: 'AdminAssinaturas' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="
-                  $router.push({ name: 'AdminAssinaturas' });
-                  fecharDropdown();
-                "
+                @click="fecharDropdown"
               >
                 <i class="bi bi-wallet2 text-success"></i> Pagamentos
-              </button>
+              </router-link>
 
               <!-- **NOVO** Gerenciar Anúncios -->
-              <button
+              <router-link
                 v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
+                :to="{ name: 'AdminAnuncios' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="navegarParaAdminAnuncios"
+                @click="fecharDropdown"
               >
                 <i class="bi bi-megaphone-fill text-purple"></i> Gerenciar
                 Anúncios
-              </button>
+              </router-link>
 
               <!-- Meus Pagamentos -->
-              <button
+              <router-link
+                :to="{ name: 'MeusPagamentos' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="
-                  $router.push({ name: 'MeusPagamentos' });
-                  fecharDropdown();
-                "
+                @click="fecharDropdown"
               >
                 <i class="bi bi-credit-card text-primary"></i> Meus Pagamentos
-              </button>
+              </router-link>
 
               <!-- Meus Documentos -->
-              <button
+              <router-link
+                :to="{ name: 'MeusDocumentos' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="
-                  $router.push({ name: 'MeusDocumentos' });
-                  fecharDropdown();
-                "
+                @click="fecharDropdown"
               >
                 <i class="bi bi-folder2-open text-info"></i> Meus Documentos
-              </button>
+              </router-link>
 
               <div class="dropdown-divider"></div>
 
