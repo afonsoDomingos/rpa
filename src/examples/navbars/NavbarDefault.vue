@@ -718,5 +718,56 @@ body {
     padding-left: 10px;
     padding-right: 10px;
   }
+
+  /* FIX MOBILE - Dropdowns clicáveis */
+  .dropdown-menu {
+    position: static !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+    margin-top: 0 !important;
+    padding: 0.5rem 0 !important;
+  }
+
+  .dropdown-item {
+    padding: 0.75rem 1rem !important;
+    margin: 0.25rem 0 !important;
+    border-radius: 8px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #344767 !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: rgba(128, 0, 128, 0.2) !important;
+  }
+
+  .dropdown-item:active {
+    background: rgba(128, 0, 128, 0.1) !important;
+  }
+
+  /* Garantir que o dropdown toggle funcione */
+  .dropdown-toggle {
+    pointer-events: auto !important;
+  }
+
+  /* Garantir que tudo seja clicável */
+  .navbar-nav {
+    pointer-events: auto !important;
+  }
+
+  .nav-item {
+    pointer-events: auto !important;
+  }
+
+  /* Remover hover no mobile */
+  .dropdown-hover:hover .dropdown-menu {
+    display: none !important;
+  }
+
+  /* Mostrar dropdown quando .show */
+  .dropdown-menu.show {
+    display: block !important;
+  }
 }
 </style>
