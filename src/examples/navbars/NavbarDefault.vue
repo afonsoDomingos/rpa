@@ -40,13 +40,20 @@
         </div>
       </RouterLink>
 
+      <!-- BOTÃO SYNC (Sempre visível no mobile) -->
+      <div class="ms-auto d-lg-none d-flex align-items-center">
+        <a class="nav-link p-1 cursor-pointer" @click="refreshContent">
+          <i class="bi bi-arrow-clockwise fs-4 sync-icon" :class="{'spinning': isSyncing}"></i>
+        </a>
+      </div>
+
       <!-- BOTÃO ASSINATURAS (mobile) -->
       <a
         @click="
           $router.push({ name: 'Assinaturas' });
           fecharDropdown();
         "
-        class="btn btn-sm mb-0 ms-auto d-lg-none d-block btn-assinatura"
+        class="btn btn-sm mb-0 ms-1 d-lg-none d-block btn-assinatura"
         role="button"
       >
         ASSINATURAS
@@ -69,12 +76,6 @@
         </span>
       </button>
 
-      <!-- BOTÃO SYNC (Sempre visível no mobile) -->
-      <div class="ms-2 d-lg-none d-flex align-items-center">
-        <a class="nav-link p-2 cursor-pointer" @click="refreshContent">
-          <i class="bi bi-arrow-clockwise fs-4 sync-icon" :class="{'spinning': isSyncing}"></i>
-        </a>
-      </div>
 
       <!-- MENU -->
       <div
