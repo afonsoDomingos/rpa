@@ -13,6 +13,7 @@ defineProps({
     default: "",
   },
 });
+const emit = defineEmits(["update:checked"]);
 </script>
 
 <template>
@@ -23,6 +24,7 @@ defineProps({
       type="checkbox"
       :name="id"
       :checked="checked"
+      @change="emit('update:checked', $event.target.checked)"
     />
     <label class="form-check-label d-block" :class="labelClass" :for="id"
       ><slot
