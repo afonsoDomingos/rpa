@@ -8,8 +8,7 @@
   </div>
 
   <div class="admin-dashboard">
-    <br /><br /><br />
-    <div class="container-fluid py-4">
+    <div class="container py-5 mt-4">
       <!-- Toasts -->
       <div class="toast-container">
         <div
