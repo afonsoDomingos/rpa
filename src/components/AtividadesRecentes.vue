@@ -407,6 +407,9 @@ onMounted(() => {
   padding: 0.35rem 0.75rem;
   border-radius: 6px;
   font-weight: 600;
+  word-break: break-all;
+  max-width: 100%;
+  display: inline-block;
 }
 
 .detail-badge strong {

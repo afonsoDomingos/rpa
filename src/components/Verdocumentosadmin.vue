@@ -120,7 +120,7 @@ const verDetalhesUsuario = (log) => {
         </div>
         <div class="mb-3">
           <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">E-mail de Contacto</small>
-          <div class="text-purple fw-bold">${email}</div>
+          <div class="text-purple fw-bold text-break" style="word-break: break-all;">${email}</div>
         </div>
         <div>
           <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Data da Atividade</small>
@@ -527,33 +527,35 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
   <section class="verdocumentos-wrapper py-7">
     <div class="verdocumentos-container">
       <!-- Navegação Premium -->
-      <ul class="nav nav-pills nav-fill custom-nav-admin p-2 mb-5" role="tablist">
-        <li class="nav-item">
-          <a class="nav-link" :class="{ active: activeTab === 'procurar' }" @click.prevent="activeTab = 'procurar'" role="tab">
-            <i class="bi bi-search me-2"></i> Procurar Admin
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" :class="{ active: activeTab === 'cadastrar' }" @click.prevent="activeTab = 'cadastrar'" role="tab">
-            <i class="bi bi-file-plus me-2"></i> Reportar Admin
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" :class="{ active: activeTab === 'documentosReportados' }" @click.prevent="activeTab = 'documentosReportados'" role="tab">
-            <i class="bi bi-file-earmark-text me-2"></i> Reportados Admin
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" :class="{ active: activeTab === 'documentosProprietarios' }" @click.prevent="activeTab = 'documentosProprietarios'" role="tab">
-            <i class="bi bi-person-badge me-2"></i> Proprietários Admin
-          </a>
-        </li>
-        <li class="nav-item text-nowrap">
-          <a class="nav-link" :class="{ active: activeTab === 'estatisticas' }" @click.prevent="activeTab = 'estatisticas'" role="tab">
-            <i class="bi bi-bar-chart-line me-2"></i> Estatísticas
-          </a>
-        </li>
-      </ul>
+      <div class="nav-wrapper border-bottom mb-4">
+        <ul class="nav nav-pills custom-nav-admin p-2 flex-nowrap overflow-auto" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link text-nowrap" :class="{ active: activeTab === 'procurar' }" @click.prevent="activeTab = 'procurar'" role="tab">
+              <i class="bi bi-search me-2"></i> Procurar
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-nowrap" :class="{ active: activeTab === 'cadastrar' }" @click.prevent="activeTab = 'cadastrar'" role="tab">
+              <i class="bi bi-file-plus me-2"></i> Reportar
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-nowrap" :class="{ active: activeTab === 'documentosReportados' }" @click.prevent="activeTab = 'documentosReportados'" role="tab">
+              <i class="bi bi-file-earmark-text me-2"></i> Reportados
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-nowrap" :class="{ active: activeTab === 'documentosProprietarios' }" @click.prevent="activeTab = 'documentosProprietarios'" role="tab">
+              <i class="bi bi-person-badge me-2"></i> Proprietários
+            </a>
+          </li>
+          <li class="nav-item text-nowrap">
+            <a class="nav-link text-nowrap" :class="{ active: activeTab === 'estatisticas' }" @click.prevent="activeTab = 'estatisticas'" role="tab">
+              <i class="bi bi-bar-chart-line me-2"></i> Estatísticas
+            </a>
+          </li>
+        </ul>
+      </div>
 
       <!-- Conteúdo dinâmico das abas -->
       <div class="tab-content animate-fade-in">
@@ -609,10 +611,10 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
           </div>
 
           <div v-else-if="documentosEncontrados.length > 0" class="mt-5 table-responsive shadow-sm rounded-4">
-            <table class="table table-hover align-middle bg-white overflow-hidden">
-              <thead>
-                <tr>
-                  <th>Nome</th>
+            <table class="table table-hover align-middle bg-white overflow-hidden custom-table-admin">
+              <thead class="bg-purple text-white">
+                <tr class="d-none d-lg-table-row">
+                  <th class="ps-4">Nome</th>
                   <th>Documento</th>
                   <th>Província</th>
                   <th class="text-end pe-4">Ação</th>
@@ -620,20 +622,20 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
               </thead>
               <tbody>
                 <tr v-for="doc in documentosPaginados" :key="doc._id" class="table-row">
-                  <td><span class="fw-bold">{{ doc.nome_completo }}</span></td>
-                  <td><span class="badge bg-purple-soft">{{ doc.tipo_documento }}</span></td>
-                  <td>{{ doc.provincia }}</td>
-                  <td class="text-end pe-4">
+                  <td data-label="Nome" class="ps-4 fw-bold text-dark">{{ doc.nome_completo }}</td>
+                  <td data-label="Documento"><span class="badge bg-purple-soft">{{ doc.tipo_documento }}</span></td>
+                  <td data-label="Província">{{ doc.provincia }}</td>
+                  <td data-label="Ação" class="text-end pe-4">
                     <div class="d-flex justify-content-end gap-2 align-items-center">
                       <div class="btn-group btn-group-sm rounded-pill overflow-hidden shadow-sm">
                         <button class="btn btn-whatsapp px-2" @click="partilharWhatsApp(doc)" title="WhatsApp">
                           <i class="bi bi-whatsapp"></i>
                         </button>
                         <button class="btn btn-facebook px-2" @click="partilharFacebook(doc)" title="Facebook">
-                          <i class="bi bi-facebook"></i>
+                           <i class="bi bi-facebook"></i>
                         </button>
                         <button class="btn btn-share px-2" @click="partilharGeral(doc)" title="Instagram / Outros">
-                          <i class="bi bi-share"></i>
+                           <i class="bi bi-share"></i>
                         </button>
                       </div>
                       <MaterialButton color="success" size="sm" @click="editarDocumento(doc)">Gerenciar</MaterialButton>
@@ -716,44 +718,121 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
         <!-- Tabelas Administrativas (Reportados e Proprietários) -->
         <div v-if="['documentosReportados', 'documentosProprietarios'].includes(activeTab)" class="tab-pane fade show active">
           <div class="table-responsive shadow-lg rounded-4 bg-white overflow-hidden">
-            <table class="table table-hover align-middle mb-0">
-              <thead class="bg-purple text-white">
-                <tr>
-                  <th class="ps-4">Nome</th>
-                  <th>Tipo</th>
-                  <th>Número</th>
-                  <th>Contacto</th>
-                  <th>Província</th>
-                  <th v-if="activeTab === 'documentosProprietarios'">Status</th>
-                  <th class="text-end pe-4">Ações</th>
+            <table class="table table-hover align-middle mb-0 custom-table-admin">
+              <thead class="bg-purple-gradient text-white d-none d-lg-table-header-group">
+                <tr class="shadow-sm">
+                  <th class="ps-4 py-3 border-0 rounded-start-4"><i class="bi bi-person me-2 opacity-75"></i>Nome</th>
+                  <th class="py-3 border-0"><i class="bi bi-file-earmark me-2 opacity-75"></i>Tipo</th>
+                  <th class="py-3 border-0"><i class="bi bi-hash me-2 opacity-75"></i>Número</th>
+                  <th class="py-3 border-0"><i class="bi bi-telephone me-2 opacity-75"></i>Contacto</th>
+                  <th class="py-3 border-0"><i class="bi bi-geo-alt me-2 opacity-75"></i>Província</th>
+                  <th v-if="activeTab === 'documentosProprietarios'" class="py-3 border-0"><i class="bi bi-stoplights me-2 opacity-75"></i>Status</th>
+                  <th class="text-end pe-4 py-3 border-0 rounded-end-4"><i class="bi bi-gear me-2 opacity-75"></i>Ações</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody class="border-top-0">
                 <tr v-if="isLoading" v-for="i in 5" :key="i">
-                  <td colspan="7"><div class="skeleton-row-small"></div></td>
+                  <td colspan="7"><div class="skeleton-row-small my-2 rounded-3"></div></td>
                 </tr>
-                <tr v-else v-for="doc in documentosPaginados" :key="doc._id" class="table-row">
-                  <td class="ps-4 fw-bold text-dark">{{ doc.nome_completo }}</td>
-                  <td><span class="badge bg-light text-purple">{{ doc.tipo_documento }}</span></td>
-                  <td><code>{{ doc.numero_documento }}</code></td>
-                  <td>{{ doc.contacto }}</td>
-                  <td>{{ doc.provincia }}</td>
-                  <td v-if="activeTab === 'documentosProprietarios'">
-                    <select class="form-select form-select-sm status-select" v-model="doc.status" @change="atualizarStatus(doc)">
-                      <option value="Pendente">Pendente</option>
-                      <option value="Recuperado">Entregue</option>
-                    </select>
-                  </td>
-                  <td class="text-end pe-4">
-                    <div class="d-flex justify-content-end gap-2 align-items-center">
-                      <div class="btn-group btn-group-sm rounded-pill overflow-hidden shadow-sm me-2">
-                        <button class="btn btn-whatsapp px-2" @click="partilharWhatsApp(doc)"><i class="bi bi-whatsapp"></i></button>
-                        <button class="btn btn-facebook px-2" @click="partilharFacebook(doc)"><i class="bi bi-facebook"></i></button>
-                        <button class="btn btn-share px-2" @click="partilharGeral(doc)"><i class="bi bi-share"></i></button>
+                <tr v-else v-for="doc in documentosPaginados" :key="doc._id" class="table-row-responsive transition-all hover-shadow-md">
+                  
+                  <!-- DESKTOP VIEW (mantém igual) -->
+                  <td data-label="Nome" class="ps-4 fw-bold text-dark d-none d-lg-table-cell">
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-sm bg-purple-soft text-purple rounded-circle me-2 d-flex align-items-center justify-content-center fw-bold">
+                        {{ doc.nome_completo.charAt(0) }}
                       </div>
-                      <div class="btn-group">
-                        <button class="btn btn-outline-warning btn-sm" @click="editarDocumento(doc)"><i class="bi bi-pencil"></i></button>
-                        <button class="btn btn-outline-danger btn-sm" @click="eliminarDocumento(doc)"><i class="bi bi-trash"></i></button>
+                      <span class="text-break">{{ doc.nome_completo }}</span>
+                    </div>
+                  </td>
+                  <td data-label="Tipo" class="d-none d-lg-table-cell"><span class="badge bg-purple-soft text-purple border border-purple-light shadow-sm">{{ doc.tipo_documento }}</span></td>
+                  <td data-label="Número" class="d-none d-lg-table-cell">
+                    <code class="bg-light px-2 py-1 rounded border text-muted d-inline-block">{{ doc.numero_documento }}</code>
+                  </td>
+                  <td data-label="Contacto" class="d-none d-lg-table-cell">
+                    <span class="text-muted"><i class="bi bi-whatsapp text-success me-1"></i> {{ doc.contacto }}</span>
+                  </td>
+                  <td data-label="Província" class="d-none d-lg-table-cell">
+                    <span class="text-muted"><i class="bi bi-geo-alt-fill text-danger opacity-75 me-1"></i> {{ doc.provincia }}</span>
+                  </td>
+                  <td data-label="Status" v-if="activeTab === 'documentosProprietarios'" class="d-none d-lg-table-cell">
+                    <div class="position-relative d-inline-block">
+                      <select 
+                        class="form-select form-select-sm status-select fw-bold border-0 shadow-sm ps-3 pe-5" 
+                        :class="doc.status === 'Entregue' || doc.status === 'Recuperado' ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning-dark'"
+                        style="cursor: pointer; appearance: none;"
+                        v-model="doc.status" 
+                        @change="atualizarStatus(doc)"
+                      >
+                        <option value="Pendente" class="bg-white text-dark">⏳ Pendente</option>
+                        <option value="Recuperado" class="bg-white text-dark">✅ Entregue</option>
+                      </select>
+                      <i class="bi bi-chevron-down position-absolute top-50 end-0 translate-middle-y me-2 small opacity-50" style="pointer-events: none;"></i>
+                    </div>
+                  </td>
+                  <td data-label="Ações" class="text-end pe-4 d-none d-lg-table-cell">
+                    <div class="d-flex justify-content-end gap-2 align-items-center action-buttons-wrapper">
+                      <div class="btn-group btn-group-sm rounded-pill overflow-hidden shadow-sm me-2">
+                        <button class="btn btn-whatsapp px-2" @click="partilharWhatsApp(doc)" title="WhatsApp"><i class="bi bi-whatsapp"></i></button>
+                        <button class="btn btn-facebook px-2" @click="partilharFacebook(doc)" title="Facebook"><i class="bi bi-facebook"></i></button>
+                        <button class="btn btn-share px-2" @click="partilharGeral(doc)" title="Outros"><i class="bi bi-share"></i></button>
+                      </div>
+                      <div class="btn-group shadow-sm rounded-3">
+                        <button class="btn btn-link text-warning btn-sm p-1" @click="editarDocumento(doc)" title="Editar"><i class="bi bi-pencil-square fs-6"></i></button>
+                        <button class="btn btn-link text-danger btn-sm p-1" @click="eliminarDocumento(doc)" title="Apagar"><i class="bi bi-trash fs-6"></i></button>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- MOBILE VIEW (Design Simples e Limpo) -->
+                  <td class="d-lg-none border-0 p-0" colspan="7">
+                    <div class="mobile-doc-card">
+                      <!-- Nome em Destaque -->
+                      <div class="mobile-doc-header">
+                        <div class="mobile-avatar">{{ doc.nome_completo.charAt(0) }}</div>
+                        <div class="mobile-name">{{ doc.nome_completo }}</div>
+                      </div>
+
+                      <!-- Lista de Informações -->
+                      <div class="mobile-info-list">
+                        <div class="mobile-info-row">
+                          <span class="info-label"><i class="bi bi-file-earmark"></i> Tipo</span>
+                          <span class="info-value">{{ doc.tipo_documento }}</span>
+                        </div>
+                        <div class="mobile-info-row">
+                          <span class="info-label"><i class="bi bi-hash"></i> Número</span>
+                          <span class="info-value">{{ doc.numero_documento }}</span>
+                        </div>
+                        <div class="mobile-info-row">
+                          <span class="info-label"><i class="bi bi-whatsapp text-success"></i> Contacto</span>
+                          <span class="info-value">{{ doc.contacto }}</span>
+                        </div>
+                        <div class="mobile-info-row">
+                          <span class="info-label"><i class="bi bi-geo-alt text-danger"></i> Província</span>
+                          <span class="info-value">{{ doc.provincia }}</span>
+                        </div>
+                        <div v-if="activeTab === 'documentosProprietarios'" class="mobile-info-row status-row">
+                          <span class="info-label"><i class="bi bi-check-circle"></i> Status</span>
+                          <select 
+                            class="mobile-status-select" 
+                            :class="doc.status === 'Recuperado' ? 'status-entregue' : 'status-pendente'"
+                            v-model="doc.status" 
+                            @change="atualizarStatus(doc)"
+                          >
+                            <option value="Pendente">⏳ Pendente</option>
+                            <option value="Recuperado">✅ Entregue</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <!-- Botões de Ação -->
+                      <div class="mobile-doc-actions">
+                        <button class="mobile-btn whatsapp" @click="partilharWhatsApp(doc)"><i class="bi bi-whatsapp"></i></button>
+                        <button class="mobile-btn facebook" @click="partilharFacebook(doc)"><i class="bi bi-facebook"></i></button>
+                        <button class="mobile-btn share" @click="partilharGeral(doc)"><i class="bi bi-share"></i></button>
+                        <div class="mobile-actions-divider"></div>
+                        <button class="mobile-btn edit" @click="editarDocumento(doc)"><i class="bi bi-pencil"></i></button>
+                        <button class="mobile-btn delete" @click="eliminarDocumento(doc)"><i class="bi bi-trash"></i></button>
                       </div>
                     </div>
                   </td>
@@ -907,7 +986,7 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
                       <div class="p-3 rounded-4 bg-purple-card-highlight border-start border-5 border-purple shadow-sm position-relative overflow-hidden">
                         <div class="card-glass-effect"></div>
                         <small class="text-purple fw-bolder text-uppercase d-block mb-1" style="font-size: 0.6rem; letter-spacing: 1px;">Termo de Pesquisa</small>
-                        <span class="text-dark fw-800 fs-4 position-relative">{{ log.termo }}</span>
+                        <span class="text-dark fw-800 fs-4 position-relative d-block text-break" style="word-break: break-word;">{{ log.termo }}</span>
                         
                         <!-- Usuário (Opção de clique discreta) -->
                         <div class="position-absolute bottom-0 end-0 p-2 opacity-10 hover-opacity-100 cursor-pointer" @click="verDetalhesUsuario(log)" title="Ver usuário">
@@ -1404,18 +1483,140 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
 
 /* Responsividade da Tabela de Logs */
 @media (max-width: 991px) {
+  .nav-wrapper {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-bottom: 2px;
+  }
+  .custom-nav-admin {
+    padding: 10px !important;
+    mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  }
+  .custom-nav-admin .nav-link {
+    padding: 0.8rem 1.2rem !important;
+    font-size: 0.85rem;
+    border-radius: 12px;
+  }
+
   .table-responsive {
     border: none !important;
     background: transparent !important;
+    overflow-x: hidden !important;
+    width: 100% !important;
+  }
+
+  /* Transformação em Cards para todas as tabelas Admin */
+  .custom-table-admin thead {
+    display: none;
   }
   
-  .table-row-responsive {
+  .custom-table-admin tbody tr {
     display: block;
     background: white;
     margin-bottom: 1.2rem;
-    border-radius: 1.2rem !important;
+    border-radius: 1rem !important;
+    padding: 0.8rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+    border: 1px solid #f0f0f0 !important;
+  }
+
+  .custom-table-admin td {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: none !important;
+    padding: 0.6rem 0.8rem !important;
+    text-align: center;
+    font-size: 0.85rem;
+    word-break: break-word;
+  }
+
+  .custom-table-admin td > * {
+    text-align: center !important;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .custom-table-admin td .badge,
+  .custom-table-admin td code,
+  .custom-table-admin td span,
+  .custom-table-admin td .d-flex {
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .custom-table-admin td .d-inline-block {
+    display: block !important;
+    margin: 0 auto;
+  }
+
+  .custom-table-admin td::before {
+    content: attr(data-label);
+    font-weight: 800;
+    color: #800080;
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    text-align: center;
+    margin-bottom: 0.3rem;
+    display: block;
+    width: 100%;
+  }
+
+  .custom-table-admin td[data-label="Nome"] {
+    display: block;
+    text-align: center;
+    background: linear-gradient(135deg, #f8f0fc 0%, #fff 100%);
+    margin: -0.8rem -0.8rem 0.5rem -0.8rem;
+    padding: 1rem 0.8rem !important;
+    border-radius: 1rem 1rem 0 0;
+    font-size: 1.1rem;
+    border-bottom: 2px solid rgba(128, 0, 128, 0.1);
+  }
+  
+  .custom-table-admin td[data-label="Nome"]::before {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.6rem;
+  }
+
+  .custom-table-admin td[data-label="Ações"], 
+  .custom-table-admin td[data-label="Ação"] {
+    display: flex;
+    flex-direction: row;
+    background: linear-gradient(to top, #fafafa 0%, #fff 100%);
+    margin: 0.5rem -0.8rem -0.8rem -0.8rem;
+    padding: 1rem 0.8rem !important;
+    border-radius: 0 0 1rem 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    border-top: 1px solid #f0f0f0;
+  }
+  
+  .custom-table-admin td[data-label="Ações"]::before,
+  .custom-table-admin td[data-label="Ação"]::before {
+    display: none;
+  }
+
+  .custom-table-admin td[data-label="Status"] {
+    padding: 0.8rem !important;
+  }
+
+  .custom-table-admin td[data-label="Status"]::before {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Outros ajustes de cards mobile */
+  .table-row-responsive {
+    display: block;
+    background: white;
+    margin-bottom: 1.5rem;
+    border-radius: 1.5rem !important;
     padding: 1.2rem;
-    box-shadow: 0 8px 24px rgba(128, 0, 128, 0.08);
+    box-shadow: 0 15px 35px rgba(128, 0, 128, 0.05);
     border: 1px solid rgba(128, 0, 128, 0.1);
     transition: transform 0.2s ease;
   }
@@ -1426,10 +1627,25 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
     padding: 0 !important;
     text-align: left !important;
     border: none !important;
+    font-size: 0.8rem;
+  }
+
+  .mobile-card-cell {
+    display: block;
+    width: 100%;
+  }
+
+  .mobile-card-inner {
+    padding: 0.5rem;
+  }
+
+  .is-milestone-row {
+    border: 2px solid #ffcc33 !important;
+    background: linear-gradient(to bottom, rgba(255, 204, 51, 0.02), white) !important;
   }
 }
 
-/* Estilos de Organização da Tabela */
+/* Estilos Globais de Organização */
 .meta-column { width: 180px; }
 .user-column { width: 150px; }
 .term-column { vertical-align: middle; }
@@ -1449,7 +1665,6 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
 }
 .fw-800 { font-weight: 800; }
 
-/* DESIGN PREMIUM ROXO (Dashboard Admin) */
 .bg-purple-gradient {
   background: linear-gradient(135deg, #800080 0%, #4a004a 100%) !important;
 }
@@ -1464,10 +1679,6 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
   border-radius: 12px;
   border: 1px solid rgba(128, 0, 128, 0.08);
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-}
-
-.user-peek-option i {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .transition-all {
@@ -1499,27 +1710,6 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
   50% { transform: translateY(-3px); }
 }
 
-@media (max-width: 991px) {
-  .table-row-responsive {
-    display: block;
-    background: white;
-    margin-bottom: 2rem !important;
-    border-radius: 1.5rem !important;
-    border: 1px solid rgba(128, 0, 128, 0.1);
-    box-shadow: 0 15px 35px rgba(128, 0, 128, 0.05);
-    transition: transform 0.3s ease;
-  }
-  
-  .table-row-responsive:active {
-    transform: scale(0.98);
-  }
-
-  .is-milestone-row {
-    border: 2px solid #ffcc33 !important;
-    background: linear-gradient(to bottom, rgba(255, 204, 51, 0.02), white) !important;
-  }
-}
-
 .hover-opacity-100:hover {
   opacity: 1 !important;
 }
@@ -1537,32 +1727,6 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
   align-items: center;
 }
 
-@media (max-width: 991px) {
-  .table-row-responsive {
-    display: block;
-    background: white;
-    margin-bottom: 1.5rem;
-    border-radius: 1.25rem !important;
-    border: none;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-    overflow: hidden;
-  }
-  
-  .mobile-card-cell {
-    display: block;
-    width: 100%;
-  }
-
-  .mobile-card-inner {
-    padding: 0.5rem;
-  }
-
-  .is-milestone-row {
-    background: linear-gradient(to right, rgba(255, 193, 7, 0.05), white) !important;
-    border-left: 5px solid #ffc107 !important;
-  }
-}
-
 .animate-bounce {
   animation: bounce 2s infinite;
 }
@@ -1578,4 +1742,198 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
   height: 32px;
   font-size: 0.8rem;
 }
+
+/* Utilitários de Cores e Bordas */
+.bg-purple-light {
+  background-color: #f3e5f5;
+}
+.border-purple-light {
+  border-color: rgba(128, 0, 128, 0.2) !important;
+}
+.bg-success-soft {
+  background-color: rgba(25, 135, 84, 0.1) !important;
+}
+.bg-warning-soft {
+  background-color: rgba(255, 193, 7, 0.1) !important;
+}
+.text-warning-dark {
+  color: #d39e00 !important;
+}
+
+.hover-shadow-md:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  z-index: 1;
+}
+
+/* Modal Responsivo */
+.swal2-popup.border-radius-20 {
+  border-radius: 20px !important;
+}
+
+/* ====== MOBILE DOCUMENT CARD - DESIGN LIMPO ====== */
+@media (max-width: 991px) {
+  .table-row-responsive {
+    display: block !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  .table-row-responsive td.d-lg-none {
+    display: block !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+}
+
+.mobile-doc-card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eee;
+  margin-bottom: 1rem;
+  width: 100% !important;
+  display: block !important;
+}
+
+.mobile-doc-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #800080, #6a006a);
+  color: white;
+  border-radius: 1rem 1rem 0 0;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.mobile-avatar {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.mobile-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.mobile-info-list {
+  padding: 0.5rem 0.75rem;
+}
+
+.mobile-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mobile-info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 0.7rem;
+  color: #666;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.info-label i {
+  font-size: 0.8rem;
+}
+
+.info-value {
+  font-size: 0.75rem;
+  color: #1a1a1a;
+  font-weight: 500;
+  text-align: right;
+  word-break: break-all;
+  max-width: 55%;
+}
+
+.status-row {
+  padding-top: 0.75rem;
+}
+
+.mobile-status-select {
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  border: 2px solid #ddd;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.mobile-status-select.status-pendente {
+  background: #fff8e1;
+  border-color: #ffc107;
+  color: #b38600;
+}
+
+.mobile-status-select.status-entregue {
+  background: #e8f5e9;
+  border-color: #4caf50;
+  color: #2e7d32;
+}
+
+.mobile-doc-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  background: #f8f8f8;
+  border-top: 1px solid #eee;
+}
+
+.mobile-actions-divider {
+  width: 1px;
+  height: 20px;
+  background: #ddd;
+  margin: 0 0.3rem;
+}
+
+.mobile-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+  color: white;
+}
+
+.mobile-btn:active {
+  transform: scale(0.9);
+}
+
+.mobile-btn.whatsapp { background: #25d366; }
+.mobile-btn.facebook { background: #1877f2; }
+.mobile-btn.share { background: linear-gradient(135deg, #f09433, #dc2743); }
+.mobile-btn.edit { background: #ffc107; color: #333; }
+.mobile-btn.delete { background: #dc3545; }
 </style>
