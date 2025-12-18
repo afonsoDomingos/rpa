@@ -288,39 +288,67 @@
         </div>
 
         <!-- Paginação -->
-        <div v-if="totalPaginas > 1" class="d-flex justify-content-between align-items-center mt-4">
-          <div class="text-muted">
-            Mostrando {{ ((paginaAtual - 1) * itensPorPagina) + 1 }} a 
-            {{ Math.min(paginaAtual * itensPorPagina, todosOsFiltrados.length) }} 
-            de {{ todosOsFiltrados.length }} resultados
+        <!-- Paginação -->
+        <div v-if="totalPaginas > 1" class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-5 gap-3">
+          
+          <div class="text-muted small text-center text-md-start order-2 order-md-1">
+            Mostrando <span class="text-white fw-bold">{{ ((paginaAtual - 1) * itensPorPagina) + 1 }}</span> a 
+            <span class="text-white fw-bold">{{ Math.min(paginaAtual * itensPorPagina, todosOsFiltrados.length) }}</span> 
+            de <span class="text-white fw-bold">{{ todosOsFiltrados.length }}</span> resultados
           </div>
-          <div class="btn-group">
+
+          <div class="btn-group order-1 order-md-2 p-1 rounded-pill" style="background: #0a0a0a; border: 1px solid #1a1a1a;" role="group">
             <button 
               @click="mudarPagina(paginaAtual - 1)"
               :disabled="paginaAtual === 1"
-              class="btn btn-outline-purple btn-sm"
+              class="btn btn-dark-custom rounded-pill me-1"
+              title="Anterior"
+              style="min-width: 40px;"
             >
               <i class="bi bi-chevron-left"></i>
-              Anterior
             </button>
+
             <button 
-              v-for="p in Math.min(totalPaginas, 5)" 
+              v-for="p in paginasVisiveis" 
               :key="p"
               @click="mudarPagina(p)"
-              :class="['btn', 'btn-sm', p === paginaAtual ? 'btn-purple' : 'btn-outline-purple']"
+              class="btn rounded-pill mx-1 px-3 d-flex align-items-center justify-content-center"
+              :class="p === paginaAtual ? 'btn-purple fw-bold shadow-sm' : 'btn-dark-custom'"
+              style="min-width: 40px; height: 38px;"
             >
               {{ p }}
             </button>
+
             <button 
               @click="mudarPagina(paginaAtual + 1)"
               :disabled="paginaAtual === totalPaginas"
-              class="btn btn-outline-purple btn-sm"
+              class="btn btn-dark-custom rounded-pill ms-1"
+              title="Próxima"
+              style="min-width: 40px;"
             >
-              Próxima
               <i class="bi bi-chevron-right"></i>
             </button>
           </div>
         </div>
+
+        <style scoped>
+          .bg-dark-soft { background: #0a0a0a; border: 1px solid #1a1a1a; }
+          .btn-dark-custom {
+            background: transparent;
+            color: #6b7280;
+            border: none;
+            transition: all 0.2s;
+            height: 38px;
+          }
+          .btn-dark-custom:hover:not(:disabled) {
+            background: #1a1a1a;
+            color: white;
+          }
+          .btn-dark-custom:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+          }
+        </style>
 
         <!-- Estatísticas -->
         <div class="row g-3 mt-4">
@@ -614,6 +642,30 @@ const pagamentosFiltrados = computed(() => {
 const totalPaginas = computed(() =>
   Math.ceil(todosOsFiltrados.value.length / itensPorPagina)
 );
+
+// Páginas Visíveis (Janela deslizante inteligente)
+const paginasVisiveis = computed(() => {
+  const total = totalPaginas.value;
+  const atual = paginaAtual.value;
+  const delta = 2; // Páginas antes e depois
+  
+  let inicio = Math.max(1, atual - delta);
+  let fim = Math.min(total, atual + delta);
+
+  if (atual - delta < 1) {
+    fim = Math.min(total, fim + (delta - (atual - 1)));
+  }
+  
+  if (atual + delta > total) {
+    inicio = Math.max(1, inicio - ((atual + delta) - total));
+  }
+
+  const paginas = [];
+  for (let i = inicio; i <= fim; i++) {
+    paginas.push(i);
+  }
+  return paginas;
+});
 
 // Mudar página
 const mudarPagina = (novaPagina) => {
