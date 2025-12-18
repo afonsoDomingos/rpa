@@ -1,342 +1,278 @@
 <script setup>
-import api from "../api"; // Importa a instância da API para comunicação com o servidor
-import { ref, onMounted, onUnmounted, watch } from "vue"; // Importa funções do Vue para reatividade e ciclo de vida
-import MaterialSwitch from "@/components/MaterialSwitch.vue"; // Componente para um switch material
-import eventBus from "@/eventBus";
-
-import { Modal } from "bootstrap";
-
+import { ref, onMounted, onUnmounted, watch, computed } from "vue";
 import { useRouter } from "vue-router";
+import { Modal } from "bootstrap";
 import Swal from "sweetalert2";
-const router = useRouter();
+import api from "../api";
+import eventBus from "@/eventBus";
+import setNavPills from "@/assets/js/nav-pills.js";
+import { useDocumentos } from "@/composables/useDocumentos";
 
-//Vue Material Kit 2 components
+// Verificando se os componentes existem antes de importar
+import MaterialSwitch from "@/components/MaterialSwitch.vue";
 import MaterialButton from "@/components/MaterialButton.vue";
 
-// Estado reativo para controlar a aba ativa
+const router = useRouter();
+const {
+  documentosReportados,
+  documentosProprietarios,
+  documentosEncontrados,
+  buscarDocumentos,
+  buscarDocumentosReportados,
+  buscarDocumentosProprietarios,
+  procurarDocumento: apiProcurar,
+  cadastrarDocumento: apiCadastrar
+} = useDocumentos();
+
+// Estado reativo
 const activeTab = ref("procurar");
+const tipoFiltro = ref("nome");
 
-// Ouvir evento vindo do NavBarDefault.vue
-const changeTab = (tabName) => {
-  activeTab.value = tabName;
-};
-
-onMounted(() => eventBus.on("changeTab", changeTab));
-onUnmounted(() => eventBus.off("changeTab", changeTab));
-
-// Importação de função para efeitos na navegação de abas
-import setNavPills from "@/assets/js/nav-pills.js";
-
-// Executa a função para configurar o efeito de navegação após a montagem do componente
-onMounted(async () => {
-  await setNavPills();
+// Campos de Cadastro
+const form = ref({
+  nome_completo: "",
+  tipo_documento: "",
+  numero_documento: "",
+  provincia: "",
+  contacto: "",
+  origem: "",
+  concordaTermos: false
 });
 
-// Campos para a aba "Cadastrar"
-const nome_completo = ref("");
-const tipo_documento = ref("");
-const numero_documento = ref("");
-//const data_perda = ref('');
-const provincia = ref("");
-const contacto = ref("");
-const origem = ref("");
+// Campos de Procura
+const busca = ref({
+  nome: "",
+  tipo: "",
+  provincia: "",
+  numero: ""
+});
 
-// Campos para a aba "Reportar"
-const protocolo = ref("");
-
-// Campos para a aba "Procurar"
-const nome_completoRec = ref("");
-const tipo_documentoRec = ref("");
-const provinciaRec = ref("");
-const numero_documentoRec = ref("");
-
-// Lista de documentos
-const documentosDisponiveis = ref([]);
-const documentosReportados = ref([]);
-const documentosProprietarios = ref([]);
-const documentosEncontrados = ref([]);
-const documentoSelecionado = ref(null);
-
-// Mensagens reativas para feedback
+const erroMensagem = ref("");
 const mensagemErro = ref("");
 const mensagemSucesso = ref("");
-const erroMensagem = ref("");
-const nomeError = ref(""); // Para armazenar erros do nome completo
-const contactoError = ref(""); // Variável para armazenar erros do contacto
+const nomeError = ref("");
+const contactoError = ref("");
 
-// Função para obter a data de hoje no formato 'YYYY-MM-DD'
-const getHoje = () => {
-  const hoje = new Date();
-  const ano = hoje.getFullYear();
-  const mes = String(hoje.getMonth() + 1).padStart(2, "0");
-  const dia = String(hoje.getDate()).padStart(2, "0");
-  return `${ano}-${mes}-${dia}`;
+// Estado de Carregamento (Skeletons)
+const isLoading = ref(false);
+
+// Paginação
+const paginaAtual = ref(1);
+const itensPorPagina = 5;
+
+const totalPaginas = computed(() => {
+  const lista = activeTab.value === 'procurar' ? documentosEncontrados.value :
+                activeTab.value === 'documentosReportados' ? documentosReportados.value :
+                documentosProprietarios.value;
+  return Math.ceil(lista.length / itensPorPagina);
+});
+
+const documentosPaginados = computed(() => {
+  const lista = activeTab.value === 'procurar' ? documentosEncontrados.value :
+                activeTab.value === 'documentosReportados' ? documentosReportados.value :
+                documentosProprietarios.value;
+  const start = (paginaAtual.value - 1) * itensPorPagina;
+  return lista.slice(start, start + itensPorPagina);
+});
+
+const mudarPagina = (p) => {
+  if (p >= 1 && p <= totalPaginas.value) paginaAtual.value = p;
 };
-const data_perda = ref(getHoje());
 
-// Função de validação do nome completo
+// Listas auxiliares
+const provincias = ["Maputo", "Maputo Cidade", "Gaza", "Inhambane", "Sofala", "Manica", "Tete", "Zambézia", "Nampula", "Niassa", "Cabo Delgado"];
+const tipo_documentos = ["Bilhete de Identidade", "Passaporte", "Cartão de Eleitor", "Cartão de Estudante", "Carta de Condução", "Seguro do Veículo", "Livrete", "Cartão de Identidade Militar", "Outro..."];
+
+const outroTipoDocumento = ref("");
+
+// Mapeamento dinâmico de labels para o número do documento
+const labelNumeroDocumento = computed(() => {
+  const labels = {
+    "Bilhete de Identidade": "Número do BI",
+    "Passaporte": "Número do Passaporte",
+    "Cartão de Eleitor": "Número do Cartão de Eleitor",
+    "Cartão de Estudante": "Número do Cartão de Estudante",
+    "Carta de Condução": "Número da Carta de Condução",
+    "Seguro do Veículo": "Número do Seguro",
+    "Livrete": "Número do Livrete",
+    "Cartão de Identidade Militar": "Número de ID Militar",
+  };
+  return labels[form.value.tipo_documento] || "Número do Documento";
+});
+
+// Funções de Validação
 const validarNome = () => {
-  const nomeRegex = /^[A-Za-zÀ-ÿ\s]+$/; // Regex para letras e espaços
-  if (!nome_completo.value) {
-    nomeError.value = "O nome  é obrigatório.";
+  const nomeRegex = /^[A-Za-zÀ-ÿ\s]+$/;
+  if (!form.value.nome_completo) {
+    nomeError.value = "O nome é obrigatório.";
     return false;
-  } else if (!nomeRegex.test(nome_completo.value)) {
+  }
+  if (!nomeRegex.test(form.value.nome_completo)) {
     nomeError.value = "O nome completo deve conter apenas letras.";
     return false;
   }
-  nomeError.value = ""; // Limpa o erro se tudo estiver correto
+  nomeError.value = "";
   return true;
 };
 
-// Função de validação do contacto
 const validarContacto = () => {
-  const contactoRegex = /^(84|85|86|87|83)\d{7}$/; // Regex para validar números que começam com 84, 85, 83, 86, 87 ou 83 e têm 9 dígitos
-  if (!contacto.value) {
+  const contactoRegex = /^(84|85|86|87|83)\d{7}$/;
+  if (!form.value.contacto) {
     contactoError.value = "O contacto é obrigatório.";
     return false;
-  } else if (!contactoRegex.test(contacto.value)) {
-    contactoError.value =
-      "O contacto deve conter 9 dígitos e começar com 84, 85, 86, 87 ou 83.";
+  }
+  if (!contactoRegex.test(form.value.contacto)) {
+    contactoError.value = "O contacto deve conter 9 dígitos e começar com 84, 85, 86, 87 ou 83.";
     return false;
   }
-  contactoError.value = ""; // Limpa o erro se tudo estiver correto
+  contactoError.value = "";
   return true;
 };
 
-// Função para buscar todos os documentos disponíveis
-const buscarDocumentos = async () => {
-  try {
-    const response = await api.get("/documentos");
-    documentosDisponiveis.value = response.data;
-  } catch (error) {
-    console.error("Erro ao buscar documentos:", error);
+// Ações
+const changeTab = (tabName) => { activeTab.value = tabName; };
+
+const cadastrar = async () => {
+  if (!validarNome() || !validarContacto()) return;
+  if (!form.value.concordaTermos) {
+    mensagemErro.value = "Você precisa concordar com os termos.";
+    return;
   }
 
-  // Chama as validações do nome  e contacto
-  if (!validarNome() || !validarContacto()) {
-    return; // Não prossegue se alguma validação falhar
-  }
-};
-
-// Funções para buscar documentos específicos
-const buscarDocumentosReportados = async () => {
   try {
-    const response = await api.get("/documentos/reportados");
-    documentosReportados.value = response.data;
-  } catch (error) {
-    console.error("Erro ao buscar documentos reportados:", error);
-  }
-};
-
-const buscarDocumentosProprietarios = async () => {
-  try {
-    const response = await api.get("/documentos/proprietarios");
-    documentosProprietarios.value = response.data;
-  } catch (error) {
-    console.error("Erro ao buscar documentos proprietários:", error);
-  }
-};
-
-// Executa buscas ao montar o componente
-onMounted(() => {
-  buscarDocumentos();
-  buscarDocumentosReportados();
-  buscarDocumentosProprietarios();
-});
-
-// Função para cadastrar um novo documento perdido
-const cadastrarDocumento = async () => {
-  mensagemErro.value = "";
-  mensagemSucesso.value = "";
-
-  try {
-    // Monta o objeto do novo documento
-    const novoDocumento = {
-      nome_completo: nome_completo.value.trim(),
-      tipo_documento: tipo_documento.value.trim(),
-      numero_documento: numero_documento.value.trim(),
-      provincia: provincia.value.trim(),
-      data_perda: data_perda.value, // data no formato ISO (ex: 2023-07-07)
-      origem: origem.value.trim(), // deve ser 'proprietario' ou 'reportado'
-      contacto: contacto.value.trim(),
+    const payload = { 
+      ...form.value, 
+      tipo_documento: form.value.tipo_documento === "Outro..." ? outroTipoDocumento.value : form.value.tipo_documento,
+      data_perda: new Date().toISOString().split('T')[0] 
     };
-
-    // Pega o token JWT do localStorage para autenticação
-    const token = localStorage.getItem("token");
-    if (!token) {
-      mensagemErro.value = "Usuário não autenticado.";
+    
+    if (form.value.tipo_documento === "Outro..." && !outroTipoDocumento.value) {
+      mensagemErro.value = "Por favor, especifique o tipo de documento.";
       return;
     }
 
-    // Envia o POST para a rota /documentos com o token no header Authorization
-    const response = await api.post("/documentos", novoDocumento, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    console.log("Documento cadastrado com sucesso:", response.data);
-
-    mensagemSucesso.value = `Documento cadastrado com sucesso: Nome: ${response.data.nome_completo}, Tipo: ${response.data.tipo_documento}, Número: ${response.data.numero_documento}, Província: ${response.data.provincia}, Data: ${response.data.data_perda}`;
-
-    // Limpa os campos do formulário
-    nome_completo.value = "";
-    tipo_documento.value = "";
-    numero_documento.value = "";
-    provincia.value = "";
-    data_perda.value = "";
-    origem.value = "";
-    contacto.value = "";
-
-    buscarDocumentos(); // Atualiza a lista de documentos
+    const response = await apiCadastrar(payload);
+    mensagemSucesso.value = `Documento cadastrado: ${response.data.nome_completo}`;
+    Object.keys(form.value).forEach(key => form.value[key] = key === 'concordaTermos' ? false : "");
+    buscarDocumentos();
   } catch (error) {
-    console.error("Erro ao cadastrar documento:", error);
-    mensagemErro.value =
-      error.response?.data?.message ||
-      "Erro ao cadastrar. Verifique os dados e tente novamente.";
+    mensagemErro.value = error.response?.data?.message || "Erro ao cadastrar.";
   }
 };
 
-// Filtro de busca de documentos
-
-// Estado do filtro
-const tipoFiltro = ref("nome");
-
-// Watch para resetar os campos ao mudar o filtro
-watch(tipoFiltro, (novoValor) => {
-  console.log("Filtro alterado para:", novoValor);
-  nome_completoRec.value = "";
-  tipo_documentoRec.value = "";
-  provinciaRec.value = "";
-  numero_documentoRec.value = "";
-});
-
-// Função para procurar documentos
-const procurarDocumento = async () => {
-  erroMensagem.value = ""; // Reseta o erro
-
-  // Verifica qual filtro está selecionado
+const procurar = async () => {
+  erroMensagem.value = "";
+  isLoading.value = true;
   let params = {};
+  if (tipoFiltro.value === "nome") params.nome_completo = busca.value.nome;
+  else if (tipoFiltro.value === "tipo") params.tipo_documento = busca.value.tipo;
+  else if (tipoFiltro.value === "provincia") params.provincia = busca.value.provincia;
+  else if (tipoFiltro.value === "numero") params.numero_documento = busca.value.numero;
 
-  if (tipoFiltro.value === "nome" && nome_completoRec.value.trim()) {
-    params.nome_completo = nome_completoRec.value.trim();
-  } else if (tipoFiltro.value === "tipo" && tipo_documentoRec.value) {
-    params.tipo_documento = tipo_documentoRec.value;
-  } else if (tipoFiltro.value === "provincia" && provinciaRec.value) {
-    params.provincia = provinciaRec.value;
-  } else if (
-    tipoFiltro.value === "numero" &&
-    numero_documentoRec.value.trim()
-  ) {
-    // Adiciona a condição para número de documento
-    params.numero_documento = numero_documentoRec.value.trim();
-  } else {
-    erroMensagem.value =
-      "Por favor, preencha o campo correspondente ao filtro selecionado.";
+  if (!Object.values(params).some(v => v)) {
+    erroMensagem.value = "Preencha o campo do filtro.";
+    isLoading.value = false;
     return;
   }
-  try {
-    const response = await api.get("/documentos", { params });
-    documentosEncontrados.value = response.data;
 
-    if (documentosEncontrados.value.length === 0) {
-      erroMensagem.value = "Nenhum documento encontrado.";
+  try {
+    const res = await apiProcurar(params);
+    
+    // Log da pesquisa para o admin
+    const termoPesquisado = busca.value.nome || busca.value.tipo || busca.value.provincia || busca.value.numero;
+    if (termoPesquisado) {
+      api.post('/documentos/pesquisas', {
+        termo: termoPesquisado,
+        filtro: tipoFiltro.value,
+        data: new Date().toISOString()
+      }).catch(err => console.error("Erro ao salvar log:", err));
+    }
+
+    if (res.length === 0) {
+      erroMensagem.value = "Pesquisa concluída, mas não encontramos nenhum documento com estes dados.";
     }
   } catch (error) {
-    erroMensagem.value =
-      error.response?.data?.message ||
-      "Erro ao buscar documentos. Tente novamente.";
-    console.error("Erro ao procurar documentos:", error);
+    if (error.response && error.response.status === 404) {
+      erroMensagem.value = "Pesquisa concluída: nenhum documento foi encontrado com estes dados.";
+      documentosEncontrados.value = []; // Garante que a lista está vazia
+    } else {
+      console.error("Erro de conexão:", error);
+      erroMensagem.value = "Ops! Tivemos uma falha ao comunicar com o servidor. Verifique sua ligação ou tente novamente mais tarde.";
+    }
+  } finally {
+    isLoading.value = false;
   }
 };
 
-// Watch para resetar campos ao mudar de aba
-watch(activeTab, (novaAba) => {
-  if (novaAba !== "procurar") {
-    nome_completoRec.value = "";
-    tipo_documentoRec.value = "";
-  }
-});
-
-// Lista de províncias
-const provincias = [
-  "Maputo",
-  "Maputo Cidade",
-  "Gaza",
-  "Inhambane",
-  "Sofala",
-  "Manica",
-  "Tete",
-  "Zambézia",
-  "Nampula",
-  "Niassa",
-  "Cabo Delgado",
-];
-
-// Lista de tipos de documentos
-const tipo_documentos = [
-  "Bilhete de Identidade",
-  "Passaporte",
-  "Cartão de Eleitor",
-  "Cartão de Estudante",
-  "Carta de Condução",
-  "Seguro do Veículo",
-  "Livrete",
-  "Cartão de Identidade Militar",
-];
-
-// Função para reportar status da recuperação de um documento
-const reportarStatus = () => {
-  console.log(
-    "Protocolo de Recuperação:",
-    protocolo.value,
-    "Nome:",
-    nome_completo.value
-  );
+const partilharWhatsApp = (doc) => {
+  const mensagem = `📢 *Documento Encontrado no RPA!*%0A%0A👤 *Nome:* ${doc.nome_completo}%0A📄 *Tipo:* ${doc.tipo_documento}%0A📍 *Província:* ${doc.provincia}%0A%0ASe conheces esta pessoa, avisa-a! Registre documentos em: ${window.location.href}`;
+  window.open(`https://wa.me/?text=${mensagem}`, '_blank');
 };
 
-const verificarAssinaturaAntesDeSolicitar = async (documento) => {
+const partilharFacebook = (doc) => {
+  const url = encodeURIComponent(window.location.href);
+  const quote = encodeURIComponent(`📢 Documento Encontrado no RPA!\n👤 Nome: ${doc.nome_completo}\n📄 Tipo: ${doc.tipo_documento}\n📍 Província: ${doc.provincia}`);
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${quote}`, '_blank');
+};
+
+const partilharGeral = async (doc) => {
+  const texto = `📢 Documento Encontrado!\n👤 Nome: ${doc.nome_completo}\n📄 Tipo: ${doc.tipo_documento}\n📍 Província: ${doc.provincia}`;
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: 'RPA - Documentos Encontrados',
+        text: texto,
+        url: window.location.href,
+      });
+    } catch (err) {
+      console.log('Erro ao partilhar', err);
+    }
+  } else {
+    partilharWhatsApp(doc);
+  }
+};
+
+const verificarAssinaturaAntesDeSolicitar = async (doc) => {
   try {
     const token = localStorage.getItem("token");
-    const response = await api.get("/pagamentos/assinatura/ativa", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const { data } = await api.get("/pagamentos/assinatura/ativa", {
+      headers: { Authorization: `Bearer ${token}` }
     });
 
-    if (response.data.ativa) {
-      // Armazena o documento selecionado (opcional, se quiser mostrar no modal)
-      documentoSelecionado.value = documento;
-
-      // Mostra o modal programaticamente
+    if (data.ativa) {
       const modalElement = document.getElementById("exampleModal");
-      if (modalElement) {
-        const bootstrapModal = new Modal(modalElement);
-        bootstrapModal.show();
-      }
+      if (modalElement) new Modal(modalElement).show();
     } else {
       Swal.fire({
         icon: 'warning',
         title: 'Assinatura Necessária',
-        text: 'Você precisa de uma assinatura ativa para solicitar documentos.',
+        text: 'Você precisa de uma assinatura ativa.',
         confirmButtonColor: '#800080',
         confirmButtonText: 'Ver Planos'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          router.push("/assinaturas");
-        }
-      });
+      }).then((r) => r.isConfirmed && router.push("/assinaturas"));
     }
-  } catch (error) {
-    console.error("Erro ao verificar assinatura:", error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Erro',
-      text: 'Erro ao verificar assinatura. Tente novamente.',
-      confirmButtonColor: '#d33'
-    });
+  } catch (err) {
+    Swal.fire({ icon: 'error', title: 'Erro', text: 'Tente novamente.' });
   }
 };
+
+onMounted(async () => {
+  eventBus.on("changeTab", changeTab);
+  setNavPills();
+  isLoading.value = true;
+  await Promise.all([
+    buscarDocumentos(),
+    buscarDocumentosReportados(),
+    buscarDocumentosProprietarios()
+  ]);
+  isLoading.value = false;
+});
+
+onUnmounted(() => eventBus.off("changeTab", changeTab));
+
+watch(activeTab, () => { paginaAtual.value = 1; });
+
+watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] = ""); });
 </script>
 
 <template>
@@ -370,23 +306,12 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
       <!-- Conteúdo das abas -->
       <div class="tab-content">
         <!-- Aba Procurar (Formulário para busca de documentos) -->
-        <div
-          v-if="activeTab === 'procurar'"
-          class="tab-pane fade show active"
-          id="procurar-tabs-simple"
-        >
-          <form @submit.prevent="procurarDocumento" class="form">
+        <div v-if="activeTab === 'procurar'" class="tab-pane fade show active">
+          <form @submit.prevent="procurar" class="form">
             <div class="row">
-              <!-- Seletor de Tipo de Filtro -->
               <div class="col-md-12 mb-3">
-                <label for="tipoFiltro" class="form-label fw-bold"
-                  >Escolha o tipo de filtro</label
-                >
-                <select
-                  id="tipoFiltro"
-                  class="form-control borda-destacada form-select zoom-field"
-                  v-model="tipoFiltro"
-                >
+                <label for="tipoFiltro" class="form-label fw-bold">Escolha o tipo de filtro</label>
+                <select id="tipoFiltro" class="form-control borda-destacada form-select zoom-field" v-model="tipoFiltro">
                   <option value="nome">Nome Completo</option>
                   <option value="tipo">Tipo de Documento</option>
                   <option value="provincia">Província</option>
@@ -394,1209 +319,278 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
                 </select>
               </div>
 
-              <!-- Campo para Nome Completo (Exibido se o filtro for por nome) -->
+              <!-- Campo Dinâmico conforme o Filtro -->
               <div v-if="tipoFiltro === 'nome'" class="col-md-12 mb-3">
-                <label for="nomeRec" class="form-label fw-bold"
-                  >Nome Completo</label
-                >
-                <input
-                  type="text"
-                  id="nomeRec"
-                  class="form-control borda-destacadanome"
-                  v-model="nome_completoRec"
-                  placeholder="Ex: João Silva"
-                  required
-                />
+                <label for="nomeRec" class="form-label fw-bold">Nome Completo</label>
+                <input type="text" id="nomeRec" class="form-control borda-destacadanome" v-model="busca.nome" placeholder="Ex: João Silva" required />
               </div>
 
-              <!-- Campo para Tipo de Documento (Exibido se o filtro for por tipo) -->
               <div v-if="tipoFiltro === 'tipo'" class="col-md-12 mb-3">
-                <label for="tipoDocumento" class="form-label fw-bold"
-                  >Tipo de Documento</label
-                >
-                <select
-                  id="tipoDocumento"
-                  class="form-control borda-destacada form-select zoom-field"
-                  v-model="tipo_documentoRec"
-                  required
-                >
-                  <option disabled value="">
-                    Selecione o Tipo de Documento
-                  </option>
-                  <option
-                    v-for="tipo in tipo_documentos"
-                    :key="tipo"
-                    :value="tipo"
-                  >
-                    {{ tipo }}
-                  </option>
+                <label for="tipoDocumento" class="form-label fw-bold">Tipo de Documento</label>
+                <select id="tipoDocumento" class="form-control borda-destacada form-select zoom-field" v-model="busca.tipo" required>
+                  <option disabled value="">Selecione o Tipo</option>
+                  <option v-for="tipo in tipo_documentos" :key="tipo" :value="tipo">{{ tipo }}</option>
                 </select>
               </div>
 
-              <!-- Campo para Província (Exibido se o filtro for por província) -->
               <div v-if="tipoFiltro === 'provincia'" class="col-md-12 mb-3">
-                <label for="provinciaRec" class="form-label fw-bold"
-                  >Província</label
-                >
-                <select
-                  id="provinciaRec"
-                  class="form-control destacada form-select zoom-field"
-                  v-model="provinciaRec"
-                  required
-                >
+                <label for="provinciaRec" class="form-label fw-bold">Província</label>
+                <select id="provinciaRec" class="form-control destacada form-select zoom-field" v-model="busca.provincia" required>
                   <option disabled value="">Selecione a Província</option>
-                  <option
-                    v-for="provincia in provincias"
-                    :key="provincia"
-                    :value="provincia"
-                  >
-                    {{ provincia }}
-                  </option>
+                  <option v-for="provincia in provincias" :key="provincia" :value="provincia">{{ provincia }}</option>
                 </select>
               </div>
 
-              <!-- Campo para Número de Documento (Exibido se o filtro for por número) -->
               <div v-if="tipoFiltro === 'numero'" class="col-md-12 mb-3">
-                <label for="numero_documentoRec" class="form-label fw-bold"
-                  >Número de Documento</label
-                >
-                <input
-                  type="text"
-                  id="numero_documentoRec"
-                  class="form-control borda-destacada"
-                  v-model="numero_documentoRec"
-                  placeholder="Ex: 123456789"
-                  required
-                />
+                <label for="numero_documentoRec" class="form-label fw-bold">Número de Documento</label>
+                <input type="text" id="numero_documentoRec" class="form-control borda-destacada" v-model="busca.numero" placeholder="Ex: 123456789" required />
               </div>
 
-              <!-- Exibição da Mensagem de Erro -->
-              <!--<div v-if="erroMensagem" class="text-danger mt-2">
-                {{ erroMensagem }}
-              </div>-->
-
-              <!-- Mensagem de erro com botão de redirecionamento -->
-              <div
-                v-if="
-                  erroMensagem &&
-                  documentosEncontrados.length === 0 &&
-                  nome_completoRec
-                "
-                class="text-center mt-4 p-4 rounded shadow-sm animate-fade-in"
-                style="background-color: #f8f9fa"
-              >
+              <!-- Feedback de Busca Vazia -->
+              <div v-if="erroMensagem && documentosEncontrados.length === 0 && busca.nome" class="text-center mt-4 p-4 rounded shadow-sm animate-fade-in" style="background-color: #f8f9fa">
                 <p class="text-danger fw-bold fs-5 mb-3">{{ erroMensagem }}</p>
-
-                <!-- Mensagem motivacional -->
                 <p class="text-muted fst-italic fs-6 mensagem-motivacional">
-                  Não desanime {{ nome_completoRec.split(" ")[0] }}! Muitas
-                  pessoas encontram seus documentos depois de alguns dias,
-                  especialmente quando são registrados na plataforma.
+                  Não desanime {{ busca.nome.split(" ")[0] }}! Muitas pessoas encontram seus documentos depois de alguns dias.
                 </p>
-
-                <!-- Botão com destaque -->
-                <button
-                  @click="activeTab = 'cadastrar'"
-                  class="btn btn-success btn-lg mt-3 px-4 py-2 btn-zoom"
-                  style="transition: 0.3s"
-                  @mouseover="hover = true"
-                  @mouseleave="hover = false"
-                >
+                <button @click="activeTab = 'cadastrar'" class="btn btn-success btn-lg mt-3 px-4 py-2 btn-zoom">
                   📢 Não encontrou? Cadastre aqui
                 </button>
               </div>
 
-              <br />
-              <!-- Botão para Procurar Documento -->
-              <div class="text-center">
-                <button
-                  type="submit"
-                  class="btn btn-purple w-100 btn-lg shadow"
-                >
-                  Procurar
-                </button>
+              <div class="text-center mt-3">
+                <button type="submit" class="btn btn-purple w-100 btn-lg shadow">Procurar</button>
               </div>
             </div>
           </form>
 
-          <!-- Exibição de Documentos Encontrados -->
-          <div v-if="documentosEncontrados.length > 0" class="mt-4">
+          <!-- Listagem de Resultados -->
+          <div v-if="isLoading" class="mt-4">
+            <div v-for="i in 3" :key="i" class="skeleton-row mb-3"></div>
+          </div>
+          
+          <div v-else-if="documentosEncontrados.length > 0" class="mt-4">
             <div class="table-responsive">
-              <table class="table table-striped">
+              <table class="table table-hover">
                 <thead>
                   <tr>
                     <th>Nome</th>
-                    <th>Tipo de Documento</th>
-                    <th>Acção</th>
+                    <th>Tipo</th>
+                    <th class="text-end pe-4">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr
-                    v-for="doc in documentosEncontrados"
-                    :key="doc.numero_documento"
-                    class="table-row"
-                  >
-                    <td>{{ doc.nome_completo }}</td>
+                  <tr v-for="doc in documentosPaginados" :key="doc.id" class="table-row">
+                    <td><span class="fw-bold">{{ doc.nome_completo }}</span></td>
                     <td>{{ doc.tipo_documento }}</td>
-                    <td className="btn-zoom">
-                      <!-- Button trigger modal -->
-                      <MaterialButton
-                        variant="gradient"
-                        color="success"
-                        @click="verificarAssinaturaAntesDeSolicitar(doc)"
-                      >
-                        Solicitar
-                      </MaterialButton>
+                    <td class="text-end pe-4">
+                      <div class="d-flex justify-content-end gap-2 align-items-center">
+                        <div class="btn-group btn-group-sm rounded-pill overflow-hidden shadow-sm">
+                          <button class="btn btn-whatsapp px-2" @click="partilharWhatsApp(doc)" title="WhatsApp">
+                            <i class="bi bi-whatsapp"></i>
+                          </button>
+                          <button class="btn btn-facebook px-2" @click="partilharFacebook(doc)" title="Facebook">
+                            <i class="bi bi-facebook"></i>
+                          </button>
+                          <button class="btn btn-share px-2" @click="partilharGeral(doc)" title="Mais opções (Instagram...)">
+                            <i class="bi bi-share"></i>
+                          </button>
+                        </div>
+                        <MaterialButton variant="gradient" color="success" size="sm" @click="verificarAssinaturaAntesDeSolicitar(doc)">
+                          Solicitar
+                        </MaterialButton>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
+
+          <!-- Empty State Personalizado -->
+          <div v-else-if="!isLoading && erroMensagem && activeTab === 'procurar'" class="empty-state text-center py-5 animate-fade-in">
+            <div class="empty-icon mb-3">
+              <i class="bi bi-search-heart text-purple opacity-20" style="font-size: 5rem;"></i>
+            </div>
+            <h5 class="text-dark fw-bold">Não encontramos resultados</h5>
+            <p class="text-muted mb-4">{{ erroMensagem }}</p>
+            
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+              <button @click="activeTab = 'cadastrar'" class="btn btn-purple px-4">Cadastrar Documento</button>
+              <button @click="router.push('/comunidade')" class="btn btn-outline-purple px-4">
+                <i class="bi bi-people-fill me-2"></i> Procurar na Comunidade
+              </button>
+            </div>
+            <p class="mt-4 text-sm text-muted">A nossa comunidade também partilha achados e perdidos diariamente!</p>
+          </div>
         </div>
 
-        <!-- Aba Cadastrar (Formulario para cadastro de documentos) -->
-        <div
-          v-if="activeTab === 'cadastrar'"
-          class="tab-pane fade show active"
-          id="cadastrar-tabs-simple"
-        >
-          <form @submit.prevent="cadastrarDocumento" class="form">
+        <!-- Aba Reportar (Formulário Dinâmico) -->
+        <div v-if="activeTab === 'cadastrar'" class="tab-pane fade show active">
+          <form @submit.prevent="cadastrar" class="form">
             <div class="row">
-              <!-- Tipo de Documento -->
+              <!-- Seletor de Tipo -->
               <div class="col-md-12 mb-3">
-                <label for="tipoDocumento" class="form-label fw-bold"
-                  >Tipo de Documento</label
-                >
-                <select
-                  id="tipoDocumento"
-                  class="form-control borda-destacada form-select zoom-field"
-                  v-model="tipo_documento"
-                  required
-                >
-                  <option disabled value="">
-                    Selecione o Tipo de Documento
-                  </option>
-                  <option
-                    v-for="tipo in tipo_documentos"
-                    :key="tipo"
-                    :value="tipo"
-                  >
-                    {{ tipo }}
-                  </option>
+                <label class="form-label fw-bold">Tipo de Documento</label>
+                <select class="form-control borda-destacada form-select zoom-field" v-model="form.tipo_documento" required>
+                  <option disabled value="">Selecione o Tipo de Documento</option>
+                  <option v-for="tipo in tipo_documentos" :key="tipo" :value="tipo">{{ tipo }}</option>
                 </select>
               </div>
 
-              <!-- Bilhete de Identidade -->
-              <div
-                v-if="tipo_documento === 'Bilhete de Identidade'"
-                class="col-md-12 mb-3"
-              >
-                <!-- Campo para Nome Completo -->
+              <!-- Campo para Tipo Customizado -->
+              <div v-if="form.tipo_documento === 'Outro...'" class="col-md-12 mb-3 animate-fade-in">
+                <label class="form-label fw-bold">Especifique o Tipo de Documento</label>
+                <input type="text" class="form-control zoom-field borda-destacada" v-model="outroTipoDocumento" placeholder="Ex: Cartão de Saúde, Alvará..." required />
+              </div>
+
+              <!-- Campos Dinâmicos (Exibidos apenas após escolher o tipo) -->
+              <template v-if="form.tipo_documento">
                 <div class="col-md-12 mb-3">
-                  <label for="nomeSolicitante" class="form-label fw-bold"
-                    >Nome completo conforme o documento</label
-                  >
-                  <input
-                    type="text"
-                    id="nomeSolicitante"
-                    class="form-control zoom-field borda-destacadanome"
-                    v-model="nome_completo"
-                    placeholder="Ex: João Silva"
-                    maxlength="50"
-                    required
-                    @blur="validarNome"
-                  />
-                  <div v-if="nomeError" class="text-warning visible">
-                    {{ nomeError }}
-                  </div>
-                  <!-- Adicionada a classe 'visible' -->
+                  <label class="form-label fw-bold">Nome completo conforme o documento</label>
+                  <input type="text" class="form-control zoom-field borda-destacadanome" v-model="form.nome_completo" placeholder="Ex: João Silva" maxlength="50" required @blur="validarNome" />
+                  <div v-if="nomeError" class="text-warning visible">{{ nomeError }}</div>
                 </div>
-                <!-- Campo para Número do Documento -->
+
                 <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold"
-                    >Número do Bi</label
-                  >
-                  <input
-                    type="text"
-                    id="numeroDocumento"
-                    class="form-control zoom-field borda-destacada"
-                    v-model="numero_documento"
-                    placeholder="Ex: 123"
-                    maxlength="15"
-                    required
-                  />
+                  <label class="form-label fw-bold">{{ labelNumeroDocumento }}</label>
+                  <input type="text" class="form-control zoom-field borda-destacada" v-model="form.numero_documento" placeholder="Número do documento" maxlength="20" required />
                 </div>
-                <!-- Campo para Província -->
+
                 <div class="col-md-12 mb-3">
-                  <label for="provincia" class="form-label fw-bold">
-                    Província Local onde foi encontrado ou perdido</label
-                  >
-                  <select
-                    id="provincia"
-                    class="form-control borda-destacada form-select zoom-field"
-                    v-model="provincia"
-                    required
-                  >
+                  <label class="form-label fw-bold">Província onde foi perdido/encontrado</label>
+                  <select class="form-control borda-destacada form-select zoom-field" v-model="form.provincia" required>
                     <option disabled value="">Selecione o local</option>
-                    <option
-                      v-for="provincia in provincias"
-                      :key="provincia"
-                      :value="provincia"
-                    >
-                      {{ provincia }}
-                    </option>
+                    <option v-for="p in provincias" :key="p" :value="p">{{ p }}</option>
                   </select>
                 </div>
-                <!-- Campo para Contacto -->
+
                 <div class="col-md-12 mb-3">
-                  <label for="contato" class="form-label fw-bold"
-                    >Contacto</label
-                  >
-                  <input
-                    type="tel"
-                    id="contato"
-                    class="form-control zoom-field borda-destacada"
-                    v-model="contacto"
-                    placeholder="Ex: 84 123 4567"
-                    maxlength="9"
-                    required
-                    @blur="validarContacto"
-                  />
-                  <div v-if="contactoError" class="text-warning visible">
-                    {{ contactoError }}
-                  </div>
+                  <label class="form-label fw-bold">Contacto</label>
+                  <input type="tel" class="form-control zoom-field borda-destacada" v-model="form.contacto" placeholder="Ex: 84 123 4567" maxlength="9" required @blur="validarContacto" />
+                  <div v-if="contactoError" class="text-warning visible">{{ contactoError }}</div>
                 </div>
-                <!-- Campo para Origem (Se é dono ou encontrou) -->
+
                 <div class="col-md-12 mb-3">
-                  <label for="origem" class="form-label fw-bold"
-                    >Você é o dono ou apenas encontrou?</label
-                  >
-                  <select
-                    id="origem"
-                    class="form-control borda-destacada form-select zoom-field"
-                    v-model="origem"
-                    required
-                  >
+                  <label class="form-label fw-bold">Você é o dono ou apenas encontrou?</label>
+                  <select class="form-control borda-destacada form-select zoom-field" v-model="form.origem" required>
                     <option disabled value="">Escolha uma opção</option>
                     <option value="proprietario">Sou o dono</option>
                     <option value="reportado">Apenas encontrei</option>
                   </select>
                 </div>
-                <!-- Campo para Concordância com Termos -->
-                <div class="col-md-12 mb-3">
-                  <MaterialSwitch
-                    class="mb-4 d-flex align-items-center"
-                    id="flexSwitchCheckDefault"
-                    labelClass="ms-3 mb-0"
-                  >
-                    Eu concordo com os
-                    <router-link to="/termsconditions" class="text-dark"
-                      ><u>Termos e Condições</u></router-link
-                    >..
+
+                <div class="col-md-12 mb-4">
+                  <MaterialSwitch id="termsSwitch" v-model:checked="form.concordaTermos" labelClass="ms-3 mb-0">
+                    Eu concordo com os <router-link to="/termsconditions" class="text-dark"><u>Termos e Condições</u></router-link>.
                   </MaterialSwitch>
                 </div>
-              </div>
 
-              <!-- Passaporte -->
-              <div
-                v-if="tipo_documento === 'Passaporte'"
-                class="col-md-12 mb-3"
-              >
-                <!-- Campo para Nome Completo -->
-                <div class="col-md-12 mb-3">
-                  <label for="nomeSolicitante" class="form-label fw-bold"
-                    >Nome completo conforme o documento</label
-                  >
-                  <input
-                    type="text"
-                    id="nomeSolicitante"
-                    class="form-control zoom-field borda-destacadanome"
-                    v-model="nome_completo"
-                    placeholder="Ex: João Silva"
-                    maxlength="50"
-                    required
-                    @blur="validarNome"
-                  />
-                  <div v-if="nomeError" class="text-warning visible">
-                    {{ nomeError }}
-                  </div>
-                  <!-- Adicionada a classe 'visible' -->
+                <div class="col-md-12 text-center">
+                  <button type="submit" class="btn btn-purple w-100 btn-lg shadow">Cadastrar</button>
                 </div>
-                <!-- Campo para Número do Documento -->
-                <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold"
-                    >Número do Passaporte</label
-                  >
-                  <input
-                    type="text"
-                    id="numeroDocumento"
-                    class="form-control zoom-field borda-destacada"
-                    v-model="numero_documento"
-                    placeholder="Ex: 123"
-                    maxlength="15"
-                    required
-                  />
-                </div>
-                <!-- Campo para Província -->
-                <div class="col-md-12 mb-3">
-                  <label for="provincia" class="form-label fw-bold">
-                    Província Local onde foi encontrado ou perdido</label
-                  >
-                  <select
-                    id="provincia"
-                    class="form-control borda-destacada form-select zoom-field"
-                    v-model="provincia"
-                    required
-                  >
-                    <option disabled value="">Selecione o local</option>
-                    <option
-                      v-for="provincia in provincias"
-                      :key="provincia"
-                      :value="provincia"
-                    >
-                      {{ provincia }}
-                    </option>
-                  </select>
-                </div>
-                <!-- Campo para Contacto -->
-                <div class="col-md-12 mb-3">
-                  <label for="contato" class="form-label fw-bold"
-                    >Contacto</label
-                  >
-                  <input
-                    type="tel"
-                    id="contato"
-                    class="form-control zoom-field borda-destacada"
-                    v-model="contacto"
-                    placeholder="Ex: 84 123 4567"
-                    maxlength="9"
-                    required
-                    @blur="validarContacto"
-                  />
-                  <div v-if="contactoError" class="text-warning visible">
-                    {{ contactoError }}
-                  </div>
-                </div>
-                <!-- Campo para Origem (Se é dono ou encontrou) -->
-                <div class="col-md-12 mb-3">
-                  <label for="origem" class="form-label fw-bold"
-                    >Você é o dono ou apenas encontrou?</label
-                  >
-                  <select
-                    id="origem"
-                    class="form-control borda-destacada form-select zoom-field"
-                    v-model="origem"
-                    required
-                  >
-                    <option disabled value="">Escolha uma opção</option>
-                    <option value="proprietario">Sou o dono</option>
-                    <option value="reportado">Apenas encontrei</option>
-                  </select>
-                </div>
-                <!-- Campo para Concordância com Termos -->
-                <div class="col-md-12 mb-3">
-                  <MaterialSwitch
-                    class="mb-4 d-flex align-items-center"
-                    id="flexSwitchCheckDefault"
-                    labelClass="ms-3 mb-0"
-                  >
-                    Eu concordo com os
-                    <router-link to="/termsconditions" class="text-dark"
-                      ><u>Termos e Condições</u></router-link
-                    >..
-                  </MaterialSwitch>
-                </div>
-              </div>
-
-              <!-- Carta de Condução -->
-              <div
-                v-if="tipo_documento === 'Carta de Condução'"
-                class="col-md-12 mb-3"
-              >
-                <!-- Campo para Nome Completo -->
-                <div class="col-md-12 mb-3">
-                  <label for="nomeSolicitante" class="form-label fw-bold"
-                    >Nome completo conforme o documento</label
-                  >
-                  <input
-                    type="text"
-                    id="nomeSolicitante"
-                    class="form-control zoom-field borda-destacadanome"
-                    v-model="nome_completo"
-                    placeholder="Ex: João Silva"
-                    maxlength="50"
-                    required
-                    @blur="validarNome"
-                  />
-                  <div v-if="nomeError" class="text-warning visible">
-                    {{ nomeError }}
-                  </div>
-                  <!-- Adicionada a classe 'visible' -->
-                </div>
-                <!-- Campo para Número do Documento -->
-                <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold"
-                    >Número da Carta de Condução</label
-                  >
-                  <input
-                    type="text"
-                    id="numeroDocumento"
-                    class="form-control zoom-field borda-destacada"
-                    v-model="numero_documento"
-                    placeholder="Ex: 123"
-                    maxlength="15"
-                    required
-                  />
-                </div>
-                <!-- Campo para Província -->
-                <div class="col-md-12 mb-3">
-                  <label for="provincia" class="form-label fw-bold">
-                    Província Local onde foi encontrado ou perdido</label
-                  >
-                  <select
-                    id="provincia"
-                    class="form-control borda-destacada form-select zoom-field"
-                    v-model="provincia"
-                    required
-                  >
-                    <option disabled value="">Selecione o local</option>
-                    <option
-                      v-for="provincia in provincias"
-                      :key="provincia"
-                      :value="provincia"
-                    >
-                      {{ provincia }}
-                    </option>
-                  </select>
-                </div>
-                <!-- Campo para Contacto -->
-                <div class="col-md-12 mb-3">
-                  <label for="contato" class="form-label fw-bold"
-                    >Contacto</label
-                  >
-                  <input
-                    type="tel"
-                    id="contato"
-                    class="form-control zoom-field borda-destacada"
-                    v-model="contacto"
-                    placeholder="Ex: 84 123 4567"
-                    maxlength="9"
-                    required
-                    @blur="validarContacto"
-                  />
-                  <div v-if="contactoError" class="text-warning visible">
-                    {{ contactoError }}
-                  </div>
-                </div>
-                <!-- Campo para Origem (Se é dono ou encontrou) -->
-                <div class="col-md-12 mb-3">
-                  <label for="origem" class="form-label fw-bold"
-                    >Você é o dono ou apenas encontrou?</label
-                  >
-                  <select
-                    id="origem"
-                    class="form-control borda-destacada form-select zoom-field"
-                    v-model="origem"
-                    required
-                  >
-                    <option disabled value="">Escolha uma opção</option>
-                    <option value="proprietario">Sou o dono</option>
-                    <option value="reportado">Apenas encontrei</option>
-                  </select>
-                </div>
-                <!-- Campo para Concordância com Termos -->
-                <div class="col-md-12 mb-3">
-                  <MaterialSwitch
-                    class="mb-4 d-flex align-items-center"
-                    id="flexSwitchCheckDefault"
-                    labelClass="ms-3 mb-0"
-                  >
-                    Eu concordo com os
-                    <router-link to="/termsconditions" class="text-dark"
-                      ><u>Termos e Condições</u></router-link
-                    >..
-                  </MaterialSwitch>
-                </div>
-              </div>
-
-              <!-- Cartão de Estudante -->
-              <div
-                v-if="tipo_documento === 'Cartão de Estudante'"
-                class="col-md-12 mb-3"
-              >
-                <!-- Campo para Nome Completo -->
-                <div class="col-md-12 mb-3">
-                  <label for="nomeSolicitante" class="form-label fw-bold"
-                    >Nome completo conforme o documento</label
-                  >
-                  <input
-                    type="text"
-                    id="nomeSolicitante"
-                    class="form-control zoom-field borda-destacadanome"
-                    v-model="nome_completo"
-                    placeholder="Ex: João Silva"
-                    maxlength="50"
-                    required
-                    @blur="validarNome"
-                  />
-                  <div v-if="nomeError" class="text-warning visible">
-                    {{ nomeError }}
-                  </div>
-                  <!-- Adicionada a classe 'visible' -->
-                </div>
-                <!-- Campo para Número do Documento -->
-                <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold"
-                    >Número do Cartão de Estudante</label
-                  >
-                  <input
-                    type="text"
-                    id="numeroDocumento"
-                    class="form-control zoom-field borda-destacada"
-                    v-model="numero_documento"
-                    placeholder="Ex: 123"
-                    maxlength="15"
-                    required
-                  />
-                </div>
-                <!-- Campo para Província -->
-                <div class="col-md-12 mb-3">
-                  <label for="provincia" class="form-label fw-bold">
-                    Província Local onde foi encontrado ou perdido</label
-                  >
-                  <select
-                    id="provincia"
-                    class="form-control borda-destacada form-select zoom-field"
-                    v-model="provincia"
-                    required
-                  >
-                    <option disabled value="">Selecione o local</option>
-                    <option
-                      v-for="provincia in provincias"
-                      :key="provincia"
-                      :value="provincia"
-                    >
-                      {{ provincia }}
-                    </option>
-                  </select>
-                </div>
-                <!-- Campo para Contacto -->
-                <div class="col-md-12 mb-3">
-                  <label for="contato" class="form-label fw-bold"
-                    >Contacto</label
-                  >
-                  <input
-                    type="tel"
-                    id="contato"
-                    class="form-control zoom-field borda-destacada"
-                    v-model="contacto"
-                    placeholder="Ex: 84 123 4567"
-                    maxlength="9"
-                    required
-                    @blur="validarContacto"
-                  />
-                  <div v-if="contactoError" class="text-warning visible">
-                    {{ contactoError }}
-                  </div>
-                </div>
-                <!-- Campo para Origem (Se é dono ou encontrou) -->
-                <div class="col-md-12 mb-3">
-                  <label for="origem" class="form-label fw-bold"
-                    >Você é o dono ou apenas encontrou?</label
-                  >
-                  <select
-                    id="origem"
-                    class="form-control borda-destacada form-select zoom-field"
-                    v-model="origem"
-                    required
-                  >
-                    <option disabled value="">Escolha uma opção</option>
-                    <option value="proprietario">Sou o dono</option>
-                    <option value="reportado">Apenas encontrei</option>
-                  </select>
-                </div>
-                <!-- Campo para Concordância com Termos -->
-                <div class="col-md-12 mb-3">
-                  <MaterialSwitch
-                    class="mb-4 d-flex align-items-center"
-                    id="flexSwitchCheckDefault"
-                    labelClass="ms-3 mb-0"
-                  >
-                    Eu concordo com os
-                    <router-link to="/termsconditions" class="text-dark"
-                      ><u>Termos e Condições</u></router-link
-                    >..
-                  </MaterialSwitch>
-                </div>
-              </div>
-
-              <!-- Cartão de Eleitor -->
-              <div
-                v-if="tipo_documento === 'Cartão de Eleitor'"
-                class="col-md-12 mb-3"
-              >
-                <!-- Campo para Nome Completo -->
-                <div class="col-md-12 mb-3">
-                  <label for="nomeSolicitante" class="form-label fw-bold"
-                    >Nome completo conforme o documento</label
-                  >
-                  <input
-                    type="text"
-                    id="nomeSolicitante"
-                    class="form-control zoom-field borda-destacadanome"
-                    v-model="nome_completo"
-                    placeholder="Ex: João Silva"
-                    maxlength="50"
-                    required
-                    @blur="validarNome"
-                  />
-                  <div v-if="nomeError" class="text-warning visible">
-                    {{ nomeError }}
-                  </div>
-                  <!-- Adicionada a classe 'visible' -->
-                </div>
-                <!-- Campo para Número do Documento -->
-                <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold"
-                    >Número do Cartão de Eleitor</label
-                  >
-                  <input
-                    type="text"
-                    id="numeroDocumento"
-                    class="form-control zoom-field borda-destacada"
-                    v-model="numero_documento"
-                    placeholder="Ex: 123"
-                    maxlength="15"
-                    required
-                  />
-                </div>
-                <!-- Campo para Província -->
-                <div class="col-md-12 mb-3">
-                  <label for="provincia" class="form-label fw-bold">
-                    Província Local onde foi encontrado ou perdido</label
-                  >
-                  <select
-                    id="provincia"
-                    class="form-control borda-destacada form-select zoom-field"
-                    v-model="provincia"
-                    required
-                  >
-                    <option disabled value="">Selecione o local</option>
-                    <option
-                      v-for="provincia in provincias"
-                      :key="provincia"
-                      :value="provincia"
-                    >
-                      {{ provincia }}
-                    </option>
-                  </select>
-                </div>
-                <!-- Campo para Contacto -->
-                <div class="col-md-12 mb-3">
-                  <label for="contato" class="form-label fw-bold"
-                    >Contacto</label
-                  >
-                  <input
-                    type="tel"
-                    id="contato"
-                    class="form-control zoom-field borda-destacada"
-                    v-model="contacto"
-                    placeholder="Ex: 84 123 4567"
-                    maxlength="9"
-                    required
-                    @blur="validarContacto"
-                  />
-                  <div v-if="contactoError" class="text-warning visible">
-                    {{ contactoError }}
-                  </div>
-                </div>
-                <!-- Campo para Origem (Se é dono ou encontrou) -->
-                <div class="col-md-12 mb-3">
-                  <label for="origem" class="form-label fw-bold"
-                    >Você é o dono ou apenas encontrou?</label
-                  >
-                  <select
-                    id="origem"
-                    class="form-control borda-destacada form-select zoom-field"
-                    v-model="origem"
-                    required
-                  >
-                    <option disabled value="">Escolha uma opção</option>
-                    <option value="proprietario">Sou o dono</option>
-                    <option value="reportado">Apenas encontrei</option>
-                  </select>
-                </div>
-                <!-- Campo para Concordância com Termos -->
-                <div class="col-md-12 mb-3">
-                  <MaterialSwitch
-                    class="mb-4 d-flex align-items-center"
-                    id="flexSwitchCheckDefault"
-                    labelClass="ms-3 mb-0"
-                  >
-                    Eu concordo com os
-                    <router-link to="/termsconditions" class="text-dark"
-                      ><u>Termos e Condições</u></router-link
-                    >..
-                  </MaterialSwitch>
-                </div>
-              </div>
-
-              <!-- Seguro do Veículo -->
-              <div
-                v-if="tipo_documento === 'Seguro do Veículo'"
-                class="col-md-12 mb-3"
-              >
-                <!-- Campo para Nome Completo -->
-                <div class="col-md-12 mb-3">
-                  <label for="nomeSolicitante" class="form-label fw-bold"
-                    >Nome completo conforme o documento</label
-                  >
-                  <input
-                    type="text"
-                    id="nomeSolicitante"
-                    class="form-control zoom-field borda-destacadanome"
-                    v-model="nome_completo"
-                    placeholder="Ex: João Silva"
-                    maxlength="50"
-                    required
-                    @blur="validarNome"
-                  />
-                  <div v-if="nomeError" class="text-warning visible">
-                    {{ nomeError }}
-                  </div>
-                  <!-- Adicionada a classe 'visible' -->
-                </div>
-                <!-- Campo para Número do Documento -->
-                <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold"
-                    >Número do Seguro do Veículo</label
-                  >
-                  <input
-                    type="text"
-                    id="numeroDocumento"
-                    class="form-control zoom-field borda-destacada"
-                    v-model="numero_documento"
-                    placeholder="Ex: 123"
-                    maxlength="15"
-                    required
-                  />
-                </div>
-                <!-- Campo para Província -->
-                <div class="col-md-12 mb-3">
-                  <label for="provincia" class="form-label fw-bold">
-                    Província Local onde foi encontrado ou perdido</label
-                  >
-                  <select
-                    id="provincia"
-                    class="form-control borda-destacada form-select zoom-field"
-                    v-model="provincia"
-                    required
-                  >
-                    <option disabled value="">Selecione o local</option>
-                    <option
-                      v-for="provincia in provincias"
-                      :key="provincia"
-                      :value="provincia"
-                    >
-                      {{ provincia }}
-                    </option>
-                  </select>
-                </div>
-                <!-- Campo para Contacto -->
-                <div class="col-md-12 mb-3">
-                  <label for="contato" class="form-label fw-bold"
-                    >Contacto</label
-                  >
-                  <input
-                    type="tel"
-                    id="contato"
-                    class="form-control zoom-field borda-destacada"
-                    v-model="contacto"
-                    placeholder="Ex: 84 123 4567"
-                    maxlength="9"
-                    required
-                    @blur="validarContacto"
-                  />
-                  <div v-if="contactoError" class="text-warning visible">
-                    {{ contactoError }}
-                  </div>
-                </div>
-                <!-- Campo para Origem (Se é dono ou encontrou) -->
-                <div class="col-md-12 mb-3">
-                  <label for="origem" class="form-label fw-bold"
-                    >Você é o dono ou apenas encontrou?</label
-                  >
-                  <select
-                    id="origem"
-                    class="form-control borda-destacada form-select zoom-field"
-                    v-model="origem"
-                    required
-                  >
-                    <option disabled value="">Escolha uma opção</option>
-                    <option value="proprietario">Sou o dono</option>
-                    <option value="reportado">Apenas encontrei</option>
-                  </select>
-                </div>
-                <!-- Campo para Concordância com Termos -->
-                <div class="col-md-12 mb-3">
-                  <MaterialSwitch
-                    class="mb-4 d-flex align-items-center"
-                    id="flexSwitchCheckDefault"
-                    labelClass="ms-3 mb-0"
-                  >
-                    Eu concordo com os
-                    <router-link to="/termsconditions" class="text-dark"
-                      ><u>Termos e Condições</u></router-link
-                    >..
-                  </MaterialSwitch>
-                </div>
-              </div>
-
-              <!-- Livrete -->
-              <div v-if="tipo_documento === 'Livrete'" class="col-md-12 mb-3">
-                <!-- Campo para Nome Completo -->
-                <div class="col-md-12 mb-3">
-                  <label for="nomeSolicitante" class="form-label fw-bold"
-                    >Nome completo conforme o documento</label
-                  >
-                  <input
-                    type="text"
-                    id="nomeSolicitante"
-                    class="form-control zoom-field borda-destacadanome"
-                    v-model="nome_completo"
-                    placeholder="Ex: João Silva"
-                    maxlength="50"
-                    required
-                    @blur="validarNome"
-                  />
-                  <div v-if="nomeError" class="text-warning visible">
-                    {{ nomeError }}
-                  </div>
-                  <!-- Adicionada a classe 'visible' -->
-                </div>
-                <!-- Campo para Número do Documento -->
-                <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold"
-                    >Número do Livrete</label
-                  >
-                  <input
-                    type="text"
-                    id="numeroDocumento"
-                    class="form-control zoom-field borda-destacada"
-                    v-model="numero_documento"
-                    placeholder="Ex: 123"
-                    maxlength="15"
-                    required
-                  />
-                </div>
-                <!-- Campo para Província -->
-                <div class="col-md-12 mb-3">
-                  <label for="provincia" class="form-label fw-bold">
-                    Província Local onde foi encontrado ou perdido</label
-                  >
-                  <select
-                    id="provincia"
-                    class="form-control borda-destacada form-select zoom-field"
-                    v-model="provincia"
-                    required
-                  >
-                    <option disabled value="">Selecione o local</option>
-                    <option
-                      v-for="provincia in provincias"
-                      :key="provincia"
-                      :value="provincia"
-                    >
-                      {{ provincia }}
-                    </option>
-                  </select>
-                </div>
-                <!-- Campo para Contacto -->
-                <div class="col-md-12 mb-3">
-                  <label for="contato" class="form-label fw-bold"
-                    >Contacto</label
-                  >
-                  <input
-                    type="tel"
-                    id="contato"
-                    class="form-control zoom-field borda-destacada"
-                    v-model="contacto"
-                    placeholder="Ex: 84 123 4567"
-                    maxlength="9"
-                    required
-                    @blur="validarContacto"
-                  />
-                  <div v-if="contactoError" class="text-warning visible">
-                    {{ contactoError }}
-                  </div>
-                </div>
-                <!-- Campo para Origem (Se é dono ou encontrou) -->
-                <div class="col-md-12 mb-3">
-                  <label for="origem" class="form-label fw-bold"
-                    >Você é o dono ou apenas encontrou?</label
-                  >
-                  <select
-                    id="origem"
-                    class="form-control borda-destacada form-select zoom-field"
-                    v-model="origem"
-                    required
-                  >
-                    <option disabled value="">Escolha uma opção</option>
-                    <option value="proprietario">Sou o dono</option>
-                    <option value="reportado">Apenas encontrei</option>
-                  </select>
-                </div>
-                <!-- Campo para Concordância com Termos -->
-                <div class="col-md-12 mb-3">
-                  <MaterialSwitch
-                    class="mb-4 d-flex align-items-center"
-                    id="flexSwitchCheckDefault"
-                    labelClass="ms-3 mb-0"
-                  >
-                    Eu concordo com os
-                    <router-link to="/termsconditions" class="text-dark"
-                      ><u>Termos e Condições</u></router-link
-                    >..
-                  </MaterialSwitch>
-                </div>
-              </div>
-
-              <!-- Cartão de Identidade Militar -->
-              <div
-                v-if="tipo_documento === 'Cartão de Identidade Militar'"
-                class="col-md-12 mb-3"
-              >
-                <!-- Campo para Nome Completo -->
-                <div class="col-md-12 mb-3">
-                  <label for="nomeSolicitante" class="form-label fw-bold"
-                    >Nome completo conforme o documento</label
-                  >
-                  <input
-                    type="text"
-                    id="nomeSolicitante"
-                    class="form-control zoom-field borda-destacadanome"
-                    v-model="nome_completo"
-                    placeholder="Ex: João Silva"
-                    maxlength="50"
-                    required
-                    @blur="validarNome"
-                  />
-                  <div v-if="nomeError" class="text-warning visible">
-                    {{ nomeError }}
-                  </div>
-                  <!-- Adicionada a classe 'visible' -->
-                </div>
-                <!-- Campo para Número do Documento -->
-                <div class="col-md-12 mb-3">
-                  <label for="numeroDocumento" class="form-label fw-bold"
-                    >Número do Cartão de Identidade Militar</label
-                  >
-                  <input
-                    type="text"
-                    id="numeroDocumento"
-                    class="form-control zoom-field borda-destacada"
-                    v-model="numero_documento"
-                    placeholder="Ex: 123"
-                    maxlength="15"
-                    required
-                  />
-                </div>
-                <!-- Campo para Província -->
-                <div class="col-md-12 mb-3">
-                  <label for="provincia" class="form-label fw-bold">
-                    Província Local onde foi encontrado ou perdido</label
-                  >
-                  <select
-                    id="provincia"
-                    class="form-control borda-destacada form-select zoom-field"
-                    v-model="provincia"
-                    required
-                  >
-                    <option disabled value="">Selecione o local</option>
-                    <option
-                      v-for="provincia in provincias"
-                      :key="provincia"
-                      :value="provincia"
-                    >
-                      {{ provincia }}
-                    </option>
-                  </select>
-                </div>
-                <!-- Campo para Contacto -->
-                <div class="col-md-12 mb-3">
-                  <label for="contato" class="form-label fw-bold"
-                    >Contacto</label
-                  >
-                  <input
-                    type="tel"
-                    id="contato"
-                    class="form-control zoom-field borda-destacada"
-                    v-model="contacto"
-                    placeholder="Ex: 84 123 4567"
-                    maxlength="9"
-                    required
-                    @blur="validarContacto"
-                  />
-                  <div v-if="contactoError" class="text-warning visible">
-                    {{ contactoError }}
-                  </div>
-                </div>
-                <!-- Campo para Origem (Se é dono ou encontrou) -->
-                <div class="col-md-12 mb-3">
-                  <label for="origem" class="form-label fw-bold"
-                    >Você é o dono ou apenas encontrou?</label
-                  >
-                  <select
-                    id="origem"
-                    class="form-control borda-destacada form-select zoom-field"
-                    v-model="origem"
-                    required
-                  >
-                    <option disabled value="">Escolha uma opção</option>
-                    <option value="proprietario">Sou o dono</option>
-                    <option value="reportado">Apenas encontrei</option>
-                  </select>
-                </div>
-                <!-- Campo para Concordância com Termos -->
-                <div class="col-md-12 mb-3">
-                  <MaterialSwitch
-                    class="mb-4 d-flex align-items-center"
-                    id="flexSwitchCheckDefault"
-                    labelClass="ms-3 mb-0"
-                  >
-                    Eu concordo com os
-                    <router-link to="/termsconditions" class="text-dark"
-                      ><u>Termos e Condições</u></router-link
-                    >..
-                  </MaterialSwitch>
-                </div>
-              </div>
-            </div>
-            <!--CAMPOS COMUNS-->
-
-            <!-- Campo para Data da Perda -->
-            <div class="col-md-12 mb-3" style="display: none">
-              <label for="dataPerda" class="form-label fw-bold"> Data </label>
-              <input
-                type="date"
-                id="dataPerda"
-                class="form-control zoom-field"
-                v-model="data_perda"
-                required
-              />
+              </template>
             </div>
 
-            <!-- Botão para Cadastrar Documento -->
-            <div class="text-center">
-              <button type="submit" class="btn btn-purple w-100 btn-lg shadow">
-                Cadastrar
-              </button>
-            </div>
-            <div class="text-center">
-              <!-- Mensagem de sucesso -->
-              <p
-                v-if="mensagemSucesso"
-                class="alert-success btn btn-purple w-100 btn-lg shadow visible"
-              >
-                {{ mensagemSucesso }}
-              </p>
-
-              <!-- Mensagem de erro -->
-              <p
-                v-if="mensagemErro"
-                class="alert-danger btn btn-purple w-100 btn-lg shadow visible"
-              >
-                {{ mensagemErro }}
-              </p>
+            <!-- Toast-like feedback -->
+            <div class="mt-3">
+              <p v-if="mensagemSucesso" class="alert-success btn btn-purple w-100 btn-lg shadow visible">{{ mensagemSucesso }}</p>
+              <p v-if="mensagemErro" class="alert-danger btn btn-purple w-100 btn-lg shadow visible">{{ mensagemErro }}</p>
             </div>
           </form>
         </div>
 
-        <!-- Aba Documentos Reportados -->
-        <div
-          v-if="activeTab === 'documentosReportados'"
-          class="tab-pane fade show active"
-          id="documentosReportados-tabs-simple"
-        >
-          <div class="table-responsive">
-            <table class="table table-striped">
+        <div v-if="activeTab === 'documentosReportados'" class="tab-pane fade show active">
+          <div v-if="isLoading" class="mt-4">
+            <div v-for="i in 4" :key="i" class="skeleton-row mb-3"></div>
+          </div>
+          <div v-else class="table-responsive">
+            <table class="table table-hover">
               <thead>
                 <tr>
                   <th>Nome</th>
-                  <th>Tipo de Documento</th>
-                  <th>Número do Documento</th>
+                  <th>Tipo</th>
+                  <th>Número</th>
                   <th>Província</th>
-                  <th>Data</th>
+                  <th class="text-end pe-4">Partilhar</th>
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="documento in documentosReportados"
-                  :key="documento.numero_documento"
-                  class="table-row"
-                >
-                  <td>{{ documento.nome_completo }}</td>
-                  <td>{{ documento.tipo_documento }}</td>
-                  <td>{{ documento.numero_documento }}</td>
-                  <td>{{ documento.provincia }}</td>
-                  <td>{{ documento.data_perda }}</td>
+                <tr v-for="doc in documentosPaginados" :key="doc.id" class="table-row">
+                  <td class="fw-bold">{{ doc.nome_completo }}</td>
+                  <td>{{ doc.tipo_documento }}</td>
+                  <td><code>{{ doc.numero_documento }}</code></td>
+                  <td>{{ doc.provincia }}</td>
+                  <td class="text-end pe-4">
+                    <div class="btn-group btn-group-sm rounded-pill overflow-hidden shadow-sm">
+                      <button class="btn btn-whatsapp px-2" @click="partilharWhatsApp(doc)" title="WhatsApp">
+                        <i class="bi bi-whatsapp"></i>
+                      </button>
+                      <button class="btn btn-facebook px-2" @click="partilharFacebook(doc)" title="Facebook">
+                        <i class="bi bi-facebook"></i>
+                      </button>
+                      <button class="btn btn-share px-2" @click="partilharGeral(doc)" title="Mais opções (Instagram...)">
+                        <i class="bi bi-share"></i>
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               </tbody>
             </table>
-            <!-- Nota explicativa -->
-            <div class="tab-pane fade show active">
-              <strong>Nota:</strong> Esta é a lista de documentos perdidos
-              registrados por alguém que os encontrou.
-            </div>
           </div>
         </div>
 
-        <!-- Aba Documentos Proprietários -->
-        <div
-          v-if="activeTab === 'documentosProprietarios'"
-          class="tab-pane fade show active"
-          id="documentosProprietarios-tabs-simple"
-        >
+        <!-- Aba Reportados por Donos -->
+        <div v-if="activeTab === 'documentosProprietarios'" class="tab-pane fade show active">
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
                 <tr>
                   <th>Nome</th>
-                  <th>Tipo de Documento</th>
-                  <th>Número do Documento</th>
+                  <th>Tipo</th>
+                  <th>Número</th>
                   <th>Província</th>
                   <th>Contacto</th>
                   <th>Data</th>
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="documento in documentosProprietarios"
-                  :key="documento.numero_documento"
-                  class="table-row"
-                >
-                  <td>{{ documento.nome_completo }}</td>
-                  <td>{{ documento.tipo_documento }}</td>
-                  <td>{{ documento.numero_documento }}</td>
-                  <td>{{ documento.provincia }}</td>
-                  <td>{{ documento.contacto }}</td>
-                  <td>{{ documento.data_perda }}</td>
+                <tr v-for="doc in documentosPaginados" :key="doc.id" class="table-row">
+                  <td>{{ doc.nome_completo }}</td>
+                  <td>{{ doc.tipo_documento }}</td>
+                  <td>{{ doc.numero_documento }}</td>
+                  <td>{{ doc.provincia }}</td>
+                  <td>{{ doc.contacto }}</td>
+                  <td>{{ doc.data_perda }}</td>
                 </tr>
               </tbody>
             </table>
-            <!-- Nota explicativa -->
-            <div class="tab-pane fade show active">
-              <strong>Nota:</strong> Esta é a lista de documentos perdidos
-              reportados pelos seus donos.
-            </div>
+            <div class="mt-3"><strong>Nota:</strong> Lista de documentos perdidos reportados pelos donos.</div>
           </div>
         </div>
+      </div>
+
+      <!-- Controles de Paginação -->
+      <div v-if="totalPaginas > 1 && activeTab !== 'cadastrar'" class="pagination-container d-flex justify-content-center mt-5 gap-2">
+        <button class="btn btn-outline-purple btn-sm" :disabled="paginaAtual === 1" @click="mudarPagina(paginaAtual - 1)">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <span class="align-self-center mx-3 fw-bold text-dark">Página {{ paginaAtual }} de {{ totalPaginas }}</span>
+        <button class="btn btn-outline-purple btn-sm" :disabled="paginaAtual === totalPaginas" @click="mudarPagina(paginaAtual + 1)">
+          <i class="bi bi-chevron-right"></i>
+        </button>
       </div>
     </div>
   </section>
 </template>
 
 <style scoped>
+/* Design System Core - Cores e Variáveis */
+:deep(.nav-link) {
+  --nav-color: #800080;
+  --nav-hover: #6a006a;
+}
+
+/* Navegação customizada */
 .custom-nav {
   background: #f9fbf9;
   border-radius: 12px;
@@ -1605,429 +599,204 @@ const verificarAssinaturaAntesDeSolicitar = async (documento) => {
 
 .custom-nav .nav-link {
   color: #4b6043;
-  font-weight: 500;
-  border-radius: 8px;
-  padding: 10px 16px;
-  transition: all 0.3s ease;
+  font-weight: 600;
+  border-radius: 30px;
+  padding: 12px 30px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .custom-nav .nav-link:hover {
   background-color: #e7f5e4;
   color: #2e7d32;
+  transform: translateY(-2px);
 }
 
 .custom-nav .nav-link.active {
-  background: linear-gradient(135deg, #43a047, #66bb6a);
+  background: linear-gradient(135deg, #800080, #b000b0);
   color: #fff !important;
-  box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3);
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.3);
 }
 
-.custom-nav .nav-link i {
-  font-size: 1.1rem;
-  vertical-align: middle;
-}
-
-.gradient-background {
-  background: linear-gradient(
-    180deg,
-    #fccfcf 15%,
-    #fbe1e5 25%,
-    #c6d2fc 35%,
-    #f8f9fa 45%,
-    #ffffff 90%
-  );
-  background-size: 100% 200%; /* Dobra a altura para animar o gradiente */
-  animation: gradientMove 6s ease infinite;
-}
-
-@keyframes gradientMove {
-  0% {
-    background-position: top;
-  }
-  50% {
-    background-position: bottom;
-  }
-  100% {
-    background-position: top;
-  }
-}
-
-.nav-link {
-  transition: background-color 0.3s ease, color 0.3s ease;
-  /* Transição suave */
-}
-
-.nav-link:hover {
-  background-color: #f0f0f0;
-  /* Cor de fundo ao passar o cursor */
-  color: #007bff;
-  /* Cor do texto ao passar o cursor */
-}
-
-/* Estilo para os botões de navegação */
-.nav-link {
-  color: #800080;
-  /* Cor roxa para o texto da aba */
-  font-weight: 600;
-  border-radius: 30px;
-  padding: 12px 30px;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.nav-link:hover {
-  background-color: #800080;
-  /* Cor roxa de fundo ao passar o mouse */
-  color: white;
-  /* Texto branco */
-  transform: scale(1.05);
-  /* Efeito de aumento no tamanho da aba ao passar o mouse */
-}
-
-.nav-link.active {
-  background-color: #6a006a;
-  /* Tom de roxo mais escuro para a aba ativa */
-  color: white;
-}
-
-.nav-link:focus {
-  outline: none;
-  /* Remove o contorno ao focar */
-}
-
-/* Cor roxa para os botões */
+/* Botões Premium */
 .btn-purple {
-  background-color: #800080;
-  /* Cor roxa */
+  background: linear-gradient(135deg, #800080 60%, #b000b0 100%);
   color: white;
   border-radius: 30px;
   border: none;
   padding: 15px 25px;
   font-size: 1.1rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  width: 100%;
-  /* Garante que o botão tenha a mesma largura que os campos */
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(128, 0, 128, 0.2);
+  transition: all 0.3s ease;
 }
 
 .btn-purple:hover {
-  background-color: #6a006a;
-  /* Tom de roxo mais escuro */
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
-
-  transform: scale(1.05);
-  /* Efeito de aumento no botão ao passar o mouse */
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(128, 0, 128, 0.4);
 }
 
-/* Estilo de zoom nos campos */
-.zoom-field {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.btn-outline-purple {
+  border: 2px solid #800080;
+  color: #800080;
+  font-weight: 700;
+  border-radius: 10px;
+  transition: all 0.3s ease;
 }
 
-.zoom-field:hover {
-  transform: scale(1.05);
-  /* Aumenta o tamanho ao passar o mouse */
-  box-shadow: 0 0 10px rgba(128, 0, 128, 0.3);
-  /* Sombra roxa suave */
+.btn-outline-purple:hover:not(:disabled) {
+  background: #800080;
+  color: white;
 }
 
-/* Tabela */
+.btn-outline-purple:disabled {
+  border-color: #ccc;
+  color: #ccc;
+}
+
+/* Campos de Formulário com Efeito Zoom */
+.zoom-field, .borda-destacadanome, .borda-destacada {
+  transition: all 0.3s ease;
+  border: 1px solid #ced4da;
+  padding: 12px 20px;
+  border-radius: 12px;
+}
+
+.zoom-field:focus, .borda-destacada:focus {
+  border-color: #800080;
+  box-shadow: 0 0 0 0.25rem rgba(128, 0, 128, 0.1);
+  transform: scale(1.01);
+}
+
+.borda-destacadanome { border: 2px solid #66bb6a; }
+.borda-destacada { border: 1px solid #66bb6a; }
+
+/* Tabelas */
 .table {
   border-radius: 12px;
   overflow: hidden;
-  border-collapse: separate;
-  border-spacing: 0 10px;
-}
-
-.table th,
-.table td {
-  text-align: center;
-  padding: 12px 20px;
-  font-size: 1rem;
 }
 
 .table th {
   background-color: #800080;
   color: white;
-  font-weight: bold;
+  padding: 15px;
 }
 
-.table tbody tr {
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  transition: transform 0.3s ease, background-color 0.3s ease,
-    box-shadow 0.3s ease;
+.table-row {
+  transition: all 0.2s ease;
 }
 
-.table tbody tr:hover {
-  transform: scale(1.02);
-  /* Aumento suave ao passar o mouse */
-  background-color: #f1f1f1;
-  /* Cor suave de fundo */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  /* Sombra suave */
+.table-row:hover {
+  background-color: #f8f0f8 !important;
+  transform: translateX(5px);
 }
 
-.table td {
-  font-size: 0.95rem;
-}
-
-/* Estilo das colunas de status */
-.text-success {
-  color: #28a745;
-  font-weight: bold;
-}
-
-.text-warning {
-  color: #ffc107;
-  font-weight: bold;
-}
-
-.text-danger {
-  color: #dc3545;
-  font-weight: bold;
-}
-
-/* Estilo do botão "Detalhes" */
-.btn-info {
-  background-color: #17a2b8;
-  color: white;
-  border-radius: 12px;
-  padding: 6px 12px;
-  font-size: 0.9rem;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.btn-info:hover {
-  background-color: #138496;
-  /* Tom mais escuro de azul */
-  transform: scale(1.05);
-  /* Aumento suave ao passar o mouse */
-}
-
-/* Estilos gerais de hover */
-.table td:hover {
-  cursor: pointer;
-  background-color: #f1f1f1;
-}
-
-/* Efeiro de erro de mensagem NOME COMPLETO */
+/* Animações Core */
 @keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.05);
-  }
-
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
 
-.text-warning {
-  animation: pulse 1s infinite;
-  /* Adiciona o efeito de pulsar */
-}
-
-/* Efeiro de Mensagem de Envio e Erro  de Cadastro */
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    color: #28a745;
-    /* Cor padrão para sucesso */
-  }
-
-  50% {
-    transform: scale(1.05);
-    color: rgb(255, 255, 255);
-    /* Cor branco durante o pulsar */
-  }
-
-  100% {
-    transform: scale(1);
-    color: #28a745;
-    /* Retorna para a cor padrão */
-  }
-}
-
-@keyframes pulse-danger {
-  0% {
-    transform: scale(1);
-    color: #dc3545;
-    /* Cor padrão para erro */
-  }
-
-  50% {
-    transform: scale(1.05);
-    color: rgb(255, 255, 255);
-    /* Cor branco durante o pulsar */
-  }
-
-  100% {
-    transform: scale(1);
-    color: #dc3545;
-    /* Retorna para a cor padrão */
-  }
-}
-
-.alert-success {
-  animation: pulse 1s infinite;
-  /* Adiciona o efeito de pulsar para sucesso */
-}
-
-.alert-danger {
-  animation: pulse-danger 1s infinite;
-  /* Adiciona o efeito de pulsar para erro */
-}
+.alert-success { animation: pulse 1.5s infinite; color: #28a745; }
+.alert-danger { animation: pulse 1.5s infinite; color: #dc3545; }
+.btn-zoom { animation: pulse 1.5s ease-in-out infinite; }
 
 .animate-fade-in {
-  animation: fadeIn 1s ease-in-out;
+  animation: fadeIn 0.8s ease-out forwards;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.shadow-sm {
-  box-shadow: 0 0.3125rem 0.625rem 0 #80008036 !important;
-}
-
-/* Estilo da mensagem motivacional com efeito de digitação */
+/* Mensagem Motivacional Typing Effect */
 .mensagem-motivacional {
   color: #856404;
   font-style: italic;
-  font-size: 1rem;
-  margin-bottom: 5px;
   overflow: hidden;
-  /* Esconde o texto até ser mostrado */
   white-space: nowrap;
-  /* Impede quebra de linha */
   border-right: 3px solid #856404;
-  /* Simula o cursor de digitação */
   width: 0;
-  /* Inicializa o tamanho do texto como 0 */
   animation: typing 6s steps(60) 1s forwards, blink 0.75s step-end infinite;
-  /* Animação de digitação */
 }
 
-/* Animação de digitação horizontal (para desktop) */
-@keyframes typing {
-  from {
-    width: 0;
-  }
+@keyframes typing { from { width: 0; } to { width: 100%; } }
+@keyframes blink { 50% { border-color: transparent; } }
 
-  to {
-    width: 100%;
-  }
-}
-
-/* Animação de piscada do cursor */
-@keyframes blink {
-  50% {
-    border-color: transparent;
-  }
-}
-
-/* Ajustes para telas menores (dispositivos móveis) */
 @media (max-width: 768px) {
   .mensagem-motivacional {
-    font-size: 0.9rem;
-    /* Reduz o tamanho da fonte para dispositivos móveis */
-    width: auto;
-    /* Ajusta a largura automaticamente */
     white-space: normal;
-    /* Permite que o texto quebre em várias linhas */
-    word-wrap: break-word;
-    /* Permite quebra de linha */
-    max-width: 90%;
-    /* Limita a largura para não ocupar toda a tela */
-    margin: 0 auto;
-    /* Centraliza o texto */
-    height: 0;
-    /* Inicializa altura como 0 */
-    animation: typingVertical 4s steps(60) 1s forwards,
-      blink 0.75s step-end infinite;
-    /* Animação de digitação vertical */
+    width: auto;
+    animation: fadeIn 1s ease-in;
+    border: none;
   }
 }
-
-/* Efeito de digitação vertical (para dispositivos móveis) */
-@keyframes typingVertical {
-  from {
-    height: 0;
-  }
-
-  to {
-    height: 100%;
-  }
+/* Skeleton Loader */
+.skeleton-row {
+  height: 60px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 12px;
 }
 
-/* Ajustes para telas muito pequenas (smartphones com menos de 480px) */
-@media (max-width: 480px) {
-  .mensagem-motivacional {
-    font-size: 0.8rem;
-    /* Ajuste adicional para telas muito pequenas */
-  }
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
-/* Classe de animação de zoom in e zoom out */
-.btn-zoom {
-  animation: zoomInOut 1.5s ease-in-out infinite;
-  /* Efeito de zoom contínuo */
+/* WhatsApp Button */
+.btn-whatsapp {
+  background-color: #25d366;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 10px;
+  transition: all 0.3s ease;
 }
 
-/* Animação de zoom in e zoom out */
-@keyframes zoomInOut {
-  0% {
-    transform: scale(1);
-    /* Tamanho original */
-  }
-
-  50% {
-    transform: scale(1.1);
-    /* Aumenta o botão em 10% */
-  }
-
-  100% {
-    transform: scale(1);
-    /* Retorna ao tamanho original */
-  }
+.btn-whatsapp:hover {
+  background-color: #128c7e;
+  transform: translateY(-2px);
+  color: white;
 }
 
-.borda-destacadanome {
-  border: 2px solid #66bb6a;
-  border-radius: 5px;
-  padding: 10px;
-  outline: none;
+/* Facebook Button */
+.btn-facebook {
+  background-color: #1877f2;
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
 }
 
-.borda-destacada {
-  border: 1px solid #66bb6a;
-  border-radius: 5px;
-  padding: 10px;
-  outline: none;
+.btn-facebook:hover {
+  background-color: #166fe5;
+  transform: translateY(-2px);
+  color: white;
 }
 
-.borda-destacada:focus {
-  border-color: #800080;
-  /* Roxo */
-  box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.25);
+/* Instagram/Share Button */
+.btn-share {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
 }
 
-.blur {
-  box-shadow: inset 0px 0px 2px rgba(254, 254, 254, 0.8196078431);
-  -webkit-backdrop-filter: saturate(200%) blur(30px);
-  backdrop-filter: saturate(200%) blur(30px);
-  background-color: rgba(243, 0, 0, 0.8) !important;
+.btn-share:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  color: white;
 }
+
+/* Empty State */
+.empty-state {
+  background: white;
+  border-radius: 20px;
+  border: 2px dashed #e0e0e0;
+}
+
+.opacity-20 { opacity: 0.2; }
 </style>
