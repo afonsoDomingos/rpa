@@ -5,6 +5,8 @@ import DefaultCounterCard from "../../../examples/cards/counterCards/DefaultCoun
 
 const documentCount = ref(0);
 const solicitacoesCount = ref(0);
+const isVisible = ref(false);
+const sectionRef = ref(null);
 
 onMounted(() => {
   axios
@@ -24,14 +26,28 @@ onMounted(() => {
     .catch((error) =>
       console.error("Erro ao carregar contagem de solicitações", error)
     );
+
+  // Intersection Observer para efeito de scroll
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        isVisible.value = entry.isIntersecting;
+      });
+    },
+    { threshold: 0.3 }
+  );
+  
+  if (sectionRef.value) {
+    observer.observe(sectionRef.value);
+  }
 });
 </script>
 
 <template>
-  <section class="counter-section" id="count-stats">
+  <section class="counter-section" id="count-stats" ref="sectionRef">
     <div class="container">
-      <div class="counter-grid">
-        <div class="counter-item">
+      <div class="counter-grid" :class="{ 'animate-in': isVisible }">
+        <div class="counter-item item-1">
           <DefaultCounterCard
             color="success"
             title="Encontrados"
@@ -42,7 +58,7 @@ onMounted(() => {
             class="counter-black"
           />
         </div>
-        <div class="counter-item">
+        <div class="counter-item item-2">
           <DefaultCounterCard
             color="success"
             title="Solicitados"
@@ -53,7 +69,7 @@ onMounted(() => {
             class="counter-black"
           />
         </div>
-        <div class="counter-item">
+        <div class="counter-item item-3">
           <DefaultCounterCard
             color="success"
             title="Entregues"
@@ -88,6 +104,38 @@ onMounted(() => {
   flex-wrap: nowrap;
 }
 
+.counter-item {
+  text-align: center;
+  flex: 1;
+  min-width: 0;
+  max-width: 180px;
+  opacity: 0;
+  transform: scale(0.5) translateY(30px);
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.animate-in .counter-item {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.animate-in .item-1 {
+  transition-delay: 0.1s;
+}
+
+.animate-in .item-2 {
+  transition-delay: 0.25s;
+}
+
+.animate-in .item-3 {
+  transition-delay: 0.4s;
+}
+
+/* Efeito de pulse contínuo após aparecer */
+.animate-in .counter-item:hover {
+  transform: scale(1.08);
+}
+
 /* Mobile */
 @media (max-width: 576px) {
   .counter-section {
@@ -98,16 +146,7 @@ onMounted(() => {
     gap: 4px;
     max-width: 100%;
   }
-}
-
-.counter-item {
-  text-align: center;
-  flex: 1;
-  min-width: 0;
-  max-width: 180px;
-}
-
-@media (max-width: 576px) {
+  
   .counter-item {
     max-width: 100px;
   }

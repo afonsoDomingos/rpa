@@ -215,16 +215,11 @@
 
       <button
         type="submit"
-        style="
-          padding: 1.5px 6px;
-          font-size: 9px;
-          border-radius: 12px;
-          border: none;
-          background: transparent;
-          color: #333;
-        "
+        class="chat-send-btn"
       >
-        Enviar
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" fill="currentColor"/>
+        </svg>
       </button>
     </form>
   </div>
@@ -1470,6 +1465,31 @@ onMounted(() => {
 
 .chat-footer button[type="submit"]:hover {
   background: #198754;
+}
+
+.chat-send-btn {
+  background: linear-gradient(135deg, #800080, #6a006a);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.3);
+}
+
+.chat-send-btn:hover {
+  background: linear-gradient(135deg, #198754, #136740);
+  transform: scale(1.05);
+}
+
+.chat-send-btn:active {
+  transform: scale(0.95);
 }
 
 /* Botão do chat no canto inferior direito */

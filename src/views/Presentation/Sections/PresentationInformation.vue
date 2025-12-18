@@ -13,10 +13,7 @@ let observer = null;
 onMounted(() => {
   observer = new IntersectionObserver(
     ([entry]) => {
-      if (entry.isIntersecting) {
-        isVisible.value = true;
-        observer.disconnect(); // Animate only once
-      }
+      isVisible.value = entry.isIntersecting;
     },
     { threshold: 0.2 }
   );
