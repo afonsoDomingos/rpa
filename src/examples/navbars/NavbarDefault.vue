@@ -167,6 +167,7 @@
               :class="getTextColor()"
               id="dropdownUser"
               aria-expanded="false"
+              @click="toggleDropdown($event)"
             >
               <i
                 class="material-icons-round opacity-6 me-2 text-md rotatable-profile"
@@ -267,6 +268,7 @@
               :class="getTextColor()"
               id="dropdownTools"
               aria-expanded="false"
+              @click="toggleDropdown($event)"
             >
               <i class="bi bi-gear-fill me-2 rotatable-icon"></i>
               Ferramentas
@@ -431,6 +433,29 @@ onMounted(() => {
     }
   });
 });
+
+// Toggle dropdown manual (para mobile)
+function toggleDropdown(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  
+  const link = event.currentTarget;
+  const dropdownMenu = link.nextElementSibling;
+  
+  if (!dropdownMenu) return;
+  
+  // Fechar outros dropdowns primeiro
+  const outrosDropdowns = document.querySelectorAll('.dropdown-menu.show');
+  outrosDropdowns.forEach((dropdown) => {
+    if (dropdown !== dropdownMenu) {
+      dropdown.classList.remove('show');
+    }
+  });
+  
+  // Toggle no dropdown atual
+  dropdownMenu.classList.toggle('show');
+}
+
 function fecharDropdown() {
   // Fechar todos os dropdowns removendo a classe .show
   const dropdowns = document.querySelectorAll('.dropdown-menu.show');
