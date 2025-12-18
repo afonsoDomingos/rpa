@@ -43,6 +43,12 @@
           <button class="btn btn-bell position-relative mx-1" @click="toggleNotifications" title="Notificações">
             <i class="bi bi-bell fs-5"></i>
             <span v-if="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
+            <span 
+              class="position-absolute border border-light rounded-circle"
+              :class="connected ? 'bg-success' : 'bg-danger'"
+              style="width: 12px; height: 12px; top: -2px; right: -2px;"
+              :title="connected ? 'Socket Conectado' : 'Socket Desconectado'"
+            ></span>
           </button>
 
           <!-- Botão Atualizar Circular -->
@@ -492,7 +498,7 @@ import { usePushNotifications } from "@/composables/usePushNotifications";
 import Swal from "sweetalert2";
 
 // Socket.IO Notifications
-const { notifications, unreadCount, markAsRead, clearAll } = useSocketNotifications();
+const { notifications, unreadCount, markAsRead, clearAll, connected } = useSocketNotifications();
 const showNotifications = ref(false);
 
 // Push Notifications
