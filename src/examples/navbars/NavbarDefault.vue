@@ -343,6 +343,19 @@
             </div>
           </li>
 
+          <!-- ==== ATUALIZAR (Sync) ==== -->
+          <li class="nav-item mx-1">
+            <a
+              class="nav-link d-flex align-items-center cursor-pointer"
+              :class="getTextColor()"
+              title="Sincronizar dados"
+              @click="refreshContent"
+            >
+              <i class="bi bi-arrow-clockwise text-md sync-icon" :class="{'spinning': isSyncing}"></i>
+              <span class="d-lg-none ms-2">Sincronizar</span>
+            </a>
+          </li>
+
           <!-- ==== ASSINATURA (desktop) ==== -->
           <li class="d-none d-lg-block">
             <a
@@ -373,6 +386,38 @@ const dropdownMenu = ref(null);
 const navbarCollapse = ref(null);
 const hovering = ref(false); // hover do olho/logo
 const isMenuOpen = ref(false);
+const isSyncing = ref(false);
+
+const refreshContent = async () => {
+  if (isSyncing.value) return;
+  isSyncing.value = true;
+  
+  try {
+    // Sincroniza dados globais (usuário, etc)
+    await buscarUsuario();
+    
+    // Notifica outros componentes que devem atualizar seus dados
+    eventBus.emit("refreshData");
+    
+    // Simula um delay visual para o utilizador sentir que algo aconteceu
+    setTimeout(() => {
+      isSyncing.value = false;
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+      });
+      Toast.fire({
+        icon: 'success',
+        title: 'Dados sincronizados'
+      });
+    }, 800);
+  } catch (error) {
+    isSyncing.value = false;
+  }
+};
 
 onMounted(() => {
   buscarUsuario();
@@ -624,6 +669,20 @@ watch(
 #dropdownUser[aria-expanded="true"] .rotatable-profile {
   transform: scale(1.2);
   color: #800080 !important;
+}
+
+/* SYNC ICON ANIMATION */
+.sync-icon {
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+}
+.spinning {
+  animation: spin-around 0.8s linear infinite;
+  color: #800080 !important;
+}
+@keyframes spin-around {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* ESPAÇO PARA NAVBAR FIXA */

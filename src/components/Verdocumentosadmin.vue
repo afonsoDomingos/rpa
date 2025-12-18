@@ -438,8 +438,20 @@ const atualizarStatus = async (doc) => {
   }
 };
 
+const refreshAll = async () => {
+  isLoading.value = true;
+  await Promise.all([
+    buscarDocumentos(),
+    buscarDocumentosReportados(),
+    buscarDocumentosProprietarios(),
+    buscarLogsPesquisas()
+  ]);
+  isLoading.value = false;
+};
+
 onMounted(async () => {
   eventBus.on("changeTab", changeTab);
+  eventBus.on("refreshData", refreshAll);
   setNavPills();
   isLoading.value = true;
   await Promise.all([
@@ -451,7 +463,10 @@ onMounted(async () => {
   isLoading.value = false;
 });
 
-onUnmounted(() => eventBus.off("changeTab", changeTab));
+onUnmounted(() => {
+  eventBus.off("changeTab", changeTab);
+  eventBus.off("refreshData", refreshAll);
+});
 
 watch(activeTab, () => { paginaAtual.value = 1; });
 

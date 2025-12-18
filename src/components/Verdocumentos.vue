@@ -196,6 +196,25 @@ const procurar = async () => {
     termo: termoPesquisado,
     filtro: tipoFiltro.value,
     data: new Date().toISOString()
+  }).then(async () => {
+    // Após salvar, busca o novo total para verificar milestone
+    const totalAntigo = totalPesquisas.value;
+    await buscarTotalPesquisas();
+    const novoTotal = totalPesquisas.value;
+    
+    // Lógica de Milestone: De 10 em 10 até 100, depois de 100 em 100
+    if (novoTotal > totalAntigo) {
+      let atingiuMilestone = false;
+      if (novoTotal <= 100) {
+        if (novoTotal % 10 === 0) atingiuMilestone = true;
+      } else {
+        if (novoTotal % 100 === 0) atingiuMilestone = true;
+      }
+
+      if (atingiuMilestone) {
+        celebrarMilestone(novoTotal);
+      }
+    }
   }).catch(err => console.error("Erro ao salvar log:", err));
 
   try {
@@ -214,6 +233,38 @@ const procurar = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const celebrarMilestone = (numero) => {
+  Swal.fire({
+    title: '🎉 ¡Parabéns! 🎉',
+    html: `
+      <div class="celebration-container">
+        <div class="milestone-badge mb-3">${numero}</div>
+        <h4 class="text-purple fw-bold">Pesquisas Realizadas!</h4>
+        <p class="mt-3 fs-6">Acabaste de realizar a <strong>${numero}ª pesquisa</strong> na nossa plataforma.</p>
+        <hr class="my-3 opacity-20">
+        <p class="text-muted small">
+          Obrigado por fazeres parte desta missão. <br> 
+          Graças a ti e a todos os usuários, a Rpa continua a crescer e a ajudar mais pessoas a recuperarem o que é seu. 
+          <br><br>
+          <span class="heart-beat">❤️</span> Gratidão pelo teu apoio!
+        </p>
+      </div>
+    `,
+    confirmButtonText: 'Continuar a navegar',
+    confirmButtonColor: '#800080',
+    background: '#fff url("https://www.transparenttextures.com/patterns/cubes.png")',
+    backdrop: `
+      rgba(128, 0, 128, 0.4)
+      url("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJ4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/l0MYt5jPR6QX5pnqM/giphy.gif")
+      center top
+      no-repeat
+    `,
+    customClass: {
+      popup: 'border-radius-20'
+    }
+  });
 };
 
 const partilharWhatsApp = (doc) => {
@@ -268,8 +319,20 @@ const verificarAssinaturaAntesDeSolicitar = async (doc) => {
   }
 };
 
+const refreshAll = async () => {
+  isLoading.value = true;
+  await Promise.all([
+    buscarDocumentos(),
+    buscarDocumentosReportados(),
+    buscarDocumentosProprietarios(),
+    buscarTotalPesquisas()
+  ]);
+  isLoading.value = false;
+};
+
 onMounted(async () => {
   eventBus.on("changeTab", changeTab);
+  eventBus.on("refreshData", refreshAll);
   setNavPills();
   isLoading.value = true;
   await Promise.all([
@@ -281,7 +344,10 @@ onMounted(async () => {
   isLoading.value = false;
 });
 
-onUnmounted(() => eventBus.off("changeTab", changeTab));
+onUnmounted(() => {
+  eventBus.off("changeTab", changeTab);
+  eventBus.off("refreshData", refreshAll);
+});
 
 watch(activeTab, () => { paginaAtual.value = 1; });
 
@@ -842,4 +908,44 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
 }
 
 .opacity-20 { opacity: 0.2; }
+
+/* Estilos de Celebração */
+.milestone-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #800080, #198754);
+  color: white;
+  width: 80px;
+  height: 80px;
+  line-height: 80px;
+  border-radius: 50%;
+  font-size: 1.8rem;
+  font-weight: 800;
+  box-shadow: 0 10px 20px rgba(128, 0, 128, 0.3);
+  animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.heart-beat {
+  display: inline-block;
+  font-size: 1.5rem;
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  15% { transform: scale(1.3); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.15); }
+  60% { transform: scale(1); }
+}
+
+@keyframes bounceIn {
+  from { opacity: 0; transform: scale(0.3); }
+  50% { opacity: 1; transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  to { transform: scale(1); }
+}
+
+.border-radius-20 {
+  border-radius: 20px !important;
+}
 </style>

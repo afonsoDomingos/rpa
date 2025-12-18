@@ -282,7 +282,8 @@
 <script setup>
 import axios from "axios";
 import api from "../api";
-import { ref, nextTick, onUpdated, onMounted, onUnmounted } from "vue";
+import { ref, nextTick, onUpdated, onMounted, onUnmounted, computed } from "vue";
+import Swal from "sweetalert2";
 
 const props = defineProps({
   hideFabWhenScrolled: {
@@ -315,6 +316,21 @@ const dadosDocumento = ref({
   provincia: "",
   etapa: "inicial", // inicial, coletando_nome, coletando_tipo, coletando_numero, coletando_provincia, finalizando
 });
+
+const totalPesquisas = ref(0);
+
+const buscarTotalPesquisas = async () => {
+  try {
+    const res = await api.get('/documentos/pesquisas');
+    if (Array.isArray(res.data)) {
+      totalPesquisas.value = res.data.length;
+    } else if (res.data && res.data.pesquisas) {
+      totalPesquisas.value = res.data.pesquisas.length;
+    }
+  } catch (err) {
+    console.error("Erro ao buscar total de pesquisas:", err);
+  }
+};
 
 const predefinidas = [
   {
@@ -830,6 +846,20 @@ async function realizarBuscaDocumento() {
       termo: `Chat: ${termoLog}`,
       filtro: "assistente",
       data: new Date().toISOString()
+    }).then(async () => {
+      const totalAntigo = totalPesquisas.value;
+      await buscarTotalPesquisas();
+      const novoTotal = totalPesquisas.value;
+
+      if (novoTotal > totalAntigo) {
+        let atingiuMilestone = false;
+        if (novoTotal <= 100) {
+          if (novoTotal % 10 === 0) atingiuMilestone = true;
+        } else {
+          if (novoTotal % 100 === 0) atingiuMilestone = true;
+        }
+        if (atingiuMilestone) celebrarMilestone(novoTotal);
+      }
     }).catch(err => console.error("Erro ao salvar log final do assistente:", err));
 
     // Fazer a consulta na API existente
@@ -948,6 +978,28 @@ function typeWriter(text, callback) {
   type();
 }
 
+const celebrarMilestone = (numero) => {
+  Swal.fire({
+    title: '🎉 ¡Parabéns! 🎉',
+    html: `
+      <div class="celebration-container">
+        <div class="milestone-badge mb-3">${numero}</div>
+        <h4 class="text-purple fw-bold">Pesquisas Realizadas!</h4>
+        <p class="mt-3 fs-6">Acabaste de realizar a <strong>${numero}ª pesquisa</strong> via Chat!</p>
+        <hr class="my-3 opacity-20">
+        <p class="text-muted small">
+          Obrigado por ajudar a Rpa a crescer. <br> 
+          <span class="heart-beat">❤️</span> Gratidão pelo teu apoio!
+        </p>
+      </div>
+    `,
+    confirmButtonText: 'Continuar',
+    confirmButtonColor: '#800080',
+    backdrop: `rgba(128, 0, 128, 0.4)`,
+    customClass: { popup: 'border-radius-20' }
+  });
+};
+
 function handleScroll() {
   const el = chatMessagesRef.value;
   if (!el) return;
@@ -1017,6 +1069,9 @@ onMounted(() => {
 
   window.addEventListener("mousemove", atualizarMouse);
   animarOlhos();
+  
+  // Buscar total inicial
+  buscarTotalPesquisas();
 
   onUnmounted(() => {
     window.removeEventListener("mousemove", atualizarMouse);
@@ -1629,14 +1684,38 @@ onMounted(() => {
 }
 
 @keyframes modalShow {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }
+
+/* Estilos de Celebração */
+.celebration-container { text-align: center; padding: 10px; }
+.milestone-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #800080, #198754);
+  color: white;
+  width: 70px;
+  height: 70px;
+  line-height: 70px;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  font-weight: 800;
+  box-shadow: 0 8px 15px rgba(128, 0, 128, 0.3);
+  animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+.heart-beat { display: inline-block; font-size: 1.5rem; animation: heartbeat 1.5s ease-in-out infinite; }
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  15% { transform: scale(1.3); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.15); }
+  60% { transform: scale(1); }
+}
+@keyframes bounceIn {
+  from { opacity: 0; transform: scale(0.3); }
+  50% { opacity: 1; transform: scale(1.05); }
+  70% { opacity: 1; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+.border-radius-20 { border-radius: 20px !important; }
 </style>

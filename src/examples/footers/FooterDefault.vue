@@ -118,7 +118,7 @@ defineProps({
             <a :href="brand.route">
               <img :src="brand.logo" class="mb-3 footer-logo" alt="main_logo" />
             </a>
-            <h6 class="font-weight-bolder mb-4">{{ brand.name }}</h6>
+            <h6 class="font-weight-bolder mb-4 text-purple">{{ brand.name }}</h6>
           </div>
           <div>
             <ul class="d-flex flex-row ms-n3 nav">
@@ -128,7 +128,7 @@ defineProps({
                 :key="link"
               >
                 <a
-                  class="nav-link pe-1"
+                  class="nav-link pe-1 social-icon-link"
                   :href="link"
                   target="_blank"
                   v-html="icon"
@@ -143,7 +143,7 @@ defineProps({
           v-for="{ name, items } of menus"
           :key="name"
         >
-          <h6 class="text-sm">{{ name }}</h6>
+          <h6 class="text-sm text-purple fw-bold">{{ name }}</h6>
           <ul class="flex-column ms-n3 nav">
             <li class="nav-item" v-for="item of items" :key="item.name">
               <a class="nav-link" :href="item.href" target="_blank">
@@ -169,3 +169,38 @@ defineProps({
     </div>
   </footer>
 </template>
+<style scoped>
+.text-purple {
+  color: #800080 !important;
+}
+
+.footer-logo {
+  max-height: 50px;
+  width: auto;
+}
+
+.social-icon-link {
+  color: #800080 !important;
+  transition: transform 0.2s ease;
+}
+
+.social-icon-link:hover {
+  transform: translateY(-3px);
+  color: #198754 !important; /* Verde no hover para contraste */
+}
+
+/* Garante que o SVG interno herde a cor */
+.social-icon-link :deep(svg) {
+  fill: currentColor !important;
+  width: 20px;
+  height: 20px;
+}
+
+.nav-link {
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #800080 !important;
+}
+</style>
