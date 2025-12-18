@@ -354,57 +354,7 @@
           </div>
         </div>
 
-        <style scoped>
-          /* Estilos Mobile Card */
-          .mobile-card {
-            background: #0a0a0a;
-            border: 1px solid #1a1a1a;
-            border-radius: 12px;
-            padding: 1.25rem;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.2s;
-          }
-          .mobile-card:active {
-            transform: scale(0.98);
-          }
-          .user-avatar.mobile {
-            width: 40px;
-            height: 40px;
-            font-size: 0.9rem;
-          }
-          .mobile-info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 0.5rem;
-            background: rgba(255,255,255,0.03);
-            padding: 0.75rem;
-            border-radius: 8px;
-          }
-          .info-item {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-          }
-          .info-item .label {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            color: #6b7280;
-            letter-spacing: 0.5px;
-          }
-          .info-item .value {
-            font-size: 0.85rem;
-            font-weight: 500;
-          }
-          .tiny-text {
-            font-size: 0.7rem;
-            margin-top: 1px;
-          }
-          .spin-anim {
-            animation: spin 1s linear infinite;
-          }
-          @keyframes spin { 100% { transform: rotate(360deg); } }
-        </style>
+
 
         <!-- Paginação -->
         <!-- Paginação -->
@@ -450,24 +400,7 @@
           </div>
         </div>
 
-        <style scoped>
-          .bg-dark-soft { background: #0a0a0a; border: 1px solid #1a1a1a; }
-          .btn-dark-custom {
-            background: transparent;
-            color: #6b7280;
-            border: none;
-            transition: all 0.2s;
-            height: 38px;
-          }
-          .btn-dark-custom:hover:not(:disabled) {
-            background: #1a1a1a;
-            color: white;
-          }
-          .btn-dark-custom:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-          }
-        </style>
+
 
         <!-- Estatísticas -->
         <div class="row g-3 mt-4">
@@ -1517,5 +1450,73 @@ p.text-muted {
   border: 2px solid #0a0a0a; /* Contraste com o fundo do botão */
   top: -2px;
   right: -2px;
+}
+
+/* --- Mobile Cards Styles --- */
+.mobile-card {
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 12px;
+  padding: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+.mobile-card:active {
+  transform: scale(0.98);
+}
+.user-avatar.mobile {
+  width: 40px;
+  height: 40px;
+  font-size: 0.9rem;
+}
+.mobile-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.03);
+  padding: 0.75rem;
+  border-radius: 8px;
+}
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.info-item .label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: #6b7280;
+  letter-spacing: 0.5px;
+}
+.info-item .value {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.tiny-text {
+  font-size: 0.7rem;
+  margin-top: 1px;
+}
+.spin-anim {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* --- Pagination Styles --- */
+.bg-dark-soft { background: #0a0a0a; border: 1px solid #1a1a1a; }
+.btn-dark-custom {
+  background: transparent;
+  color: #6b7280;
+  border: none;
+  transition: all 0.2s;
+  height: 38px;
+}
+.btn-dark-custom:hover:not(:disabled) {
+  background: #1a1a1a;
+  color: white;
+}
+.btn-dark-custom:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 </style>
