@@ -9,7 +9,7 @@
   </div>
 
   <div class="admin-dashboard">
-    <div class="container py-5 mt-4">
+    <div class="container py-5 mt-5 pt-5">
       <!-- Toasts -->
       <div class="toast-container">
         <div
@@ -785,6 +785,7 @@ onMounted(() => {
 @import "@fontsource/poppins/500.css";
 @import "@fontsource/poppins/600.css";
 @import "@fontsource/poppins/700.css";
+@import "@fontsource/poppins/900.css";
 
 /*@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap');*/
@@ -827,7 +828,7 @@ onMounted(() => {
 /* Fontes */
 h1 {
   font-family: "Poppins", sans-serif;
-  font-weight: 600;
+  font-weight: 900;
   letter-spacing: 0.5px;
   color: #fff;
 }
