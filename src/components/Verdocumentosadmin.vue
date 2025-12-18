@@ -64,7 +64,12 @@ const buscarLogsPesquisas = async () => {
   statsLoading.value = true;
   try {
     const res = await api.get('/documentos/pesquisas');
-    logsPesquisas.value = res.data;
+    // Aceita tanto array direto quanto objeto com chaves comuns
+    if (Array.isArray(res.data)) {
+      logsPesquisas.value = res.data;
+    } else if (res.data && typeof res.data === 'object') {
+      logsPesquisas.value = res.data.pesquisas || res.data.data || res.data.logs || [];
+    }
   } catch (err) {
     console.error("Erro ao buscar logs:", err);
   } finally {

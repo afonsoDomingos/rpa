@@ -169,35 +169,33 @@ const procurar = async () => {
   else if (tipoFiltro.value === "provincia") params.provincia = busca.value.provincia;
   else if (tipoFiltro.value === "numero") params.numero_documento = busca.value.numero;
 
-  if (!Object.values(params).some(v => v)) {
+  const termoPesquisado = busca.value.nome || busca.value.tipo || busca.value.provincia || busca.value.numero;
+
+  if (!termoPesquisado) {
     erroMensagem.value = "Preencha o campo do filtro.";
     isLoading.value = false;
     return;
   }
 
+  // Log da pesquisa para o admin (Executa independente do resultado da busca)
+  api.post('/documentos/pesquisas', {
+    termo: termoPesquisado,
+    filtro: tipoFiltro.value,
+    data: new Date().toISOString()
+  }).catch(err => console.error("Erro ao salvar log:", err));
+
   try {
     const res = await apiProcurar(params);
-    
-    // Log da pesquisa para o admin
-    const termoPesquisado = busca.value.nome || busca.value.tipo || busca.value.provincia || busca.value.numero;
-    if (termoPesquisado) {
-      api.post('/documentos/pesquisas', {
-        termo: termoPesquisado,
-        filtro: tipoFiltro.value,
-        data: new Date().toISOString()
-      }).catch(err => console.error("Erro ao salvar log:", err));
-    }
-
     if (res.length === 0) {
       erroMensagem.value = "Pesquisa concluída, mas não encontramos nenhum documento com estes dados.";
     }
   } catch (error) {
     if (error.response && error.response.status === 404) {
       erroMensagem.value = "Pesquisa concluída: nenhum documento foi encontrado com estes dados.";
-      documentosEncontrados.value = []; // Garante que a lista está vazia
+      documentosEncontrados.value = [];
     } else {
       console.error("Erro de conexão:", error);
-      erroMensagem.value = "Ops! Tivemos uma falha ao comunicar com o servidor. Verifique sua ligação ou tente novamente mais tarde.";
+      erroMensagem.value = "Ops! Tivemos uma falha ao comunicar com o servidor.";
     }
   } finally {
     isLoading.value = false;
