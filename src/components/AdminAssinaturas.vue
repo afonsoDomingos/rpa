@@ -286,6 +286,41 @@
           </div>
         </div>
 
+        <!-- Paginação -->
+        <div v-if="totalPaginas > 1" class="d-flex justify-content-between align-items-center mt-4">
+          <div class="text-muted">
+            Mostrando {{ ((paginaAtual - 1) * itensPorPagina) + 1 }} a 
+            {{ Math.min(paginaAtual * itensPorPagina, todosOsFiltrados.length) }} 
+            de {{ todosOsFiltrados.length }} resultados
+          </div>
+          <div class="btn-group">
+            <button 
+              @click="mudarPagina(paginaAtual - 1)"
+              :disabled="paginaAtual === 1"
+              class="btn btn-outline-purple btn-sm"
+            >
+              <i class="bi bi-chevron-left"></i>
+              Anterior
+            </button>
+            <button 
+              v-for="p in Math.min(totalPaginas, 5)" 
+              :key="p"
+              @click="mudarPagina(p)"
+              :class="['btn', 'btn-sm', p === paginaAtual ? 'btn-purple' : 'btn-outline-purple']"
+            >
+              {{ p }}
+            </button>
+            <button 
+              @click="mudarPagina(paginaAtual + 1)"
+              :disabled="paginaAtual === totalPaginas"
+              class="btn btn-outline-purple btn-sm"
+            >
+              Próxima
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+
         <!-- Estatísticas -->
         <div class="row g-3 mt-4">
           <div class="col-12 col-md-6">
@@ -423,6 +458,10 @@ const busca = ref("");
 const pagamentoSelecionado = ref(null);
 const toasts = ref([]);
 
+// Paginação
+const paginaAtual = ref(1);
+const itensPorPagina = 10;
+
 // API
 const API_URL = "https://apirpa.onrender.com/api/pagamentos";
 
@@ -549,8 +588,8 @@ const assinantesAnuais = computed(
     pagamentos.value.filter((p) => p.pacote?.toLowerCase() === "anual").length
 );
 
-// Pagamentos filtrados
-const pagamentosFiltrados = computed(() =>
+// Pagamentos filtrados (SEM paginação - para contar total)
+const todosOsFiltrados = computed(() =>
   pagamentos.value.filter((p) => {
     const s = !filtroStatus.value || p.status === filtroStatus.value;
     const pa =
@@ -562,6 +601,31 @@ const pagamentosFiltrados = computed(() =>
     return s && pa && b;
   })
 );
+
+// Pagamentos filtrados COM paginação (apenas os da página atual)
+const pagamentosFiltrados = computed(() => {
+  const inicio = (paginaAtual.value - 1) * itensPorPagina;
+  const fim = inicio + itensPorPagina;
+  return todosOsFiltrados.value.slice(inicio, fim);
+});
+
+// Total de páginas
+const totalPaginas = computed(() =>
+  Math.ceil(todosOsFiltrados.value.length / itensPorPagina)
+);
+
+// Mudar página
+const mudarPagina = (novaPagina) => {
+  if (novaPagina >= 1 && novaPagina <= totalPaginas.value) {
+    paginaAtual.value = novaPagina;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
+
+// Resetar paginação quando filtros mudarem
+watch([filtroStatus, filtroPacote, busca], () => {
+  paginaAtual.value = 1;
+});
 
 // Detalhes do pagamento
 const detalhesPagamento = computed(() => {
