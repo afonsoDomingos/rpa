@@ -618,8 +618,15 @@ async function processMessage(userMsg) {
     return;
   }
 
-  // Fluxo normal do chatbot
+  // Fluxo normal do chatbot (Log de perguntas genéricas)
   try {
+    // Registra o log mesmo para perguntas normais
+    api.post('/documentos/pesquisas', {
+      termo: userMsg,
+      filtro: "chat-duvida",
+      data: new Date().toISOString()
+    }).catch(() => {});
+
     const response = await axios.post(`${API_URL}/api/chatbot`, {
       message: userMsg,
     });
@@ -657,6 +664,14 @@ async function processarFluxoDocumento(mensagem) {
   switch (etapa) {
     case "inicial":
       dadosDocumento.value.etapa = "coletando_nome";
+      
+      // Log imediato de que alguém iniciou uma busca pelo assistente
+      api.post('/documentos/pesquisas', {
+        termo: "Iniciou busca guiada",
+        filtro: "assistente",
+        data: new Date().toISOString()
+      }).catch(() => {});
+
       typeWriter(
         "📋 Entendi! Vou te ajudar a procurar seu documento.<br><br>Primeiro, me diga: <strong>qual é o nome completo que está no documento?</strong>"
       );
@@ -809,13 +824,13 @@ async function realizarBuscaDocumento() {
       params.provincia = dadosDocumento.value.provincia;
     }
 
-    // Log da pesquisa para o admin
-    const termoLog = dadosDocumento.value.nome_completo || dadosDocumento.value.numero_documento || "Pesquisa via Chat";
+    // Log detalhado com o nome coletado
+    const termoLog = dadosDocumento.value.nome_completo || dadosDocumento.value.numero_documento || "Busca Chat";
     api.post('/documentos/pesquisas', {
-      termo: termoLog,
+      termo: `Chat: ${termoLog}`,
       filtro: "assistente",
       data: new Date().toISOString()
-    }).catch(err => console.error("Erro ao salvar log do assistente:", err));
+    }).catch(err => console.error("Erro ao salvar log final do assistente:", err));
 
     // Fazer a consulta na API existente
     const response = await api.get("/documentos", { params });

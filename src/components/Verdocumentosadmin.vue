@@ -707,7 +707,13 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
             <div class="col-12 mb-4">
               <div class="card shadow-sm border-0 bg-white p-4 rounded-4">
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-                  <h6 class="fw-bold text-dark mb-0">Progresso de Pesquisas</h6>
+                  <div class="d-flex align-items-center gap-3">
+                    <h6 class="fw-bold text-dark mb-0">Progresso de Pesquisas</h6>
+                    <button class="btn btn-outline-purple btn-sm rounded-pill py-1 px-3" @click="buscarLogsPesquisas" :disabled="statsLoading">
+                      <i class="bi bi-arrow-clockwise me-1" :class="{'spin': statsLoading}"></i>
+                      {{ statsLoading ? 'A carregar...' : 'Atualizar' }}
+                    </button>
+                  </div>
                   <div class="btn-group btn-group-sm rounded-pill overflow-hidden border">
                     <button class="btn" :class="tipoVistaGrafico === 'diaria' ? 'btn-purple' : 'btn-light'" @click="tipoVistaGrafico = 'diaria'">Diário (7d)</button>
                     <button class="btn" :class="tipoVistaGrafico === 'mensal' ? 'btn-purple' : 'btn-light'" @click="tipoVistaGrafico = 'mensal'">Mensal (12m)</button>
@@ -948,6 +954,15 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
 .bg-success-soft { background-color: rgba(40, 167, 69, 0.1); color: #28a745; }
 .bg-warning-soft { background-color: rgba(255, 193, 7, 0.1); color: #ffc107; }
 .bg-info-soft { background-color: rgba(13, 110, 253, 0.1); color: #0d6efd; }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
 
 .table-row {
   transition: all 0.2s ease;
