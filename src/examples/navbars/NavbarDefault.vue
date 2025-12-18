@@ -189,73 +189,63 @@
               style="min-width: 180px"
             >
               <!-- Dashboard Admin -->
-              <button
+              <router-link
                 v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
+                :to="{ name: 'dashboard' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click.stop.prevent="
-                  $router.push({ name: 'dashboard' });
-                  fecharDropdown();
-                "
+                @click="fecharDropdown"
               >
                 <i class="bi bi-speedometer2 text-warning"></i> Dashboard
-              </button>
+              </router-link>
 
               <!-- Pagamentos Admin -->
-              <button
+              <router-link
                 v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
+                :to="{ name: 'AdminAssinaturas' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="
-                  $router.push({ name: 'AdminAssinaturas' });
-                  fecharDropdown();
-                "
+                @click="fecharDropdown"
               >
                 <i class="bi bi-wallet2 text-success"></i> Pagamentos
-              </button>
+              </router-link>
 
               <!-- **NOVO** Gerenciar Anúncios -->
-              <button
+              <a
                 v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="navegarParaAdminAnuncios"
               >
                 <i class="bi bi-megaphone-fill text-purple"></i> Gerenciar
                 Anúncios
-              </button>
+              </a>
 
               <!-- Meus Pagamentos -->
-              <button
+              <router-link
+                :to="{ name: 'MeusPagamentos' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="
-                  $router.push({ name: 'MeusPagamentos' });
-                  fecharDropdown();
-                "
+                @click="fecharDropdown"
               >
                 <i class="bi bi-credit-card text-primary"></i> Meus Pagamentos
-              </button>
+              </router-link>
 
               <!-- Meus Documentos -->
-              <button
+              <router-link
+                :to="{ name: 'MeusDocumentos' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="
-                  $router.push({ name: 'MeusDocumentos' });
-                  fecharDropdown();
-                "
+                @click="fecharDropdown"
               >
                 <i class="bi bi-folder2-open text-info"></i> Meus Documentos
-              </button>
+              </router-link>
 
               <div class="dropdown-divider"></div>
 
               <!-- Sair -->
-              <button
+              <a
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2 text-danger"
-                @click="
-                  logout();
-                  fecharDropdown();
-                "
+                @click="logout(); fecharDropdown();"
+                style="cursor: pointer;"
               >
                 <i class="bi bi-box-arrow-right"></i> Sair
-              </button>
+              </a>
             </div>
           </li>
 
@@ -296,58 +286,48 @@
               style="min-width: 180px"
             >
               <!-- Meus Anúncios (todos os usuários) -->
-              <button
+              <router-link
+                :to="{ name: 'MeusAnuncios' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="
-                  $router.push({ name: 'MeusAnuncios' });
-                  fecharDropdown();
-                "
+                @click="fecharDropdown"
               >
                 <i class="bi bi-megaphone text-purple"></i> Meus Anúncios
-              </button>
+              </router-link>
 
-              <button
+              <router-link
+                :to="{ name: 'ComunidadeRpa' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="
-                  $router.push({ name: 'ComunidadeRpa' });
-                  fecharDropdown();
-                "
+                @click="fecharDropdown"
               >
                 <i class="bi bi-people-fill text-info"></i> Feed de publicações
-              </button>
+              </router-link>
 
-              <button
+              <router-link
+                :to="{ name: 'CVGenerator' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="
-                  $router.push({ name: 'CVGenerator' });
-                  fecharDropdown();
-                "
+                @click="fecharDropdown"
               >
                 <i class="bi bi-file-earmark-person text-warning"></i> Gerador
                 de Currículo
-              </button>
+              </router-link>
 
-              <button
+              <router-link
+                :to="{ name: 'GuardarDocumentos' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="
-                  $router.push({ name: 'GuardarDocumentos' });
-                  fecharDropdown();
-                "
+                @click="fecharDropdown"
               >
                 <i class="bi bi-folder-plus text-success"></i> Armazenar
                 Documentos
-              </button>
+              </router-link>
 
-              <button
+              <router-link
+                :to="{ name: 'Viaturas' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="
-                  $router.push({ name: 'Viaturas' });
-                  fecharDropdown();
-                "
+                @click="fecharDropdown"
               >
                 <i class="bi bi-car-front text-success"></i> Rastreador de
                 Viaturas
-              </button>
+              </router-link>
             </div>
           </li>
 
@@ -740,6 +720,15 @@ body {
     cursor: pointer !important;
     touch-action: manipulation !important;
     -webkit-tap-highlight-color: rgba(128, 0, 128, 0.2) !important;
+    text-decoration: none !important;
+    display: block !important;
+  }
+
+  /* Router-link dentro de dropdown */
+  .dropdown-item.router-link-active,
+  .dropdown-item.router-link-exact-active {
+    background: rgba(128, 0, 128, 0.1) !important;
+    color: #800080 !important;
   }
 
   .dropdown-item:active {
