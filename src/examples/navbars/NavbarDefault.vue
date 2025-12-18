@@ -166,7 +166,6 @@
               class="nav-link ps-2 d-flex cursor-pointer align-items-center"
               :class="getTextColor()"
               id="dropdownUser"
-              data-bs-toggle="dropdown"
               aria-expanded="false"
             >
               <i
@@ -183,7 +182,6 @@
             </a>
 
             <div
-              ref="dropdownMenu"
               class="dropdown-menu dropdown-menu-end dropdown-menu-animation mt-0 p-2 borda-destacada"
               aria-labelledby="dropdownUser"
               style="min-width: 180px"
@@ -268,7 +266,6 @@
               class="nav-link ps-2 d-flex cursor-pointer align-items-center"
               :class="getTextColor()"
               id="dropdownTools"
-              data-bs-toggle="dropdown"
               aria-expanded="false"
             >
               <i class="bi bi-gear-fill me-2 rotatable-icon"></i>
@@ -435,13 +432,10 @@ onMounted(() => {
   });
 });
 function fecharDropdown() {
-  // Fechar todos os dropdowns abertos
+  // Fechar todos os dropdowns removendo a classe .show
   const dropdowns = document.querySelectorAll('.dropdown-menu.show');
   dropdowns.forEach((dropdown) => {
-    const bsDropdown = bootstrap.Dropdown.getInstance(dropdown.previousElementSibling);
-    if (bsDropdown) {
-      bsDropdown.hide();
-    }
+    dropdown.classList.remove('show');
   });
 
   // Fechar o menu mobile se estiver aberto
