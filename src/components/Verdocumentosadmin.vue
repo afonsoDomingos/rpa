@@ -12,6 +12,32 @@ import { useDocumentos } from "@/composables/useDocumentos";
 import MaterialSwitch from "@/components/MaterialSwitch.vue";
 import MaterialButton from "@/components/MaterialButton.vue";
 
+// Chart.js Imports
+import { Line } from "vue-chartjs";
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Filler
+} from "chart.js";
+
+// Register Chart.js components
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Filler
+);
+
 const router = useRouter();
 const {
   documentosReportados,
@@ -59,6 +85,7 @@ const isLoading = ref(false);
 // Estatísticas de Pesquisa
 const logsPesquisas = ref([]);
 const statsLoading = ref(false);
+const tipoVistaGrafico = ref('mensal'); // 'diaria' ou 'mensal'
 
 const buscarLogsPesquisas = async () => {
   statsLoading.value = true;
@@ -86,11 +113,118 @@ const termoMaisProcurado = computed(() => {
   return Object.keys(contagem).reduce((a, b) => contagem[a] > contagem[b] ? a : b);
 });
 
+// Dados do Gráfico de Crescimento
+const chartData = computed(() => {
+  if (tipoVistaGrafico.value === 'diaria') {
+    const ultimos7Dias = [...Array(7)].map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return d.toISOString().split('T')[0];
+    });
+
+    const contagemPorDia = logsPesquisas.value.reduce((acc, log) => {
+      const dia = new Date(log.data).toISOString().split('T')[0];
+      acc[dia] = (acc[dia] || 0) + 1;
+      return acc;
+    }, {});
+
+    return {
+      labels: ultimos7Dias.map(dia => new Date(dia).toLocaleDateString('pt-PT', { day: 'numeric', month: 'short' })),
+      datasets: [
+        {
+          label: 'Pesquisas Realizadas',
+          backgroundColor: 'rgba(128, 0, 128, 0.1)',
+          borderColor: '#800080',
+          pointBackgroundColor: '#800080',
+          data: ultimos7Dias.map(dia => contagemPorDia[dia] || 0),
+          fill: true,
+          tension: 0.4,
+        }
+      ]
+    };
+  } else {
+    // Vista Mensal (Últimos 12 meses)
+    const ultimos12Meses = [...Array(12)].map((_, i) => {
+      const d = new Date();
+      d.setMonth(d.getMonth() - (11 - i));
+      return d.toLocaleDateString('pt-PT', { month: 'short', year: 'numeric' });
+    });
+
+    const contagemPorMes = logsPesquisas.value.reduce((acc, log) => {
+      const mes = new Date(log.data).toLocaleDateString('pt-PT', { month: 'short', year: 'numeric' });
+      acc[mes] = (acc[mes] || 0) + 1;
+      return acc;
+    }, {});
+
+    return {
+      labels: ultimos12Meses,
+      datasets: [
+        {
+          label: 'Pesquisas Mensais',
+          backgroundColor: 'rgba(0, 123, 255, 0.1)',
+          borderColor: '#0d6efd',
+          pointBackgroundColor: '#0d6efd',
+          data: ultimos12Meses.map(mes => contagemPorMes[mes] || 0),
+          fill: true,
+          tension: 0.4,
+        }
+      ]
+    };
+  }
+});
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      mode: 'index',
+      intersect: false,
+    }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: { stepSize: 1 }
+    }
+  }
+};
+
+const estatisticasPico = computed(() => {
+  if (!logsPesquisas.value.length) return { dia: "N/A", mes: "N/A" };
+
+  const contagemDias = {};
+  const contagemMeses = {};
+  
+  logsPesquisas.value.forEach(log => {
+    const dataObj = new Date(log.data);
+    const dia = dataObj.toLocaleDateString('pt-PT', { day: 'numeric', month: 'long' });
+    const mes = dataObj.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' });
+    
+    contagemDias[dia] = (contagemDias[dia] || 0) + 1;
+    contagemMeses[mes] = (contagemMeses[mes] || 0) + 1;
+  });
+
+  const diaPico = Object.keys(contagemDias).reduce((a, b) => contagemDias[a] > contagemDias[b] ? a : b);
+  const mesPico = Object.keys(contagemMeses).reduce((a, b) => contagemMeses[a] > contagemMeses[b] ? a : b);
+
+  return { 
+    dia: diaPico, 
+    mes: mesPico,
+    totalDia: contagemDias[diaPico],
+    totalMes: contagemMeses[mesPico]
+  };
+});
+
 // Paginação
 const paginaAtual = ref(1);
 const itensPorPagina = 5;
 
 const totalPaginas = computed(() => {
+  if (activeTab.value === 'estatisticas') {
+    return Math.ceil(logsPesquisas.value.length / 10);
+  }
   const lista = activeTab.value === 'procurar' ? documentosEncontrados.value :
                 activeTab.value === 'documentosReportados' ? documentosReportados.value :
                 documentosProprietarios.value;
@@ -98,6 +232,10 @@ const totalPaginas = computed(() => {
 });
 
 const documentosPaginados = computed(() => {
+  if (activeTab.value === 'estatisticas') {
+    const start = (paginaAtual.value - 1) * 10;
+    return logsPesquisas.value.slice(start, start + 10);
+  }
   const lista = activeTab.value === 'procurar' ? documentosEncontrados.value :
                 activeTab.value === 'documentosReportados' ? documentosReportados.value :
                 documentosProprietarios.value;
@@ -566,6 +704,20 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
         <!-- Aba Estatísticas -->
         <div v-if="activeTab === 'estatisticas'" class="tab-pane fade show active">
           <div class="row mb-5">
+            <div class="col-12 mb-4">
+              <div class="card shadow-sm border-0 bg-white p-4 rounded-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+                  <h6 class="fw-bold text-dark mb-0">Progresso de Pesquisas</h6>
+                  <div class="btn-group btn-group-sm rounded-pill overflow-hidden border">
+                    <button class="btn" :class="tipoVistaGrafico === 'diaria' ? 'btn-purple' : 'btn-light'" @click="tipoVistaGrafico = 'diaria'">Diário (7d)</button>
+                    <button class="btn" :class="tipoVistaGrafico === 'mensal' ? 'btn-purple' : 'btn-light'" @click="tipoVistaGrafico = 'mensal'">Mensal (12m)</button>
+                  </div>
+                </div>
+                <div style="height: 300px;">
+                  <Line :data="chartData" :options="chartOptions" />
+                </div>
+              </div>
+            </div>
             <div class="col-md-6 mb-4">
               <div class="card shadow-sm border-0 bg-white p-4 rounded-4">
                 <div class="d-flex align-items-center">
@@ -592,6 +744,36 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
                 </div>
               </div>
             </div>
+
+            <div class="col-md-6 mb-4">
+              <div class="card shadow-sm border-0 bg-white p-4 rounded-4">
+                <div class="d-flex align-items-center">
+                  <div class="icon-shape bg-warning-soft rounded-3 p-3 me-3 text-warning">
+                    <i class="bi bi-calendar-check" style="font-size: 1.5rem;"></i>
+                  </div>
+                  <div>
+                    <h6 class="text-muted mb-1 text-uppercase small fw-bold">Mês de Pico</h6>
+                    <h3 class="fw-bold mb-0 text-dark">{{ estatisticasPico.mes }}</h3>
+                    <small class="text-muted">{{ estatisticasPico.totalMes }} pesquisas</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+              <div class="card shadow-sm border-0 bg-white p-4 rounded-4">
+                <div class="d-flex align-items-center">
+                  <div class="icon-shape bg-info-soft rounded-3 p-3 me-3 text-info">
+                    <i class="bi bi-graph-up-arrow" style="font-size: 1.5rem;"></i>
+                  </div>
+                  <div>
+                    <h6 class="text-muted mb-1 text-uppercase small fw-bold">Dia de Maior Tráfego</h6>
+                    <h3 class="fw-bold mb-0 text-dark">{{ estatisticasPico.dia }}</h3>
+                    <small class="text-muted">{{ estatisticasPico.totalDia }} pesquisas</small>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="table-responsive shadow-lg rounded-4 bg-white overflow-hidden">
@@ -604,7 +786,7 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(log, idx) in logsPesquisas.slice(0, 50)" :key="idx" class="table-row">
+                <tr v-for="(log, idx) in documentosPaginados" :key="idx" class="table-row">
                   <td class="ps-4 font-monospace small">{{ new Date(log.data).toLocaleString() }}</td>
                   <td><span class="badge bg-light text-dark fw-bold">{{ log.termo }}</span></td>
                   <td><span class="badge bg-purple-soft">{{ log.filtro }}</span></td>
@@ -764,6 +946,8 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
 .text-purple { color: #800080 !important; }
 .bg-purple-soft { background-color: rgba(128, 0, 128, 0.1); color: #800080; }
 .bg-success-soft { background-color: rgba(40, 167, 69, 0.1); color: #28a745; }
+.bg-warning-soft { background-color: rgba(255, 193, 7, 0.1); color: #ffc107; }
+.bg-info-soft { background-color: rgba(13, 110, 253, 0.1); color: #0d6efd; }
 
 .table-row {
   transition: all 0.2s ease;

@@ -809,6 +809,14 @@ async function realizarBuscaDocumento() {
       params.provincia = dadosDocumento.value.provincia;
     }
 
+    // Log da pesquisa para o admin
+    const termoLog = dadosDocumento.value.nome_completo || dadosDocumento.value.numero_documento || "Pesquisa via Chat";
+    api.post('/documentos/pesquisas', {
+      termo: termoLog,
+      filtro: "assistente",
+      data: new Date().toISOString()
+    }).catch(err => console.error("Erro ao salvar log do assistente:", err));
+
     // Fazer a consulta na API existente
     const response = await api.get("/documentos", { params });
     const documentosEncontrados = response.data;
