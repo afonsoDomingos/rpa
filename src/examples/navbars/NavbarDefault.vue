@@ -15,7 +15,7 @@
       'navbar-dark bg-gradient-dark py-3': props.dark,
     }"
   >
-    <div class="container px-0">
+    <div class="container px-3">
       <!-- LOGO (Desktop + Mobile) -->
       <RouterLink
         class="navbar-brand animated-logo d-flex align-items-center"

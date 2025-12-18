@@ -39,13 +39,14 @@
           </button>
           
           <!-- Badge de Notificações Circular -->
-          <button class="btn btn-bell position-relative mx-2" @click="toggleNotifications">
+          <button class="btn btn-bell position-relative mx-1" @click="toggleNotifications" title="Notificações">
             <i class="bi bi-bell fs-5"></i>
             <span v-if="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
           </button>
 
-          <button class="btn btn-purple" @click="carregarPagamentos">
-            <i class="bi bi-arrow-clockwise me-2"></i>Atualizar
+          <!-- Botão Atualizar Circular -->
+          <button class="btn btn-bell mx-1" @click="carregarPagamentos" title="Atualizar dados">
+            <i class="bi bi-arrow-clockwise fs-5" :class="{ 'spin-anim': carregando }"></i>
           </button>
         </div>
       </div>
@@ -177,10 +178,12 @@
           </div>
         </div>
 
-        <!-- Tabela -->
-        <div class="card-dark">
+        <!-- Tabela vs Cards -->
+        <div class="card-dark mb-5 border-0 bg-transparent">
           <div class="card-body p-0">
-            <div class="table-responsive">
+            
+            <!-- VERSION DESKTOP: Tabela -->
+            <div class="table-responsive d-none d-md-block rounded-3 overflow-hidden border border-dark-subtle">
               <table class="table table-dark-custom mb-0">
                 <thead>
                   <tr>
@@ -277,6 +280,70 @@
               </table>
             </div>
 
+            <!-- VERSION MOBILE: Cards -->
+            <div class="d-md-none d-flex flex-column gap-3">
+              <div 
+                v-for="pagamento in pagamentosFiltrados" 
+                :key="'mobile-'+pagamento._id"
+                class="mobile-card"
+              >
+                <!-- Topo: User + Status -->
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="user-avatar mobile">
+                      {{ obterIniciais(pagamento.usuario?.nome) }}
+                    </div>
+                    <div>
+                      <div class="text-white fw-bold text-truncate" style="max-width: 160px;">
+                        {{ pagamento.usuario?.nome || "N/A" }}
+                      </div>
+                      <div class="text-muted small text-truncate" style="max-width: 160px;">
+                        {{ pagamento.usuario?.email }}
+                      </div>
+                    </div>
+                  </div>
+                  <span class="badge-status small" :class="pagamento.status">
+                    {{ pagamento.status === "pago" ? "Ativo" : "Expirado" }}
+                  </span>
+                </div>
+
+                <!-- Meio: Info Grid -->
+                <div class="mobile-info-grid mb-3">
+                  <div class="info-item">
+                    <span class="label">Pacote</span>
+                    <span class="value">
+                      <span class="badge-pacote small" :class="pagamento.pacote?.toLowerCase()">
+                        {{ pagamento.pacote }}
+                      </span>
+                    </span>
+                  </div>
+                  <div class="info-item">
+                    <span class="label">Valor</span>
+                    <span class="value text-white">{{ formatarMoeda(pagamento.valor) }}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="label">Validade</span>
+                    <div class="value lh-1">
+                      <div class="text-white small">{{ formatarData(pagamento.validade) }}</div>
+                      <div class="tiny-text" :class="getClasseDiasRestantes(pagamento.diasRestantes)">
+                        {{ pagamento.diasRestantes > 0 ? `${pagamento.diasRestantes} dias` : "Expirado" }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Footer: Ações -->
+                <div class="d-flex gap-2">
+                  <button class="btn btn-dark-custom flex-grow-1" @click="visualizarDetalhes(pagamento)">
+                    <i class="bi bi-eye me-2"></i> Detalhes
+                  </button>
+                  <button class="btn btn-outline-danger flex-grow-0 px-3" @click="excluirPagamento(pagamento._id)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <div
               v-if="pagamentosFiltrados.length === 0"
               class="text-center py-5"
@@ -286,6 +353,58 @@
             </div>
           </div>
         </div>
+
+        <style scoped>
+          /* Estilos Mobile Card */
+          .mobile-card {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 12px;
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+          }
+          .mobile-card:active {
+            transform: scale(0.98);
+          }
+          .user-avatar.mobile {
+            width: 40px;
+            height: 40px;
+            font-size: 0.9rem;
+          }
+          .mobile-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+            background: rgba(255,255,255,0.03);
+            padding: 0.75rem;
+            border-radius: 8px;
+          }
+          .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+          }
+          .info-item .label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            color: #6b7280;
+            letter-spacing: 0.5px;
+          }
+          .info-item .value {
+            font-size: 0.85rem;
+            font-weight: 500;
+          }
+          .tiny-text {
+            font-size: 0.7rem;
+            margin-top: 1px;
+          }
+          .spin-anim {
+            animation: spin 1s linear infinite;
+          }
+          @keyframes spin { 100% { transform: rotate(360deg); } }
+        </style>
 
         <!-- Paginação -->
         <!-- Paginação -->
