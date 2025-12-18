@@ -515,14 +515,18 @@ const fixMobileDropdowns = () => {
       
       const isOpen = menu.classList.contains('show');
       
-      // Fecha todos os outros dropdowns primeiro
+      // Fecha todos os outros dropdowns primeiro e atualiza aria-expanded
+      document.querySelectorAll('[data-mobile-fixed]').forEach(t => {
+        t.setAttribute('aria-expanded', 'false');
+      });
       document.querySelectorAll('.dropdown-menu.show').forEach(m => {
         m.classList.remove('show');
       });
       
-      // Se estava fechado, abre
+      // Se estava fechado, abre e ativa efeitos visuais
       if (!isOpen) {
         menu.classList.add('show');
+        this.setAttribute('aria-expanded', 'true');  // ✨ Ativa efeitos CSS!
       }
     }, { passive: false });
   });
