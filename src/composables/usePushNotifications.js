@@ -59,22 +59,37 @@ export function usePushNotifications() {
         }
     };
 
-    // Mostra notificação de novo pagamento
-    const showPaymentNotification = (paymentData) => {
+    // Mostra notificação de novo pagamento (Compatível com Mobile)
+    const showPaymentNotification = async (paymentData) => {
         if (permission.value !== 'granted') return;
 
         const title = '💰 Novo Pagamento Recebido!';
         const options = {
             body: `${paymentData.valor} MZN - ${paymentData.pacote}\nCliente: ${paymentData.usuario}`,
-            icon: '/logo.png',
-            badge: '/badge.png',
+            icon: '/rpa.png', // Ajustado para rpa.png que existe no public
+            badge: '/rpa.png',
             vibrate: [200, 100, 200, 100, 200],
             tag: 'payment-notification',
             requireInteraction: true,
-            data: paymentData
+            data: paymentData,
+            actions: [
+                { action: 'view', title: 'Ver Detalhes' }
+            ]
         };
 
-        new Notification(title, options);
+        try {
+            // Tenta usar o SW para mostrar a notificação (Melhor para Mobile/Android)
+            const registration = await navigator.serviceWorker.ready;
+            if (registration) {
+                registration.showNotification(title, options);
+            } else {
+                // Fallback para Desktop clássico
+                new Notification(title, options);
+            }
+        } catch (e) {
+            console.error('Erro ao mostrar notificação via SW:', e);
+            new Notification(title, options);
+        }
     };
 
     onMounted(() => {
