@@ -9,7 +9,7 @@
   </div>
 
   <div class="admin-dashboard">
-    <div class="container py-5 mt-5 pt-5">
+    <div class="container custom-container py-5 mt-5 pt-5 px-4 px-lg-0">
       <!-- Toasts -->
       <div class="toast-container">
         <div
@@ -1520,5 +1520,12 @@ p.text-muted {
 .btn-dark-custom:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+}
+
+/* Container mais focado para Desktop */
+.custom-container {
+  max-width: 1140px !important;
+  margin-left: auto;
+  margin-right: auto;
 }
 </style>
