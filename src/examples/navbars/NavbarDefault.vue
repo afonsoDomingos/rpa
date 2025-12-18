@@ -264,7 +264,7 @@
           </li>
 
           <!-- ==== FERRAMENTAS ==== -->
-          <li class="nav-item dropdown dropdown-hover mx-2">
+          <li v-if="usuario" class="nav-item dropdown dropdown-hover mx-2">
             <a
               role="button"
               class="nav-link ps-2 d-flex cursor-pointer align-items-center"
@@ -499,25 +499,32 @@ const fixMobileDropdowns = () => {
   const dropdownToggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
   
   dropdownToggles.forEach(toggle => {
-    // Remove listeners antigos do Bootstrap que podem bloquear
+    // Marca como já processado para não duplicar listeners
+    if (toggle.dataset.mobileFixed) return;
+    toggle.dataset.mobileFixed = 'true';
+    
+    // Remove o atributo para desativar Bootstrap
     toggle.removeAttribute('data-bs-toggle');
     
     // Adiciona listener manual de click
     toggle.addEventListener('click', function(e) {
       e.preventDefault();
-      e.stopPropagation();
       
       const menu = this.nextElementSibling;
       if (!menu || !menu.classList.contains('dropdown-menu')) return;
       
-      // Fecha outros dropdowns
+      const isOpen = menu.classList.contains('show');
+      
+      // Fecha todos os outros dropdowns primeiro
       document.querySelectorAll('.dropdown-menu.show').forEach(m => {
-        if (m !== menu) m.classList.remove('show');
+        m.classList.remove('show');
       });
       
-      // Toggle no atual
-      menu.classList.toggle('show');
-    });
+      // Se estava fechado, abre
+      if (!isOpen) {
+        menu.classList.add('show');
+      }
+    }, { passive: false });
   });
 };
 
