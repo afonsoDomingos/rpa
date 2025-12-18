@@ -79,16 +79,29 @@ export function useSocketNotifications() {
 
         socket.value.on('admin:new-payment', (data) => {
             console.log('💰 Novo pagamento recebido!', data);
+            console.log('📦 Payload RAW:', JSON.stringify(data));
 
-            const valor = data.data?.valor || data.valor || 0;
-            const pacote = data.data?.pacote || data.pacote || 'Desconhecido';
-            const usuarioNome = data.data?.usuario?.nome || 'Cliente';
+            // Tratamento robusto dos dados recebidos (Deep Search)
+            // Tenta encontrar o objeto de dados principal
+            const payload = data.data || data.pagamento || data.payment || data;
+
+            // Tenta extrair valores com diferentes chaves
+            const valor = payload.valor || payload.amount || payload.price || payload.total || 0;
+            const pacote = payload.pacote || payload.package || payload.plan || 'Desconhecido';
+
+            // Tenta extrair usuário
+            let usuarioNome = 'Cliente';
+            if (payload.usuario) {
+                usuarioNome = payload.usuario.nome || payload.usuario.name || payload.usuario.email || 'Cliente';
+            } else if (payload.user) {
+                usuarioNome = payload.user.name || payload.user.nome || 'Cliente';
+            }
 
             const notification = {
                 id: Date.now(),
                 message: `Novo pagamento de ${valor} MZN - ${pacote}`,
                 timestamp: new Date(),
-                data: data.data || data,
+                data: payload,
                 read: false
             };
 
