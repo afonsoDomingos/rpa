@@ -48,16 +48,10 @@
             <i class="bi bi-bell-fill me-2"></i>Ativar
           </button>
           
-          <!-- Badge de Notificações Circular -->
-          <button class="btn btn-bell position-relative mx-1" @click="toggleNotifications" title="Notificações">
-            <i class="bi bi-bell fs-5"></i>
+          <!-- Status da Conexão e Notificações -->
+          <button class="btn btn-bell position-relative mx-1" @click="toggleNotifications" :title="connected ? 'Conectado (Online)' : 'Desconectado (Offline)'">
+            <i class="bi bi-bell fs-5 transition-colors" :class="connected ? 'text-success' : 'text-danger'"></i>
             <span v-if="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
-            <span 
-              class="position-absolute border border-light rounded-circle"
-              :class="connected ? 'bg-success' : 'bg-danger'"
-              style="width: 12px; height: 12px; top: -2px; right: -2px;"
-              :title="connected ? 'Socket Conectado' : 'Socket Desconectado'"
-            ></span>
           </button>
 
           <!-- Botão Atualizar Circular -->
@@ -1542,5 +1536,9 @@ p.text-muted {
   max-width: 1140px !important;
   margin-left: auto;
   margin-right: auto;
+}
+
+.transition-colors {
+  transition: color 0.5s ease;
 }
 </style>
