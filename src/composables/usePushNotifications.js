@@ -2,7 +2,7 @@ import { ref, onMounted } from 'vue';
 import api from '../api'; // Assumindo que tens o axios configurado aqui
 
 // ⚠️ SUBSTUA PELA SUA CHAVE PÚBLICA VAPID DO BACKEND
-const VAPID_PUBLIC_KEY = 'SUA_CHAVE_PUBLICA_VAPID_AQUI';
+const VAPID_PUBLIC_KEY = 'BGf3f6anck8PlGCHDcM6eThytG0ACCMk5owfTfND60revsBBvyRwCCovY5ZnYLCMeiP9HvAVUCzEsf4EcgyPdNM';
 
 function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
