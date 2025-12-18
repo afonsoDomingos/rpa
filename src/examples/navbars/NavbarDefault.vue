@@ -442,20 +442,26 @@ const logout = () => {
     cancelButtonText: "Cancelar"
   }).then((result) => {
     if (result.isConfirmed) {
+      fecharDropdown(); // Fecha qualquer menu aberto
       localStorage.removeItem("email");
       localStorage.removeItem("token");
       usuario.value = null;
 
-      Swal.fire({
-        title: "Saiu!",
-        text: "Logout realizado com sucesso.",
-        icon: "success",
-        confirmButtonColor: "#66bb6a", // Verde da marca
-        timer: 2000,
-        showConfirmButton: false
-      });
-      
-      router.push("/");
+      // Forçar atualização visual imediata de itens com v-if
+      setTimeout(() => {
+        Swal.fire({
+          title: "Saiu!",
+          text: "Logout realizado com sucesso.",
+          icon: "success",
+          confirmButtonColor: "#66bb6a", 
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => {
+          router.push("/");
+          // Opcional: Recarregar para garantir limpeza total
+          // window.location.reload(); 
+        });
+      }, 100);
     }
   });
 };

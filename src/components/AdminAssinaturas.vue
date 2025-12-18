@@ -625,9 +625,11 @@ const mostrarToast = (texto, tipo = "sucesso", duracao = 3000) => {
 };
 
 // Carregar pagamentos
-const carregarPagamentos = async () => {
-  carregando.value = true;
-  erro.value = null;
+// Carregar pagamentos
+const carregarPagamentos = async (silencioso = false) => {
+  if (!silencioso) carregando.value = true;
+  if (!silencioso) erro.value = null;
+  
   try {
     const token = localStorage.getItem("token");
     const res = await fetch(API_URL, {
@@ -639,12 +641,19 @@ const carregarPagamentos = async () => {
     const data = await res.json();
     if (!res.ok || !data.sucesso)
       throw new Error(data.mensagem || "Erro ao carregar pagamentos");
+    
+    // Atualiza lista
     pagamentos.value = data.pagamentos;
-    mostrarToast("Pagamentos atualizados com sucesso!", "sucesso");
+    
+    // Feedback visual
+    if (!silencioso) {
+      mostrarToast("Pagamentos atualizados com sucesso!", "sucesso");
+    }
   } catch (e) {
-    erro.value = e.message;
+    console.error("Erro ao carregar pagamentos:", e);
+    if (!silencioso) erro.value = e.message;
   } finally {
-    carregando.value = false;
+    if (!silencioso) carregando.value = false;
   }
 };
 
@@ -820,7 +829,17 @@ const detalhesPagamento = computed(() => {
 });
 
 // Carregar ao montar
-onMounted(() => carregarPagamentos());
+onMounted(() => {
+  carregarPagamentos();
+  
+  // Polling de backup (cada 30s) para garantir atualização mesmo sem WebSocket
+  const interval = setInterval(() => {
+    carregarPagamentos(true); // true = silencioso (sem toast)
+  }, 30000);
+
+  // Limpar intervalo ao desmontar (embora este componente raramente desmonte)
+  // onUnmounted(() => clearInterval(interval));
+});
 </script>
 
 <style scoped>
