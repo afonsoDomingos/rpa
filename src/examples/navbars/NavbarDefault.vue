@@ -192,7 +192,7 @@
               <button
                 v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
-                @click="
+                @click.stop.prevent="
                   $router.push({ name: 'dashboard' });
                   fecharDropdown();
                 "
