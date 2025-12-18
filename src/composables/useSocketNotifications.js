@@ -53,7 +53,8 @@ export function useSocketNotifications() {
     };
 
     const connected = ref(false);
-    const socketError = ref(null); // Variável para guardar o erro
+    const socketError = ref(null);
+    const lastPayload = ref(null); // DEBUG
 
     const connectSocket = () => {
         socket.value = io('https://apirpa.onrender.com', {
@@ -79,7 +80,7 @@ export function useSocketNotifications() {
 
         socket.value.on('admin:new-payment', (data) => {
             console.log('💰 Novo pagamento recebido!', data);
-            console.log('📦 Payload RAW:', JSON.stringify(data));
+            lastPayload.value = JSON.stringify(data, null, 2); // DEBUG
 
             // Tratamento robusto dos dados recebidos (Deep Search)
             // Tenta encontrar o objeto de dados principal
@@ -156,6 +157,7 @@ export function useSocketNotifications() {
         markAsRead,
         clearAll,
         connected,
-        socketError
+        socketError,
+        lastPayload
     };
 }

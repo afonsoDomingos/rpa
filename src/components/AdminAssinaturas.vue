@@ -31,6 +31,12 @@
         </div>
       </div>
 
+      <!-- Debug Payload -->
+      <div v-if="lastPayload" class="alert alert-info d-flex flex-column align-items-start mb-4" role="alert">
+        <strong class="d-flex align-items-center mb-2"><i class="bi bi-bug-fill me-2"></i> DEBUG: Último Payload Recebido</strong>
+        <pre class="bg-dark text-white p-2 rounded mb-0 w-100" style="font-size: 11px; max-height: 200px; overflow-y: auto;">{{ lastPayload }}</pre>
+      </div>
+
       <!-- Header -->
       <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 gap-3">
         <div>
@@ -501,7 +507,7 @@ import { usePushNotifications } from "@/composables/usePushNotifications";
 import Swal from "sweetalert2";
 
 // Socket.IO Notifications
-const { notifications, unreadCount, markAsRead, clearAll, connected, socketError } = useSocketNotifications();
+const { notifications, unreadCount, markAsRead, clearAll, connected, socketError, lastPayload } = useSocketNotifications();
 const showNotifications = ref(false);
 
 // Push Notifications
