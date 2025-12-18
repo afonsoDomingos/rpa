@@ -22,26 +22,28 @@
       </div>
 
       <!-- Header -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 gap-3">
         <div>
           <h1 class="h3 mb-1 text-white">Gestão de Assinaturas.</h1>
           <p class="text-muted mb-0">Painel administrativo de controle</p>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex align-items-center gap-3">
           <!-- Botão Ativar Notificações Push -->
           <button 
             v-if="pushPermission !== 'granted'" 
-            class="btn btn-success" 
+            class="btn btn-sm btn-success d-flex align-items-center" 
             @click="ativarPushNotifications"
             title="Ativar notificações push"
           >
-            <i class="bi bi-bell-fill me-2"></i>Ativar Notificações
+            <i class="bi bi-bell-fill me-2"></i>Ativar
           </button>
-          <!-- Badge de Notificações -->
-          <button class="btn btn-outline-light position-relative" @click="toggleNotifications">
-            <i class="bi bi-bell"></i>
+          
+          <!-- Badge de Notificações Circular -->
+          <button class="btn btn-bell position-relative mx-2" @click="toggleNotifications">
+            <i class="bi bi-bell fs-5"></i>
             <span v-if="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
           </button>
+
           <button class="btn btn-purple" @click="carregarPagamentos">
             <i class="bi bi-arrow-clockwise me-2"></i>Atualizar
           </button>
@@ -89,7 +91,7 @@
       <!-- Conteúdo -->
       <div v-else>
         <!-- KPIs -->
-        <div class="row g-3 mb-4">
+        <div class="row g-4 mb-5">
           <div class="col-12 col-sm-6 col-lg-3">
             <div class="kpi-card">
               <div class="kpi-icon bg-purple">
@@ -137,7 +139,7 @@
         </div>
 
         <!-- Filtros -->
-        <div class="card-dark mb-4">
+        <div class="card-dark mb-5">
           <div class="card-body">
             <div class="row g-3">
               <div class="col-12 col-md-4">
@@ -1283,4 +1285,47 @@ p.text-muted {
   }
 }
 
+
+/* Botão Sino Circular */
+.btn-bell {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-bell:hover {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
+}
+
+.btn-bell:active {
+  transform: scale(0.95);
+}
+
+.btn-bell i {
+  font-size: 1.25rem;
+  transition: transform 0.3s ease;
+}
+
+.btn-bell:hover i {
+  transform: rotate(15deg);
+}
+
+/* Ajuste Badge */
+.notification-badge {
+  border: 2px solid #0a0a0a; /* Contraste com o fundo do botão */
+  top: -2px;
+  right: -2px;
+}
 </style>
