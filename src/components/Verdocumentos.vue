@@ -8,9 +8,21 @@ import eventBus from "@/eventBus";
 import setNavPills from "@/assets/js/nav-pills.js";
 import { useDocumentos } from "@/composables/useDocumentos";
 
-// Verificando se os componentes existem antes de importar
 import MaterialSwitch from "@/components/MaterialSwitch.vue";
 import MaterialButton from "@/components/MaterialButton.vue";
+import axios from "axios";
+
+const usuarioLogado = ref(null);
+const buscarDadosUsuario = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+  try {
+    const { data } = await axios.get("https://apirpa.onrender.com/api/auth/me", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    usuarioLogado.value = data;
+  } catch (err) { console.error(err); }
+};
 
 const router = useRouter();
 const {
@@ -191,21 +203,21 @@ const procurar = async () => {
     return;
   }
 
-  // Log da pesquisa para o admin (Executa independente do resultado da busca)
+  // Log da pesquisa para o admin
   api.post('/documentos/pesquisas', {
     termo: termoPesquisado,
     filtro: tipoFiltro.value,
+    usuario: usuarioLogado.value?.nome || "Visitante",
     data: new Date().toISOString()
   }).then(async () => {
-    // Após salvar, busca o novo total para verificar milestone
     const totalAntigo = totalPesquisas.value;
     await buscarTotalPesquisas();
     const novoTotal = totalPesquisas.value;
     
-    // Lógica de Milestone: De 10 em 10 até 100, depois de 100 em 100
     if (novoTotal > totalAntigo) {
       let atingiuMilestone = false;
-      if (novoTotal <= 100) {
+      // Nova Lógica: 10 em 10 até 1000, depois 100 em 100
+      if (novoTotal <= 1000) {
         if (novoTotal % 10 === 0) atingiuMilestone = true;
       } else {
         if (novoTotal % 100 === 0) atingiuMilestone = true;
@@ -236,34 +248,33 @@ const procurar = async () => {
 };
 
 const celebrarMilestone = (numero) => {
+  const nomeUser = usuarioLogado.value?.nome || "Explorador(a)";
   Swal.fire({
-    title: '🎉 ¡Parabéns! 🎉',
+    title: `🎊 ¡Incrível, ${nomeUser}! 🎊`,
     html: `
       <div class="celebration-container">
         <div class="milestone-badge mb-3">${numero}</div>
-        <h4 class="text-purple fw-bold">Pesquisas Realizadas!</h4>
-        <p class="mt-3 fs-6">Acabaste de realizar a <strong>${numero}ª pesquisa</strong> na nossa plataforma.</p>
+        <h4 class="text-purple fw-bold">Marcos de Pesquisa!</h4>
+        <p class="mt-3 fs-5 text-dark">Tu acabaste de realizar uma das pesquisas que nos leva ao topo!</p>
+        <p class="text-purple fw-bold fs-4 animate-pulse">#Pesquisa${numero}</p>
         <hr class="my-3 opacity-20">
-        <p class="text-muted small">
-          Obrigado por fazeres parte desta missão. <br> 
-          Graças a ti e a todos os usuários, a Rpa continua a crescer e a ajudar mais pessoas a recuperarem o que é seu. 
+        <p class="text-muted">
+          <strong>${nomeUser}</strong>, a tua curiosidade e o teu uso da plataforma ajudam a Rpa a crescer para que possamos ajudar mais pessoas a encontrar o que perderam.
           <br><br>
-          <span class="heart-beat">❤️</span> Gratidão pelo teu apoio!
+          <span class="heart-beat">💖</span> <strong>Obrigado por fazeres história connosco!</strong>
         </p>
       </div>
     `,
-    confirmButtonText: 'Continuar a navegar',
+    confirmButtonText: 'Continuar a Fazer História',
     confirmButtonColor: '#800080',
-    background: '#fff url("https://www.transparenttextures.com/patterns/cubes.png")',
+    background: '#fff url("https://www.transparenttextures.com/patterns/pinstripe-light.png")',
     backdrop: `
-      rgba(128, 0, 128, 0.4)
-      url("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJ4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/l0MYt5jPR6QX5pnqM/giphy.gif")
-      center top
-      no-repeat
+      rgba(128, 0, 128, 0.5)
+      url("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2Zic3RhcnJzZ2lmX2J5X2lkX2N0PWc/26tP3M3i03hoIYL6M/giphy.gif")
+      center center
+      repeat
     `,
-    customClass: {
-      popup: 'border-radius-20'
-    }
+    customClass: { popup: 'border-radius-20 shadow-2xl animate-bounce-in' }
   });
 };
 
@@ -336,6 +347,7 @@ onMounted(async () => {
   setNavPills();
   isLoading.value = true;
   await Promise.all([
+    buscarDadosUsuario(),
     buscarDocumentos(),
     buscarDocumentosReportados(),
     buscarDocumentosProprietarios(),
@@ -437,11 +449,11 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
                 </button>
               </div>
 
-              <!-- Contador de Impacto (Reposicionado para cima do botão) -->
-              <div v-if="totalPesquisas > 0" class="text-center mb-4 animate-fade-in">
-                <div class="d-inline-block py-2 px-4 rounded-pill bg-purple-soft text-purple border shadow-sm stats-badge">
-                  <i class="bi bi-search me-2"></i>
-                  Já foram feitas <strong>{{ totalPesquisas }}</strong> pesquisas
+              <!-- Contador de Impacto (Otimizado/Compacto) -->
+              <div v-if="totalPesquisas > 0" class="text-center mb-3 animate-fade-in">
+                <div class="d-inline-flex align-items-center py-1 px-3 rounded-pill bg-purple-soft text-purple border shadow-sm stats-badge-compact">
+                  <i class="bi bi-search me-2 small"></i>
+                  <span class="small fw-bold">Já foram feitas {{ totalPesquisas }} pesquisas</span>
                 </div>
               </div>
 
@@ -745,10 +757,17 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
   color: #800080 !important;
 }
 
-.stats-badge {
-  font-size: 0.95rem;
+.stats-badge-compact {
+  font-size: 0.85rem;
   animation: soft-pulse 2s infinite;
-  border: 1px solid rgba(128, 0, 128, 0.2);
+  border: 1px solid rgba(128, 0, 128, 0.15);
+}
+
+@media (max-width: 576px) {
+  .stats-badge-compact {
+    font-size: 0.75rem;
+    padding: 4px 12px !important;
+  }
 }
 
 @keyframes soft-pulse {

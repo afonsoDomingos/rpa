@@ -69,6 +69,13 @@
         </span>
       </button>
 
+      <!-- BOTÃO SYNC (Sempre visível no mobile) -->
+      <div class="ms-2 d-lg-none d-flex align-items-center">
+        <a class="nav-link p-2 cursor-pointer" @click="refreshContent">
+          <i class="bi bi-arrow-clockwise fs-4 sync-icon" :class="{'spinning': isSyncing}"></i>
+        </a>
+      </div>
+
       <!-- MENU -->
       <div
         class="collapse navbar-collapse w-100 pt-3 pb-2 py-lg-0"
@@ -343,8 +350,8 @@
             </div>
           </li>
 
-          <!-- ==== ATUALIZAR (Sync) ==== -->
-          <li class="nav-item mx-1">
+          <!-- ==== ATUALIZAR (Sync - Desktop Only) ==== -->
+          <li class="nav-item mx-1 d-none d-lg-block">
             <a
               class="nav-link d-flex align-items-center cursor-pointer"
               :class="getTextColor()"
@@ -352,7 +359,6 @@
               @click="refreshContent"
             >
               <i class="bi bi-arrow-clockwise text-md sync-icon" :class="{'spinning': isSyncing}"></i>
-              <span class="d-lg-none ms-2">Sincronizar</span>
             </a>
           </li>
 

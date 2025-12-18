@@ -317,6 +317,18 @@ const dadosDocumento = ref({
   etapa: "inicial", // inicial, coletando_nome, coletando_tipo, coletando_numero, coletando_provincia, finalizando
 });
 
+const usuarioLogado = ref(null);
+const buscarDadosUsuario = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+  try {
+    const { data } = await axios.get("https://apirpa.onrender.com/api/auth/me", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    usuarioLogado.value = data;
+  } catch (err) { console.error(err); }
+};
+
 const totalPesquisas = ref(0);
 
 const buscarTotalPesquisas = async () => {
@@ -845,6 +857,7 @@ async function realizarBuscaDocumento() {
     api.post('/documentos/pesquisas', {
       termo: `Chat: ${termoLog}`,
       filtro: "assistente",
+      usuario: usuarioLogado.value?.nome || "Visitante Chat",
       data: new Date().toISOString()
     }).then(async () => {
       const totalAntigo = totalPesquisas.value;
@@ -853,7 +866,7 @@ async function realizarBuscaDocumento() {
 
       if (novoTotal > totalAntigo) {
         let atingiuMilestone = false;
-        if (novoTotal <= 100) {
+        if (novoTotal <= 1000) {
           if (novoTotal % 10 === 0) atingiuMilestone = true;
         } else {
           if (novoTotal % 100 === 0) atingiuMilestone = true;
@@ -979,24 +992,31 @@ function typeWriter(text, callback) {
 }
 
 const celebrarMilestone = (numero) => {
+  const nomeUser = usuarioLogado.value?.nome || "Amigo(a)";
   Swal.fire({
-    title: '🎉 ¡Parabéns! 🎉',
+    title: `🎉 ¡Incrível, ${nomeUser}! 🎉`,
     html: `
       <div class="celebration-container">
         <div class="milestone-badge mb-3">${numero}</div>
-        <h4 class="text-purple fw-bold">Pesquisas Realizadas!</h4>
-        <p class="mt-3 fs-6">Acabaste de realizar a <strong>${numero}ª pesquisa</strong> via Chat!</p>
+        <h4 class="text-purple fw-bold">Marcos de Pesquisa!</h4>
+        <p class="mt-3 fs-6">Tu realizaste a <strong>${numero}ª pesquisa</strong> via Chat!</p>
+        <p class="text-purple fw-bold fs-4 animate-pulse">#Pesquisa${numero}</p>
         <hr class="my-3 opacity-20">
         <p class="text-muted small">
-          Obrigado por ajudar a Rpa a crescer. <br> 
+          Obrigado, <strong>${nomeUser}</strong>, por ajudar a Rpa a crescer. <br> 
           <span class="heart-beat">❤️</span> Gratidão pelo teu apoio!
         </p>
       </div>
     `,
-    confirmButtonText: 'Continuar',
+    confirmButtonText: 'Continuar no Chat',
     confirmButtonColor: '#800080',
-    backdrop: `rgba(128, 0, 128, 0.4)`,
-    customClass: { popup: 'border-radius-20' }
+    backdrop: `
+      rgba(128, 0, 128, 0.4)
+      url("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2Zic3RhcnJzZ2lmX2J5X2lkX2N0PWc/26tP3M3i03hoIYL6M/giphy.gif")
+      center center
+      repeat
+    `,
+    customClass: { popup: 'border-radius-20 shadow-2xl animate-fade-in' }
   });
 };
 
@@ -1070,7 +1090,8 @@ onMounted(() => {
   window.addEventListener("mousemove", atualizarMouse);
   animarOlhos();
   
-  // Buscar total inicial
+  // Buscar dados do utilizador e total inicial
+  buscarDadosUsuario();
   buscarTotalPesquisas();
 
   onUnmounted(() => {

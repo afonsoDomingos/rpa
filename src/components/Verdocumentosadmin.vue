@@ -84,6 +84,12 @@ const isLoading = ref(false);
 
 // Estatísticas de Pesquisa
 const logsPesquisas = ref([]);
+
+const isMilestone = (pos) => {
+  if (pos <= 0) return false;
+  if (pos <= 1000) return pos % 10 === 0;
+  return pos % 100 === 0;
+};
 const statsLoading = ref(false);
 const tipoVistaGrafico = ref('mensal'); // 'diaria' ou 'mensal'
 
@@ -802,13 +808,27 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
               <thead class="bg-dark text-white">
                 <tr>
                   <th class="ps-4">Data/Hora</th>
+                  <th>Usuário</th>
                   <th>Termo Pesquisado</th>
                   <th>Filtro Utilizado</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(log, idx) in documentosPaginados" :key="idx" class="table-row">
-                  <td class="ps-4 font-monospace small">{{ new Date(log.data).toLocaleString() }}</td>
+                <tr v-for="(log, idx) in documentosPaginados" :key="idx" class="table-row" :class="{'is-milestone-row': isMilestone(logsPesquisas.length - ((paginaAtual - 1) * itensPorPagina + idx))}">
+                  <td class="ps-4 font-monospace small">
+                    {{ new Date(log.data).toLocaleString() }}
+                    <span v-if="isMilestone(logsPesquisas.length - ((paginaAtual - 1) * itensPorPagina + idx))" class="badge bg-warning text-dark ms-2">
+                       <i class="bi bi-trophy-fill me-1"></i> MARCO
+                    </span>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-sm bg-purple-soft rounded-circle me-2 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-person text-purple"></i>
+                      </div>
+                      <span class="fw-bold">{{ log.usuario || "Visitante" }}</span>
+                    </div>
+                  </td>
                   <td><span class="badge bg-light text-dark fw-bold">{{ log.termo }}</span></td>
                   <td><span class="badge bg-purple-soft">{{ log.filtro }}</span></td>
                 </tr>
@@ -1292,4 +1312,14 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
   border: 2px dashed #e0e0e0;
 }
 .opacity-25 { opacity: 0.25; }
+.is-milestone-row {
+  background-color: rgba(255, 193, 7, 0.05) !important;
+  border-left: 4px solid #ffc107;
+}
+
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  font-size: 0.8rem;
+}
 </style>
