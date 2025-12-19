@@ -90,19 +90,37 @@ export function useSocketNotifications() {
             const valor = payload.valor || payload.amount || payload.price || payload.total || 0;
             const pacote = payload.pacote || payload.package || payload.plan || payload.plan_name || payload.plano || 'Assinatura';
 
-            // Tenta extrair usuário (busca exaustiva)
-            let usuarioNome = 'Cliente';
-            if (payload.usuario) {
-                usuarioNome = payload.usuario.nome || payload.usuario.name || payload.usuario.email || 'Cliente';
-            } else if (payload.user) {
-                usuarioNome = payload.user.name || payload.user.nome || payload.user.email || 'Cliente';
-            } else if (payload.nome || payload.name) {
-                usuarioNome = payload.nome || payload.name;
-            } else if (payload.cliente || payload.customer_name) {
-                usuarioNome = payload.cliente || payload.customer_name;
-            } else if (payload.email) {
-                usuarioNome = payload.email.split('@')[0];
+            // Tenta extrair usuário (Busca de Campos Comuns)
+            let usuarioNome = '';
+
+            // Função interna para encontrar um nome em campos conhecidos
+            const findName = (obj) => {
+                if (!obj || typeof obj !== 'object') return null;
+                // Ordem de preferência
+                const fields = ['nome', 'name', 'cliente', 'customer_name', 'username', 'displayName'];
+                for (const f of fields) {
+                    if (obj[f] && typeof obj[f] === 'string' && obj[f].length > 2) return obj[f];
+                }
+                return null;
+            };
+
+            // 1. Tenta no objeto de usuário aninhado
+            usuarioNome = findName(payload.usuario) || findName(payload.user) || findName(payload.customer) || findName(payload.cliente_obj);
+
+            // 2. Se não encontrou, tenta no nível raiz do payload
+            if (!usuarioNome) {
+                usuarioNome = findName(payload);
             }
+
+            // 3. Fallback para email
+            if (!usuarioNome && payload.email) {
+                usuarioNome = payload.email.split('@')[0];
+            } else if (!usuarioNome && payload.usuario?.email) {
+                usuarioNome = payload.usuario.email.split('@')[0];
+            }
+
+            // 4. Default final
+            usuarioNome = usuarioNome || 'Cliente';
 
             const notification = {
                 id: Date.now(),
