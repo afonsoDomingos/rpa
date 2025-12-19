@@ -88,14 +88,20 @@ export function useSocketNotifications() {
 
             // Tenta extrair valores com diferentes chaves
             const valor = payload.valor || payload.amount || payload.price || payload.total || 0;
-            const pacote = payload.pacote || payload.package || payload.plan || 'Desconhecido';
+            const pacote = payload.pacote || payload.package || payload.plan || payload.plan_name || payload.plano || 'Assinatura';
 
-            // Tenta extrair usuário
+            // Tenta extrair usuário (busca exaustiva)
             let usuarioNome = 'Cliente';
             if (payload.usuario) {
                 usuarioNome = payload.usuario.nome || payload.usuario.name || payload.usuario.email || 'Cliente';
             } else if (payload.user) {
-                usuarioNome = payload.user.name || payload.user.nome || 'Cliente';
+                usuarioNome = payload.user.name || payload.user.nome || payload.user.email || 'Cliente';
+            } else if (payload.nome || payload.name) {
+                usuarioNome = payload.nome || payload.name;
+            } else if (payload.cliente || payload.customer_name) {
+                usuarioNome = payload.cliente || payload.customer_name;
+            } else if (payload.email) {
+                usuarioNome = payload.email.split('@')[0];
             }
 
             const notification = {
