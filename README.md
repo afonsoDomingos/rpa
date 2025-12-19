@@ -1,115 +1,57 @@
-
 # RPA - Recuperação de Documentos Perdidos
 
-![Logo RPA](https://github.com/afonsoDomingos/rpa/blob/main/src/assets/img/rPa.png)
+![Logo RPA](file:///c:/Users/LENOVO/Documents/Rpa/FrontEnd/rpa/public/rpa-transparent.png)
 
-O RPA é uma plataforma inovadora focada em oferecer soluções para a recuperação de documentos perdidos. Criado com tecnologia de ponta, nosso sistema proporciona uma maneira simples e eficaz de registrar, buscar e recuperar documentos perdidos de forma segura e eficiente.
+O RPA é uma plataforma inovadora focada na recuperação de documentos perdidos. Equipado com tecnologias de ponta, o sistema oferece uma experiência fluida para registro, busca e notificações em tempo real.
 
-**Funcionalidades da Plataforma**
+## 🚀 Funcionalidades Principais
 
-O RPA oferece uma série de funcionalidades para garantir a agilidade e segurança na recuperação dos documentos. Com uma interface simples e intuitiva, o usuário pode facilmente registrar documentos perdidos, acompanhar o processo de busca e ser notificado quando o item for encontrado.
+- **PWA (Progressive Web App):** Instale o RPA diretamente no seu telemóvel ou desktop para uma experiência nativa.
+- **Notificações Push Reais:** Receba alertas instantâneos via VAPID (Web Push) mesmo com o navegador fechado.
+- **App Badging API:** Veja o contador de notificações diretamente no ícone do aplicativo no telemóvel.
+- **Dashboard Administrativa:** Gestão avançada de assinaturas e pagamentos com atualizações em tempo real via Socket.io.
+- **Busca Otimizada:** Algoritmo de busca por nome completo para localização rápida de documentos.
+- **Segurança:** Integração segura com backend usando JWT e chaves VAPID dinâmicas.
 
-A plataforma oferece:
-- Registro rápido e fácil de documentos perdidos.
-- Sistema de busca otimizado para encontrar documentos com base no nome completo.
-- Notificações de disponibilidade de documentos.
-- Visibilidade completa sobre o status do processo.
-- Funcionalidade de Guardar Documentos Pessoais
+## 🛠️ Tecnologia
 
-**Interface e Experiência do Usuário**
+O RPA utiliza um stack moderno focado em performance e experiência do utilizador:
 
-O RPA foi projetado para ser amigável e acessível para todos os tipos de usuários. A plataforma está estruturada para facilitar a navegação, com um processo claro desde o registro até a recuperação do documento.
+- **Frontend:** Vue.js 3 com Composition API.
+- **Estado Global:** Pinia.
+- **Comunicação:** Axios (REST) e Socket.io-client (Real-time).
+- **Notificações:** Web Push API (VAPID) e App Badging API.
+- **Design:** CSS Moderno e Responsivo.
 
-A experiência foi pensada para ser intuitiva, sem a necessidade de preenchimento de dados extras, facilitando a busca diretamente com o nome completo do usuário.
+## 📲 Como Usar?
 
-**Tecnologia Usada**
+1. **Instale como App:** Abra o site no Chrome (Android) ou Safari (iOS) e selecione "Adicionar à tela inicial".
+2. **Ative as Notificações:** No painel de administração ou perfil, clique em "Ativar Notificações" para receber avisos de pagamentos e documentos.
+3. **Busque Documentos:** Use a barra de busca para encontrar itens registrados pelo nome.
 
-O RPA é desenvolvido com as melhores práticas de segurança e tecnologia. A plataforma é completamente responsiva e se adapta a diferentes dispositivos, garantindo uma excelente experiência de uso em qualquer lugar.
+## 📂 Estrutura do Projeto
 
-**Links Úteis**
+```text
+Rpa/
+├── public/            # Ativos estáticos e Service Worker
+│   ├── icons/         # Ícones do PWA
+│   ├── rpa-transparent.png  # Logotipo oficial otimizado
+│   └── service-worker.js    # Lógica de Push e Cache (v2)
+├── src/
+│   ├── api/           # Configuração base do Axios
+│   ├── assets/        # Estilos, fontes e imagens
+│   ├── components/    # Componentes Vue reutilizáveis
+│   ├── composables/   # Lógica compartilhada (Push, Sockets, etc.)
+│   ├── router/        # Configuração de rotas
+│   ├── store/         # Gerenciamento de estado (Pinia)
+│   └── views/         # Páginas da aplicação
+└── package.json       # Dependências e scripts
+```
+
+## 🌐 Links e Suporte
 
 - [Acesse o RPA](https://www.recuperaqui.vercel.app)
-- [Veja nosso FAQ](https://www.recuperaqui.vercel.app/faq)
 - [Suporte Técnico](https://www.recuperaqui.vercel.app/suporte)
 
-## Como Funciona o RPA?
-
-1. Registre seu documento perdido através do nosso formulário simples.
-2. Nosso sistema busca automaticamente registros de documentos encontrados com o mesmo nome completo.
-3. Quando o documento for encontrado, você será notificado para seguir com o processo de recuperação.
-
-**Relatar Problemas ou Solicitar Suporte**
-
-Caso encontre algum problema ou precise de suporte, entre em contacto conosco para assistência. Nosso time está preparado para resolver qualquer situação rapidamente.
-
-
-Dentro do download você encontrará os seguintes diretórios e arquivos:
-
-Rpa
-    ├── public
-    ├── src
-    │   ├── assets
-    │   │   ├── css
-    │   │   ├── fonts
-    │   │   ├── img
-    │   │   ├── js
-    │   │   └── scss
-    │   ├── components
-    │   │   ├── MaterialAlert.vue
-    │   │   ├── MaterialAvatar.vue
-    │   │   ├── MaterialBadge.vue
-    │   │   ├── MaterialButton.vue
-    │   │   ├── MaterialCheckbox.vue
-    │   │   ├── MaterialInput.vue
-    │   │   ├── MaterialPagination.vue
-    │   │   ├── MaterialPaginationItem.vue
-    │   │   ├── MaterialProgress.vue
-    │   │   ├── MaterialSocialButton.vue
-    │   │   ├── MaterialSwitch.vue
-    │   │   └── MaterialTextArea
-            └── modalum.vue
-            └── Verdocumentos
-            └── Verdocumentosadmin.vue
-            └── UsuariosView.vue
-            └── SolicitanteModal.vue
-            └── SocialIcons.vue
-            └── Floating.vue
-            └── Guardardocumentos.vue
-            └── DoacaoProjeto.vue
-            └── Chatassistente.vue
-            └── CVGenerator.vue
-            
-    │   ├── examples
-    │   │   ├── cards
-    │   │   ├── footers
-    │   │   ├── navbars
-    │   │   ├── tables
-    │   │   ├── Breadcrumbs.vue
-    │   │   └── Header.vue
-    │   ├── layouts
-    │   │   ├── sections
-    │   │   │    ├── attention-catchers
-    │   │   │    ├── components
-    │   │   │    ├── elements
-    │   │   │    ├── input-areas
-    │   │   │    ├── navigation
-    │   │   └──  └── page-sections
-    │   ├── router
-    │   ├── stores
-    │   ├── views
-    │   │   ├── LandingPages
-    │   │   └── Presentation
-            └──pagetest.vue
-    │   ├── App.vue
-    │   ├── main.js
-    │   └── material-kit.js
-    ├── .eslintrc.json
-    ├── .gitignore
-    ├── CHANGELOG.md
-    ├── ISSUE_TEMPLATE.md
-    ├── LICENSE.md
-    ├── index.html
-    ├── package.json
-    ├── README.md
-    └── vite.config.js
-
+---
+© 2025 RPA - Recupera Aqui. Todos os direitos reservados.
