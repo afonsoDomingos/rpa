@@ -20,8 +20,8 @@ self.addEventListener('push', (event) => {
     let notificationData = {
         title: 'Recupera Aqui',
         body: 'Você tem uma nova atualização',
-        icon: '/logo.png',
-        badge: '/logo.png',
+        icon: '/rpa-transparent.png',
+        badge: '/rpa-transparent.png',
         data: { url: '/' }
     };
 
