@@ -168,8 +168,8 @@
       >
         <svg
           v-if="!isRecording"
-          width="20"
-          height="20"
+          width="18"
+          height="18"
           viewBox="0 0 24 24"
           fill="none"
         >
@@ -185,7 +185,7 @@
             stroke-linejoin="round"
           />
         </svg>
-        <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="12" r="4" fill="currentColor">
             <animate
               attributeName="r"
@@ -208,7 +208,7 @@
         class="chat-send-btn"
         aria-label="Enviar mensagem"
       >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
           <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="currentColor"/>
         </svg>
       </button>
@@ -1195,16 +1195,17 @@ onMounted(() => {
   background: #800080;
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 8px 10px;
+  border-radius: 50%;
+  padding: 0;
   margin-right: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  min-width: 40px;
-  height: 40px;
+  min-width: 38px;
+  width: 38px;
+  height: 38px;
   flex-shrink: 0;
 }
 
@@ -1434,40 +1435,24 @@ onMounted(() => {
   min-width: 0;
   border: none;
   border-radius: 20px;
-  padding: 10px 15px;
-  font-size: 1rem;
+  padding: 8px 12px;
+  font-size: 0.95rem;
   outline: none;
   background: #f0edf5;
   margin-right: 8px;
-  height: 44px;
+  height: 38px;
   box-sizing: border-box;
 }
 
-.chat-footer button[type="submit"] {
-  background: #800080;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-  height: 40px;
-}
-
-.chat-footer button[type="submit"]:hover {
-  background: #198754;
-}
 
 .chat-send-btn {
   background: linear-gradient(135deg, #198754, #157347);
   color: white;
   border: none;
   border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -1529,14 +1514,14 @@ onMounted(() => {
   }
 
   .chat-footer input {
-    height: 46px;
+    height: 38px;
     font-size: 16px; /* Evita zoom automático no iOS */
   }
 
   .mic-btn, .chat-send-btn {
-    width: 46px;
-    height: 46px;
-    min-width: 46px;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
   }
 
   .chat-fab {

@@ -25,14 +25,14 @@
             @click="copiar(valor)"
             :aria-label="`Copiar ${valor}`"
           >
-            <i class="fas fa-copy"></i>
+            <i class="fa-solid fa-copy"></i>
           </button>
         </div>
       </div>
     </div>
     <transition name="fade">
       <div v-if="copiado" class="copiado-msg">
-        <i class="fas fa-check-circle"></i> Copiado!
+        <i class="fa-solid fa-check-circle"></i> Copiado!
       </div>
     </transition>
   </div>
@@ -75,6 +75,14 @@ function copiar(valor) {
 body,
 .doacao-container {
   font-family: "Roboto", sans-serif;
+}
+
+i[class*="fa-"] {
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "Font Awesome 5 Free" !important;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
 }
 
 .doacao-container {
