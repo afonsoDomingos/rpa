@@ -495,7 +495,7 @@ const toggleNav = () => {
           <!-- Navigation Menu -->
           <nav class="section-nav" aria-label="Navegação entre seções">
             <button class="nav-toggle" @click="toggleNav" :aria-expanded="isNavOpen" aria-label="Alternar menu de navegação">
-              <i class="fas" :class="isNavOpen ? 'fa-times' : 'fa-bars'"></i>
+              <i class="fa-solid" :class="isNavOpen ? 'fa-xmark' : 'fa-bars'"></i>
               <span>{{ isNavOpen ? '' : '' }}</span>
             </button>
             <ul v-show="isNavOpen" class="nav-list">
@@ -530,18 +530,18 @@ const toggleNav = () => {
             <div v-if="photo" class="photo-preview">
               <img :src="photo" :alt="photoAlt" />
               <button class="remove-photo-btn" @click="removePhoto" aria-label="Remover foto" type="button">
-                <i class="fas fa-times"></i>
+                <i class="fa-solid fa-xmark"></i>
               </button>
             </div>
             <label v-else class="photo-placeholder" aria-label="Carregar foto de perfil" tabindex="0" @keypress.enter="triggerPhotoUpload">
-              <i class="fas fa-camera" aria-hidden="true"></i>
+              <i class="fa-solid fa-camera" aria-hidden="true"></i>
               <span>Upload Foto</span>
               <input ref="photoInput" type="file" class="photo-input" @change="onPhotoUpload" accept="image/*" aria-label="Selecionar imagem de perfil" />
             </label>
           </div>
 
           <!-- Dados Pessoais -->
-          <h3 class="section-title" id="personal-info"><i class="fas fa-user" aria-hidden="true"></i> Dados Pessoais</h3>
+          <h3 class="section-title" id="personal-info"><i class="fa-solid fa-user" aria-hidden="true"></i> Dados Pessoais</h3>
           <div class="borda-destacada mb-2">
             <div class="form-floating mb-2">
               <input ref="nameInput" v-model="form.name" id="input-name" type="text" class="form-control-enhanced"
@@ -591,7 +591,7 @@ const toggleNav = () => {
           </div>
 
           <!-- Redes Sociais -->
-          <h3 class="section-title" id="social-links"><i class="fas fa-link" aria-hidden="true"></i> LinkedIn</h3>
+          <h3 class="section-title" id="social-links"><i class="fa-solid fa-link" aria-hidden="true"></i> LinkedIn</h3>
           <div class="borda-destacada mb-2">
             <div class="form-floating mb-2">
               <input v-model="form.socialLinks.linkedin" id="input-linkedin" type="url" class="form-control-enhanced" placeholder=" "
@@ -603,7 +603,7 @@ const toggleNav = () => {
           </div>
 
           <!-- Resumo -->
-          <h3 class="section-title" id="summary"><i class="fas fa-align-left" aria-hidden="true"></i> Sobre Mim</h3>
+          <h3 class="section-title" id="summary"><i class="fa-solid fa-align-left" aria-hidden="true"></i> Sobre Mim</h3>
           <div class="borda-destacada mb-2">
             <div class="form-floating">
               <textarea v-model="form.summary" id="input-summary" class="form-control-enhanced" placeholder=" "
@@ -613,7 +613,7 @@ const toggleNav = () => {
           </div>
 
           <!-- Experiência -->
-          <h3 class="section-title" id="experience"><i class="fas fa-briefcase" aria-hidden="true"></i> Experiência Profissional</h3>
+          <h3 class="section-title" id="experience"><i class="fa-solid fa-briefcase" aria-hidden="true"></i> Experiência Profissional</h3>
           <div v-for="(exp, index) in form.experience" :key="index" class="borda-destacada mb-2">
             <div class="form-floating mb-1">
               <input v-model="exp.company" :id="'exp-company-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Empresa" />
@@ -644,7 +644,7 @@ const toggleNav = () => {
           <button class="add-btn" @click="addItem('experience')" @keypress.enter="addItem('experience')" type="button" tabindex="0">+ Adicionar Experiência</button>
 
           <!-- Formação -->
-          <h3 class="section-title" id="education"><i class="fas fa-graduation-cap" aria-hidden="true"></i> Formação Acadêmica</h3>
+          <h3 class="section-title" id="education"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> Formação Acadêmica</h3>
           <div v-for="(edu, index) in form.education" :key="index" class="borda-destacada mb-2">
             <div class="form-floating mb-1">
               <input v-model="edu.institution" :id="'edu-inst-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Instituição" />
@@ -667,7 +667,7 @@ const toggleNav = () => {
           <button class="add-btn" @click="addItem('education')" @keypress.enter="addItem('education')" type="button" tabindex="0">+ Adicionar Formação</button>
 
           <!-- Projetos -->
-          <h3 class="section-title" id="projects"><i class="fas fa-project-diagram" aria-hidden="true"></i> Projetos</h3>
+          <h3 class="section-title" id="projects"><i class="fa-solid fa-project-diagram" aria-hidden="true"></i> Projetos</h3>
           <div v-for="(project, index) in form.projects" :key="index" class="borda-destacada mb-2">
             <div class="form-floating mb-1">
               <input v-model="project.name" :id="'project-name-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Nome do projeto" />
@@ -700,7 +700,7 @@ const toggleNav = () => {
           <button class="add-btn" @click="addItem('projects')" @keypress.enter="addItem('projects')" type="button" tabindex="0">+ Adicionar Projeto</button>
 
           <!-- Certificações -->
-          <h3 class="section-title" id="certifications"><i class="fas fa-certificate" aria-hidden="true"></i> Certificações</h3>
+          <h3 class="section-title" id="certifications"><i class="fa-solid fa-certificate" aria-hidden="true"></i> Certificações</h3>
           <div v-for="(cert, index) in form.certifications" :key="index" class="borda-destacada mb-2">
             <div class="form-floating mb-1">
               <input v-model="cert.name" :id="'cert-name-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Nome do certificado" />
@@ -729,7 +729,7 @@ const toggleNav = () => {
           <button class="add-btn" @click="addItem('certifications')" @keypress.enter="addItem('certifications')" type="button" tabindex="0">+ Adicionar Certificação</button>
 
           <!-- Competências -->
-          <h3 class="section-title" id="skills"><i class="fas fa-star" aria-hidden="true"></i> Competências</h3>
+          <h3 class="section-title" id="skills"><i class="fa-solid fa-star" aria-hidden="true"></i> Competências</h3>
           <div v-for="(skill, index) in form.skills" :key="index" class="borda-destacada mb-2">
             <div class="form-floating mb-1">
               <input v-model="form.skills[index]" :id="'skill-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Competência" />
@@ -742,7 +742,7 @@ const toggleNav = () => {
           <button class="add-btn" @click="addItem('skills')" @keypress.enter="addItem('skills')" type="button" tabindex="0">+ Adicionar Competência</button>
 
           <!-- Idiomas -->
-          <h3 class="section-title" id="languages"><i class="fas fa-language" aria-hidden="true"></i> Idiomas</h3>
+          <h3 class="section-title" id="languages"><i class="fa-solid fa-language" aria-hidden="true"></i> Idiomas</h3>
           <div v-for="(lang, index) in form.languages" :key="index" class="borda-destacada mb-2">
             <div class="form-floating mb-1">
               <input list="languages" v-model="form.languages[index].language" :id="'lang-' + index" class="form-control-enhanced" placeholder=" " aria-label="Idioma" />
@@ -765,7 +765,7 @@ const toggleNav = () => {
           <button class="add-btn" @click="addItem('languages')" @keypress.enter="addItem('languages')" type="button" tabindex="0">+ Adicionar Idioma</button>
 
           <!-- Referências -->
-          <h3 class="section-title" id="references"><i class="fas fa-users" aria-hidden="true"></i> Referências</h3>
+          <h3 class="section-title" id="references"><i class="fa-solid fa-users" aria-hidden="true"></i> Referências</h3>
           <div v-for="(reference, index) in form.references" :key="index" class="borda-destacada mb-2">
             <div class="form-floating mb-1">
               <input v-model="reference.name" :id="'ref-name-' + index" type="text" class="form-control-enhanced" placeholder=" " aria-label="Nome da referência" />
@@ -785,7 +785,7 @@ const toggleNav = () => {
           <div class="actions-block">
             <button class="reset-btn" @click="resetForm" type="button">Resetar Formulário</button>
             <button class="download-btn" @click="generateCV" type="button" :disabled="isGenerating">
-              <i class="fas fa-file-download" aria-hidden="true"></i>
+              <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
               {{ isGenerating ? 'Gerando...' : 'Gerar CV' }}
             </button>
           </div>
@@ -794,7 +794,7 @@ const toggleNav = () => {
         <!-- Visualização -->
         <div class="preview-container" id="cv-preview" aria-live="polite">
           <div class="preview-header" v-show="showPreviewHeader">
-            <h2 class="preview-title"><i class="fas fa-eye" aria-hidden="true"></i> Pré-visualização</h2>
+            <h2 class="preview-title"><i class="fa-solid fa-eye" aria-hidden="true"></i> Pré-visualização</h2>
           </div>
           <div class="cv-preview">
             <div class="cv-document">
@@ -810,23 +810,23 @@ const toggleNav = () => {
                     </div>
                   </div>
                   <div class="contact-info">
-                    <div class="contact-item"><i class="fas fa-id-card" aria-hidden="true"></i> {{ form.idNumber || 'Não informado' }}</div>
-                    <div class="contact-item"><i class="fas fa-birthday-cake" aria-hidden="true"></i> {{ formattedBirthDate || 'Não informado' }}</div>
-                    <div class="contact-item"><i class="fas fa-envelope" aria-hidden="true"></i> {{ form.email || 'Não informado' }}</div>
-                    <div class="contact-item"><i class="fas fa-phone" aria-hidden="true"></i> {{ form.phone || 'Não informado' }}</div>
-                    <div class="contact-item"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> {{ form.address || 'Não informado' }}</div>
+                    <div class="contact-item"><i class="fa-solid fa-id-card" aria-hidden="true"></i> {{ form.idNumber || 'Não informado' }}</div>
+                    <div class="contact-item"><i class="fa-solid fa-cake-candles" aria-hidden="true"></i> {{ formattedBirthDate || 'Não informado' }}</div>
+                    <div class="contact-item"><i class="fa-solid fa-envelope" aria-hidden="true"></i> {{ form.email || 'Não informado' }}</div>
+                    <div class="contact-item"><i class="fa-solid fa-phone" aria-hidden="true"></i> {{ form.phone || 'Não informado' }}</div>
+                    <div class="contact-item"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{ form.address || 'Não informado' }}</div>
                     <div class="social-links" v-if="hasSocialLinks">
                       <a v-if="form.socialLinks.linkedin" :href="form.socialLinks.linkedin" target="_blank" class="social-link" :aria-label="'Perfil do LinkedIn de ' + socialNames.linkedin">
-                        <i class="fab fa-linkedin"></i> {{ socialNames.linkedin || 'LinkedIn' }}
+                        <i class="fa-brands fa-linkedin"></i> {{ socialNames.linkedin || 'LinkedIn' }}
                       </a>
                       <a v-if="form.socialLinks.facebook" :href="form.socialLinks.facebook" target="_blank" class="social-link" :aria-label="'Perfil do Facebook de ' + socialNames.facebook">
-                        <i class="fab fa-facebook"></i> {{ socialNames.facebook || 'Facebook' }}
+                        <i class="fa-brands fa-facebook"></i> {{ socialNames.facebook || 'Facebook' }}
                       </a>
                       <a v-if="form.socialLinks.instagram" :href="form.socialLinks.instagram" target="_blank" class="social-link" :aria-label="'Perfil do Instagram de ' + socialNames.instagram">
-                        <i class="fab fa-instagram"></i> {{ socialNames.instagram || 'Instagram' }}
+                        <i class="fa-brands fa-instagram"></i> {{ socialNames.instagram || 'Instagram' }}
                       </a>
                       <a v-if="form.socialLinks.website" :href="form.socialLinks.website" target="_blank" class="social-link" :aria-label="'Website pessoal de ' + socialNames.website">
-                        <i class="fas fa-globe"></i> {{ socialNames.website || 'Website' }}
+                        <i class="fa-solid fa-globe"></i> {{ socialNames.website || 'Website' }}
                       </a>
                     </div>
                   </div>
@@ -835,14 +835,14 @@ const toggleNav = () => {
               <div class="cv-body">
                 <!-- Sobre Mim -->
                 <div class="cv-section" v-if="form.summary">
-                  <h3 class="section-title-cv"><i class="fas fa-align-left" aria-hidden="true"></i> Sobre Mim</h3>
+                  <h3 class="section-title-cv"><i class="fa-solid fa-align-left" aria-hidden="true"></i> Sobre Mim</h3>
                   <p class="resume-text">{{ form.summary }}</p>
                 </div>
                 <hr class="section-divider" v-if="form.summary && (form.experience.length || form.education.length || form.projects.length || form.certifications.length || form.skills.length || form.languages.length || form.references.length)">
 
                 <!-- Experiência Profissional -->
                 <div class="cv-section" v-if="form.experience.length">
-                  <h3 class="section-title-cv"><i class="fas fa-briefcase" aria-hidden="true"></i> Experiência Profissional</h3>
+                  <h3 class="section-title-cv"><i class="fa-solid fa-briefcase" aria-hidden="true"></i> Experiência Profissional</h3>
                   <div class="timeline">
                     <div v-for="(exp, i) in sortedExperience" :key="'preview-exp-' + i" class="timeline-item">
                       <div class="timeline-marker"></div>
@@ -858,7 +858,7 @@ const toggleNav = () => {
 
                 <!-- Formação Acadêmica -->
                 <div class="cv-section" v-if="form.education.length">
-                  <h3 class="section-title-cv"><i class="fas fa-graduation-cap" aria-hidden="true"></i> Formação Acadêmica</h3>
+                  <h3 class="section-title-cv"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> Formação Acadêmica</h3>
                   <div class="timeline">
                     <div v-for="(edu, i) in sortedEducation" :key="'preview-edu-' + i" class="timeline-item">
                       <div class="timeline-marker"></div>
@@ -873,7 +873,7 @@ const toggleNav = () => {
 
                 <!-- Projetos -->
                 <div class="cv-section" v-if="form.projects.length">
-                  <h3 class="section-title-cv"><i class="fas fa-project-diagram" aria-hidden="true"></i> Projetos</h3>
+                  <h3 class="section-title-cv"><i class="fa-solid fa-project-diagram" aria-hidden="true"></i> Projetos</h3>
                   <div class="timeline">
                     <div v-for="(project, i) in sortedProjects" :key="'preview-project-' + i" class="timeline-item">
                       <div class="timeline-marker"></div>
@@ -890,7 +890,7 @@ const toggleNav = () => {
 
                 <!-- Certificações -->
                 <div class="cv-section" v-if="form.certifications.length">
-                  <h3 class="section-title-cv"><i class="fas fa-certificate" aria-hidden="true"></i> Certificações</h3>
+                  <h3 class="section-title-cv"><i class="fa-solid fa-certificate" aria-hidden="true"></i> Certificações</h3>
                   <ul class="resume-text certification-list">
                     <li v-for="(cert, i) in sortedCertifications" :key="'preview-cert-' + i" class="certification-item">
                       {{ cert.name || 'Certificado' }} - <strong>{{ cert.institution || 'Instituição' }}</strong> ({{ cert.date || 'Data' }})
@@ -902,7 +902,7 @@ const toggleNav = () => {
 
                 <!-- Competências -->
                 <div class="cv-section" v-if="form.skills.length">
-                  <h3 class="section-title-cv"><i class="fas fa-star" aria-hidden="true"></i> Competências</h3>
+                  <h3 class="section-title-cv"><i class="fa-solid fa-star" aria-hidden="true"></i> Competências</h3>
                   <ul class="resume-text skill-list">
                     <li v-for="(skill, i) in form.skills" :key="'preview-skill-' + i" class="skill-item">{{ skill || 'Competência' }}</li>
                   </ul>
@@ -911,7 +911,7 @@ const toggleNav = () => {
 
                 <!-- Idiomas -->
                 <div class="cv-section" v-if="form.languages.length">
-                  <h3 class="section-title-cv"><i class="fas fa-language" aria-hidden="true"></i> Idiomas</h3>
+                  <h3 class="section-title-cv"><i class="fa-solid fa-language" aria-hidden="true"></i> Idiomas</h3>
                   <ul class="resume-text language-list">
                     <li v-for="(lang, i) in form.languages" :key="'preview-lang-' + i" class="language-item">{{ lang.language || 'Idioma' }} - {{ lang.level || 'Nível' }}</li>
                   </ul>
@@ -920,7 +920,7 @@ const toggleNav = () => {
 
                 <!-- Referências -->
                 <div class="cv-section" v-if="form.references.length">
-                  <h3 class="section-title-cv"><i class="fas fa-users" aria-hidden="true"></i> Referências</h3>
+                  <h3 class="section-title-cv"><i class="fa-solid fa-users" aria-hidden="true"></i> Referências</h3>
                   <ul class="resume-text">
                     <li v-for="(ref, i) in form.references" :key="'preview-ref-' + i">
                       {{ ref.name || 'Nome' }} - {{ ref.role || 'Cargo' }}
@@ -1479,7 +1479,8 @@ textarea.form-control-enhanced {
 }
 
 .contact-item i {
-  font-size: clamp(6pt, 1.5vw, 7pt);
+  font-size: clamp(8pt, 2vw, 9pt);
+  color: white;
 }
 
 .social-links {
@@ -1552,7 +1553,7 @@ textarea.form-control-enhanced {
 }
 
 .section-title-cv i {
-  font-size: clamp(8pt, 2vw, 9pt);
+  font-size: clamp(9pt, 2vw, 10pt);
   transition: transform 0.3s ease;
 }
 
