@@ -1,5 +1,5 @@
 // Service Worker para Push Notifications
-const CACHE_NAME = 'rpa-cache-v1';
+const CACHE_NAME = 'rpa-cache-v2';
 
 // Instalar Service Worker
 self.addEventListener('install', (event) => {
