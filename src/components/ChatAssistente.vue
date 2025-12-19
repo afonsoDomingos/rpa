@@ -165,47 +165,37 @@
               : 'Clique para falar'
             : 'Microfone não suportado'
         "
-        style="
-          padding: 1.5px 4px;
-          font-size: 9px;
-          border-radius: 12px;
-          border: none;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: transparent;
-        "
       >
         <svg
           v-if="!isRecording"
-          width="10"
-          height="10"
+          width="20"
+          height="20"
           viewBox="0 0 24 24"
           fill="none"
         >
           <path
             d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4Z"
-            fill="#333"
+            fill="currentColor"
           />
           <path
             d="M19 11v1a7 7 0 0 1-14 0v-1M12 19v4M8 23h8"
-            stroke="#333"
-            stroke-width="2"
+            stroke="currentColor"
+            stroke-width="2.5"
             stroke-linecap="round"
             stroke-linejoin="round"
           />
         </svg>
-        <svg v-else width="10" height="10" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="3" fill="#333">
+        <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="4" fill="currentColor">
             <animate
               attributeName="r"
-              values="3;6;3"
+              values="4;8;4"
               dur="1s"
               repeatCount="indefinite"
             />
             <animate
               attributeName="opacity"
-              values="1;0.3;1"
+              values="1;0.4;1"
               dur="1s"
               repeatCount="indefinite"
             />
@@ -216,9 +206,10 @@
       <button
         type="submit"
         class="chat-send-btn"
+        aria-label="Enviar mensagem"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" fill="currentColor"/>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="currentColor"/>
         </svg>
       </button>
     </form>
@@ -1440,13 +1431,13 @@ onMounted(() => {
 .chat-footer input {
   flex: 1;
   border: none;
-  border-radius: 8px;
-  padding: 10px 12px;
+  border-radius: 20px;
+  padding: 10px 15px;
   font-size: 1rem;
   outline: none;
-  background: #f3f3f7;
+  background: #f0edf5;
   margin-right: 8px;
-  height: 40px;
+  height: 44px;
   box-sizing: border-box;
 }
 
@@ -1468,19 +1459,19 @@ onMounted(() => {
 }
 
 .chat-send-btn {
-  background: linear-gradient(135deg, #800080, #6a006a);
+  background: linear-gradient(135deg, #198754, #157347);
   color: white;
   border: none;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.3);
+  box-shadow: 0 4px 10px rgba(25, 135, 84, 0.3);
 }
 
 .chat-send-btn:hover {
@@ -1520,21 +1511,36 @@ onMounted(() => {
 
 @media (max-width: 600px) {
   .chat-assistente-fixed {
-    width: 98vw;
-    right: 1vw;
-    bottom: 1px;
-    height: calc(100dvh - 16px);
+    width: 100vw;
+    right: 0;
+    bottom: 0;
+    height: 100dvh;
+    border-radius: 0;
+  }
+
+  .chat-footer {
+    padding: 12px 10px;
+    padding-bottom: env(safe-area-inset-bottom, 12px);
+    background: #fff;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .chat-footer input {
+    height: 46px;
+    font-size: 16px; /* Evita zoom automático no iOS */
+  }
+
+  .mic-btn, .chat-send-btn {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
   }
 
   .chat-fab {
-    right: 14px;
-    bottom: 30px;
-    width: 36px;
-    height: 36px;
-    /*right: 12px;
-    bottom: 70px;
-    width: 56px;
-    height: 56px;*/
+    right: 16px;
+    bottom: 24px;
+    width: 48px;
+    height: 48px;
   }
 }
 
