@@ -961,6 +961,14 @@ const toggleNav = () => {
   padding: 0;
 }
 
+i[class*="fa-"] {
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "Font Awesome 5 Free" !important;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -1037,13 +1045,13 @@ const toggleNav = () => {
 .main-title {
   font-size: clamp(1.5rem, 5vw, 1.75rem);
   font-weight: 600;
-  color: #1e3a8a;
+  color: #800080;
   margin-bottom: 0.5rem;
   transition: color 0.3s ease;
 }
 
 .main-title:hover {
-  color: #3b82f6;
+  color: #9c27b0;
 }
 
 .subtitle {
@@ -1100,8 +1108,8 @@ const toggleNav = () => {
 }
 
 .photo-placeholder:hover {
-  border-color: #3b82f6;
-  color: #3b82f6;
+  border-color: #800080;
+  color: #9c27b0;
   transform: scale(1.05);
 }
 
@@ -1131,13 +1139,13 @@ const toggleNav = () => {
   height: clamp(80px, 20vw, 90px);
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid #3b82f6;
+  border: 2px solid #9c27b0;
   transition: border-color 0.3s ease, transform 0.3s ease;
 }
 
 .photo-preview:hover {
   transform: scale(1.03);
-  border-color: #1e40af;
+  border-color: #800080;
 }
 
 .photo-preview img {
@@ -1267,13 +1275,13 @@ textarea.form-control-enhanced {
 }
 
 .download-btn {
-  background: #1e40af;
+  background: #800080;
   color: white;
   padding: 0.75rem 1.5rem;
 }
 
 .download-btn:hover {
-  background: #1e3a8a;
+  background: #6a1b9a;
   transform: scale(1.05);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
@@ -1332,13 +1340,13 @@ textarea.form-control-enhanced {
 .preview-title {
   font-size: clamp(1.25rem, 4vw, 1.5rem);
   font-weight: 600;
-  color: #1e3a8a;
+  color: #800080;
   margin-bottom: 1rem;
   transition: color 0.3s ease;
 }
 
 .preview-title:hover {
-  color: #3b82f6;
+  color: #9c27b0;
 }
 
 .cv-preview {
@@ -1353,7 +1361,7 @@ textarea.form-control-enhanced {
 }
 
 .cv-preview:hover {
-  border-color: #3b82f6;
+  border-color: #800080;
 }
 
 @media (min-width: 768px) {
@@ -1379,7 +1387,7 @@ textarea.form-control-enhanced {
 }
 
 .cv-header:hover {
-  background: #1e3a8a;
+  background: #6a1b9a;
 }
 
 .header-content {
@@ -1419,7 +1427,7 @@ textarea.form-control-enhanced {
 
 .profile-photo:hover {
   transform: scale(1.03);
-  border-color: #e0e7ff;
+  border-color: #f3e8ff;
 }
 
 .profile-photo img {
@@ -1502,7 +1510,7 @@ textarea.form-control-enhanced {
 }
 
 .social-link:hover {
-  color: #e0e7ff;
+  color: #f3e8ff;
   transform: translateX(2px);
 }
 
@@ -1539,7 +1547,7 @@ textarea.form-control-enhanced {
 .section-title-cv {
   font-size: clamp(10pt, 3vw, 11pt);
   font-weight: 600;
-  color: #1e3a8a;
+  color: #800080;
   margin-bottom: 0.75mm;
   display: flex;
   align-items: center;
@@ -1549,7 +1557,7 @@ textarea.form-control-enhanced {
 }
 
 .section-title-cv:hover {
-  color: #3b82f6;
+  color: #9c27b0;
 }
 
 .section-title-cv i {
@@ -1564,14 +1572,14 @@ textarea.form-control-enhanced {
 .section-divider {
   border: none;
   height: 1px;
-  background-color: #1e3a8a;
+  background-color: #800080;
   margin: 1mm 0;
   page-break-inside: avoid;
   transition: background-color 0.3s ease;
 }
 
 .section-divider:hover {
-  background-color: #3b82f6;
+  background-color: #9c27b0;
 }
 
 .resume-text {
@@ -1590,7 +1598,7 @@ textarea.form-control-enhanced {
 }
 
 .skill-item, .language-item, .certification-item {
-  border: 1px solid #1e3a8a;
+  border: 1px solid #800080;
   border-radius: 1.5mm;
   padding: 0.5mm 2mm;
   font-size: clamp(7pt, 2vw, 8pt);
@@ -1601,7 +1609,7 @@ textarea.form-control-enhanced {
 
 .skill-item:hover, .language-item:hover, .certification-item:hover {
   transform: scale(1.02);
-  background: #e0e7ff;
+  background: #f3e8ff;
 }
 
 .certification-item {
@@ -1612,7 +1620,7 @@ textarea.form-control-enhanced {
 }
 
 .project-link, .cert-link {
-  color: #1e3a8a;
+  color: #800080;
   font-size: clamp(7pt, 2vw, 8pt);
   text-decoration: none;
   display: block;
@@ -1621,7 +1629,7 @@ textarea.form-control-enhanced {
 }
 
 .project-link:hover, .cert-link:hover {
-  color: #3b82f6;
+  color: #9c27b0;
   transform: translateX(2px);
 }
 
@@ -1638,12 +1646,12 @@ textarea.form-control-enhanced {
   top: 0;
   bottom: 0;
   width: 1px;
-  background-color: #1e3a8a;
+  background-color: #800080;
   transition: background-color 0.3s ease;
 }
 
 .timeline:hover::before {
-  background-color: #3b82f6;
+  background-color: #9c27b0;
 }
 
 .timeline-item {
@@ -1664,14 +1672,14 @@ textarea.form-control-enhanced {
   top: 1mm;
   width: 2mm;
   height: 2mm;
-  background-color: #1e3a8a;
+  background-color: #800080;
   border-radius: 50%;
   border: 0.5mm solid white;
   transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .timeline-item:hover .timeline-marker {
-  background-color: #3b82f6;
+  background-color: #9c27b0;
   transform: scale(1.2);
 }
 
@@ -1689,7 +1697,7 @@ textarea.form-control-enhanced {
 }
 
 .timeline-title:hover {
-  color: #3b82f6;
+  color: #9c27b0;
 }
 
 /* Rodapé com Logotipo */
@@ -1740,7 +1748,7 @@ textarea.form-control-enhanced {
 
 /* Acessibilidade */
 :focus {
-  outline: 2px solid rgba(59, 130, 246, 0.3);
+  outline: 2px solid rgba(128, 0, 128, 0.3);
   outline-offset: 1px;
 }
 
@@ -1790,11 +1798,11 @@ textarea.form-control-enhanced {
 
   .timeline::before,
   .timeline-marker {
-    background-color: #1e3a8a !important;
+    background-color: #800080 !important;
   }
 
   .skill-item, .language-item, .certification-item {
-    border: 1px solid #1e3a8a !important;
+    border: 1px solid #800080 !important;
     background: #f8fafc !important;
   }
 
@@ -1822,7 +1830,7 @@ textarea.form-control-enhanced {
   gap: 0.5rem;
   width: auto;
   padding: 0.5rem 1rem; /* Reduzido para tornar o botão menor */
-  background-color: #1e40af;
+  background-color: #800080;
   color: #fff;
   border: none;
   border-radius: 50px; /* Bordas mais arredondadas para um look flutuante */
@@ -1835,13 +1843,13 @@ textarea.form-control-enhanced {
 
 .nav-toggle:hover,
 .nav-toggle:focus {
-  background-color: #1e3a8a;
+  background-color: #800080;
   transform: translateY(-2px);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
 }
 
 .nav-toggle:focus {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid #800080;
   outline-offset: 2px;
 }
 
@@ -1901,18 +1909,18 @@ textarea.form-control-enhanced {
 .nav-link:hover,
 .nav-link:focus {
   background-color: #f1f5f9;
-  color: #3b82f6;
+  color: #9c27b0;
   transform: translateX(4px);
 }
 
 .nav-link:focus {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid #800080;
   outline-offset: -2px;
 }
 
 .nav-link::before {
   content: '\f054';
-  font-family: 'Font Awesome 5 Free';
+  font-family: "Font Awesome 6 Free";
   font-weight: 900;
   font-size: 0.8rem;
   color: #6b7280;
@@ -1921,7 +1929,7 @@ textarea.form-control-enhanced {
 
 .nav-link:hover::before,
 .nav-link:focus::before {
-  color: #3b82f6;
+  color: #9c27b0;
 }
 
 /* Ajustes responsivos */
@@ -1971,7 +1979,7 @@ textarea.form-control-enhanced {
 
   .nav-link:hover,
   .nav-link:focus {
-    background-color: #e0e7ff;
+    background-color: #f3e8ff;
     transform: scale(1.03);
   }
 

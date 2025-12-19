@@ -1205,6 +1205,7 @@ onMounted(() => {
   transition: all 0.2s;
   min-width: 40px;
   height: 40px;
+  flex-shrink: 0;
 }
 
 .mic-btn:hover:not(.disabled) {
@@ -1430,6 +1431,7 @@ onMounted(() => {
 
 .chat-footer input {
   flex: 1;
+  min-width: 0;
   border: none;
   border-radius: 20px;
   padding: 10px 15px;
@@ -1466,6 +1468,7 @@ onMounted(() => {
   width: 44px;
   height: 44px;
   min-width: 44px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
