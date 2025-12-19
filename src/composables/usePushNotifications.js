@@ -112,8 +112,8 @@ export function usePushNotifications() {
         const title = '💰 Novo Pagamento Recebido!';
         const options = {
             body: `${paymentData.valor} MZN - ${paymentData.pacote}\nCliente: ${paymentData.usuario}`,
-            icon: '/rpa.png',
-            badge: '/rpa.png',
+            icon: '/icons/icon-512.png',
+            badge: '/icons/icon-512.png',
             vibrate: [200, 100, 200],
             tag: 'payment-notification',
             data: paymentData
