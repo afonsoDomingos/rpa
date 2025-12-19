@@ -9,6 +9,7 @@ O RPA é uma plataforma inovadora focada na recuperação de documentos perdidos
 - **PWA (Progressive Web App):** Instale o RPA diretamente no seu telemóvel ou desktop para uma experiência nativa.
 - **Notificações Push Reais:** Receba alertas instantâneos via VAPID (Web Push) mesmo com o navegador fechado.
 - **App Badging API:** Veja o contador de notificações diretamente no ícone do aplicativo no telemóvel.
+- **Card Flutuante (Busca em Tempo Real):** Um pequeno card lateral que exibe documentos recentemente encontrados de forma dinâmica e anonimizada.
 - **Dashboard Administrativa:** Gestão avançada de assinaturas e pagamentos com atualizações em tempo real via Socket.io.
 - **Busca Otimizada:** Algoritmo de busca por nome completo para localização rápida de documentos.
 - **Segurança:** Integração segura com backend usando JWT e chaves VAPID dinâmicas.

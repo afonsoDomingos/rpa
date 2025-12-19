@@ -30,6 +30,7 @@ import BuiltByDevelopers from "./Components/BuiltByDevelopers.vue";
 
 
 // CORRETO
+import FloatingDocs from "../../components/FloatingDocs.vue";
 import AdCard from "../../components/anunciantes/AdCard.vue";
 import MapaDocumentos from "../../components/MapaDocumentos.vue";
 
