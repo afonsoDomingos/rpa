@@ -106,7 +106,7 @@ export function useSocketNotifications() {
 
             const notification = {
                 id: Date.now(),
-                message: `Novo pagamento de ${valor} MZN - ${pacote}`,
+                message: `Novo pagamento de ${valor} MZN - ${pacote} (Cliente: ${usuarioNome})`,
                 timestamp: new Date(),
                 data: payload,
                 read: false
