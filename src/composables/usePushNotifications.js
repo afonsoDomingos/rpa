@@ -1,8 +1,18 @@
 import { ref, onMounted } from 'vue';
 import api from '../api'; // Assumindo que tens o axios configurado aqui
 
-// ⚠️ SUBSTUA PELA SUA CHAVE PÚBLICA VAPID DO BACKEND
-const VAPID_PUBLIC_KEY = 'BGf3f6anck8PlGCHDcM6eThytG0ACCMk5owfTfND60revsBBvyRwCCovY5ZnYLCMeiP9HvAVUCzEsf4EcgyPdNM';
+// ⚠️ A CHAVE PÚBLICA VAPID SERÁ BUSCADA DINAMICAMENTE DO BACKEND
+const VAPID_PUBLIC_KEY = ref('');
+
+const fetchVapidKey = async () => {
+    try {
+        const response = await api.get('/push/key');
+        VAPID_PUBLIC_KEY.value = response.data.publicKey;
+        console.log('🔑 Chave VAPID carregada');
+    } catch (error) {
+        console.error('❌ Erro ao buscar chave VAPID:', error);
+    }
+};
 
 function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -31,7 +41,7 @@ export function usePushNotifications() {
 
     const registerServiceWorker = async () => {
         try {
-            const registration = await navigator.serviceWorker.register('/sw.js');
+            const registration = await navigator.serviceWorker.register('/service-worker.js');
             console.log('✅ Service Worker registrado:', registration);
             return registration;
         } catch (error) {
@@ -44,7 +54,7 @@ export function usePushNotifications() {
         try {
             const subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY.value)
             });
 
             console.log('📡 Subscrição Push Gerada:', subscription);
@@ -57,8 +67,8 @@ export function usePushNotifications() {
 
     const sendSubscriptionToBackend = async (subscription) => {
         try {
-            // Ajuste a rota conforma o seu backend
-            await api.post('/notifications/subscribe', subscription);
+            // Ajustado para o endpoint das instruções
+            await api.post('/push/subscribe', { subscription });
             console.log('💾 Subscrição salva no backend!');
         } catch (error) {
             console.error('❌ Erro ao enviar subscrição para o backend:', error);
@@ -75,11 +85,15 @@ export function usePushNotifications() {
             if (result === 'granted') {
                 const registration = await registerServiceWorker();
                 if (registration) {
-                    // Tenta subscrever ao VAPID se tivermos a chave
-                    if (VAPID_PUBLIC_KEY && VAPID_PUBLIC_KEY !== 'SUA_CHAVE_PUBLICA_VAPID_AQUI') {
+                    // Tenta subscrever ao VAPID
+                    if (!VAPID_PUBLIC_KEY.value) {
+                        await fetchVapidKey();
+                    }
+
+                    if (VAPID_PUBLIC_KEY.value) {
                         await subscribeUserToPush(registration);
                     } else {
-                        console.warn('⚠️ Chave VAPID não configurada no Frontend. Push real não funcionará.');
+                        console.warn('⚠️ Chave VAPID não disponível. Push real não funcionará.');
                     }
                 }
                 return true;
@@ -128,6 +142,9 @@ export function usePushNotifications() {
 
     onMounted(() => {
         checkSupport();
+        if (isSupported.value) {
+            fetchVapidKey();
+        }
     });
 
     return {

@@ -37,13 +37,13 @@ self.addEventListener('push', (event) => {
         notificationData.title,
         {
             body: notificationData.body,
-            icon: notificationData.icon || '/logo.png',
-            badge: notificationData.badge || '/logo.png',
+            icon: '/rpa.png',
+            badge: '/rpa.png',
             vibrate: [200, 100, 200],
             data: notificationData.data || { url: '/' },
             actions: [
-                { action: 'open', title: 'Ver Agora', icon: '/ver.png' },
-                { action: 'close', title: 'Fechar', icon: '/close.png' }
+                { action: 'open', title: 'Ver Agora' },
+                { action: 'close', title: 'Fechar' }
             ]
         }
     );
