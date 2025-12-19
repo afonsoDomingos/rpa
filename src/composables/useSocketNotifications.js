@@ -104,22 +104,31 @@ export function useSocketNotifications() {
                 return null;
             };
 
-            // 1. Tenta no objeto de usuário aninhado
-            usuarioNome = findName(payload.usuario) || findName(payload.user) || findName(payload.customer) || findName(payload.cliente_obj);
+            // 1. Tenta extrair diretamente se for string
+            if (payload.usuario && typeof payload.usuario === 'string') {
+                usuarioNome = payload.usuario;
+            } else if (payload.user && typeof payload.user === 'string') {
+                usuarioNome = payload.user;
+            } else if (payload.nome && typeof payload.nome === 'string') {
+                usuarioNome = payload.nome;
+            } else {
+                // 2. Tenta nos objetos aninhados (lógica anterior de busca)
+                usuarioNome = findName(payload.usuario) || findName(payload.user) || findName(payload.customer) || findName(payload.cliente_obj);
+            }
 
-            // 2. Se não encontrou, tenta no nível raiz do payload
+            // 3. Se ainda não encontrou, tenta no nível raiz do payload
             if (!usuarioNome) {
                 usuarioNome = findName(payload);
             }
 
-            // 3. Fallback para email
+            // 4. Fallback para email
             if (!usuarioNome && payload.email) {
                 usuarioNome = payload.email.split('@')[0];
             } else if (!usuarioNome && payload.usuario?.email) {
                 usuarioNome = payload.usuario.email.split('@')[0];
             }
 
-            // 4. Default final
+            // 5. Default final
             usuarioNome = usuarioNome || 'Cliente';
 
             const notification = {
