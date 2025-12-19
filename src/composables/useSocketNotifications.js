@@ -43,6 +43,17 @@ export function useSocketNotifications() {
         saveNotifications();
     }, { deep: true });
 
+    // Sincronizar Badge do Ícone (App Badging API)
+    watch(unreadCount, (count) => {
+        if ('setAppBadge' in navigator) {
+            if (count > 0) {
+                navigator.setAppBadge(count).catch(e => console.log('Erro ao definir badge:', e));
+            } else {
+                navigator.clearAppBadge().catch(e => console.log('Erro ao limpar badge:', e));
+            }
+        }
+    });
+
     const playNotificationSound = () => {
         try {
             const audio = new Audio('/notification.mp3');

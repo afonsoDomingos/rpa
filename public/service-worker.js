@@ -33,6 +33,11 @@ self.addEventListener('push', (event) => {
         }
     }
 
+    // Atualizar Badge do App (Badging API)
+    if (navigator.setAppBadge) {
+        navigator.setAppBadge().catch(e => console.log('Erro badge SW:', e));
+    }
+
     const promiseChain = self.registration.showNotification(
         notificationData.title,
         {
