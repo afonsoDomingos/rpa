@@ -42,8 +42,8 @@ self.addEventListener('push', (event) => {
         notificationData.title,
         {
             body: notificationData.body,
-            icon: '/rpa.png',
-            badge: '/rpa.png',
+            icon: '/rpa-transparent.png',
+            badge: '/rpa-transparent.png',
             vibrate: [200, 100, 200],
             data: notificationData.data || { url: '/' },
             actions: [
