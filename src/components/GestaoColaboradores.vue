@@ -236,9 +236,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import Swal from "sweetalert2";
 import axios from "axios";
+import { io } from "socket.io-client";
 
 // Configuração da API
 const API_URL = "https://apirpa.onrender.com/api";
@@ -526,7 +527,57 @@ const gerarRelatorioPDF = () => {
   });
 };
 
-onMounted(() => carregarAtividades());
+// --- SOCKET.IO REAL-TIME ---
+let socket;
+
+const iniciarSocket = () => {
+  // Conectar ao backend
+  socket = io("https://apirpa.onrender.com", {
+    transports: ["websocket"],
+    path: "/socket.io" // Ajuste conforme config backend, se necessário
+  });
+
+  socket.on("connect", () => {
+    console.log("🟢 Conectado ao Socket.IO para atualizações em tempo real (Colaboradores)");
+  });
+
+  // Evento: Nova atividade criada
+  socket.on("atividade:criada", (novaAtividade) => {
+    console.log("🔔 Socket: Nova atividade recebida", novaAtividade);
+    // Adiciona ao topo se não existir
+    if (!listaAtividades.value.find(a => a._id === novaAtividade._id)) {
+      listaAtividades.value.unshift(novaAtividade);
+    }
+  });
+
+  // Evento: Atividade atualizada (status)
+  socket.on("atividade:atualizada", (atividadeAtualizada) => {
+    console.log("🔔 Socket: Atividade atualizada recebida", atividadeAtualizada);
+    const index = listaAtividades.value.findIndex(a => a._id === atividadeAtualizada._id);
+    if (index !== -1) {
+      // Atualiza reativamente
+      listaAtividades.value[index] = { ...listaAtividades.value[index], ...atividadeAtualizada };
+    }
+  });
+
+  // Evento: Atividade removida
+  socket.on("atividade:removida", (idRemovido) => {
+    console.log("🔔 Socket: Atividade removida", idRemovido);
+    listaAtividades.value = listaAtividades.value.filter(a => a._id !== idRemovido);
+  });
+};
+
+onMounted(() => {
+  carregarAtividades();
+  iniciarSocket();
+});
+
+onUnmounted(() => {
+  if (socket) {
+    socket.disconnect();
+    console.log("🔴 Socket desconectado (Gestão Colaboradores)");
+  }
+});
 </script>
 
 <style scoped>
