@@ -210,6 +210,16 @@
                 <i class="bi bi-megaphone-fill text-purple"></i> Gerenciar
                 Anúncios
               </router-link>
+              
+              <!-- Gestão de Colaboradores (Admin) -->
+              <router-link
+                v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
+                :to="{ name: 'AdminGestao' }"
+                class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+                @click="fecharDropdown"
+              >
+                <i class="bi bi-person-badge-fill text-info"></i> Gestão Interna
+              </router-link>
 
               <!-- Meus Pagamentos -->
               <router-link

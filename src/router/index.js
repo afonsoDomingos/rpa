@@ -144,6 +144,15 @@ const router = createRouter({
         requerAdmin: true,
       },
     },
+    {
+      path: "/admin/gestao-colaboradores",
+      name: "AdminGestao",
+      component: () => import("@/views/Admin/GestaoColaboradoresView.vue"),
+      meta: {
+        requerAutenticacao: true,
+        requerAdmin: true,
+      },
+    },
   ],
 });
 
