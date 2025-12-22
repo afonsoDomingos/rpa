@@ -17,28 +17,36 @@
   >
     <div class="container px-3">
       <!-- LOGO (Desktop + Mobile) -->
-      <RouterLink
-        class="navbar-brand animated-logo d-flex align-items-center"
-        :to="{ name: 'presentation' }"
-        rel="tooltip"
-        title="Página inicial"
-        @mouseenter="hovering = true"
-        @mouseleave="hovering = false"
-      >
-        <div class="logo-wrapper">
-          <transition name="fade-scale">
-            <olhodedeus v-if="!hovering" class="eye-logo" />
-          </transition>
-          <transition name="fade-scale">
-            <img
-              v-if="hovering"
-              src="@/assets/img/rPa.png"
-              alt="Logo Rpa"
-              class="brand-logo"
-            />
-          </transition>
+      <div class="d-flex align-items-center gap-3">
+        <RouterLink
+          class="navbar-brand animated-logo d-flex align-items-center"
+          :to="{ name: 'presentation' }"
+          rel="tooltip"
+          title="Página inicial"
+          @mouseenter="hovering = true"
+          @mouseleave="hovering = false"
+        >
+          <div class="logo-wrapper">
+            <transition name="fade-scale">
+              <olhodedeus v-if="!hovering" class="eye-logo" />
+            </transition>
+            <transition name="fade-scale">
+              <img
+                v-if="hovering"
+                src="@/assets/img/rPa.png"
+                alt="Logo Rpa"
+                class="brand-logo"
+              />
+            </transition>
+          </div>
+        </RouterLink>
+
+        <!-- BUSCA E TEMA (Desktop + Mobile) -->
+        <div class="d-flex align-items-center gap-2">
+          <GlobalSearch />
+          <ThemeToggle />
         </div>
-      </RouterLink>
+      </div>
 
       <!-- BOTÃO ASSINATURAS (mobile) -->
       <a
@@ -371,6 +379,8 @@ import { ref, watch, onMounted, nextTick } from "vue";
 import { useWindowsWidth } from "../../assets/js/useWindowsWidth";
 import olhodedeus from "./olhodedeus.vue"; // Componente do olho
 import Swal from "sweetalert2"; // Import SweetAlert2
+import ThemeToggle from "@/components/ThemeToggle.vue";
+import GlobalSearch from "@/components/GlobalSearch.vue";
 
 const dropdownMenu = ref(null);
 const navbarCollapse = ref(null);
