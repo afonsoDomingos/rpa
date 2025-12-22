@@ -205,44 +205,39 @@ onUnmounted(() => {
 
 <style scoped>
 /* Gatilho na Navbar */
+/* Gatilho na Navbar */
 .search-trigger {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 20px; /* Mais arredondado */
-  padding: 6px 14px;
+  background: transparent;
+  border: none;
+  width: 40px;
+  height: 40px;
   display: flex;
+  justify-content: center;
   align-items: center;
-  color: #555;
+  color: #344767;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  font-family: 'Poppins', sans-serif;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  padding: 0;
+  box-shadow: none;
 }
 
 .search-trigger i {
-  font-size: 1rem;
+  font-size: 1.1rem;
   transition: transform 0.3s ease;
-  color: #800080; /* Roxo da marca */
 }
 
-/* Hover Effect Sofisticado */
+/* Hover Effect Simples */
 .search-trigger:hover {
-  background: #fff;
-  border-color: #800080;
-  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.15);
-  transform: translateY(-1px);
   color: #800080;
+  transform: translateY(-1px);
 }
 
 .search-trigger:hover i {
-  transform: scale(1.1) rotate(-5deg);
+  transform: scale(1.2);
 }
 
 .search-trigger:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transform: scale(0.95);
 }
 
 /* Mobile Responsive */
