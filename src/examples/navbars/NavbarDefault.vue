@@ -17,35 +17,28 @@
   >
     <div class="container px-3">
       <!-- LOGO (Desktop + Mobile) -->
-      <div class="d-flex align-items-center gap-3">
-        <RouterLink
-          class="navbar-brand animated-logo d-flex align-items-center"
-          :to="{ name: 'presentation' }"
-          rel="tooltip"
-          title="Página inicial"
-          @mouseenter="hovering = true"
-          @mouseleave="hovering = false"
-        >
-          <div class="logo-wrapper">
-            <transition name="fade-scale">
-              <olhodedeus v-if="!hovering" class="eye-logo" />
-            </transition>
-            <transition name="fade-scale">
-              <img
-                v-if="hovering"
-                src="@/assets/img/rPa.png"
-                alt="Logo Rpa"
-                class="brand-logo"
-              />
-            </transition>
-          </div>
-        </RouterLink>
-
-        <!-- BUSCA (Desktop + Mobile) -->
-        <div class="d-flex align-items-center gap-2">
-          <GlobalSearch />
+      <RouterLink
+        class="navbar-brand animated-logo d-flex align-items-center"
+        :to="{ name: 'presentation' }"
+        rel="tooltip"
+        title="Página inicial"
+        @mouseenter="hovering = true"
+        @mouseleave="hovering = false"
+      >
+        <div class="logo-wrapper">
+          <transition name="fade-scale">
+            <olhodedeus v-if="!hovering" class="eye-logo" />
+          </transition>
+          <transition name="fade-scale">
+            <img
+              v-if="hovering"
+              src="@/assets/img/rPa.png"
+              alt="Logo Rpa"
+              class="brand-logo"
+            />
+          </transition>
         </div>
-      </div>
+      </RouterLink>
 
       <!-- BOTÃO ASSINATURAS (mobile) -->
       <a
@@ -58,6 +51,11 @@
       >
         ASSINATURAS
       </a>
+
+      <!-- BUSCA MOBILE (Aparece logo após o botão Assinaturas no Mobile) -->
+      <div class="d-lg-none ms-2">
+         <GlobalSearch />
+      </div>
 
       <!-- TOGGLER -->
       <button
@@ -365,6 +363,10 @@
             >
               Assinatura
             </a>
+          </li>
+          <!-- BUSCA GLOBAL (Desktop) -->
+          <li class="d-none d-lg-flex align-items-center ms-2">
+            <GlobalSearch />
           </li>
         </ul>
       </div>
