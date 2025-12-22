@@ -206,27 +206,60 @@ onUnmounted(() => {
 <style scoped>
 /* Gatilho na Navbar */
 .search-trigger {
-  background: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 20px; /* Mais arredondado */
+  padding: 6px 14px;
   display: flex;
   align-items: center;
-  color: var(--text-secondary, #6c757d);
+  color: #555;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   font-family: 'Poppins', sans-serif;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+  font-size: 0.9rem;
 }
 
-[data-theme="dark"] .search-trigger {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.1);
+.search-trigger i {
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+  color: #800080; /* Roxo da marca */
 }
 
+/* Hover Effect Sofisticado */
 .search-trigger:hover {
-  background: rgba(128, 0, 128, 0.1);
-  border-color: rgba(128, 0, 128, 0.3);
-  color: var(--accent-purple, #800080);
+  background: #fff;
+  border-color: #800080;
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.15);
+  transform: translateY(-1px);
+  color: #800080;
+}
+
+.search-trigger:hover i {
+  transform: scale(1.1) rotate(-5deg);
+}
+
+.search-trigger:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .search-trigger {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%; /* Circular no mobile */
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  
+  .search-trigger i {
+    font-size: 1.1rem;
+  }
 }
 
 /* Modal Overlay */
