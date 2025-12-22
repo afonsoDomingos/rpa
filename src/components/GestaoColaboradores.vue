@@ -120,7 +120,7 @@
                 <ul v-else class="list-group">
                   <li
                     v-for="(ativ, index) in atividadesSetorAtual"
-                    :key="ativ._id || ativ.id"
+                    :key="ativ?._id || ativ?.id || index"
                     class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg bg-white shadow-sm"
                   >
                     <div class="d-flex align-items-center ps-3">
@@ -171,7 +171,7 @@
           <div class="col-md-3 mb-4">
             <div class="card shadow-sm border-radius-lg bg-white p-3 text-center border-left-primary">
               <p class="text-sm mb-0 text-capitalize font-weight-bold">Total Atividades</p>
-              <h5 class="font-weight-bolder mb-0">{{ atividades.length }}</h5>
+              <h5 class="font-weight-bolder mb-0">{{ listaAtividades.length }}</h5>
             </div>
           </div>
           <div class="col-md-3 mb-4">
@@ -200,7 +200,7 @@
             <div class="card shadow-lg border-radius-lg p-3 h-100">
               <h6 class="font-weight-bold mb-4">Distribuição por Status</h6>
               <div class="chart-container" style="position: relative; height:250px;">
-                <Doughnut v-if="atividades.length > 0" :data="statusChartData" :options="chartOptions" />
+                <Doughnut v-if="listaAtividades.length > 0" :data="statusChartData" :options="chartOptions" />
                 <div v-else class="text-center py-5">Sem dados para exibir.</div>
               </div>
             </div>
@@ -210,7 +210,7 @@
             <div class="card shadow-lg border-radius-lg p-3 h-100">
               <h6 class="font-weight-bold mb-4">Atividades por Sector</h6>
               <div class="chart-container" style="position: relative; height:250px;">
-                <Bar v-if="atividades.length > 0" :data="sectorChartData" :options="chartOptions" />
+                <Bar v-if="listaAtividades.length > 0" :data="sectorChartData" :options="chartOptions" />
                 <div v-else class="text-center py-5">Sem dados para exibir.</div>
               </div>
             </div>
@@ -241,21 +241,102 @@ const getHeaders = () => ({
   headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
 });
 
+// Chart.js imports
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  LinearScale
+} from 'chart.js';
+import { Doughnut, Bar } from 'vue-chartjs';
+
+ChartJS.register(Title, Tooltip, Legend, ArcElement, BarElement, CategoryScale, LinearScale);
+
 const carregando = ref(false);
 const viewMode = ref("registo"); // 'registo' ou 'stats'
 
-// ... (imports do Chart.js permanecem os mesmos)
+// Setores e Tarefas
+const setores = [
+  { id: "ceo", nome: "CEO", icone: "bi-shield-shaded", tarefas: ["Definição de Visão e Metas", "Tomada de Decisão Estratégica", "Supervisão de Áreas", "Resolução de Casos Críticos", "Representação da Empresa", "Auditoria de Ética e Segurança"] },
+  { id: "rh", nome: "RH", icone: "bi-people", tarefas: ["Recrutamento e Seleção", "Integração de Novos Membros (Onboarding)", "Processamento de Salários", "Gestão de Faltas e Férias", "Avaliação de Desempenho", "Plano de Formação e Treino"] },
+  { id: "ti", nome: "TI", icone: "bi-laptop", tarefas: ["Manutenção de Sistemas", "Suporte Técnico Interno", "Gestão de Base de Dados", "Desenvolvimento de Novas Features", "Segurança da Informação", "Otimização de Servidores"] },
+  { id: "marketing", nome: "Marketing", icone: "bi-megaphone", tarefas: ["Gestão de Redes Sociais", "Criação de Campanhas (Ads)", "Produção de Conteúdo", "Análise de Métricas de Tráfego", "Email Marketing", "Design Gráfico / Branding"] },
+  { id: "vendas", nome: "Vendas", icone: "bi-cart-check", tarefas: ["Atendimento ao Cliente", "Explicação de Serviços e Prazos", "Criação de Pedidos", "Follow-up de Vendas", "Conversão de Leads", "Pós-Venda"] },
+  { id: "processos", nome: "Processos", icone: "bi-gear-wide-connected", tarefas: ["Análise de Pedidos", "Organização de Fluxos", "Submissão de Documentação", "Acompanhamento de Prazos", "Atualização de Status", "Conclusão de Processos"] },
+  { id: "operacoes", nome: "Operações", icone: "bi-globe", tarefas: ["Contacto com Entidades Oficiais", "Recolha de Documentos Externos", "Acompanhamento Externo", "Resolução de Bloqueios", "Entrega de Resultados Finais", "Validação de Requisitos"] },
+  { id: "financeiro", nome: "Financeiro", icone: "bi-cash-coin", tarefas: ["Controle de Pagamentos", "Emissão de Recibos", "Organização de Dados Financeiros", "Geração de Relatórios", "Controle de Produtividade", "Apoio à Decisão (Dados)"] }
+];
+
+const activeSector = ref("ceo");
+const listaAtividades = ref([]);
+const novaAtividade = ref({ titulo: "", descricao: "", status: "Pendente" });
+
+const setorNomeAtual = computed(() => setores.find(s => s.id === activeSector.value)?.nome || "");
+const tarefasSetorAtual = computed(() => setores.find(s => s.id === activeSector.value)?.tarefas || []);
+const atividadesSetorAtual = computed(() => {
+  if (!listaAtividades.value) return [];
+  return listaAtividades.value.filter(a => a && a.setorId === activeSector.value);
+});
+
+// Estatísticas
+const countByStatus = (status) => {
+  if (!listaAtividades.value) return 0;
+  return listaAtividades.value.filter(a => a && a.status === status).length;
+};
+
+const statusChartData = computed(() => ({
+  labels: ['Pendente', 'Em Progresso', 'Concluído'],
+  datasets: [{
+    backgroundColor: ['#fb8c00', '#1a73e8', '#4caf50'],
+    data: [countByStatus('Pendente'), countByStatus('Em Progresso'), countByStatus('Concluído')]
+  }]
+}));
+
+const sectorChartData = computed(() => {
+  const counts = setores.map(s => {
+    if (!listaAtividades.value) return 0;
+    return listaAtividades.value.filter(a => a && a.setorId === s.id).length;
+  });
+  return {
+    labels: setores.map(s => s.nome),
+    datasets: [{
+      label: 'Atividades',
+      backgroundColor: '#800080',
+      data: counts
+    }]
+  };
+});
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: true, position: 'bottom' }
+  }
+};
 
 // Métodos de API
 const carregarAtividades = async () => {
-  carregando.ref = true;
+  carregando.value = true;
   try {
     const { data } = await axios.get(`${API_URL}/atividades`, getHeaders());
-    atividades.value = data;
+    listaAtividades.value = Array.isArray(data) ? data : [];
   } catch (error) {
     console.warn("Erro ao carregar do backend, tentando localStorage...", error);
     const salvas = localStorage.getItem("rpa_atividades_colaboradores");
-    if (salvas) atividades.value = JSON.parse(salvas);
+    if (salvas) {
+      try {
+        const parsed = JSON.parse(salvas);
+        listaAtividades.value = Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.error("Erro ao fazer parse do localStorage", e);
+        listaAtividades.value = [];
+      }
+    }
   } finally {
     carregando.value = false;
   }
@@ -273,13 +354,13 @@ const adicionarAtividade = async () => {
 
   try {
     const { data } = await axios.post(`${API_URL}/atividades`, payload, getHeaders());
-    atividades.value.unshift(data);
+    if (data) listaAtividades.value.unshift(data);
     novaAtividade.value = { titulo: "", descricao: "", status: "Pendente" };
     Swal.fire({ icon: "success", title: "Sucesso", text: "Atividade registada no servidor.", timer: 1500, showConfirmButton: false });
   } catch (error) {
     console.error("Erro ao salvar no backend, salvando localmente...", error);
     const novaLocal = { ...payload, id: Date.now(), data: new Date().toISOString() };
-    atividades.value.unshift(novaLocal);
+    listaAtividades.value.unshift(novaLocal);
     salvarLocal();
     novaAtividade.value = { titulo: "", descricao: "", status: "Pendente" };
     Swal.fire({ icon: "info", title: "Nota", text: "Salvo localmente (Backend indisponível).", timer: 1500 });
@@ -311,18 +392,18 @@ const removerAtividade = (id, backendId) => {
         if (backendId || typeof id === 'string') {
           await axios.delete(`${API_URL}/atividades/${backendId || id}`, getHeaders());
         }
-        atividades.value = atividades.value.filter(a => (a._id || a.id) !== (backendId || id));
+        listaAtividades.value = listaAtividades.value.filter(a => (a?._id || a?.id) !== (backendId || id));
         salvarLocal();
       } catch (error) {
         console.error("Erro ao eliminar no backend", error);
-        atividades.value = atividades.value.filter(a => (a._id || a.id) !== (backendId || id));
+        listaAtividades.value = listaAtividades.value.filter(a => (a?._id || a?.id) !== (backendId || id));
         salvarLocal();
       }
     }
   });
 };
 
-const salvarLocal = () => localStorage.setItem("rpa_atividades_colaboradores", JSON.stringify(atividades.value));
+const salvarLocal = () => localStorage.setItem("rpa_atividades_colaboradores", JSON.stringify(listaAtividades.value));
 const formatarData = (isoDate) => new Date(isoDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 const statusClass = (status) => {
   if (status === "Concluído") return "text-success";
