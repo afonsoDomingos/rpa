@@ -41,10 +41,9 @@
           </div>
         </RouterLink>
 
-        <!-- BUSCA E TEMA (Desktop + Mobile) -->
+        <!-- BUSCA (Desktop + Mobile) -->
         <div class="d-flex align-items-center gap-2">
           <GlobalSearch />
-          <ThemeToggle />
         </div>
       </div>
 
@@ -379,7 +378,6 @@ import { ref, watch, onMounted, nextTick } from "vue";
 import { useWindowsWidth } from "../../assets/js/useWindowsWidth";
 import olhodedeus from "./olhodedeus.vue"; // Componente do olho
 import Swal from "sweetalert2"; // Import SweetAlert2
-import ThemeToggle from "@/components/ThemeToggle.vue";
 import GlobalSearch from "@/components/GlobalSearch.vue";
 
 const dropdownMenu = ref(null);
