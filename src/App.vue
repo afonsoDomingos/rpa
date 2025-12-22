@@ -81,7 +81,7 @@ const openLinkedIn = () => {
 
 onMounted(() => {
   // Wake up Render backend (cold start mitigation)
-  axios.get("https://apirpa.onrender.com/api/auth/ping").catch(() => {});
+  axios.get("https://apirpa.onrender.com/api/documentos").catch(() => {});
 
   window.addEventListener("scroll", handleScroll);
   window.addEventListener("mousemove", handleMouseMove);
