@@ -420,13 +420,6 @@ const statusClass = (status) => {
   return "text-warning";
 };
 
-const salvarLocal = () => localStorage.setItem("rpa_atividades_colaboradores", JSON.stringify(listaAtividades.value));
-const formatarData = (isoDate) => new Date(isoDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-const statusClass = (status) => {
-  if (status === "Concluído") return "text-success";
-  if (status === "Em Progresso") return "text-info";
-  return "text-warning";
-};
 
 // --- GERAÇÃO DE RELATÓRIO PDF ---
 const gerarRelatorioPDF = () => {
