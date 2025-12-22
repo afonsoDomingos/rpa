@@ -351,6 +351,11 @@
             </div>
           </li>
 
+          <!-- BUSCA GLOBAL (Desktop) -->
+          <li class="d-none d-lg-flex align-items-center me-2">
+            <GlobalSearch />
+          </li>
+
           <!-- ==== ASSINATURA (desktop) ==== -->
           <li class="d-none d-lg-block">
             <a
@@ -363,10 +368,6 @@
             >
               Assinatura
             </a>
-          </li>
-          <!-- BUSCA GLOBAL (Desktop) -->
-          <li class="d-none d-lg-flex align-items-center ms-2">
-            <GlobalSearch />
           </li>
         </ul>
       </div>
