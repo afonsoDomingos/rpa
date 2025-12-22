@@ -1,9 +1,8 @@
 <template>
   <div>
     <!-- Botão Gatilho (Navbar) -->
-    <button class="search-trigger" @click="isOpen = true" title="Pesquisar (Ctrl + K)">
+    <button class="search-trigger" @click="isOpen = true">
       <i class="bi bi-search"></i>
-      <span class="d-none d-md-inline ms-2 text-xs opacity-7">Ctrl + K</span>
     </button>
 
     <!-- Modal Overlay -->
