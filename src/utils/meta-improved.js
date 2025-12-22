@@ -15,9 +15,13 @@ export const sendMetaEvent = async (eventName, params = {}, userData = {}) => {
     const eventId = genId();
 
     // 1. Pixel (browser) – já carregado no index.html
-    if (window.fbq) {
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+    if (window.fbq && !isLocalhost) {
         window.fbq("track", eventName, params, { eventID: eventId });
         console.log(`[Meta Pixel] ${eventName}`, params);
+    } else if (isLocalhost) {
+        console.log(`[Meta Pixel] Ignorado em localhost: ${eventName}`);
     } else {
         console.warn("[Meta Pixel] fbq não está disponível");
     }
