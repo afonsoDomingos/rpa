@@ -10,7 +10,12 @@
       </div>
 
       <!-- Main Navigation Tabs -->
-      <div class="d-flex justify-content-center mb-4">
+      <div class="d-flex justify-content-center mb-4 flex-wrap gap-2">
+        <div class="d-flex align-items-center">
+             <button @click="gerarRelatorioPDF" class="btn btn-outline-dark mb-0 me-3 d-flex align-items-center">
+                <i class="bi bi-file-earmark-pdf-fill me-2 text-danger"></i> Exportar PDF
+             </button>
+        </div>
         <div class="nav-wrapper position-relative end-0">
           <ul class="nav nav-pills nav-fill p-1" role="tablist">
             <li class="nav-item">
@@ -254,6 +259,10 @@ import {
 } from 'chart.js';
 import { Doughnut, Bar } from 'vue-chartjs';
 
+// PDF Export Imports
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+
 ChartJS.register(Title, Tooltip, Legend, ArcElement, BarElement, CategoryScale, LinearScale);
 
 const carregando = ref(false);
@@ -409,6 +418,119 @@ const statusClass = (status) => {
   if (status === "Concluído") return "text-success";
   if (status === "Em Progresso") return "text-info";
   return "text-warning";
+};
+
+const salvarLocal = () => localStorage.setItem("rpa_atividades_colaboradores", JSON.stringify(listaAtividades.value));
+const formatarData = (isoDate) => new Date(isoDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+const statusClass = (status) => {
+  if (status === "Concluído") return "text-success";
+  if (status === "Em Progresso") return "text-info";
+  return "text-warning";
+};
+
+// --- GERAÇÃO DE RELATÓRIO PDF ---
+const gerarRelatorioPDF = () => {
+  if (listaAtividades.value.length === 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Sem dados',
+      text: 'Não há atividades para gerar relatório.',
+      confirmButtonColor: '#800080'
+    });
+    return;
+  }
+
+  const doc = new jsPDF();
+  
+  // Header com cor da marca
+  doc.setFillColor(128, 0, 128); // Roxo #800080
+  doc.rect(0, 0, 210, 20, 'F');
+  
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16);
+  doc.setFont("helvetica", "bold");
+  doc.text("Relatório de Atividades - RPA", 105, 13, { align: "center" });
+  
+  // Informações do Relatório
+  doc.setTextColor(40, 40, 40);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Data de Emissão: ${new Date().toLocaleString('pt-BR')}`, 14, 30);
+  doc.text(`Total de Registos: ${listaAtividades.value.length}`, 14, 35);
+  
+  // Preparar dados para tabela
+  // Colunas: Status, Setor, Atividade, Descrição, Data
+  const tableColumn = ["Status", "Setor", "Atividade", "Descrição", "Data"];
+  const tableRows = [];
+  
+  listaAtividades.value.forEach(activity => {
+    // Buscar nome do setor
+    const setorObj = setores.find(s => s.id === activity.setorId);
+    const nomeSetor = setorObj ? setorObj.nome : activity.setorId || "N/A";
+    
+    // Tratamento de dados
+    const activityData = [
+      activity.status,
+      nomeSetor,
+      activity.titulo,
+      activity.descricao?.substring(0, 50) + (activity.descricao?.length > 50 ? '...' : ''), // Truncar descrição longa
+      formatarData(activity.data)
+    ];
+    tableRows.push(activityData);
+  });
+  
+  // Gerar Tabela
+  doc.autoTable({
+    head: [tableColumn],
+    body: tableRows,
+    startY: 45,
+    theme: 'grid',
+    headStyles: {
+      fillColor: [128, 0, 128], // Roxo no header da tabela
+      textColor: 255,
+      halign: 'center',
+      fontStyle: 'bold'
+    },
+    styles: {
+      fontSize: 9,
+      cellPadding: 3,
+      valign: 'middle'
+    },
+    columnStyles: {
+      0: { fontStyle: 'bold' }, // Status bold
+      3: { cellWidth: 70 } // Descrição mais larga
+    },
+    didParseCell: function(data) {
+       // Colorir texto baseado no status
+       if (data.section === 'body' && data.column.index === 0) {
+           const status = data.cell.raw;
+           if (status === 'Concluído') data.cell.styles.textColor = [76, 175, 80]; // Verde
+           else if (status === 'Em Progresso') data.cell.styles.textColor = [26, 115, 232]; // Azul
+           else if (status === 'Pendente') data.cell.styles.textColor = [251, 140, 0]; // Laranja
+       }
+    }
+  });
+
+  // Footer com numeração
+  const pageCount = doc.internal.getNumberOfPages();
+  for(let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(150);
+    doc.text('Página ' + i + ' de ' + pageCount, 196, 285, { align: 'right' });
+    doc.text('Gerado pelo sistema RPA', 14, 285);
+  }
+
+  // Salvar
+  doc.save(`Relatorio_Atividades_RPA_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`);
+  
+  Swal.fire({
+    icon: 'success',
+    title: 'Download Iniciado',
+    text: 'O seu relatório PDF foi gerado com sucesso.',
+    confirmButtonColor: '#800080',
+    timer: 2000
+  });
 };
 
 onMounted(() => carregarAtividades());
