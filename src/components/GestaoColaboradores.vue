@@ -51,7 +51,7 @@
               <a
                 class="nav-link mb-0 px-0 py-1"
                 :class="{ active: activeSector === setor.id }"
-                @click="activeSector = setor.id"
+                @click="mudarSetor(setor.id)"
                 href="javascript:;"
                 role="tab"
               >
@@ -100,8 +100,10 @@
                       <option value="Concluído">Concluído</option>
                     </select>
                   </div>
-                  <button type="submit" class="btn bg-gradient-primary w-100 mt-2">
-                    <i class="bi bi-plus-circle me-2"></i> Registar Atividade
+                  <button type="submit" class="btn bg-gradient-primary w-100 mt-2" :disabled="isSaving">
+                    <span v-if="isSaving" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    <i v-else class="bi bi-plus-circle me-2"></i> 
+                    {{ isSaving ? 'A guardar...' : 'Registar Atividade' }}
                   </button>
                 </form>
               </div>
@@ -122,11 +124,11 @@
                   <i class="bi bi-clipboard-x display-1 text-lighter opacity-2"></i>
                   <p class="text-secondary mt-3">Nenhuma atividade registada neste setor.</p>
                 </div>
-                <ul v-else class="list-group">
+                <transition-group name="list" tag="ul" class="list-group">
                   <li
-                    v-for="(ativ, index) in atividadesSetorAtual"
+                    v-for="(ativ, index) in atividadesPaginadas"
                     :key="ativ?._id || ativ?.id || index"
-                    class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg bg-white shadow-sm"
+                    class="list-group-item border-0 d-flex justify-content-between ps-0 mb-3 border-radius-lg bg-white shadow-sm"
                   >
                     <div class="d-flex align-items-center ps-3">
                       <div
@@ -137,18 +139,23 @@
                       <div class="d-flex flex-column">
                         <h6 class="mb-1 text-dark text-sm font-weight-bold">{{ ativ.titulo }}</h6>
                         <span class="text-xs text-muted">{{ ativ.descricao }}</span>
-                        <small class="text-xxs text-secondary mt-1">
-                          <i class="bi bi-clock me-1"></i> {{ formatarData(ativ.data) }}
-                        </small>
+                        <div class="d-flex align-items-center mt-1">
+                          <small class="text-xxs text-secondary me-3">
+                            <i class="bi bi-clock me-1"></i> {{ formatarData(ativ.data) }}
+                          </small>
+                          <small :class="statusClass(ativ.status)" class="text-xxs font-weight-bold">
+                            <i class="bi bi-circle-fill me-1" style="font-size: 6px;"></i> {{ ativ.status }}
+                          </small>
+                        </div>
                       </div>
                     </div>
                     <div class="d-flex align-items-center pe-3">
                       <select
                         v-model="ativ.status"
                         @change="atualizarStatus(ativ)"
-                        class="form-select form-select-sm border-0 bg-transparent fw-bold me-3 text-end"
+                        class="form-select form-select-sm border-0 bg-light fw-bold me-3 text-center rounded-pill px-3"
                         :class="statusClass(ativ.status)"
-                        style="width: auto;"
+                        style="width: auto; font-size: 0.75rem;"
                       >
                         <option value="Pendente">Pendente</option>
                         <option value="Em Progresso">Em Progresso</option>
@@ -156,13 +163,39 @@
                       </select>
                       <button
                         @click="removerAtividade(ativ.id, ativ._id)"
-                        class="btn btn-link text-danger mb-0 px-0"
+                        class="btn btn-icon-only btn-rounded btn-outline-danger mb-0 btn-sm ms-2"
+                        title="Eliminar"
                       >
                         <i class="bi bi-trash"></i>
                       </button>
                     </div>
                   </li>
-                </ul>
+                </transition-group>
+
+                <!-- Paginação -->
+                <div v-if="totalPaginas > 1" class="d-flex justify-content-center align-items-center mt-4 gap-3">
+                  <button 
+                    @click="paginaAtual--" 
+                    :disabled="paginaAtual === 1"
+                    class="btn btn-outline-dark btn-sm mb-0 rounded-circle p-2"
+                    style="width: 35px; height: 35px;"
+                  >
+                    <i class="bi bi-chevron-left"></i>
+                  </button>
+                  
+                  <span class="text-sm font-weight-bold text-dark">
+                    Página {{ paginaAtual }} de {{ totalPaginas }}
+                  </span>
+                  
+                  <button 
+                    @click="paginaAtual++" 
+                    :disabled="paginaAtual === totalPaginas"
+                    class="btn btn-outline-dark btn-sm mb-0 rounded-circle p-2"
+                    style="width: 35px; height: 35px;"
+                  >
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -171,28 +204,64 @@
 
       <!-- STATISTICS VIEW -->
       <div v-else class="stats-view animate__animated animate__fadeIn">
+        <!-- FILTROS DAS ESTATÍSTICAS -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card shadow-sm border-radius-lg bg-white p-3">
+              <div class="d-flex align-items-center flex-wrap gap-3">
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-funnel-fill text-primary me-2"></i>
+                  <span class="fw-bold text-dark me-3">Filtrar:</span>
+                </div>
+                
+                <div class="flex-grow-1 min-width-200">
+                  <select v-model="filtroSetorStats" class="form-select form-select-sm border p-2">
+                    <option value="todos">Todos os Setores</option>
+                    <option v-for="setor in setores" :key="setor.id" :value="setor.id">
+                      {{ setor.nome }}
+                    </option>
+                  </select>
+                </div>
+                
+                <div class="flex-grow-1 min-width-200">
+                  <select v-model="filtroPeriodoStats" class="form-select form-select-sm border p-2">
+                    <option value="todos">Todo o Período</option>
+                    <option value="hoje">Hoje</option>
+                    <option value="semana">Últimos 7 dias</option>
+                    <option value="mes">Último mês</option>
+                  </select>
+                </div>
+
+                <button @click="resetFiltrosStats" class="btn btn-link text-secondary mb-0 p-2">
+                  <i class="bi bi-x-circle me-1"></i> Limpar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="row">
           <!-- Summary Cards -->
           <div class="col-md-3 mb-4">
-            <div class="card shadow-sm border-radius-lg bg-white p-3 text-center border-left-primary">
-              <p class="text-sm mb-0 text-capitalize font-weight-bold">Total Atividades</p>
-              <h5 class="font-weight-bolder mb-0">{{ listaAtividades.length }}</h5>
+            <div class="card shadow-sm border-radius-lg bg-white p-3 text-center border-left-primary h-100">
+              <p class="text-sm mb-0 text-capitalize font-weight-bold">Total Filtrado</p>
+              <h5 class="font-weight-bolder mb-0">{{ atividadesFiltradasStats.length }}</h5>
             </div>
           </div>
           <div class="col-md-3 mb-4">
-            <div class="card shadow-sm border-radius-lg bg-white p-3 text-center border-left-success">
+            <div class="card shadow-sm border-radius-lg bg-white p-3 text-center border-left-success h-100">
               <p class="text-sm mb-0 text-capitalize font-weight-bold text-success">Concluídas</p>
               <h5 class="font-weight-bolder mb-0">{{ countByStatus('Concluído') }}</h5>
             </div>
           </div>
           <div class="col-md-3 mb-4">
-            <div class="card shadow-sm border-radius-lg bg-white p-3 text-center border-left-info">
+            <div class="card shadow-sm border-radius-lg bg-white p-3 text-center border-left-info h-100">
               <p class="text-sm mb-0 text-capitalize font-weight-bold text-info">Em Progresso</p>
               <h5 class="font-weight-bolder mb-0">{{ countByStatus('Em Progresso') }}</h5>
             </div>
           </div>
           <div class="col-md-3 mb-4">
-            <div class="card shadow-sm border-radius-lg bg-white p-3 text-center border-left-warning">
+            <div class="card shadow-sm border-radius-lg bg-white p-3 text-center border-left-warning h-100">
               <p class="text-sm mb-0 text-capitalize font-weight-bold text-warning">Pendentes</p>
               <h5 class="font-weight-bolder mb-0">{{ countByStatus('Pendente') }}</h5>
             </div>
@@ -205,7 +274,7 @@
             <div class="card shadow-lg border-radius-lg p-3 h-100">
               <h6 class="font-weight-bold mb-4">Distribuição por Status</h6>
               <div class="chart-container" style="position: relative; height:250px;">
-                <Doughnut v-if="listaAtividades.length > 0" :data="statusChartData" :options="chartOptions" />
+                <Doughnut v-if="atividadesFiltradasStats.length > 0" :data="statusChartData" :options="chartOptions" />
                 <div v-else class="text-center py-5">Sem dados para exibir.</div>
               </div>
             </div>
@@ -215,7 +284,7 @@
             <div class="card shadow-lg border-radius-lg p-3 h-100">
               <h6 class="font-weight-bold mb-4">Atividades por Sector</h6>
               <div class="chart-container" style="position: relative; height:250px;">
-                <Bar v-if="listaAtividades.length > 0" :data="sectorChartData" :options="chartOptions" />
+                <Bar v-if="atividadesFiltradasStats.length > 0" :data="sectorChartData" :options="chartOptions" />
                 <div v-else class="text-center py-5">Sem dados para exibir.</div>
               </div>
             </div>
@@ -240,6 +309,19 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { io } from "socket.io-client";
+
+// Configuração de Toast do SweetAlert2
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.addEventListener('mouseenter', Swal.stopTimer)
+    toast.addEventListener('mouseleave', Swal.resumeTimer)
+  }
+});
 
 // Configuração da API
 const API_URL = "https://apirpa.onrender.com/api";
@@ -267,7 +349,14 @@ import 'jspdf-autotable';
 ChartJS.register(Title, Tooltip, Legend, ArcElement, BarElement, CategoryScale, LinearScale);
 
 const carregando = ref(false);
+const isSaving = ref(false);
 const viewMode = ref("registo"); // 'registo' ou 'stats'
+const paginaAtual = ref(1);
+const itensPorPagina = 5;
+
+// Filtros de Estatísticas
+const filtroSetorStats = ref("todos");
+const filtroPeriodoStats = ref("todos"); // todos, hoje, semana, mes
 
 // Setores e Tarefas
 const setores = [
@@ -292,10 +381,66 @@ const atividadesSetorAtual = computed(() => {
   return listaAtividades.value.filter(a => a && a.setorId === activeSector.value);
 });
 
+const totalPaginas = computed(() => {
+  return Math.ceil(atividadesSetorAtual.value.length / itensPorPagina);
+});
+
+const atividadesPaginadas = computed(() => {
+  const inicio = (paginaAtual.value - 1) * itensPorPagina;
+  const fim = inicio + itensPorPagina;
+  return atividadesSetorAtual.value.slice(inicio, fim);
+});
+
+const mudarSetor = (id) => {
+  activeSector.value = id;
+  paginaAtual.value = 1;
+};
+
+// Logica de Filtro de Estatísticas
+const atividadesFiltradasStats = computed(() => {
+  let filtradas = listaAtividades.value || [];
+  
+  // Filtro por Setor
+  if (filtroSetorStats.value !== "todos") {
+    filtradas = filtradas.filter(a => a && a.setorId === filtroSetorStats.value);
+  }
+  
+  // Filtro por Período
+  if (filtroPeriodoStats.value !== "todos") {
+    const agora = new Date();
+    const hoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+    
+    filtradas = filtradas.filter(a => {
+      if (!a.data) return false;
+      const dataAtiv = new Date(a.data);
+      
+      if (filtroPeriodoStats.value === "hoje") {
+        return dataAtiv >= hoje;
+      } else if (filtroPeriodoStats.value === "semana") {
+        const umaSemanaAtras = new Date(hoje);
+        umaSemanaAtras.setDate(hoje.getDate() - 7);
+        return dataAtiv >= umaSemanaAtras;
+      } else if (filtroPeriodoStats.value === "mes") {
+        const umMesAtras = new Date(hoje);
+        umMesAtras.setMonth(hoje.getMonth() - 1);
+        return dataAtiv >= umMesAtras;
+      }
+      return true;
+    });
+  }
+  
+  return filtradas;
+});
+
+const resetFiltrosStats = () => {
+  filtroSetorStats.value = "todos";
+  filtroPeriodoStats.value = "todos";
+};
+
 // Estatísticas
 const countByStatus = (status) => {
-  if (!listaAtividades.value) return 0;
-  return listaAtividades.value.filter(a => a && a.status === status).length;
+  if (!atividadesFiltradasStats.value) return 0;
+  return atividadesFiltradasStats.value.filter(a => a && a.status === status).length;
 };
 
 const statusChartData = computed(() => ({
@@ -307,12 +452,18 @@ const statusChartData = computed(() => ({
 }));
 
 const sectorChartData = computed(() => {
-  const counts = setores.map(s => {
-    if (!listaAtividades.value) return 0;
-    return listaAtividades.value.filter(a => a && a.setorId === s.id).length;
+  // Se o filtro de setor estiver ativo, mostramos apenas aquele setor no gráfico de barras
+  const setoresParaExibir = filtroSetorStats.value === "todos" 
+    ? setores 
+    : setores.filter(s => s.id === filtroSetorStats.value);
+
+  const counts = setoresParaExibir.map(s => {
+    if (!atividadesFiltradasStats.value) return 0;
+    return atividadesFiltradasStats.value.filter(a => a && a.setorId === s.id).length;
   });
+
   return {
-    labels: setores.map(s => s.nome),
+    labels: setoresParaExibir.map(s => s.nome),
     datasets: [{
       label: 'Atividades',
       backgroundColor: '#800080',
@@ -355,6 +506,7 @@ const carregarAtividades = async () => {
 const adicionarAtividade = async () => {
   if (!novaAtividade.value.titulo || !novaAtividade.value.descricao) return;
   
+  isSaving.value = true;
   const payload = {
     setorId: activeSector.value,
     titulo: novaAtividade.value.titulo,
@@ -364,16 +516,26 @@ const adicionarAtividade = async () => {
 
   try {
     const { data } = await axios.post(`${API_URL}/atividades`, payload, getHeaders());
-    if (data) listaAtividades.value.unshift(data);
+    if (data) {
+      listaAtividades.value.unshift(data);
+      Toast.fire({
+        icon: 'success',
+        title: 'Atividade registada com sucesso!'
+      });
+    }
     novaAtividade.value = { titulo: "", descricao: "", status: "Pendente" };
-    Swal.fire({ icon: "success", title: "Sucesso", text: "Atividade registada no servidor.", timer: 1500, showConfirmButton: false });
   } catch (error) {
     console.error("Erro ao salvar no backend, salvando localmente...", error);
     const novaLocal = { ...payload, id: Date.now(), data: new Date().toISOString() };
     listaAtividades.value.unshift(novaLocal);
     salvarLocal();
     novaAtividade.value = { titulo: "", descricao: "", status: "Pendente" };
-    Swal.fire({ icon: "info", title: "Nota", text: "Salvo localmente (Backend indisponível).", timer: 1500 });
+    Toast.fire({
+      icon: 'info',
+      title: 'Salvo localmente (Servidor Offline)'
+    });
+  } finally {
+    isSaving.value = false;
   }
 };
 
@@ -388,14 +550,15 @@ const atualizarStatus = async (ativ) => {
 
 const removerAtividade = (id, backendId) => {
   Swal.fire({
-    title: "Tem a certeza?",
-    text: "Esta ação não pode ser revertida.",
+    title: "Tens a certeza?",
+    text: "Esta atividade será eliminada permanentemente.",
     icon: "warning",
     showCancelButton: true,
-    confirmButtonColor: "#800080",
-    cancelButtonColor: "#d33",
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#800080",
     confirmButtonText: "Sim, eliminar",
-    cancelButtonText: "Cancelar"
+    cancelButtonText: "Cancelar",
+    reverseButtons: true
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {
@@ -404,10 +567,18 @@ const removerAtividade = (id, backendId) => {
         }
         listaAtividades.value = listaAtividades.value.filter(a => (a?._id || a?.id) !== (backendId || id));
         salvarLocal();
+        Toast.fire({
+          icon: 'success',
+          title: 'Atividade eliminada'
+        });
       } catch (error) {
         console.error("Erro ao eliminar no backend", error);
         listaAtividades.value = listaAtividades.value.filter(a => (a?._id || a?.id) !== (backendId || id));
         salvarLocal();
+        Toast.fire({
+          icon: 'success',
+          title: 'Eliminado localmente'
+        });
       }
     }
   });
@@ -651,6 +822,10 @@ onUnmounted(() => {
   justify-content: center;
 }
 
+.min-width-200 {
+  min-width: 200px;
+}
+
 .min-width-150 {
   min-width: 150px;
 }
@@ -663,5 +838,25 @@ onUnmounted(() => {
   .nav-pills {
     flex-wrap: nowrap;
   }
+}
+
+/* Animations for Transition Group */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s cubic-bezier(0.55, 0, 0.1, 1);
+}
+
+.list-enter-from {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.list-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.list-move {
+  transition: transform 0.4s ease;
 }
 </style>

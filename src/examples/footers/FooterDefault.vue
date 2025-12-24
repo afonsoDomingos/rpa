@@ -163,12 +163,23 @@ defineProps({
                 >Techvibe</a
               >.
             </p>
+            <button class="btn btn-sm btn-outline-secondary opacity-50" @click="testarNotificacao">🔔 Testar Notificação</button>
           </div>
         </div>
       </div>
     </div>
   </footer>
 </template>
+<script>
+import { notificationManager } from '@/utils/notificationManager';
+export default {
+  methods: {
+    testarNotificacao() {
+      notificationManager.notifyDocumentoEncontrado('Documento Teste');
+    }
+  }
+}
+</script>
 <style scoped>
 .text-purple {
   color: #800080 !important;

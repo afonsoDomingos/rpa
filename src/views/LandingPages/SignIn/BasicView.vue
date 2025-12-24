@@ -1,11 +1,9 @@
 <script setup lang="ts">  
 import { ref, onMounted, computed, nextTick } from "vue";
 import { useRouter } from "vue-router";
-import axios from "axios";
+import api from "@/api";
 import NavbarDefault from "../../../examples/navbars/NavbarDefault.vue";
 import Swal from "sweetalert2";
-
-
 
 // Interfaces
 interface UserCredentials {
@@ -18,19 +16,6 @@ interface RegisterData {
   senha: string;
   role: string;
 }
-
-// API
-const api = {
-  async login(credentials: UserCredentials) {
-    return axios.post("https://apirpa.onrender.com/api/auth/login", credentials);
-  },
-  async register(data: RegisterData) {
-    return axios.post("https://apirpa.onrender.com/api/auth/register", data);
-  },
-  async googleAuth(token: string) {
-    return axios.post("https://apirpa.onrender.com/api/auth/google", { token });
-  }
-};
 
 // Estado
 const router = useRouter();
@@ -78,22 +63,22 @@ const login = async () => {
   errorMessage.value = "";
   isTakingLong.value = false;
 
-  // Feedback para cold start do Render
   const slowTimer = setTimeout(() => {
     isTakingLong.value = true;
   }, 3000);
 
   try {
-    const res = await api.login({
+    const res = await api.post("/auth/login", {
       email: email.value.trim().toLowerCase(),
       senha: password.value.trim(),
     });
     localStorage.setItem("token", res.data.token);
-    localStorage.setItem("email", res.data.email);
+    localStorage.setItem("email", res.data.email || res.data.usuario?.email);
     const redirectUrl = res.data.redirectUrl || "/home";
     await router.push(redirectUrl);
   } catch (err: any) {
-    errorMessage.value = err.response?.data?.msg || "Falha no login. Tente novamente.";
+    console.error("Login Error:", err);
+    errorMessage.value = err.response?.data?.msg || "Falha no login. Verifique seus dados e tente novamente.";
   } finally {
     clearTimeout(slowTimer);
     isLoading.value = false;
@@ -108,7 +93,7 @@ const register = async () => {
       ? "As senhas não coincidem"
       : newPassword.value.length < 8
       ? "A senha deve ter pelo menos 8 caracteres"
-      : "Por favor, preencha todos os campos obrigatórios";
+      : "Por favor, preencha todos os campos obrigatórios (Nome, E-mail e Senhas)";
     return;
   }
   if (!validateEmail(newEmail.value)) {
@@ -117,29 +102,59 @@ const register = async () => {
   }
   isLoading.value = true;
   errorMessage.value = "";
+  isTakingLong.value = false;
+
+  const slowTimer = setTimeout(() => {
+    isTakingLong.value = true;
+  }, 3000);
+
   try {
-    await api.register({
+    const res = await api.post("/auth/register", {
       nome: nome.value.trim(),
       email: newEmail.value.trim().toLowerCase(),
       senha: newPassword.value.trim(),
       role: "cliente",
     });
+
+    // Tentar auto-login se o backend retornar token
+    const token = res.data?.token;
+    if (token) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("email", res.data.email || res.data.usuario?.email || newEmail.value);
+      
+      Swal.fire({
+        title: 'Bem-vindo!',
+        text: 'Sua conta foi criada com sucesso.',
+        icon: 'success',
+        confirmButtonColor: '#800080',
+        timer: 2000
+      });
+      
+      await router.push("/home");
+      return;
+    }
+
+    // Comportamento padrão: enviar para login
     errorMessage.value = "";
     modo.value = "login";
+    email.value = newEmail.value; // Preenche o campo de login automaticamente
+    password.value = newPassword.value;
     nome.value = newEmail.value = newPassword.value = confirmPassword.value = "";
     
-    // Alerta bonito com SweetAlert2
     Swal.fire({
       title: 'Sucesso!',
-      text: 'Conta criada com sucesso!',
+      text: 'Conta criada! Você já pode entrar.',
       icon: 'success',
       confirmButtonColor: '#800080',
       timer: 3000
     });
   } catch (err: any) {
-    errorMessage.value = err.response?.data?.msg || "Falha no registro. Tente novamente.";
+    console.error("Register Error:", err);
+    errorMessage.value = err.response?.data?.msg || "Falha no registro. O servidor pode estar iniciando, tente novamente em instantes.";
   } finally {
+    clearTimeout(slowTimer);
     isLoading.value = false;
+    isTakingLong.value = false;
   }
 };
 
@@ -148,7 +163,7 @@ const handleCredentialResponse = async (response: { credential: string }) => {
   isLoading.value = true;
   errorMessage.value = "";
   try {
-    const res = await api.googleAuth(response.credential);
+    const res = await api.post("/auth/google", { token: response.credential });
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("email", res.data.usuario.email);
     const redirectUrl =

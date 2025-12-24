@@ -1,3 +1,21 @@
+import api from '../api';
+
+// ⚠️ SUBSTUA PELA SUA CHAVE PÚBLICA VAPID DO BACKEND SE MUDAR
+const VAPID_PUBLIC_KEY = 'BGf3f6anck8PlGCHDcM6eThytG0ACCMk5owfTfND60revsBBvyRwCCovY5ZnYLCMeiP9HvAVUCzEsf4EcgyPdNM';
+
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
 // Notification Manager - Sistema de Push Notifications
 export class NotificationManager {
     constructor() {
@@ -20,6 +38,10 @@ export class NotificationManager {
         try {
             this.registration = await navigator.serviceWorker.register('/service-worker.js');
             console.log('✅ Service Worker registrado:', this.registration);
+
+            // Tentar subscrever ao Push Service
+            await this.subscribeToPush();
+
             return true;
         } catch (error) {
             console.error('❌ Erro ao registrar Service Worker:', error);
@@ -55,6 +77,33 @@ export class NotificationManager {
         } catch (error) {
             console.error('Erro ao pedir permissão:', error);
             return { granted: false, reason: 'error' };
+        }
+    }
+
+    // Subscrever ao Push Service
+    async subscribeToPush() {
+        if (!this.registration) return;
+
+        try {
+            const subscription = await this.registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+            });
+
+            console.log('📡 Subscrição Push Gerada:', subscription);
+            await this.sendSubscriptionToBackend(subscription);
+        } catch (error) {
+            console.error('❌ Erro ao subscrever ao Push:', error);
+        }
+    }
+
+    // Enviar subscrição para o backend
+    async sendSubscriptionToBackend(subscription) {
+        try {
+            await api.post('/notifications/subscribe', subscription);
+            console.log('💾 Subscrição salva no backend!');
+        } catch (error) {
+            console.error('❌ Erro ao enviar subscrição para o backend:', error);
         }
     }
 
