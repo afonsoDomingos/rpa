@@ -50,13 +50,18 @@
             <li v-for="setor in setores" :key="setor.id" class="nav-item min-width-150">
               <a
                 class="nav-link mb-0 px-0 py-1"
-                :class="{ active: activeSector === setor.id }"
+                :class="{ 
+                  active: activeSector === setor.id,
+                  'opacity-75': isSetorBloqueado(setor.id)
+                }"
                 @click="mudarSetor(setor.id)"
                 href="javascript:;"
                 role="tab"
+                :style="isSetorBloqueado(setor.id) ? 'cursor: not-allowed' : ''"
               >
                 <i class="bi" :class="setor.icone + ' me-2'"></i>
                 <span class="ms-1">{{ setor.nome }}</span>
+                <i v-if="isSetorBloqueado(setor.id)" class="bi bi-lock-fill ms-2 text-danger" title="Restrito a SuperAdmin"></i>
               </a>
             </li>
           </ul>
@@ -370,7 +375,17 @@ const setores = [
   { id: "financeiro", nome: "Financeiro", icone: "bi-cash-coin", tarefas: ["Controle de Pagamentos", "Emissão de Recibos", "Organização de Dados Financeiros", "Geração de Relatórios", "Controle de Produtividade", "Apoio à Decisão (Dados)"] }
 ];
 
-const activeSector = ref("ceo");
+// SEGURANÇA: Controlo de acesso aos setores
+const currentUserRole = ref(localStorage.getItem("role") || "cliente");
+const setoresRestritos = ["ceo", "financeiro"]; // Bloqueados para Admin normal
+
+const isSetorBloqueado = (setorId) => {
+  if (currentUserRole.value === 'SuperAdmin') return false;
+  return setoresRestritos.includes(setorId);
+};
+
+// Se não for SuperAdmin, começa no RH (evita erro de acesso ao CEO)
+const activeSector = ref(isSetorBloqueado("ceo") ? "rh" : "ceo");
 const listaAtividades = ref([]);
 const novaAtividade = ref({ titulo: "", descricao: "", status: "Pendente" });
 
@@ -392,6 +407,19 @@ const atividadesPaginadas = computed(() => {
 });
 
 const mudarSetor = (id) => {
+  if (isSetorBloqueado(id)) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Acesso Restrito',
+      text: 'Este departamento é exclusivo para SuperAdmin.',
+      confirmButtonColor: '#800080',
+      toast: true,
+      position: 'top-end',
+      timer: 3000,
+      showConfirmButton: false
+    });
+    return;
+  }
   activeSector.value = id;
   paginaAtual.value = 1;
 };
