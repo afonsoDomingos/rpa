@@ -156,4 +156,30 @@ const router = createRouter({
   ],
 });
 
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+  const isAuthenticated = !!token;
+
+  // 1. Verificar Autenticação
+  if (to.meta.requerAutenticacao && !isAuthenticated) {
+    next("/");
+    return;
+  }
+
+  // 2. Verificar Permissão de Admin (Serve para Admin e SuperAdmin)
+  if (to.meta.requerAdmin) {
+    if (["admin", "SuperAdmin"].includes(role)) {
+      next();
+    } else {
+      // Redirecionar para home se não tiver permissão
+      next("/home");
+    }
+    return;
+  }
+
+  // 3. Rota livre
+  next();
+});
+
 export default router;

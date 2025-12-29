@@ -74,7 +74,13 @@ const login = async () => {
     });
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("email", res.data.email || res.data.usuario?.email);
-    const redirectUrl = res.data.redirectUrl || "/home";
+    
+    // Salvar role para uso no Router Guard
+    const role = res.data.usuario?.role || "cliente";
+    localStorage.setItem("role", role);
+
+    // Redireciona Admins e SuperAdmins para o Dashboard
+    const redirectUrl = res.data.redirectUrl || (["admin", "SuperAdmin"].includes(role) ? "/dashboard/admin" : "/home");
     await router.push(redirectUrl);
   } catch (err: any) {
     console.error("Login Error:", err);
@@ -121,6 +127,7 @@ const register = async () => {
     if (token) {
       localStorage.setItem("token", token);
       localStorage.setItem("email", res.data.email || res.data.usuario?.email || newEmail.value);
+      localStorage.setItem("role", "cliente"); // Registro novo é sempre cliente
       
       Swal.fire({
         title: 'Bem-vindo!',
@@ -166,9 +173,13 @@ const handleCredentialResponse = async (response: { credential: string }) => {
     const res = await api.post("/auth/google", { token: response.credential });
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("email", res.data.usuario.email);
+    
+    const role = res.data.usuario.role || "cliente";
+    localStorage.setItem("role", role);
+
     const redirectUrl =
       res.data.redirectUrl ||
-      (res.data.usuario.role === "admin" ? "/dashboard/admin" : "/home");
+      (["admin", "SuperAdmin"].includes(role) ? "/dashboard/admin" : "/home");
     await router.push(redirectUrl);
   } catch (err: any) {
     errorMessage.value = err.response?.data?.msg || "Falha no login com Google";

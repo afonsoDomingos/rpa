@@ -90,14 +90,15 @@
                 <select v-model="usuarioEditando.role" class="form-select form-select-sm">
                   <option value="cliente">Cliente</option>
                   <option value="admin">Admin</option>
+                  <option value="SuperAdmin" v-if="currentUserRole === 'SuperAdmin'">SuperAdmin</option>
                 </select>
               </div>
               <span
                 v-else
                 class="badge rounded-pill px-3 py-2"
-                :class="usuario.role === 'admin' ? 'bg-primary-subtle text-primary' : 'bg-success-subtle text-success'"
+                :class="getRoleClass(usuario.role)"
               >
-                <i class="bi" :class="usuario.role === 'admin' ? 'bi-star-fill' : 'bi-person-fill'"></i>
+                <i class="bi" :class="getRoleIcon(usuario.role)"></i>
                 {{ usuario.role.toUpperCase() }}
               </span>
             </td>
@@ -124,7 +125,7 @@
 
             <!-- Ações -->
             <td class="pe-4 text-end" data-label="Ações" data-icon="tools">
-              <div class="d-flex justify-content-end gap-2 flex-wrap">
+              <div class="d-flex justify-content-end gap-2 flex-wrap" v-if="podeGerenciar(usuario)">
                 <template v-if="editandoId === usuario.id">
                   <button
                     class="btn btn-success btn-sm d-flex align-items-center gap-1 shadow-sm"
@@ -214,6 +215,7 @@ const props = defineProps(["atualizar"]);
 
 // Estados
 const usuarios = ref([]);
+const currentUserRole = ref(localStorage.getItem("role") || "cliente");
 const filtro = ref("");
 const paginaAtual = ref(1);
 const porPagina = 5;
@@ -226,6 +228,19 @@ const senhaVisivel = ref(false);
 // Notificações
 const mensagem = ref("");
 const tipoMensagem = ref(""); // 'sucesso' ou 'erro'
+
+// Controle de Permissões
+const podeGerenciar = (u) => {
+  // SuperAdmin tem poder total
+  if (currentUserRole.value === 'SuperAdmin') return true;
+  
+  // Admin só pode gerenciar Clientes (não toca em outros Admins ou SuperAdmins)
+  if (currentUserRole.value === 'admin') {
+    return u.role !== 'admin' && u.role !== 'SuperAdmin';
+  }
+  
+  return false;
+};
 
 const mostrarMensagem = (msg, tipo = "sucesso") => {
   mensagem.value = msg;
@@ -350,6 +365,19 @@ watch(filtro, () => (paginaAtual.value = 1));
 watch(() => props.atualizar, buscarUsuarios);
 
 onMounted(buscarUsuarios);
+
+// Helpers para Roles
+const getRoleClass = (role) => {
+  if (role === 'admin') return 'bg-primary-subtle text-primary';
+  if (role === 'SuperAdmin') return 'bg-warning-subtle text-warning border border-warning-subtle';
+  return 'bg-success-subtle text-success';
+};
+
+const getRoleIcon = (role) => {
+  if (role === 'admin') return 'bi-star-fill';
+  if (role === 'SuperAdmin') return 'bi-shield-lock-fill';
+  return 'bi-person-fill';
+};
 </script>
 
 <style scoped>
