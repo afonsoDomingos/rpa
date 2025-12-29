@@ -61,6 +61,37 @@ const updateOnlineStatus = () => {
   }
   
   online.value = isNowOnline;
+  online.value = isNowOnline;
+};
+
+// Monitoramento de Conexão Lenta
+const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+const jaAvisouLentidao = ref(false);
+
+const verificarVelocidade = () => {
+  if (connection && online.value) {
+    const { downlink, rtt } = connection;
+    // Critério: Menos de 1Mbps ou Ping > 2000ms
+    const isSlow = (downlink && downlink < 1) || (rtt && rtt > 2000);
+
+    if (isSlow && !jaAvisouLentidao.value) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Conexão Instável',
+        text: 'Sua internet parece estar lenta.',
+        toast: true,
+        position: 'bottom-end', // Canto inferior para não sobrepor o menu
+        timer: 6000,
+        showConfirmButton: false,
+        timerProgressBar: true,
+        background: '#fff3cd',
+        color: '#856404'
+      });
+      jaAvisouLentidao.value = true;
+    } else if (!isSlow) {
+      jaAvisouLentidao.value = false; // Reset se melhorar
+    }
+  }
 };
 
 const verificarConexao = () => {
@@ -68,6 +99,7 @@ const verificarConexao = () => {
   // Simula verificação ou força check
   setTimeout(() => {
     online.value = navigator.onLine;
+    verificarVelocidade(); // Checa velocidade ao tentar reconectar
     verificando.value = false;
   }, 1000);
 };
@@ -75,11 +107,20 @@ const verificarConexao = () => {
 onMounted(() => {
   window.addEventListener('online', updateOnlineStatus);
   window.addEventListener('offline', updateOnlineStatus);
+  
+  if (connection) {
+    connection.addEventListener('change', verificarVelocidade);
+    verificarVelocidade(); // Checagem inicial
+  }
 });
 
 onUnmounted(() => {
   window.removeEventListener('online', updateOnlineStatus);
   window.removeEventListener('offline', updateOnlineStatus);
+  
+  if (connection) {
+    connection.removeEventListener('change', verificarVelocidade);
+  }
 });
 </script>
 
