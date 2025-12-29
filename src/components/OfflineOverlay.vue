@@ -38,12 +38,29 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import OlhoDeDeus from "@/examples/navbars/olhodedeus.vue";
+import Swal from "sweetalert2";
 
 const online = ref(navigator.onLine);
 const verificando = ref(false);
 
 const updateOnlineStatus = () => {
-  online.value = navigator.onLine;
+  const isNowOnline = navigator.onLine;
+  
+  // Se estava offline e agora está online, avisa o usuário
+  if (isNowOnline && online.value === false) {
+    Swal.fire({
+      icon: 'success',
+      title: 'Conexão Restaurada',
+      text: 'Você está online novamente.',
+      toast: true,
+      position: 'top-end',
+      timer: 4000,
+      showConfirmButton: false,
+      timerProgressBar: true
+    });
+  }
+  
+  online.value = isNowOnline;
 };
 
 const verificarConexao = () => {
