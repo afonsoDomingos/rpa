@@ -8,6 +8,12 @@
       
       <!-- Conteúdo Principal -->
       <div class="content-wrapper p-4 animate-up">
+        
+        <!-- Logo Olho Animado -->
+        <div class="mb-4 d-flex justify-content-center">
+             <OlhoDeDeus style="transform: scale(2.5);" />
+        </div>
+
         <h1 class="display-1 fw-black text-gradient">404</h1>
         
         <h2 class="mb-3 fw-bold text-dark">Oops! Página não encontrada.</h2>
@@ -40,7 +46,7 @@
 </template>
 
 <script setup>
-// Nenhuma lógica complexa necessária
+import OlhoDeDeus from "@/examples/navbars/olhodedeus.vue";
 </script>
 
 <style scoped>

@@ -5,6 +5,7 @@ import SocialIcons from "./components/SocialIcons.vue";
 import ChatAssistente from "./components/ChatAssistente.vue";
 import InstallButton from "./components/InstallButton.vue";
 import ScrollToolsCTA from "./components/ScrollToolsCTA.vue";
+import OfflineOverlay from "./components/OfflineOverlay.vue";
 
 import { ref, onMounted, onUnmounted } from "vue";
 import axios from "axios";
@@ -155,6 +156,7 @@ onUnmounted(() => {
 
     <ScrollToolsCTA />
     <CustomCursor />
+    <OfflineOverlay />
     <SocialIcons :size="14" />
     <InstallButton />
     <ChatAssistente :hide-fab-when-scrolled="showScrollTop" />

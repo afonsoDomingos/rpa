@@ -1,0 +1,112 @@
+<template>
+  <transition name="fade">
+    <div v-if="!online" class="offline-overlay d-flex flex-column align-items-center justify-content-center text-center">
+      <div class="content p-5 rounded-4 shadow-lg bg-white position-relative overflow-hidden">
+        <!-- Efeito de fundo -->
+        <div class="bg-blur"></div>
+
+        <div class="z-index-2 position-relative">
+          <div class="icon-container mb-4">
+            <i class="bi bi-wifi-off text-gradient display-1"></i>
+          </div>
+          
+          <h2 class="fw-black mb-3 text-dark">Sem Conexão</h2>
+          <p class="text-muted mb-4 lead">
+            Parece que perdeu a conexão com a internet.<br>
+            Verifique sua rede Wi-Fi ou cabos.
+          </p>
+
+          <button @click="verificarConexao" class="btn bg-gradient-dark text-white btn-lg px-5 shadow-sm">
+            <span v-if="verificando" class="spinner-border spinner-border-sm me-2"></span>
+            {{ verificando ? 'Verificando...' : 'Tentar Novamente' }}
+          </button>
+        </div>
+      </div>
+      
+      <div class="mt-4 text-white opacity-75 small fw-bold text-shadow">
+        Tentando reconectar automaticamente...
+      </div>
+    </div>
+  </transition>
+</template>
+
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+
+const online = ref(navigator.onLine);
+const verificando = ref(false);
+
+const updateOnlineStatus = () => {
+  online.value = navigator.onLine;
+};
+
+const verificarConexao = () => {
+  verificando.value = true;
+  // Simula verificação ou força check
+  setTimeout(() => {
+    online.value = navigator.onLine;
+    verificando.value = false;
+  }, 1000);
+};
+
+onMounted(() => {
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('online', updateOnlineStatus);
+  window.removeEventListener('offline', updateOnlineStatus);
+});
+</script>
+
+<style scoped>
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css");
+
+.offline-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999; /* Fica acima de tudo, inclusive navbar e modais */
+  background: rgba(40, 40, 40, 0.95); /* Fundo escuro */
+  backdrop-filter: blur(8px);
+  font-family: 'Poppins', sans-serif;
+}
+
+.content {
+  max-width: 500px;
+  width: 90%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #ff6a88 0%, #800080 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.fw-black {
+  font-weight: 900;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.text-shadow {
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Animação Fade */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
