@@ -156,6 +156,12 @@ const router = createRouter({
         requerAdmin: true,
       },
     },
+    {
+      // Rota Catch-all para 404 - Deve ser a ÚLTIMA rota
+      path: "/:pathMatch(.*)*",
+      name: "NotFound",
+      component: () => import("../views/NotFound.vue"),
+    },
   ],
 });
 
