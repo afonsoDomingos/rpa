@@ -187,7 +187,7 @@
             >
               <!-- Dashboard Admin -->
               <router-link
-                v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
+                v-if="usuario && ['admin', 'superadmin'].includes(usuario.role?.toLowerCase())"
                 :to="{ name: 'dashboard' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="fecharDropdown"
@@ -197,7 +197,7 @@
 
               <!-- Pagamentos Admin -->
               <router-link
-                v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
+                v-if="usuario && ['admin', 'superadmin'].includes(usuario.role?.toLowerCase())"
                 :to="{ name: 'AdminAssinaturas' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="fecharDropdown"
@@ -207,7 +207,7 @@
 
               <!-- **NOVO** Gerenciar Anúncios -->
               <router-link
-                v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
+                v-if="usuario && ['admin', 'superadmin'].includes(usuario.role?.toLowerCase())"
                 :to="{ name: 'AdminAnuncios' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="fecharDropdown"
@@ -218,7 +218,7 @@
               
               <!-- Gestão de Colaboradores (Admin) -->
               <router-link
-                v-if="usuario && usuario.role?.toLowerCase() === 'admin'"
+                v-if="usuario && ['admin', 'superadmin'].includes(usuario.role?.toLowerCase())"
                 :to="{ name: 'AdminGestao' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="fecharDropdown"

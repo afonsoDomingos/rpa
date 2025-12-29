@@ -377,7 +377,7 @@ const setores = [
 
 // SEGURANÇA: Controlo de acesso aos setores
 const currentUserRole = ref(localStorage.getItem("role") || "cliente");
-const setoresRestritos = ["ceo", "financeiro"]; // Bloqueados para Admin normal
+const setoresRestritos = ["ceo"]; // Bloqueados para Admin normal
 
 const isSetorBloqueado = (setorId) => {
   if (currentUserRole.value === 'SuperAdmin') return false;
