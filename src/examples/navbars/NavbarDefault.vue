@@ -195,9 +195,9 @@
                 <i class="bi bi-speedometer2 text-warning"></i> Dashboard
               </router-link>
 
-              <!-- Pagamentos Admin -->
+              <!-- Pagamentos Admin (Exclusivo SuperAdmin) -->
               <router-link
-                v-if="usuario && ['admin', 'superadmin'].includes(usuario.role?.toLowerCase())"
+                v-if="usuario && ['superadmin'].includes(usuario.role?.toLowerCase())"
                 :to="{ name: 'AdminAssinaturas' }"
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
                 @click="fecharDropdown"

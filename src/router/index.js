@@ -63,11 +63,13 @@ const router = createRouter({
       path: "/guardardocumentos",
       name: "GuardarDocumentos",
       component: () => import("../components/Guardardocumentos.vue"),
+      meta: { requerAutenticacao: true },
     },
     {
       path: "/viaturas",
       name: "Viaturas",
       component: () => import("../components/viaturas.vue"),
+      meta: { requerAutenticacao: true },
     },
     {
       path: "/CVGenerator",
@@ -78,6 +80,7 @@ const router = createRouter({
       path: "/noticias",
       name: "NoticiasAdmin",
       component: () => import("../components/NoticiasAdmin.vue"),
+      meta: { requerAutenticacao: true, requerAdmin: true },
     },
     {
       path: "/comunidade",
@@ -88,7 +91,7 @@ const router = createRouter({
       path: "/admin/assinaturas",
       name: "AdminAssinaturas",
       component: () => import("../components/AdminAssinaturas.vue"),
-      meta: { requerAutenticacao: true },
+      meta: { requerAutenticacao: true, requerSuperAdmin: true },
     },
     {
       path: "/olhodedeus",
@@ -167,7 +170,17 @@ router.beforeEach((to, from, next) => {
     return;
   }
 
-  // 2. Verificar Permissão de Admin (Serve para Admin e SuperAdmin)
+  // 2. Verificar Permissão de SuperAdmin (Exclusiva)
+  if (to.meta.requerSuperAdmin) {
+    if (role === 'SuperAdmin') {
+      next();
+    } else {
+      next("/home");
+    }
+    return;
+  }
+
+  // 3. Verificar Permissão de Admin (Serve para Admin e SuperAdmin)
   if (to.meta.requerAdmin) {
     if (["admin", "SuperAdmin"].includes(role)) {
       next();
@@ -178,7 +191,7 @@ router.beforeEach((to, from, next) => {
     return;
   }
 
-  // 3. Rota livre
+  // 4. Rota livre
   next();
 });
 
