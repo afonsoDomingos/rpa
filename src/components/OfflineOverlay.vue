@@ -6,6 +6,11 @@
         <div class="bg-blur"></div>
 
         <div class="z-index-2 position-relative">
+          <!-- Logo Olho Animado -->
+          <div class="mb-2 d-flex justify-content-center">
+             <OlhoDeDeus style="transform: scale(2);" />
+          </div>
+
           <div class="icon-container mb-4">
             <i class="bi bi-wifi-off text-gradient display-1"></i>
           </div>
@@ -32,6 +37,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import OlhoDeDeus from "@/examples/navbars/olhodedeus.vue";
 
 const online = ref(navigator.onLine);
 const verificando = ref(false);
