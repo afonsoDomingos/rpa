@@ -9,6 +9,26 @@ import OfflineOverlay from "./components/OfflineOverlay.vue";
 
 import { ref, onMounted, onUnmounted } from "vue";
 import axios from "axios";
+import { useRouter } from "vue-router";
+import DoacaoProjeto from "@/components/DoacaoProjeto.vue";
+
+const router = useRouter();
+const showDoacao = ref(false);
+
+const irParaComunidade = () => {
+  router.push({ name: 'ComunidadeRpa' });
+};
+
+function handleEsc(event) {
+  if (event.key === "Escape") showDoacao.value = false;
+}
+
+onMounted(() => {
+  window.addEventListener("keydown", handleEsc);
+});
+onUnmounted(() => {
+  window.removeEventListener("keydown", handleEsc);
+});
 
 const showLoading = ref(true);
 const showEye = ref(true);
@@ -156,6 +176,63 @@ onUnmounted(() => {
 
     <ScrollToolsCTA />
     <CustomCursor />
+    <ScrollToolsCTA />
+    <CustomCursor />
+    <OfflineOverlay />
+    <SocialIcons :size="14" />
+    <InstallButton />
+    
+    <!-- Botão flutuante de doação -->
+    <button
+      class="btn-doacao-flutuante"
+      @click="showDoacao = true"
+      :aria-pressed="showDoacao"
+      aria-label="Apoie o Projeto"
+      title="Apoie o Projeto"
+    >
+      <i class="bi bi-heart-fill icon-heart"></i>
+    </button>
+
+    <!-- Botão flutuante de Comunidade -->
+    <button
+      class="btn-comunidade-flutuante"
+      @click="irParaComunidade"
+      aria-label="Ir para Comunidade"
+      title="Comunidade"
+    >
+      <i class="bi bi-people-fill icon-community"></i>
+    </button>
+
+    <!-- Modal de doação Global -->
+    <transition name="fade">
+      <div
+        v-if="showDoacao"
+        class="doacao-modal-bg"
+        @click.self="showDoacao = false"
+        tabindex="-1"
+        aria-modal="true"
+        role="dialog"
+      >
+        <div class="doacao-modal-content" tabindex="0">
+          <button
+            class="btn-fechar"
+            @click="showDoacao = false"
+            aria-label="Fechar janela de doação"
+            title="Fechar"
+          >
+            &times;
+          </button>
+          <div
+            class="modal-instruction mb-2 text-muted"
+            style="font-size: 0.98rem"
+          >
+            Clique fora da janela ou pressione <b>ESC</b>.
+          </div>
+          <DoacaoProjeto />
+        </div>
+      </div>
+    </transition>
+
     <OfflineOverlay />
     <SocialIcons :size="14" />
     <InstallButton />
@@ -399,6 +476,112 @@ onUnmounted(() => {
 .scroll-top-btn:hover {
   background: linear-gradient(135deg, #b000b0 60%, #800080 100%);
   transform: scale(1.2) rotate(-15deg);
+}
+
+/* --- BOTÕES FLUTUANTES GLOBAIS --- */
+.btn-doacao-flutuante {
+  position: fixed;
+  top: 48px;
+  right: 18px;
+  z-index: 1050;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 12px #0002;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+  padding: 10;
+}
+.btn-doacao-flutuante:hover {
+  background: linear-gradient(135deg, #198754 60%, #800080 100%);
+  transform: scale(1.07);
+}
+.icon-heart {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.btn-comunidade-flutuante {
+  position: fixed;
+  top: 90px;
+  right: 18px;
+  z-index: 1050;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 12px #0002;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+  padding: 0;
+}
+.btn-comunidade-flutuante:hover {
+  background: linear-gradient(135deg, #6610f2 60%, #800080 100%);
+  transform: scale(1.07);
+  color: white;
+}
+.icon-community {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+/* Modal Doação */
+.doacao-modal-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 20000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.doacao-modal-content {
+  background: #fff;
+  border-radius: 18px;
+  padding: 2.2rem 1.5rem 1.5rem 1.5rem;
+  min-width: 320px;
+  max-width: 95vw;
+  box-shadow: 0 6px 32px #80008022;
+  position: relative;
+  animation: modalPop 0.25s;
+}
+@keyframes modalPop {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.btn-fechar {
+  position: absolute;
+  top: 10px; right: 16px;
+  background: none; border: none;
+  font-size: 2rem; color: #800080;
+  cursor: pointer;
+  z-index: 10;
+}
+.fade-enter-active, .fade-leave-active { transition: opacity 0.25s; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+@media (max-width: 600px) {
+  .btn-doacao-flutuante {
+    top: auto !important; bottom: 78px !important;
+    right: 18px !important; left: auto !important;
+  }
+  .btn-comunidade-flutuante {
+    top: auto !important; bottom: 120px !important;
+    right: 18px !important; left: auto !important;
+  }
 }
 </style>
 

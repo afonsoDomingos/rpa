@@ -382,9 +382,15 @@ const resetFiltros = () => {
 
 /* HERO */
 .hero-section {
-  background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);
+  background: linear-gradient(135deg, #240024 0%, #800080 100%);
   padding: 100px 0 120px;
   clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+}
+
+.fw-black {
+  font-weight: 900;
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
 }
 .bg-overlay {
   position: absolute;

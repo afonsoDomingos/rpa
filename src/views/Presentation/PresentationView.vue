@@ -50,18 +50,7 @@ import logoTechvibe from "@/assets/img/logos/techvibe.png";
 import logoMafin from "@/assets/img/logos/madfin.png";
 import logoSketch from "@/assets/img/logos/sketch.jpg";
 
-const showDoacao = ref(false);
-
-function handleEsc(event) {
-  if (event.key === "Escape") showDoacao.value = false;
-}
-
-onMounted(() => {
-  window.addEventListener("keydown", handleEsc);
-});
-onUnmounted(() => {
-  window.removeEventListener("keydown", handleEsc);
-});
+// Lógica global movida para App.vue
 
 //hooks
 const body = document.getElementsByTagName("body")[0];
@@ -197,56 +186,7 @@ const solicitarDocumento = async () => {
     </div>
   </div>
 
-  <!-- Botão flutuante de doação com ícone e tooltip -->
-  <button
-    class="btn-doacao-flutuante"
-    @click="showDoacao = true"
-    :aria-pressed="showDoacao"
-    aria-label="Apoie o Projeto"
-    title="Apoie o Projeto"
-  >
-    <i class="bi bi-heart-fill icon-heart"></i>
-  </button>
-
-  <!-- Botão flutuante de Comunidade -->
-  <button
-    class="btn-comunidade-flutuante"
-    @click="irParaComunidade"
-    aria-label="Ir para Comunidade"
-    title="Comunidade"
-  >
-    <i class="bi bi-people-fill icon-community"></i>
-  </button>
-
-  <!-- Modal de doação -->
-  <transition name="fade">
-    <div
-      v-if="showDoacao"
-      class="doacao-modal-bg"
-      @click.self="showDoacao = false"
-      tabindex="-1"
-      aria-modal="true"
-      role="dialog"
-    >
-      <div class="doacao-modal-content" ref="modalContent" tabindex="0">
-        <button
-          class="btn-fechar"
-          @click="showDoacao = false"
-          aria-label="Fechar janela de doação"
-          title="Fechar"
-        >
-          &times;
-        </button>
-        <div
-          class="modal-instruction mb-2 text-muted"
-          style="font-size: 0.98rem"
-        >
-          Clique fora da janela ou pressione <b>ESC</b>.
-        </div>
-        <DoacaoProjeto />
-      </div>
-    </div>
-  </transition>
+  <FloatingDocs />
   <FloatingDocs />
   <AdCard />
 
@@ -794,57 +734,5 @@ const solicitarDocumento = async () => {
   opacity: 0;
 }
 
-@media (max-width: 600px) {
-  .btn-doacao-flutuante {
-    top: auto !important;
-    bottom: 78px !important;
-    right: 18px !important;
-    left: auto !important;
-  }
-}
 
-.btn-comunidade-flutuante {
-  position: fixed;
-  top: 90px;
-  right: 18px;
-  z-index: 1050;
-  background: #111;
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  box-shadow: 0 2px 12px #0002;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, transform 0.2s;
-  padding: 0;
-}
-.btn-comunidade-flutuante:hover {
-  background: white;
-  color: #111;
-  border: 1px solid #111;
-  transform: scale(1.13);
-}
-.btn-comunidade-flutuante:hover {
-  background: linear-gradient(135deg, #6610f2 60%, #800080 100%);
-  transform: scale(1.07);
-  color: white;
-}
-.icon-community {
-    font-size: 1.2rem;
-    line-height: 1;
-}
-
-@media (max-width: 600px) {
-  .btn-comunidade-flutuante {
-    top: auto !important;
-    bottom: 120px !important;
-    right: 18px !important;
-    left: auto !important;
-  }
-}
 </style>
