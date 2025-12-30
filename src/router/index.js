@@ -157,6 +157,11 @@ const router = createRouter({
       },
     },
     {
+      path: "/guia-documentos",
+      name: "GuiaDocumentos",
+      component: () => import("../views/DocumentGuide/DocumentGuideView.vue"),
+    },
+    {
       // Rota Catch-all para 404 - Deve ser a ÚLTIMA rota
       path: "/:pathMatch(.*)*",
       name: "NotFound",

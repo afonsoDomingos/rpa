@@ -156,6 +156,7 @@
             </div>
           </li>
 
+
           <!-- ==== USUÁRIO (com Admin Anúncios) ==== -->
           <li v-if="usuario" class="nav-item dropdown dropdown-hover mx-2">
             <a
@@ -295,6 +296,16 @@
               aria-labelledby="dropdownTools"
               style="min-width: 180px"
             >
+              <!-- Guia de Documentos (NOVO) -->
+              <button
+                class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+                @click="
+                  $router.push({ name: 'GuiaDocumentos' });
+                  fecharDropdown();
+                "
+              >
+                <i class="bi bi-journal-check text-primary"></i> Guia de Documentos
+              </button>
               <!-- Meus Anúncios (todos os usuários) -->
               <button
                 class="dropdown-item border-radius-md d-flex align-items-center gap-2"
