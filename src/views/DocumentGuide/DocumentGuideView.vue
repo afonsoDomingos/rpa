@@ -159,6 +159,7 @@ const categorias = [
   { id: 'civil', nome: 'Registo Civil', icone: 'bi-people-fill' },
   { id: 'imoveis', nome: 'Imóveis', icone: 'bi-house-door-fill' },
   { id: 'fiscal', nome: 'Fiscal', icone: 'bi-receipt' },
+  { id: 'bancos', nome: 'Bancos & Mobile', icone: 'bi-wallet2' }, // NOVA CATEGORIA
 ];
 
 const documentos = [
@@ -338,7 +339,61 @@ const documentos = [
     locais: 'Instituto Nacional de Segurança Social (INSS) - Delegações.',
     dica: 'Pode consultar os seus descontos e carreira contributiva online no portal "Minha Segurança Social".'
   },
+  {
+    id: 11,
+    titulo: 'Abertura de Conta Bancária',
+    categoria: 'bancos',
+    resumo: 'Requisitos gerais para abrir conta nos principais bancos (BIM, BCI, Standard Bank, Absa, etc).',
+    icone: 'bi-bank',
+    corClasse: 'bg-primary-soft text-primary',
+    corTema: 'primary',
+    requisitos: [
+      'Bilhete de Identidade válido ou Passaporte (+ DIRE para estrangeiros)',
+      'NUIT (Número Único de Identificação Tributária)',
+      'Comprovativo de Residência (Declaração do Bairro ou Fatura de Água/Luz)',
+      'Declaração de Rendimentos (Carta da empresa ou recibo de vencimento)'
+    ],
+    custo: 'Varia (Geralmente depósito inicial mínimo de 500 a 1000 MT)',
+    locais: 'Balcões de qualquer banco comercial.',
+    dica: 'Para contas "Móvel" ou simplificadas, muitas vezes basta o BI e NUIT, mas têm limites de transação menores.'
+  },
+  {
+    id: 12,
+    titulo: 'M-Pesa (Vodacom)',
+    categoria: 'bancos',
+    resumo: 'Como registar e aumentar o limite da sua conta M-Pesa para transações maiores.',
+    icone: 'bi-phone',
+    corClasse: 'bg-danger-soft text-danger',
+    corTema: 'danger',
+    requisitos: [
+      'Cartão SIM Vodacom registado',
+      'Bilhete de Identidade válido (Original)',
+      'Preenchimento do formulário de registo',
+      'Presença física do titular'
+    ],
+    custo: 'Gratuito',
+    locais: 'Lojas Vodacom ou Agentes autorizados M-Pesa.',
+    dica: 'Para aumentar limites (Tier 2/3), deve ir a uma loja oficial com o BI e comprovativo de residência.'
+  },
+  {
+    id: 13,
+    titulo: 'E-Mola (Movitel)',
+    categoria: 'bancos',
+    resumo: 'Serviço financeiro móvel da Movitel. Saiba como ativar e usar.',
+    icone: 'bi-phone-vibrate',
+    corClasse: 'bg-warning-soft text-warning',
+    corTema: 'warning',
+    requisitos: [
+      'Cartão SIM Movitel registado',
+      'Documento de identificação válido (BI, Passaporte, DIRE)',
+      'Registo via menu *898#'
+    ],
+    custo: 'Gratuito',
+    locais: 'Lojas Movitel ou Agentes E-Mola.',
+    dica: 'A E-Mola permite levantar dinheiro sem cartão em ATMs do BCI e Ponto24.'
+  }
 ];
+
 
 // --- LÓGICA ---
 const searchQuery = ref("");
