@@ -125,11 +125,24 @@
                 </div>
               </div>
               <div class="card-body p-3">
-                <div v-if="atividadesSetorAtual.length === 0" class="text-center py-5">
+                
+                <!-- Skeleton Loader (Visualmente Bonito) -->
+                <div v-if="isLoading" class="skeleton-wrapper">
+                  <div v-for="n in 4" :key="n" class="skeleton-card mb-3">
+                    <div class="skeleton-icon"></div>
+                    <div class="skeleton-content">
+                      <div class="skeleton-line w-50"></div>
+                      <div class="skeleton-line w-75 mt-2"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-else-if="atividadesSetorAtual.length === 0" class="text-center py-5">
                   <i class="bi bi-clipboard-x display-1 text-lighter opacity-2"></i>
                   <p class="text-secondary mt-3">Nenhuma atividade registada neste setor.</p>
                 </div>
-                <transition-group name="list" tag="ul" class="list-group">
+                
+                <transition-group v-else name="list" tag="ul" class="list-group">
                   <li
                     v-for="(ativ, index) in atividadesPaginadas"
                     :key="ativ?._id || ativ?.id || index"
@@ -386,6 +399,7 @@ const isSetorBloqueado = (setorId) => {
 
 // Se não for SuperAdmin, começa no RH (evita erro de acesso ao CEO)
 const activeSector = ref(isSetorBloqueado("ceo") ? "rh" : "ceo");
+const isLoading = ref(false); // Estado de carregamento visual
 const listaAtividades = ref([]);
 const novaAtividade = ref({ titulo: "", descricao: "", status: "Pendente" });
 
@@ -420,8 +434,15 @@ const mudarSetor = (id) => {
     });
     return;
   }
+  
+  // Efeito de carregamento visual
+  isLoading.value = true;
   activeSector.value = id;
   paginaAtual.value = 1;
+  
+  setTimeout(() => {
+    isLoading.value = false;
+  }, 600); // 600ms de "fake load" para suavidade
 };
 
 // Logica de Filtro de Estatísticas
