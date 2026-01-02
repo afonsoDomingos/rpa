@@ -97,11 +97,11 @@ defineProps({
         items: [
           {
             name: "Termos e Condições",
-            href: "termsconditions",
+            href: "/termsconditions",
           },
           {
             name: "Política de Privacidade",
-            href: "privacypolicy",
+            href: "/privacypolicy",
           },
         ],
       },
@@ -146,9 +146,22 @@ defineProps({
           <h6 class="text-sm text-purple fw-bold">{{ name }}</h6>
           <ul class="flex-column ms-n3 nav">
             <li class="nav-item" v-for="item of items" :key="item.name">
-              <a class="nav-link" :href="item.href" target="_blank">
+              <!-- Se começar com http ou for externo, usa <a>, se não usa path normal -->
+              <a 
+                v-if="item.href.startsWith('http')"
+                class="nav-link" 
+                :href="item.href" 
+                target="_blank"
+              >
                 {{ item.name }}
               </a>
+              <router-link
+                v-else
+                class="nav-link"
+                :to="item.href.startsWith('/') ? item.href : '/' + item.href"
+              >
+                {{ item.name }}
+              </router-link>
             </li>
           </ul>
         </div>

@@ -32,15 +32,11 @@ defineProps({
     name: String,
     href: String,
     default: () => [
-      { href: "https://www.creative-tim.com/", name: "Company" },
-      { href: "https://www.creative-tim.com/presentation", name: "About Us" },
-      { href: "https://www.creative-tim.com/presentation", name: "Team" },
-      {
-        href: "https://www.creative-tim.com/templates/vuejs",
-        name: "Products",
-      },
-      { href: "https://www.creative-tim.com/blog", name: "Blog" },
-      { href: "https://www.creative-tim.com/license", name: "License" },
+      { href: "/home", name: "Início" },
+      { href: "/about", name: "Sobre Nós" },
+      { href: "/guia-documentos", name: "Guia" },
+      { href: "/privacypolicy", name: "Privacidade" },
+      { href: "/termsconditions", name: "Termos" },
     ],
   },
 });
@@ -50,15 +46,23 @@ defineProps({
     <div class="container">
       <div class="row">
         <div class="col-lg-8 mb-4 mx-auto text-center">
-          <a
-            v-for="{ name, href } of links"
-            :key="name"
-            :href="href"
-            target="_blank"
-            class="text-secondary me-xl-5 me-3 mb-sm-0 mb-2"
-          >
-            {{ name }}
-          </a>
+          <template v-for="{ name, href } of links" :key="name">
+            <a
+              v-if="href.startsWith('http')"
+              :href="href"
+              target="_blank"
+              class="text-secondary me-xl-5 me-3 mb-sm-0 mb-2"
+            >
+              {{ name }}
+            </a>
+            <router-link
+              v-else
+              :to="href"
+              class="text-secondary me-xl-5 me-3 mb-sm-0 mb-2"
+            >
+              {{ name }}
+            </router-link>
+          </template>
         </div>
         <div class="col-lg-8 mx-auto text-center mb-4 mt-2">
           <a

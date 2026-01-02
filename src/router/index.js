@@ -101,12 +101,12 @@ const router = createRouter({
     {
       path: "/termsconditions",
       name: "termsconditions",
-      component: () => import("../components/TermsConditions.vue"),
+      component: () => import("../views/LandingPages/Legal/TermsView.vue"),
     },
     {
       path: "/privacypolicy",
       name: "privacypolicy",
-      component: () => import("../components/PrivacyPolicy.vue"),
+      component: () => import("../views/LandingPages/Legal/PrivacyView.vue"),
     },
     {
       path: "/pagamento-sucesso",
