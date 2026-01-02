@@ -10,28 +10,42 @@ export default defineConfig({
     viteCompression(),
     VitePWA({
       registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg', 'rpa.png'],
       manifest: {
-        name: 'RecuperaAqui',
-        short_name: 'Rpa',
+        name: 'Recupera Aqui - Moçambique',
+        short_name: 'RecuperaAqui',
+        description: 'Plataforma líder em Moçambique para recuperação de documentos perdidos.',
+        theme_color: '#800080',
+        background_color: '#ffffff',
         start_url: '/',
         display: 'standalone',
-        background_color: '#ffffff',
-        theme_color: '#800080',
+        orientation: 'portrait',
         icons: [
           {
             src: '/icons/icon-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: '/icons/icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable'
           },
           {
             src: '/icons/icon-512x512.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: '/icons/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ]
-      },
-      workbox: {
-        maximumFileSizeToCacheInBytes: 5000000
       }
     })
   ],

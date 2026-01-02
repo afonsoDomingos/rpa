@@ -22,7 +22,7 @@ import UsuariosView from "../../components/UsuariosView.vue";
 import PresentationCounter from "./Sections/PresentationCounter.vue";
 
 //images
-import vueMkHeader from "@/assets/img/banner.png";
+import vueMkHeader from "@/assets/img/banner.webp";
 
 //hooks
 const body = document.getElementsByTagName("body")[0];

@@ -8,7 +8,7 @@ import Header from "@/examples/Header.vue";
 import GestaoColaboradores from "@/components/GestaoColaboradores.vue";
 
 // Images
-import vueMkHeader from "@/assets/img/banner.png";
+import vueMkHeader from "@/assets/img/banner.webp";
 
 // Hooks
 const body = document.getElementsByTagName("body")[0];

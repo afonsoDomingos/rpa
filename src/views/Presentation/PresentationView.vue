@@ -39,7 +39,7 @@ import DoacaoProjeto from "../../components/DoacaoProjeto.vue";
 import NoticiasList from "../../components/NoticiasList.vue";
 
 //images
-import vueMkHeader from "@/assets/img/banner.jpg";
+import vueMkHeader from "@/assets/img/banner.webp";
 
 import wavesWhite from "@/assets/img/waves-white.svg";
 import logoBootstrap from "@/assets/img/logos/rpa.png";

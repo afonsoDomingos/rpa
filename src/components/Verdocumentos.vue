@@ -469,8 +469,18 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
             <div v-for="i in 3" :key="i" class="skeleton-row mb-3"></div>
           </div>
           
-          <div v-else-if="documentosEncontrados.length > 0" class="mt-4">
-            <div class="table-responsive">
+          <div v-else-if="documentosEncontrados.length > 0" class="mt-4 animate-fade-in">
+            <div class="alert alert-success d-flex align-items-center rounded-4 shadow-sm mb-4 border-0" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);">
+              <div class="icon-circle bg-success text-white me-3 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; border-radius: 50%;">
+                <i class="bi bi-check-lg fs-4"></i>
+              </div>
+              <div>
+                <h5 class="alert-heading mb-1 fw-bold text-success">Documento Localizado!</h5>
+                <p class="mb-0 text-dark small">Encontramos resultados que coincidem com a sua busca. Verifique abaixo.</p>
+              </div>
+            </div>
+
+            <div class="table-responsive rounded-4 shadow-sm bg-white overflow-hidden">
               <table class="table table-hover">
                 <thead>
                   <tr>
@@ -481,22 +491,34 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
                 </thead>
                 <tbody>
                   <tr v-for="doc in documentosPaginados" :key="doc.id" class="table-row">
-                    <td><span class="fw-bold">{{ doc.nome_completo }}</span></td>
-                    <td>{{ doc.tipo_documento }}</td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="doc-icon-mini me-3 bg-purple-soft text-purple rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                          <i class="bi bi-file-earmark-person"></i>
+                        </div>
+                        <div>
+                          <span class="fw-bold d-block text-dark">{{ doc.nome_completo }}</span>
+                          <span class="text-xs text-muted d-md-none">{{ doc.tipo_documento }}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="d-none d-md-table-cell">
+                      <span class="badge bg-light text-dark border fw-normal">{{ doc.tipo_documento }}</span>
+                    </td>
                     <td class="text-end pe-4">
                       <div class="d-flex justify-content-end gap-2 align-items-center">
-                        <div class="btn-group btn-group-sm rounded-pill overflow-hidden shadow-sm">
+                        <div class="d-none d-sm-flex btn-group btn-group-sm rounded-pill overflow-hidden shadow-sm">
                           <button class="btn btn-whatsapp px-2" @click="partilharWhatsApp(doc)" title="WhatsApp">
                             <i class="bi bi-whatsapp"></i>
                           </button>
                           <button class="btn btn-facebook px-2" @click="partilharFacebook(doc)" title="Facebook">
                             <i class="bi bi-facebook"></i>
                           </button>
-                          <button class="btn btn-share px-2" @click="partilharGeral(doc)" title="Mais opções (Instagram...)">
+                          <button class="btn btn-share px-2" @click="partilharGeral(doc)" title="Mais opções">
                             <i class="bi bi-share"></i>
                           </button>
                         </div>
-                        <MaterialButton variant="gradient" color="success" size="sm" @click="verificarAssinaturaAntesDeSolicitar(doc)">
+                        <MaterialButton variant="gradient" color="success" size="sm" class="mb-0 px-4 rounded-pill" @click="verificarAssinaturaAntesDeSolicitar(doc)">
                           Solicitar
                         </MaterialButton>
                       </div>

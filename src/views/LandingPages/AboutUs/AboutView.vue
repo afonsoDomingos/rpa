@@ -6,7 +6,7 @@ import DefaultNavbar from "../../../examples/navbars/NavbarDefault.vue";
 import DefaultFooter from "../../../examples/footers/FooterDefault.vue";
 
 //image
-import bg0 from "@/assets/img/banner.png";
+import bg0 from "@/assets/img/banner.webp";
 
 //dep
 import Typed from "typed.js";

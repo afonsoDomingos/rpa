@@ -11,7 +11,7 @@ import Contact from "./Sections/AuthorContact.vue";
 
 // image
 //import image from "@/assets/img/city-profile.jpg";
-import image from "@/assets/img/banner.png";
+import image from "@/assets/img/banner.webp";
 </script>
 <template>
   <DefaultNavbar transparent />
