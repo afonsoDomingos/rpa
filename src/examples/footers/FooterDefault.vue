@@ -163,7 +163,13 @@ defineProps({
                 >Techvibe</a
               >.
             </p>
-            <button class="btn btn-sm btn-outline-secondary opacity-50" @click="testarNotificacao">🔔 Testar Notificação</button>
+            <button 
+              v-if="isAdmin"
+              class="btn btn-sm btn-outline-secondary opacity-50" 
+              @click="testarNotificacao"
+            >
+              🔔 Testar Notificação
+            </button>
           </div>
         </div>
       </div>
@@ -173,6 +179,15 @@ defineProps({
 <script>
 import { notificationManager } from '@/utils/notificationManager';
 export default {
+  data() {
+    return {
+      isAdmin: false
+    }
+  },
+  mounted() {
+    const role = localStorage.getItem("role");
+    this.isAdmin = ["admin", "SuperAdmin"].includes(role);
+  },
   methods: {
     testarNotificacao() {
       notificationManager.notifyDocumentoEncontrado('Documento Teste');
