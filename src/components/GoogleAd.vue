@@ -17,7 +17,7 @@ import { onMounted, nextTick } from "vue";
 const props = defineProps({
   adClient: {
     type: String,
-    default: "ca-pub-XXXXXXXXXXXXXXXX", // Substitui pelo teu ID do Google AdSense
+    default: "ca-pub-2592660234462216", // ID real do AdSense configurado
   },
   adSlot: {
     type: String,
