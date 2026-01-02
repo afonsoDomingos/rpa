@@ -18,6 +18,21 @@
           Tudo o que precisa saber para tratar dos seus documentos em Moçambique.
           Processos, taxas, locais e requisitos explicados de forma simples.
         </p>
+        
+        <div class="d-flex justify-content-center gap-3 mb-5 flex-wrap">
+          <div class="stat-badge">
+            <span class="stat-value">50k+</span>
+            <span class="stat-label">Consultas Mensais</span>
+          </div>
+          <div class="stat-badge">
+            <span class="stat-value">24h</span>
+            <span class="stat-label">Suporte Ativo</span>
+          </div>
+          <div class="stat-badge">
+            <span class="stat-value">100%</span>
+            <span class="stat-label">Gratuito</span>
+          </div>
+        </div>
 
         <!-- Barra de Pesquisa -->
         <div class="search-wrapper mx-auto shadow-lg">
@@ -83,6 +98,35 @@
       </div>
 
     </div>
+
+    <!-- SEÇÃO DE IMPACTO (Premium) -->
+    <section class="py-6 bg-white border-top border-bottom mb-5">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6 mb-4 mb-lg-0">
+            <h2 class="fw-bold text-dark mb-3">O maior portal de cidadania em Moçambique</h2>
+            <p class="text-secondary lead mb-4">
+              Nossa missão é desmistificar a burocracia. Já ajudamos milhares de cidadãos a perderem menos tempo em filas e a terem seus direitos garantidos.
+            </p>
+            <div class="d-flex align-items-center gap-3">
+              <div class="img-group d-flex">
+                <div class="avatar-sm rounded-circle border border-2 border-white bg-primary text-white d-flex align-items-center justify-content-center">AD</div>
+                <div class="avatar-sm rounded-circle border border-2 border-white bg-success text-white d-flex align-items-center justify-content-center ms-n3">MZ</div>
+                <div class="avatar-sm rounded-circle border border-2 border-white bg-warning text-white d-flex align-items-center justify-content-center ms-n3">RP</div>
+              </div>
+              <span class="text-sm font-weight-bold">+10,000 moçambicanos confiam neste guia.</span>
+            </div>
+          </div>
+          <div class="col-lg-5 ms-auto">
+            <div class="card bg-gradient-purple p-4 shadow-lg border-radius-xl text-white">
+              <h4 class="text-white mb-3">Não encontrou o que procurava?</h4>
+              <p class="opacity-8 mb-4">Nossa equipe de pesquisadores está constantemente atualizando o guia. Sugira um novo documento ou processo.</p>
+              <button class="btn btn-white w-100 mb-0" @click="$router.push('/contactus')">Sugira um Documento</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Footer -->
     <FooterDefault />
@@ -323,8 +367,49 @@ const resetFiltros = () => {
 /* HERO */
 .hero-section {
   background: linear-gradient(135deg, #240024 0%, #800080 100%);
-  padding: 100px 0 120px;
-  clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+  padding: 120px 0 140px;
+  clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+}
+
+.stat-badge {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  transition: transform 0.3s;
+}
+
+.stat-badge:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.stat-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  display: block;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+}
+
+.bg-gradient-purple {
+  background: linear-gradient(135deg, #4b0082 0%, #800080 100%);
+}
+
+.avatar-sm {
+  width: 40px;
+  height: 40px;
+  font-size: 12px;
+  font-weight: bold;
 }
 
 .fw-black {

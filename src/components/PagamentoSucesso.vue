@@ -9,10 +9,15 @@
 
   <div class="success-page">
     <div class="success-container">
-      <!-- Mensagem Principal -->
-      <p class="success-subtitle">
-        {{ mensagem || 'Sua assinatura foi ativada com sucesso.' }}
-      </p>
+      <div class="success-header">
+        <div class="check-animation">
+          <i class="bi bi-patch-check-fill"></i>
+        </div>
+        <h2 class="success-title">Pagamento Confirmado!</h2>
+        <p class="success-subtitle">
+          {{ mensagem || 'Sua assinatura foi ativada com sucesso.' }}
+        </p>
+      </div>
 
       <!-- Detalhes do Pagamento -->
       <div class="payment-details" v-if="detalhes">
@@ -80,8 +85,22 @@
         </button>
       </div>
 
+      <!-- Partilhar -->
+      <div class="share-section mt-5 p-4 border-radius-lg bg-light text-center">
+        <h5 class="mb-3">Partilhe esta novidade!</h5>
+        <p class="text-sm text-secondary mb-3">Ajude seus amigos a também recuperarem seus documentos perdidos.</p>
+        <div class="d-flex justify-content-center gap-3">
+          <button @click="partilharWhatsApp" class="btn btn-whatsapp btn-icon-only rounded-circle">
+            <i class="bi bi-whatsapp"></i>
+          </button>
+          <button @click="partilharFacebook" class="btn btn-facebook btn-icon-only rounded-circle">
+            <i class="bi bi-facebook"></i>
+          </button>
+        </div>
+      </div>
+
       <!-- Link de Suporte -->
-      <div class="support-link">
+      <div class="support-link mt-4">
         <p>Precisa de ajuda? <a href="https://wa.me/258847877405" target="_blank" rel="noopener noreferrer">Entre em contacto</a></p>
       </div>
     </div>
@@ -140,7 +159,17 @@ const irParaHome = () => {
 };
 
 const verMeusPagamentos = () => {
-  router.push({ name: 'MeusPagamentos' });
+  router.push('/meus-pagamentos');
+};
+
+const partilharWhatsApp = () => {
+  const texto = encodeURIComponent("Acabei de ativar a minha subscrição no Recupera Aqui! Agora posso recuperar os meus documentos perdidos de forma simples. Experimenta tu também: https://recuperaaqui.vercel.app");
+  window.open(`https://wa.me/?text=${texto}`, '_blank');
+};
+
+const partilharFacebook = () => {
+  const url = encodeURIComponent("https://recuperaaqui.vercel.app");
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
 };
 
 const getConfettiStyle = (index) => {
@@ -246,14 +275,69 @@ const getConfettiStyle = (index) => {
 
 /* Textos */
 
+.success-header {
+  margin-bottom: 2rem;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+.check-animation {
+  font-size: 5rem;
+  color: #66bb6a;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 15px rgba(102, 187, 106, 0.4));
+  animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes scaleIn {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeInDown {
+  0% { transform: translateY(-20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.success-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 .success-subtitle {
   font-size: 1.25rem;
-  font-weight: 600;
-  color: #ffffff;
-  margin: 0 0 2rem 0;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
   line-height: 1.6;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  animation: fadeIn 1s ease-out 0.2s both;
+}
+
+.share-section {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+.btn-whatsapp {
+  background-color: #25d366 !important;
+  color: white !important;
+  font-size: 1.25rem;
+  transition: transform 0.3s;
+}
+
+.btn-facebook {
+  background-color: #1877f2 !important;
+  color: white !important;
+  font-size: 1.25rem;
+  transition: transform 0.3s;
+}
+
+.btn-whatsapp:hover, .btn-facebook:hover {
+  transform: scale(1.15) rotate(5deg);
 }
 
 @keyframes fadeIn {
