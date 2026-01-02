@@ -23,7 +23,7 @@ defineProps({
       },
       {
         icon: '<i class="fab fa-youtube text-lg opacity-8"></i>',
-        link: "https://www.youtube.com/channel/UCVyTG4sCw-rOvB9oHkzZD1w",
+        link: "https://www.youtube.com/@recuperaqui",
       },
     ],
   },
