@@ -19,6 +19,29 @@
         <i class="bi bi-heart-fill me-2"></i>Apoiar Plataforma
       </button>
     </div>
+    
+    <!-- WhatsApp Channel CTA Banner -->
+    <div class="whatsapp-channel-cta animate__animated animate__fadeInUp">
+      <div class="cta-decoration"></div>
+      <div class="cta-content-wrapper">
+        <div class="cta-icon-box">
+          <i class="bi bi-whatsapp"></i>
+        </div>
+        <div class="cta-info">
+          <h4 class="cta-title">Siga o Canal Oficial no WhatsApp</h4>
+          <p class="cta-description">Receba notícias, atualizações e documentos perdidos em primeira mão!</p>
+        </div>
+        <a 
+          href="https://whatsapp.com/channel/0029Vb7LiyEBlHpZinsHGG2v" 
+          target="_blank" 
+          rel="noopener"
+          class="cta-join-btn"
+        >
+          <span>Seguir Canal</span>
+          <i class="bi bi-arrow-right-short ms-1"></i>
+        </a>
+      </div>
+    </div>
 
     <!-- New Post Form -->
     <div class="new-post-card">
@@ -1000,6 +1023,107 @@ onBeforeUnmount(() => socket.disconnect());
   font-size: 16px;
   color: rgba(255, 255, 255, 0.9);
   margin: 0;
+}
+
+/* WhatsApp Channel CTA Banner */
+.whatsapp-channel-cta {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(37, 211, 102, 0.25);
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cta-decoration {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.cta-content-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  z-index: 2;
+}
+
+.cta-icon-box {
+  width: 56px;
+  height: 56px;
+  background: white;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #128C7E;
+  font-size: 32px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.cta-info {
+  flex: 1;
+  color: white;
+}
+
+.cta-title {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0 0 4px 0;
+  color: white;
+}
+
+.cta-description {
+  font-size: 14px;
+  margin: 0;
+  opacity: 0.95;
+  line-height: 1.4;
+}
+
+.cta-join-btn {
+  background: white;
+  color: #128C7E;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.cta-join-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  background: #f8f9fa;
+  color: #075E54;
+}
+
+@media (max-width: 576px) {
+  .cta-content-wrapper {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+  
+  .cta-join-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* Novo Post */
