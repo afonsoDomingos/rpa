@@ -114,6 +114,36 @@
           </div>
         </div>
 
+        <!-- Google Ad Monitazation -->
+        <GoogleAd adSlot="1234567890" /> 
+
+        <!-- Secção FAQ -->
+        <section class="faq-section mt-6 pb-5 px-3 px-lg-0">
+          <div class="container maxWidth-md mx-auto">
+            <h2 class="section-title text-center mb-5 mt-5">Dúvidas Frequentes</h2>
+            <div class="accordion" id="accordionFAQ">
+              <div v-for="(item, index) in faqItems" :key="index" class="accordion-item bg-transparent border-0 mb-3">
+                <h2 class="accordion-header">
+                  <button 
+                    class="accordion-button collapsed rounded-4 shadow-sm" 
+                    type="button" 
+                    data-bs-toggle="collapse" 
+                    :data-bs-target="'#faq' + index" 
+                    aria-expanded="false"
+                  >
+                    {{ item.pergunta }}
+                  </button>
+                </h2>
+                <div :id="'faq' + index" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                  <div class="accordion-body text-light opacity-8 ps-4 border-start border-purple-light ms-3 mt-2">
+                    {{ item.resposta }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- Passo 2: Pagamento -->
         <div v-if="currentStep === 2" class="payment-methods">
           <h2 class="section-title">Escolha o Método de Pagamento</h2>
@@ -345,6 +375,7 @@ import { ref, reactive, nextTick, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../examples/footers/FooterDefault.vue";
+import GoogleAd from "@/components/GoogleAd.vue";
 import api from "@/api";
 import mpesaIcon from "@/assets/img/Mpesa.png";
 import emolaIcon from "@/assets/img/Emola.png";
@@ -422,6 +453,25 @@ const paymentMethods = [
 ];
 
 const mobileDetails = reactive({ phone: "" });
+
+const faqItems = [
+  {
+    pergunta: "Como funciona a ativação do plano?",
+    resposta: "A ativação é automática e instantânea no momento em que o pagamento é confirmado. Para M-Pesa e e-Mola, receberá um pedido de PIN no seu telemóvel."
+  },
+  {
+    pergunta: "Posso cancelar a minha subscrição?",
+    resposta: "Sim, pode cancelar a renovação automática a qualquer momento nas configurações da sua conta, sem taxas adicionais."
+  },
+  {
+    pergunta: "O que é o Cofre Digital?",
+    resposta: "É um espaço seguro e encriptado onde pode guardar cópias digitais dos seus documentos importantes, acessíveis apenas por si a qualquer momento."
+  },
+  {
+    pergunta: "O pagamento é seguro?",
+    resposta: "Sim, utilizamos protocolos de segurança bancária e não armazenamos os seus dados sensíveis. Todo o processamento é feito por entidades certificadas (GAPI, MOZAL, Stripe)."
+  }
+];
 
 // ==================== FUNÇÕES AUXILIARES ====================
 const normalizePhone = (raw) => {
@@ -1327,4 +1377,36 @@ onMounted(() => {
 .btn-whatsapp { background-color: #25d366; color: white; }
 .btn-facebook { background-color: #1877f2; color: white; }
 .btn-share { background-color: #6c757d; color: white; }
+
+/* FAQ Section Styles */
+.faq-section {
+  animation: fadeIn 1s ease-out 0.6s both;
+}
+
+.accordion-button {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.accordion-button:not(.collapsed) {
+  background: rgba(128, 0, 128, 0.15) !important;
+  border-color: rgba(128, 0, 128, 0.4) !important;
+  box-shadow: none;
+}
+
+.accordion-button::after {
+  filter: brightness(0) invert(1);
+}
+
+.border-purple-light {
+  border-width: 2px !important;
+  border-color: rgba(128, 0, 128, 0.3) !important;
+}
+
+.maxWidth-md {
+  max-width: 800px;
+}
 </style>

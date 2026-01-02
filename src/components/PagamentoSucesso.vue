@@ -1,4 +1,12 @@
 <template>
+  <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
+    <div class="row gx-0">
+      <div class="col-12">
+        <NavbarDefault :sticky="true" />
+      </div>
+    </div>
+  </div>
+
   <div class="success-page">
     <div class="success-container">
       <!-- Mensagem Principal -->
@@ -83,11 +91,14 @@
       <div class="confetti-piece" v-for="i in 50" :key="i" :style="getConfettiStyle(i)"></div>
     </div>
   </div>
+  <FooterDefault />
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
+import FooterDefault from "../examples/footers/FooterDefault.vue";
 import backgroundImage from '@/assets/img/mybanner2.jpg';
 
 const router = useRouter();
@@ -160,7 +171,8 @@ const getConfettiStyle = (index) => {
 }
 
 .success-page {
-  height: 100vh;
+  min-height: 80vh;
+  padding-top: 100px;
   width: 100vw;
   background-image: url('@/assets/img/mybanner2.jpg');
   background-size: cover;

@@ -1,7 +1,13 @@
 <template>
+  <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
+    <div class="row gx-0">
+      <div class="col-12">
+        <NavbarDefault :sticky="true" />
+      </div>
+    </div>
+  </div>
+
   <div class="guia-container">
-    <!-- Navbar -->
-    <NavbarDefault :sticky="true" />
 
     <!-- HERO SECTION -->
     <section class="hero-section text-center text-white position-relative">
@@ -78,6 +84,9 @@
 
     </div>
 
+    <!-- Footer -->
+    <FooterDefault />
+
     <!-- MODAL DE DETALHES -->
     <transition name="modal-fade">
       <div v-if="docSelecionado" class="modal-overlay" @click.self="fecharModal">
@@ -141,14 +150,14 @@
     </transition>
     
     <!-- Footer -->
-    <DefaultFooter />
+    <FooterDefault />
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 import NavbarDefault from "@/examples/navbars/NavbarDefault.vue";
-import DefaultFooter from "@/examples/footers/FooterDefault.vue";
+import FooterDefault from "@/examples/footers/FooterDefault.vue";
 
 // --- DADOS (Isso viria de um arquivo separado ou API futuramente) ---
 const categorias = [
@@ -403,6 +412,7 @@ const resetFiltros = () => {
 .line-clamp-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
