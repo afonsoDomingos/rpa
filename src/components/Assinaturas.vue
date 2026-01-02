@@ -7,8 +7,8 @@
     </div>
   </div>
 
-  <div class="subscription-container pt-8">
-    <header class="header mt-5">
+  <div class="subscription-container pt-5">
+    <header class="header">
       <div class="container d-flex flex-column align-items-start">
         <button @click="goBack" class="back-button mb-2">
           <svg
