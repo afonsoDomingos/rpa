@@ -449,7 +449,7 @@ import DownArrWhite from "@/assets/img/down-arrow-white.svg";
 
 import eventBus from "@/eventBus";
 import { useRouter } from "vue-router";
-import axios from "axios";
+import api from "@/api";
 
 const router = useRouter();
 const usuario = ref(null);
@@ -494,18 +494,7 @@ const logout = () => {
 // BUSCAR USUÁRIO LOGADO
 const buscarUsuario = async () => {
   try {
-    const token = localStorage.getItem("token");
-    // Se não tiver token, apenas não define o usuário (não força redirect)
-    if (!token) return;
-
-    const { data } = await axios.get(
-      "https://apirpa.onrender.com/api/auth/me",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    );
+    const { data } = await api.get("/auth/me");
     
     usuario.value = data;
     

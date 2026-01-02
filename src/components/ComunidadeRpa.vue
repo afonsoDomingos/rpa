@@ -433,7 +433,7 @@
 <script setup>
 // ← Todo o script permanece 100% igual ao que tinhas
 import { ref, onMounted, onBeforeUnmount } from "vue";
-import axios from "axios";
+import api, { ROOT_URL } from "../api";
 import { useRouter } from "vue-router";
 import { io } from "socket.io-client";
 import Swal from "sweetalert2";
@@ -468,11 +468,9 @@ const docName = ref("");
 const docType = ref("");
 const docContact = ref("");
 
-const API_URL = "https://apirpa.onrender.com/api/posts";
 const token = localStorage.getItem("token");
-const headers = { Authorization: `Bearer ${token}` };
 
-const socket = io("https://apirpa.onrender.com", {
+const socket = io(ROOT_URL, {
   transports: ["websocket"],
   reconnection: true,
 });
@@ -525,10 +523,7 @@ socket.on("respostaDeletada", ({ postId, replyId }) => {
 
 const buscarUsuario = async () => {
   try {
-    const { data } = await axios.get(
-      "https://apirpa.onrender.com/api/auth/me",
-      { headers }
-    );
+    const { data } = await api.get("/auth/me");
     usuario.value = data;
   } catch (err) {
     console.error("Erro ao buscar usuário logado:", err);
@@ -538,7 +533,7 @@ const buscarUsuario = async () => {
 const carregarPosts = async () => {
   try {
     carregando.value = true;
-    const { data } = await axios.get(API_URL, { headers });
+    const { data } = await api.get("/posts");
     posts.value = data.map((p) => ({ ...p, showReplies: false, newReply: "" }));
   } catch (err) {
     console.error(err);
@@ -584,26 +579,15 @@ const criarPost = async () => {
 
     // Se NÃO houver imagem, enviamos como JSON normal
     if (!selectedFile.value) {
-      await axios.post(
-        API_URL, 
-        { conteudo: finalContent }, 
-        { 
-          headers: { 
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          } 
-        }
-      );
+      await api.post("/posts", { conteudo: finalContent });
     } else {
       // Se TIVER imagem, enviamos como FormData
       const formData = new FormData();
       formData.append("conteudo", finalContent);
       formData.append("imagem", selectedFile.value);
 
-      await axios.post(API_URL, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      await api.post("/posts", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
       });
     }
 
@@ -646,7 +630,7 @@ const removeImage = () => {
 
 const curtirPost = async (post) => {
   try {
-    await axios.put(`${API_URL}/${post._id}/like`, {}, { headers });
+    await api.put(`/posts/${post._id}/like`);
   } catch (err) {
     console.error(err);
   }
@@ -655,11 +639,7 @@ const curtirPost = async (post) => {
 const responderPost = async (post) => {
   if (!post.newReply?.trim()) return;
   try {
-    await axios.post(
-      `${API_URL}/${post._id}/replies`,
-      { conteudo: post.newReply },
-      { headers }
-    );
+    await api.post(`/posts/${post._id}/replies`, { conteudo: post.newReply });
     post.newReply = "";
   } catch (err) {
     console.error(err);
@@ -679,7 +659,7 @@ const deletarPost = async (post) => {
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {
-        await axios.delete(`${API_URL}/${post._id}`, { headers });
+        await api.delete(`/posts/${post._id}`);
         // O socket vai tratar de remover da lista automáticamente via 'postDeletado'
         Swal.fire({
           title: 'Apagado!',

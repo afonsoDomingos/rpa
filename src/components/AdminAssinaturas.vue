@@ -504,6 +504,7 @@ import FooterDefault from "../examples/footers/FooterDefault.vue";
 import { ref, computed, onMounted, watch } from "vue";
 import { useSocketNotifications } from "@/composables/useSocketNotifications";
 import { usePushNotifications } from "@/composables/usePushNotifications";
+import api from "@/api";
 import Swal from "sweetalert2";
 
 // Socket.IO Notifications
@@ -560,7 +561,7 @@ const paginaAtual = ref(1);
 const itensPorPagina = 10;
 
 // API
-const API_URL = "https://apirpa.onrender.com/api/pagamentos";
+const API_URL = "/pagamentos";
 
 // Toasts animados
 const mostrarToast = (texto, tipo = "sucesso", duracao = 3000) => {
@@ -580,15 +581,8 @@ const carregarPagamentos = async (silencioso = false) => {
   if (!silencioso) erro.value = null;
   
   try {
-    const token = localStorage.getItem("token");
-    const res = await fetch(API_URL, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await res.json();
-    if (!res.ok || !data.sucesso)
+    const { data } = await api.get(API_URL);
+    if (!data.sucesso)
       throw new Error(data.mensagem || "Erro ao carregar pagamentos");
     
     // Atualiza lista
@@ -640,15 +634,7 @@ const excluirPagamento = async (id) => {
   if (!result.isConfirmed) return;
 
   try {
-    const token = localStorage.getItem("token");
-    const res = await fetch(`${API_URL}/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await res.json();
+    const { data } = await api.delete(`${API_URL}/${id}`);
     if (data.sucesso) {
       mostrarToast("Pagamento excluído com sucesso!", "sucesso");
       await carregarPagamentos();

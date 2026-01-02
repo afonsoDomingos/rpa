@@ -266,8 +266,7 @@
 </template>
 
 <script setup>
-import axios from "axios";
-import api from "../api";
+import api, { ROOT_URL } from "../api";
 import { ref, nextTick, onUpdated, onMounted, onUnmounted, computed } from "vue";
 import Swal from "sweetalert2";
 
@@ -305,14 +304,12 @@ const dadosDocumento = ref({
 
 const usuarioLogado = ref(null);
 const buscarDadosUsuario = async () => {
-  const token = localStorage.getItem("token");
-  if (!token) return;
   try {
-    const { data } = await axios.get("https://apirpa.onrender.com/api/auth/me", {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const { data } = await api.get("/auth/me");
     usuarioLogado.value = data;
-  } catch (err) { console.error(err); }
+  } catch (err) {
+    console.error(err);
+  }
 };
 
 const totalPesquisas = ref(0);
@@ -433,8 +430,7 @@ const provincias = [
   "Cabo Delgado",
 ];
 
-const API_URL = "https://apirpa.onrender.com";
-//const API_URL = "http://localhost:5000";
+// Usamos a instância 'api' centralizada para chamadas do chatbot
 
 // Inicialização do microfone
 onMounted(async () => {
@@ -641,7 +637,7 @@ async function processMessage(userMsg) {
       data: new Date().toISOString()
     }).catch(() => {});
 
-    const response = await axios.post(`${API_URL}/api/chatbot`, {
+    const response = await api.post("/chatbot", {
       message: userMsg,
     });
 

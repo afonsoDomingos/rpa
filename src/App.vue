@@ -8,7 +8,7 @@ import ScrollToolsCTA from "./components/ScrollToolsCTA.vue";
 import OfflineOverlay from "./components/OfflineOverlay.vue";
 
 import { ref, onMounted, onUnmounted } from "vue";
-import axios from "axios";
+import api from "./api";
 import { useRouter } from "vue-router";
 import DoacaoProjeto from "@/components/DoacaoProjeto.vue";
 
@@ -101,8 +101,8 @@ const openLinkedIn = () => {
 };
 
 onMounted(() => {
-  // Wake up Render backend (cold start mitigation)
-  axios.get("https://apirpa.onrender.com/api/documentos").catch(() => {});
+  // Wake up Render backend
+  api.get("/documentos").catch(() => {});
 
   window.addEventListener("scroll", handleScroll);
   window.addEventListener("mousemove", handleMouseMove);

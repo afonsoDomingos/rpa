@@ -1,6 +1,7 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { io } from 'socket.io-client';
 import { usePushNotifications } from './usePushNotifications';
+import { ROOT_URL } from '../api';
 
 const STORAGE_KEY = 'admin_notifications';
 
@@ -68,7 +69,7 @@ export function useSocketNotifications() {
     const lastPayload = ref(null); // DEBUG
 
     const connectSocket = () => {
-        socket.value = io('https://apirpa.onrender.com', {
+        socket.value = io(ROOT_URL, {
             transports: ['polling', 'websocket'],
             reconnection: true,
             reconnectionDelay: 1000,

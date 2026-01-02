@@ -199,12 +199,11 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import axios from "axios";
+import api from "../api";
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
 import Swal from "sweetalert2";
 
-const API_BASE = "https://apirpa.onrender.com";
-const API_URL = `${API_BASE}/api/noticias`;
+const API_URL = "/noticias";
 
 const noticias = ref([]);
 const termoBusca = ref("");
@@ -252,7 +251,7 @@ const noticiasPaginadas = computed(() => {
 const fetchNoticias = async () => {
   try {
     carregando.value = true;
-    const res = await axios.get(API_URL);
+    const res = await api.get(API_URL);
     noticias.value = res.data;
   } catch (err) {
     console.error("[ERRO] Falha ao carregar notícias:", err.message);
@@ -299,8 +298,8 @@ const salvarNoticia = async () => {
     if (imagemArquivo.value) formData.append("imagem", imagemArquivo.value);
 
     const res = noticiaSelecionada.value?._id
-      ? await axios.put(`${API_URL}/${noticiaSelecionada.value._id}`, formData)
-      : await axios.post(API_URL, formData);
+      ? await api.put(`${API_URL}/${noticiaSelecionada.value._id}`, formData)
+      : await api.post(API_URL, formData);
 
     if (noticiaSelecionada.value?._id) {
       const index = noticias.value.findIndex(
@@ -336,7 +335,7 @@ const removerNoticia = async (_id) => {
   if (!result.isConfirmed) return;
 
   try {
-    await axios.delete(`${API_URL}/${_id}`);
+    await api.delete(`${API_URL}/${_id}`);
     noticias.value = noticias.value.filter((n) => n._id !== _id);
     mostrarMensagem("Notícia removida com sucesso");
   } catch (err) {
@@ -414,6 +413,7 @@ onMounted(fetchNoticias);
   line-height: 1.2;
   margin: 0;
   display: -webkit-box;
+  line-clamp: 5;
   -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
   overflow: hidden;

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import axios from "axios";
+import api from "@/api";
 import DefaultCounterCard from "../../../examples/cards/counterCards/DefaultCounterCard.vue";
 
 const documentCount = ref(0);
@@ -9,8 +9,8 @@ const isVisible = ref(false);
 const sectionRef = ref(null);
 
 onMounted(() => {
-  axios
-    .get("https://apirpa.onrender.com/api/documentos/count")
+  api
+    .get("/documentos/count")
     .then((response) => {
       documentCount.value = response.data.count;
     })
@@ -18,8 +18,8 @@ onMounted(() => {
       console.error("Erro ao carregar contagem de documentos", error)
     );
 
-  axios
-    .get("https://apirpa.onrender.com/api/solicitacoes/count")
+  api
+    .get("/solicitacoes/count")
     .then((response) => {
       solicitacoesCount.value = response.data.count;
     })

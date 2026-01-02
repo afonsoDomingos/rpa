@@ -443,6 +443,7 @@ const partilharGeral = async (doc) => {
 
 // Funções Admin
 const editarDocumento = (doc) => {
+  console.log("Abrindo edição para doc:", doc._id);
   documentoEditado.value = { ...doc };
   isEditModalOpen.value = true;
 };
@@ -638,7 +639,9 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
                            <i class="bi bi-share"></i>
                         </button>
                       </div>
-                      <MaterialButton color="success" size="sm" @click="editarDocumento(doc)">Gerenciar</MaterialButton>
+                      <button class="btn btn-success btn-sm rounded-pill px-3 shadow-sm" @click.stop="editarDocumento(doc)">
+                        <i class="bi bi-gear-fill me-1"></i> Gerenciar
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -778,8 +781,8 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
                         <button class="btn btn-share px-2" @click="partilharGeral(doc)" title="Outros"><i class="bi bi-share"></i></button>
                       </div>
                       <div class="btn-group shadow-sm rounded-3">
-                        <button class="btn btn-link text-warning btn-sm p-1" @click="editarDocumento(doc)" title="Editar"><i class="bi bi-pencil-square fs-6"></i></button>
-                        <button class="btn btn-link text-danger btn-sm p-1" @click="eliminarDocumento(doc)" title="Apagar"><i class="bi bi-trash fs-6"></i></button>
+                        <button class="btn btn-link text-warning btn-sm p-1" @click.stop="editarDocumento(doc)" title="Editar"><i class="bi bi-pencil-square fs-6"></i></button>
+                        <button class="btn btn-link text-danger btn-sm p-1" @click.stop="eliminarDocumento(doc)" title="Apagar"><i class="bi bi-trash fs-6"></i></button>
                       </div>
                     </div>
                   </td>
@@ -831,8 +834,8 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
                         <button class="mobile-btn facebook" @click="partilharFacebook(doc)"><i class="bi bi-facebook"></i></button>
                         <button class="mobile-btn share" @click="partilharGeral(doc)"><i class="bi bi-share"></i></button>
                         <div class="mobile-actions-divider"></div>
-                        <button class="mobile-btn edit" @click="editarDocumento(doc)"><i class="bi bi-pencil"></i></button>
-                        <button class="mobile-btn delete" @click="eliminarDocumento(doc)"><i class="bi bi-trash"></i></button>
+                        <button class="mobile-btn edit" @click.stop="editarDocumento(doc)"><i class="bi bi-pencil"></i></button>
+                        <button class="mobile-btn delete" @click.stop="eliminarDocumento(doc)"><i class="bi bi-trash"></i></button>
                       </div>
                     </div>
                   </td>
@@ -1018,36 +1021,50 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
       </div>
     </div>
 
-    <!-- Modal de Edição -->
-    <div v-if="isEditModalOpen" class="modal-overlay">
-      <div class="modal-dialog">
-        <div class="modal-content shadow-2xl rounded-4">
-          <div class="modal-header bg-purple text-white">
-            <h5 class="modal-title">Editar Documento Admin</h5>
-            <button type="button" class="btn-close btn-close-white" @click="isEditModalOpen = false"></button>
+    <!-- Modal de Edição Premium (Uso de Teleport para garantir visibilidade) -->
+    <Teleport to="body">
+      <div v-if="isEditModalOpen" class="custom-modal-backdrop" @click.self="isEditModalOpen = false">
+        <div class="custom-modal-card animate-slide-up">
+          <div class="custom-modal-header">
+            <h5 class="m-0 fw-bold"><i class="bi bi-pencil-square me-2"></i>Editar Documento</h5>
+            <button class="btn-close-custom" @click="isEditModalOpen = false">&times;</button>
           </div>
-          <div class="modal-body p-4">
+          <div class="custom-modal-body">
             <form @submit.prevent="salvarEdicao">
-              <div class="mb-3">
-                <label class="form-label">Nome Completo</label>
-                <input v-model="documentoEditado.nome_completo" type="text" class="form-control" required />
+              <!-- Grid para campos -->
+              <div class="row">
+                <div class="col-12 mb-3">
+                  <label class="custom-label">Nome Completo</label>
+                  <input v-model="documentoEditado.nome_completo" type="text" class="custom-input" required />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="custom-label">Província</label>
+                  <select class="custom-select-input" v-model="documentoEditado.provincia">
+                    <option v-for="p in provincias" :key="p" :value="p">{{ p }}</option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="custom-label">Contacto</label>
+                  <input v-model="documentoEditado.contacto" type="text" class="custom-input" required />
+                </div>
+                <div class="col-12 mb-4">
+                  <label class="custom-label">Status do Documento</label>
+                  <select class="custom-select-input" v-model="documentoEditado.status">
+                    <option value="Pendente">Pendente</option>
+                    <option value="Recuperado">Recuperado/Entregue</option>
+                  </select>
+                </div>
               </div>
-              <div class="mb-3">
-                <label class="form-label">Província</label>
-                <select class="form-select" v-model="documentoEditado.provincia">
-                  <option v-for="p in provincias" :key="p" :value="p">{{ p }}</option>
-                </select>
+              
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-light w-100 py-2 fw-bold" @click="isEditModalOpen = false">Cancelar</button>
+                <button type="submit" class="btn btn-purple-gradient w-100 py-2 fw-bold shadow-sm">Salvar Alterações</button>
               </div>
-              <div class="mb-3">
-                <label class="form-label">Contacto</label>
-                <input v-model="documentoEditado.contacto" type="text" class="form-control" required />
-              </div>
-              <button type="submit" class="btn btn-purple w-100 mt-3 py-3">Salvar Alterações</button>
             </form>
           </div>
         </div>
       </div>
-    </div>
+    </Teleport>
   </section>
 </template>
 
@@ -1212,19 +1229,105 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
   color: #ccc;
 }
 
-/* Modal Overlay Premium */
-.modal-overlay {
+/* Modal de Edição Premium */
+.custom-modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(5px);
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: 10000;
+  padding: 20px;
+}
+
+.custom-modal-card {
+  background: white;
+  width: 100%;
+  max-width: 450px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.custom-modal-header {
+  background: linear-gradient(135deg, #800080 0%, #4a004a 100%);
+  color: white;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-close-custom {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-close-custom:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.custom-modal-body {
+  padding: 24px;
+}
+
+.custom-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #6c757d;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.custom-input, .custom-select-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid #f0f0f0;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+}
+
+.custom-input:focus, .custom-select-input:focus {
+  outline: none;
+  border-color: #800080;
+  background: #fdfbff;
+  box-shadow: 0 0 0 4px rgba(128, 0, 128, 0.1);
+}
+
+.btn-purple-gradient {
+  background: linear-gradient(135deg, #800080 0%, #4a004a 100%);
+  color: white;
+  border: none;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Responsividade Mobile Completa */

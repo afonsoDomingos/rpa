@@ -325,7 +325,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import Swal from "sweetalert2";
-import axios from "axios";
+import api, { ROOT_URL } from "../api";
 import { io } from "socket.io-client";
 
 // Configuração de Toast do SweetAlert2
@@ -341,11 +341,7 @@ const Toast = Swal.mixin({
   }
 });
 
-// Configuração da API
-const API_URL = "https://apirpa.onrender.com/api";
-const getHeaders = () => ({
-  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-});
+// Configuração da API removida pois usamos o 'api' central
 
 // Chart.js imports
 import {
@@ -533,7 +529,7 @@ const chartOptions = {
 const carregarAtividades = async () => {
   carregando.value = true;
   try {
-    const { data } = await axios.get(`${API_URL}/atividades`, getHeaders());
+    const { data } = await api.get("/atividades");
     listaAtividades.value = Array.isArray(data) ? data : [];
   } catch (error) {
     console.warn("Erro ao carregar do backend, tentando localStorage...", error);
@@ -564,7 +560,7 @@ const adicionarAtividade = async () => {
   };
 
   try {
-    const { data } = await axios.post(`${API_URL}/atividades`, payload, getHeaders());
+    const { data } = await api.post("/atividades", payload);
     if (data) {
       listaAtividades.value.unshift(data);
       Toast.fire({
@@ -590,7 +586,7 @@ const adicionarAtividade = async () => {
 
 const atualizarStatus = async (ativ) => {
   try {
-    await axios.patch(`${API_URL}/atividades/${ativ._id || ativ.id}`, { status: ativ.status }, getHeaders());
+    await api.patch(`/atividades/${ativ._id || ativ.id}`, { status: ativ.status });
   } catch (error) {
     console.error("Erro ao atualizar status no backend", error);
     salvarLocal();
@@ -612,7 +608,7 @@ const removerAtividade = (id, backendId) => {
     if (result.isConfirmed) {
       try {
         if (backendId || typeof id === 'string') {
-          await axios.delete(`${API_URL}/atividades/${backendId || id}`, getHeaders());
+          await api.delete(`/atividades/${backendId || id}`);
         }
         listaAtividades.value = listaAtividades.value.filter(a => (a?._id || a?.id) !== (backendId || id));
         salvarLocal();
@@ -751,10 +747,9 @@ const gerarRelatorioPDF = () => {
 let socket;
 
 const iniciarSocket = () => {
-  // Conectar ao backend
-  socket = io("https://apirpa.onrender.com", {
-    transports: ["websocket"],
-    path: "/socket.io" // Ajuste conforme config backend, se necessário
+  // Conectar ao backend usando ROOT_URL central
+  socket = io(ROOT_URL, {
+    transports: ["websocket"]
   });
 
   socket.on("connect", () => {

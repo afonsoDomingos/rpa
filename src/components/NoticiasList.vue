@@ -123,10 +123,9 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
-import axios from "axios";
+import api from "../api";
 
-const API_BASE = "https://apirpa.onrender.com";
-const API_URL = `${API_BASE}/api/noticias`;
+const API_URL = "/noticias";
 
 const noticias = ref([]);
 const termoBusca = ref("");
@@ -200,7 +199,7 @@ const fecharModalConteudo = () => (conteudoModal.value = null);
 
 const incrementarVisualizacoes = async (noticia) => {
   try {
-    const res = await axios.patch(`${API_URL}/${noticia._id}`);
+    const res = await api.patch(`${API_URL}/${noticia._id}`);
     noticia.visualizacoes = res.data.visualizacoes;
   } catch (err) {
     console.error("[ERRO] Falha ao atualizar visualizações:", err.message);
@@ -209,7 +208,7 @@ const incrementarVisualizacoes = async (noticia) => {
 
 const fetchNoticias = async () => {
   try {
-    const res = await axios.get(API_URL);
+    const res = await api.get(API_URL);
     noticias.value = res.data;
   } catch (err) {
     console.error("[ERRO] Falha ao carregar notícias:", err.message);

@@ -197,7 +197,12 @@ const solicitarDocumento = async () => {
       fetchpriority="high"
     >
       <div class="container">
-        <!-- Conteúdo removido conforme solicitado -->
+        <div class="row">
+          <div class="col-lg-7 text-center mx-auto">
+            <h1 class="text-white pt-3 mt-n5 visually-hidden">Recupera Aqui - Recuperação de Documentos Perdidos e Achados em Moçambique</h1>
+            <p class="lead text-white mt-3 visually-hidden">A plataforma líder para encontrar seu Bilhete de Identidade, Passaporte e outros documentos em Moçambique.</p>
+          </div>
+        </div>
       </div>
     </div>
   </Header>

@@ -10,18 +10,16 @@ import { useDocumentos } from "@/composables/useDocumentos";
 
 import MaterialSwitch from "@/components/MaterialSwitch.vue";
 import MaterialButton from "@/components/MaterialButton.vue";
-import axios from "axios";
+
 
 const usuarioLogado = ref(null);
 const buscarDadosUsuario = async () => {
-  const token = localStorage.getItem("token");
-  if (!token) return;
   try {
-    const { data } = await axios.get("https://apirpa.onrender.com/api/auth/me", {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const { data } = await api.get("/auth/me");
     usuarioLogado.value = data;
-  } catch (err) { console.error(err); }
+  } catch (err) {
+    console.error("Erro ao buscar dados do usuário:", err);
+  }
 };
 
 const router = useRouter();
@@ -308,10 +306,7 @@ const partilharGeral = async (doc) => {
 
 const verificarAssinaturaAntesDeSolicitar = async (doc) => {
   try {
-    const token = localStorage.getItem("token");
-    const { data } = await api.get("/pagamentos/assinatura/ativa", {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const { data } = await api.get("/pagamentos/assinatura/ativa");
 
     if (data.ativa) {
       const modalElement = document.getElementById("exampleModal");
@@ -439,14 +434,20 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
               </div>
 
               <!-- Feedback de Busca Vazia -->
-              <div v-if="erroMensagem && documentosEncontrados.length === 0 && busca.nome" class="text-center mt-4 p-4 rounded shadow-sm animate-fade-in" style="background-color: #f8f9fa">
-                <p class="text-danger fw-bold fs-5 mb-3">{{ erroMensagem }}</p>
-                <p class="text-muted fst-italic fs-6 mensagem-motivacional">
+              <div v-if="erroMensagem && documentosEncontrados.length === 0 && busca.nome" class="text-center mt-4 p-4 rounded shadow-sm animate-fade-in" style="background-color: #f8f9fa; border-left: 5px solid #800080;">
+                <p class="text-danger fw-bold fs-5 mb-2">{{ erroMensagem }}</p>
+                <p class="text-muted fst-italic fs-6 mensagem-motivacional mb-3">
                   Não desanime {{ busca.nome.split(" ")[0] }}! Muitas pessoas encontram seus documentos depois de alguns dias.
                 </p>
-                <button @click="activeTab = 'cadastrar'" class="btn btn-success btn-lg mt-3 px-4 py-2 btn-zoom">
-                  📢 Não encontrou? Cadastre aqui
-                </button>
+                
+                <div class="d-flex flex-wrap justify-content-center gap-2">
+                  <button @click="activeTab = 'cadastrar'" class="btn btn-success btn-sm px-4 btn-zoom">
+                    📢 Não encontrou? Cadastre aqui
+                  </button>
+                  <button @click="router.push({ name: 'GuiaDocumentos' })" class="btn btn-outline-primary btn-sm px-4 btn-zoom">
+                    <i class="bi bi-journal-text me-2"></i> Como tratar documentos em Moçambique
+                  </button>
+                </div>
               </div>
 
               <!-- Contador de Impacto (Otimizado/Compacto) -->
@@ -516,8 +517,11 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
             
             <div class="d-flex flex-wrap justify-content-center gap-3">
               <button @click="activeTab = 'cadastrar'" class="btn btn-purple px-4">Cadastrar Documento</button>
+              <button @click="router.push({ name: 'GuiaDocumentos' })" class="btn btn-info px-4">
+                <i class="bi bi-journal-check me-2"></i> Como tratar documentos em Moçambique
+              </button>
               <button @click="router.push('/comunidade')" class="btn btn-outline-purple px-4">
-                <i class="bi bi-people-fill me-2"></i> Procurar na Comunidade
+                <i class="bi bi-people-fill me-2"></i> Ver na Comunidade
               </button>
             </div>
             <p class="mt-4 text-sm text-muted">A nossa comunidade também partilha achados e perdidos diariamente!</p>
