@@ -363,9 +363,14 @@ const packages = [
     id: "teste",
     name: "Teste",
     price: 0,
-    period: "/5 dias",
-    benefits: ["Acesso total por 5 dias", "Gerar CV", "1 GB de armazenamento"],
-    recommended: true,
+    period: "/ 5 dias",
+    benefits: [
+      "Busca de documentos ilimitada",
+      "Registar achados (sempre grátis)",
+      "Guia de Documentos (resumo)",
+      "Ver anúncios da comunidade"
+    ],
+    recommended: false,
   },
   {
     id: "mensal",
@@ -373,19 +378,26 @@ const packages = [
     price: 150,
     period: "/mês",
     benefits: [
-      "Tudo do teste",
-      "Solicitar documentos",
-      "3 GB",
-      "Suporte prioritário",
+      "Alertas via SMS/Push em tempo real",
+      "Gerador de CV Profissional (Ilimitado)",
+      "Cofre Digital Seguro (3 GB)",
+      "Guia Completo + Chat de Apoio",
+      "Prioridade em pedidos de documentos"
     ],
-    recommended: false,
+    recommended: true,
   },
   {
     id: "anual",
     name: "Anual",
     price: 1500,
     period: "/ano",
-    benefits: ["Tudo do mensal", "Delivery", "Atualizações diárias"],
+    benefits: [
+      "Tudo do Plano Premium",
+      "Assistência Pessoal na Recuperação",
+      "Cofre Digital Seguro (10 GB)",
+      "Anúncios com Destaque Máximo",
+      "Suporte VIP 24/7 (WhatsApp)"
+    ],
     recommended: false,
   },
 ];
