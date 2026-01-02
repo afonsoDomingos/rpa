@@ -229,6 +229,17 @@ const procurar = async () => {
 
   try {
     const res = await apiProcurar(params);
+    documentosEncontrados.value = res;
+
+    // EVENTO GA4: Pesquisa realizada com sucesso
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'search', {
+        search_term: termoPesquisado,
+        filter_type: tipoFiltro.value,
+        results_count: res.length
+      });
+    }
+
     if (res.length === 0) {
       erroMensagem.value = "Pesquisa concluída, mas não encontramos nenhum documento com estes dados.";
     }
@@ -277,11 +288,27 @@ const celebrarMilestone = (numero) => {
 };
 
 const partilharWhatsApp = (doc) => {
+  // EVENTO GA4: Partilha no WhatsApp
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'share', {
+      method: 'whatsapp',
+      content_type: 'document',
+      item_id: doc.id
+    });
+  }
   const mensagem = `📢 *Documento Encontrado no RPA!*%0A%0A👤 *Nome:* ${doc.nome_completo}%0A📄 *Tipo:* ${doc.tipo_documento}%0A📍 *Província:* ${doc.provincia}%0A%0ASe conheces esta pessoa, avisa-a! Registre documentos em: ${window.location.href}`;
   window.open(`https://wa.me/?text=${mensagem}`, '_blank');
 };
 
 const partilharFacebook = (doc) => {
+  // EVENTO GA4: Partilha no Facebook
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'share', {
+      method: 'facebook',
+      content_type: 'document',
+      item_id: doc.id
+    });
+  }
   const url = encodeURIComponent(window.location.href);
   const quote = encodeURIComponent(`📢 Documento Encontrado no RPA!\n👤 Nome: ${doc.nome_completo}\n📄 Tipo: ${doc.tipo_documento}\n📍 Província: ${doc.provincia}`);
   window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${quote}`, '_blank');
@@ -305,6 +332,14 @@ const partilharGeral = async (doc) => {
 };
 
 const verificarAssinaturaAntesDeSolicitar = async (doc) => {
+  // EVENTO GA4: Clique em solicitar documento localizado
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'generate_lead', {
+      document_type: doc.tipo_documento,
+      document_owner: doc.nome_completo
+    });
+  }
+
   try {
     const { data } = await api.get("/pagamentos/assinatura/ativa");
 
@@ -537,14 +572,29 @@ watch(tipoFiltro, () => { Object.keys(busca.value).forEach(k => busca.value[k] =
             <h5 class="text-dark fw-bold">Não encontramos resultados</h5>
             <p class="text-muted mb-4">{{ erroMensagem }}</p>
             
-            <div class="d-flex flex-wrap justify-content-center gap-3">
-              <button @click="activeTab = 'cadastrar'" class="btn btn-purple px-4">Cadastrar Documento</button>
-              <button @click="router.push({ name: 'GuiaDocumentos' })" class="btn btn-info px-4">
-                <i class="bi bi-journal-check me-2"></i> Como tratar documentos em Moçambique
+            <div class="d-flex flex-wrap justify-content-center gap-3 mb-5">
+              <button @click="activeTab = 'cadastrar'" class="btn btn-purple px-4 rounded-pill">Cadastrar Documento</button>
+              <button @click="router.push({ name: 'GuiaDocumentos' })" class="btn btn-info px-4 rounded-pill">
+                <i class="bi bi-journal-check me-2"></i> Como tratar documentos
               </button>
-              <button @click="router.push('/comunidade')" class="btn btn-outline-purple px-4">
-                <i class="bi bi-people-fill me-2"></i> Ver na Comunidade
-              </button>
+            </div>
+
+            <div class="card border-0 bg-light rounded-4 p-4 mx-auto" style="max-width: 600px;">
+              <h6 class="text-purple fw-bold mb-3"><i class="bi bi-lightbulb me-2"></i> O que fazer agora?</h6>
+              <div class="text-start small">
+                <div class="d-flex mb-2">
+                  <i class="bi bi-1-circle-fill text-purple me-2"></i>
+                  <span><strong>Cadastre o alerta:</strong> No botão acima, deixe os dados do documento. Avisaremos se alguém o encontrar.</span>
+                </div>
+                <div class="d-flex mb-2">
+                  <i class="bi bi-2-circle-fill text-purple me-2"></i>
+                  <span><strong>Verifique a Comunidade:</strong> Muitas pessoas publicam achados no nosso mural social diariamente.</span>
+                </div>
+                <div class="d-flex">
+                  <i class="bi bi-3-circle-fill text-purple me-2"></i>
+                  <span><strong>Não perca a esperança:</strong> A maioria dos documentos é registada 3 a 7 dias após a perda. Volte amanhã!</span>
+                </div>
+              </div>
             </div>
             <p class="mt-4 text-sm text-muted">A nossa comunidade também partilha achados e perdidos diariamente!</p>
           </div>
