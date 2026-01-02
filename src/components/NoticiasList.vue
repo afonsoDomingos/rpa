@@ -28,7 +28,7 @@
                 ? noticia.imagem
                 : API_BASE + noticia.imagem
             "
-            alt="Imagem da Notícia"
+            :alt="noticia.titulo || 'Notícia Recupera Aqui Moçambique'"
             class="img-fluid"
             @click="abrirImagem(noticia)"
           />
@@ -90,7 +90,7 @@
     <div v-if="imagemAmpliada" class="modal" @click="fecharImagem">
       <div class="modal-content imagem-modal">
         <span class="fechar-modal" @click="fecharImagem">×</span>
-        <img :src="imagemAmpliada" alt="Imagem Ampliada" class="img-fluid" />
+        <img :src="imagemAmpliada" :alt="conteudoModal?.titulo || 'Imagem da Notícia Ampliada'" class="img-fluid" />
       </div>
     </div>
 
