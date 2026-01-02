@@ -735,7 +735,10 @@ const ultimoPagamento = computed(() => {
 function diasParaExpirarInfo(dataISO, pacote) {
   const dataPagamento = new Date(dataISO);
   const nomePacote = pacote?.toLowerCase().trim();
-  const diasValidade = nomePacote === "anual" ? 365 : 30;
+  
+  let diasValidade = 30; // Default mensal
+  if (nomePacote === "anual") diasValidade = 365;
+  else if (nomePacote === "teste" || nomePacote === "test") diasValidade = 5;
 
   const dataExpiracao = new Date(dataPagamento);
   dataExpiracao.setDate(dataExpiracao.getDate() + diasValidade);

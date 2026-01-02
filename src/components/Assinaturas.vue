@@ -32,12 +32,17 @@
               {
                 selected: selectedPackage?.id === pkg.id,
                 recommended: pkg.recommended,
+                popular: pkg.id === 'mensal',
+                'trial-card': pkg.id === 'teste'
               },
             ]"
             @click="selectPackage(pkg)"
           >
             <div v-if="pkg.recommended" class="recommended-badge">
               Recomendado
+            </div>
+            <div v-if="pkg.id === 'mensal'" class="popular-badge">
+              Mais Popular
             </div>
             <h3 class="package-name">{{ pkg.name }}</h3>
             <div class="package-price">
@@ -46,6 +51,7 @@
                 pkg.price > 0 ? pkg.price.toLocaleString("pt-MZ") : "Gratuito"
               }}</span>
               <span v-if="pkg.price > 0" class="period">{{ pkg.period }}</span>
+              <span v-else class="period">/ 5 dias</span>
             </div>
             <ul class="benefits-list">
               <li
@@ -78,9 +84,23 @@
               @click.stop="selectPackage(pkg)"
             >
               {{
-                selectedPackage?.id === pkg.id ? "Selecionado" : "Selecionar"
+                selectedPackage?.id === pkg.id ? "Selecionado" : (pkg.id === 'teste' ? "Começar Grátis" : "Selecionar")
               }}
             </button>
+          </div>
+        </div>
+
+        <!-- Rodapé de Confiança -->
+        <div v-if="currentStep === 1" class="trust-footer mt-5 text-center animate-fade-in">
+          <p class="text-muted small mb-3"><i class="bi bi-shield-lock-fill me-2"></i> Pagamento 100% Seguro & Encriptado</p>
+          <div class="d-flex justify-content-center align-items-center gap-4 opacity-75">
+            <img :src="mpesaIcon" alt="M-Pesa" height="25" />
+            <img :src="emolaIcon" alt="Emola" height="25" />
+            <div class="d-flex gap-2 text-white fs-4">
+              <i class="bi bi-credit-card-2-front"></i>
+              <i class="bi bi-visa"></i>
+              <i class="bi bi-mastercard"></i>
+            </div>
           </div>
         </div>
 
@@ -1228,4 +1248,58 @@ onMounted(() => {
     font-size: 1.2rem;
   }
 }
+
+/* Novos Estilos Premium */
+.popular-badge {
+  position: absolute;
+  top: -12px;
+  right: 1rem;
+  background: linear-gradient(135deg, #800080, #bf00bf);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(128, 0, 128, 0.4);
+  z-index: 2;
+}
+
+.package-card.popular {
+  border-color: rgba(128, 0, 128, 0.5);
+  transform: scale(1.02);
+  z-index: 1;
+}
+
+.package-card.popular:hover {
+  border-color: #800080;
+}
+
+.trial-card {
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.trial-card:hover {
+  border-style: solid;
+}
+
+.trust-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 2rem;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.btn-whatsapp { background-color: #25d366; color: white; }
+.btn-facebook { background-color: #1877f2; color: white; }
+.btn-share { background-color: #6c757d; color: white; }
 </style>

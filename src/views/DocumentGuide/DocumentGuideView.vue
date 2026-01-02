@@ -167,230 +167,106 @@ const documentos = [
     id: 1,
     titulo: 'Bilhete de Identidade (BI)',
     categoria: 'identidade',
-    resumo: 'Documento essencial de identificação para cidadãos nacionais. Saiba como tratar, renovar ou pedir segunda via.',
+    resumo: 'O documento principal de identificação. Para 2ª via por perda, é obrigatório um Boletim de Ocorrência Policial.',
     icone: 'bi-person-vcard',
     corClasse: 'bg-primary-soft text-primary',
     corTema: 'primary',
     requisitos: [
-      'Assento de Nascimento ou BI caducado (para renovação)',
-      'Presença física para recolha de dados biométricos',
-      'Talão de depósito do valor correspondente',
-      'Em caso de perda: Declaração policial de extravio'
+      'Presença física (obrigatória para dados biométricos)',
+      'Assento de Nascimento ou BI antigo (para renovação)',
+      'Declaração de extravio da Polícia (Obrigatório para 2ª via)',
+      'Talão de depósito pago no banco ou via canal eletrónico indicado no local'
     ],
-    custo: '165 MT (Normal) | Taxa de urgência varia',
-    locais: 'Direcção Nacional de Identificação Civil (DNIC) ou Conservatórias do Registo Civil.',
-    dica: 'Chegue cedo para evitar longas filas. O serviço de agendamento online já está disponível em alguns postos de Maputo.'
+    custo: '165 MT (Taxa normal). Taxas de urgência podem elevar o valor para ~500 MT.',
+    locais: 'Postos da DIC (Identificação Civil) ou Balcões de Atendimento Único (BAU).',
+    dica: 'O BI agora tem validade de 10 anos para maiores de 21 anos. Evite plastificar o talão de levantamento, pois o sistema precisa ler o código.'
   },
   {
     id: 2,
     titulo: 'Passaporte Biométrico',
     categoria: 'viagem',
-    resumo: 'Necessário para viajar para fora do país. Requer BI válido e regularização do serviço militar (para jovens).',
+    resumo: 'Indispensável para viagens internacionais. Requer Bilhete de Identidade válido e atualizado.',
     icone: 'bi-passport',
     corClasse: 'bg-success-soft text-success',
     corTema: 'success',
     requisitos: [
-      'Bilhete de Identidade válido (Original e Cópia)',
-      'Recenseamento Militar regularizado (18-35 anos)',
-      'Formulário preenchido no local',
-      'Comprovativo de pagamento'
+      'Bilhete de Identidade Válido (Original e Cópia)',
+      'Talão de pagamento (obtido no local após captura)',
+      'Autorização dos pais (para menores de 18 anos)',
+      'Regularização militar (Cédula ou Declaração) para homens dos 18 aos 35 anos'
     ],
-    custo: 'Aproximadamente 3.750 MT (Válido por 5 anos)',
-    locais: 'Direcção Nacional de Migração (SENAMI) nas capitais provinciais.',
-    dica: 'Verifique a validade do seu BI antes de ir. Se o BI caducar em menos de 6 meses, renove-o primeiro.'
+    custo: '3.750 MT (Validade de 5 anos para adultos).',
+    locais: 'Serviço Nacional de Migração (SENAMI) e Postos de Atendimento em todas as Províncias.',
+    dica: 'O SENAMI agora permite agendamento online em algumas províncias. Verifique o portal oficial para evitar filas.'
   },
   {
     id: 3,
     titulo: 'Carta de Condução',
     categoria: 'veiculos',
-    resumo: 'Habilitação legal para conduzir veículos. Inclui exame teórico, prático e exame médico.',
+    resumo: 'Documento que habilita a condução de veículos. O processo de 2ª via exige exame médico atualizado.',
     icone: 'bi-car-front',
     corClasse: 'bg-warning-soft text-warning',
     corTema: 'warning',
     requisitos: [
-      'Ter idade mínima (18 anos para ligeiros)',
-      'Exame médico e psicotécnico aprovados',
-      'Inscrição em escola de condução credenciada',
-      'Aprovação nos exames teórico e prático do INATRO'
+      'Exame médico de aptidão física e mental',
+      'Bilhete de Identidade válido',
+      'Boletim de Ocorrência (em caso de perda/roubo)',
+      'Formulário do INATRO devidamente preenchido'
     ],
-    custo: 'Varia conforme a escola de condução + Taxas do INATRO (~2.500 MT taxas)',
+    custo: 'Renovação/2ª Via: ~2.500 MT (Variável conforme taxas de emissão biométrica).',
     locais: 'Instituto Nacional dos Transportes Rodoviários (INATRO).',
-    dica: 'A Carta Biométrica é agora o padrão. Cartas antigas devem ser substituídas.'
+    dica: 'Se a sua carta for do modelo antigo (papel), a troca para o modelo biométrico é obrigatória e exige nova captura de fotos e digitais.'
   },
   {
     id: 4,
     titulo: 'NUIT (Número Fiscal)',
     categoria: 'fiscal',
-    resumo: 'Número Único de Identificação Tributária, necessário para emprego, contas bancárias e negócios.',
+    resumo: 'O Número Único de Identificação Tributária é gratuito e obrigatório para qualquer atividade financeira.',
     icone: 'bi-123',
     corClasse: 'bg-info-soft text-info',
     corTema: 'info',
     requisitos: [
-      'Bilhete de Identidade válido',
-      'Formulário M/01 preenchido',
-      'Comprovativo de residência (opcional em alguns casos)'
+      'Cópia do Bilhete de Identidade ou Passaporte',
+      'Preenchimento do Modelo 01 (disponível nas repartições)',
+      'Comprovativo de residência ou declaração do bairro'
     ],
-    custo: 'Gratuito',
-    locais: 'Autoridade Tributária (AT) - Bairros Fiscais.',
-    dica: 'O NUIT é pessoal e intransmissível. Guarde o documento original.'
-  },
-  {
-    id: 5,
-    titulo: 'DIRE (Residentes Estrangeiros)',
-    categoria: 'identidade',
-    resumo: 'Documento de Identificação e Residência para Estrangeiros. Essencial para viver legalmente em Moçambique.',
-    icone: 'bi-globe-americas',
-    corClasse: 'bg-danger-soft text-danger',
-    corTema: 'danger',
-    requisitos: [
-      'Passaporte válido com visto adequado',
-      'Carta de chamada ou contrato de trabalho',
-      'Registo criminal do país de origem',
-      'Atestado médico'
-    ],
-    custo: 'Varia conforme a nacionalidade e tipo de residência (Anual/Permanente)',
-    locais: 'SENAMI (Migração).',
-    dica: 'O processo pode ser demorado. Inicie a renovação 60 dias antes de caducar.'
+    custo: 'Gratuito (Emissão original e 2ª via).',
+    locais: 'Autoridade Tributária (AT) ou Bairros Fiscais.',
+    dica: 'Nunca pague pela emissão do NUIT, é um serviço totalmente gratuito por lei em Moçambique.'
   },
   {
     id: 6,
     titulo: 'Registo Criminal',
     categoria: 'civil',
-    resumo: 'Certificado que comprova a ausência de crimes. Exigido para emprego, concursos públicos e vistos.',
+    resumo: 'Documento que atesta se o cidadão tem ou não antecedentes criminais.',
     icone: 'bi-file-earmark-lock',
     corClasse: 'bg-secondary-soft text-secondary',
     corTema: 'secondary',
     requisitos: [
-      'Bilhete de Identidade ou Passaporte válido',
-      'Formulário preenchido (Modelo 2)',
-      'Impressão digital recolhida no local'
+      'Bilhete de Identidade válido (Original)',
+      'Indicação do fim a que se destina (Ex: Emprego ou Visto)',
+      'Pagamento da taxa no local'
     ],
-    custo: 'Normal: 500 MT | Urgente: 750 MT',
-    locais: 'Direcção do Registo Criminal ou Lojas de Registo nas capitais.',
-    dica: 'A validade é de apenas 90 dias. Trate apenas quando for necessário.'
+    custo: '500 MT (Normal - ~3 a 5 dias) | 750 MT (Urgente - ~24h).',
+    locais: 'Direcção Provincial de Identificação Civil ou Lojas de Registo.',
+    dica: 'A validade do registo criminal em Moçambique é de apenas 90 dias (3 meses).'
   },
   {
     id: 7,
-    titulo: 'Assento de Nascimento',
+    titulo: 'Certidão de Nascimento',
     categoria: 'civil',
-    resumo: 'Documento base para qualquer cidadão. Necessário para tratar o BI e matrícula escolar.',
+    resumo: 'Base para todos os outros documentos. Em caso de perda, peça uma "Cópia Integral" ou "Narrativa".',
     icone: 'bi-balloon-heart',
     corClasse: 'bg-primary-soft text-primary',
     corTema: 'primary',
     requisitos: [
-      'Declaração da Maternidade ou Hospital',
-      'BI dos pais (se casados) ou presença de ambos (se solteiros)',
-      'Presença de duas testemunhas (se registo tardio)'
+      'Dados do assento (Número, Ano e Livro - se souber)',
+      'BI dos pais ou do próprio interessado',
+      'Pagamento de emolumentos'
     ],
-    custo: 'Gratuito até aos 120 dias. Pagável após prazo.',
-    locais: 'Conservatórias do Registo Civil.',
-    dica: 'Registe a criança logo após o nascimento para evitar multas e processos complexos de registo tardio.'
-  },
-  {
-    id: 8,
-    titulo: 'DUAT (Terra/Terreno)',
-    categoria: 'imoveis',
-    resumo: 'Direito de Uso e Aproveitamento da Terra. O documento oficial que garante a posse legal de um terreno.',
-    icone: 'bi-geo-alt',
-    corClasse: 'bg-success-soft text-success',
-    corTema: 'success',
-    requisitos: [
-      'Croquis de localização',
-      'Consulta comunitária (áreas rurais)',
-      'Plano de exploração/edificação',
-      'Pagamento de taxas de licença'
-    ],
-    custo: 'Varia conforme a dimensão (Hectares) e localização.',
-    locais: 'Serviços Distritais de Planeamento e Infraestruturas (SDPI) ou Conselhos Municipais.',
-    dica: 'O DUAT provisório vale 2 anos (estrangeiros) ou 5 anos (nacionais). Deve solicitar o definitivo após cumprir o plano.'
-  },
-  {
-    id: 9,
-    titulo: 'Alvará Comercial',
-    categoria: 'fiscal',
-    resumo: 'Licença necessária para abrir qualquer estabelecimento comercial ou empresa em funcionamento.',
-    icone: 'bi-shop',
-    corClasse: 'bg-warning-soft text-warning',
-    corTema: 'warning',
-    requisitos: [
-      'Certidão de Registo Comercial (BUE)',
-      'NUIT da Empresa',
-      'Vistoria do local (Bombeiros, Saúde, Comércio)',
-      'Contrato de Arrendamento ou DUAT'
-    ],
-    custo: 'Varia conforme a classe e atividade económica.',
-    locais: 'Balcão de Atendimento Único (BAU) ou Direcções de Indústria e Comércio.',
-    dica: 'Certifique-se de que o local cumpre os requisitos de segurança e higiene antes de pedir a vistoria.'
-  },
-  {
-    id: 10,
-    titulo: 'Inscrição no INSS',
-    categoria: 'fiscal',
-    resumo: 'Segurança Social obrigatória para todos os trabalhadores por conta de outrem e empresas.',
-    icone: 'bi-shield-check',
-    corClasse: 'bg-info-soft text-info',
-    corTema: 'info',
-    requisitos: [
-      'Boletim de Identificação de Beneficiário (BIB)',
-      'Cópia do BI e NUIT',
-      'Ficha da Empresa (para empregadores)'
-    ],
-    custo: 'Gratuito (Descontos mensais no salário)',
-    locais: 'Instituto Nacional de Segurança Social (INSS) - Delegações.',
-    dica: 'Pode consultar os seus descontos e carreira contributiva online no portal "Minha Segurança Social".'
-  },
-  {
-    id: 11,
-    titulo: 'Abertura de Conta Bancária',
-    categoria: 'bancos',
-    resumo: 'Requisitos gerais para abrir conta nos principais bancos (BIM, BCI, Standard Bank, Absa, etc).',
-    icone: 'bi-bank',
-    corClasse: 'bg-primary-soft text-primary',
-    corTema: 'primary',
-    requisitos: [
-      'Bilhete de Identidade válido ou Passaporte (+ DIRE para estrangeiros)',
-      'NUIT (Número Único de Identificação Tributária)',
-      'Comprovativo de Residência (Declaração do Bairro ou Fatura de Água/Luz)',
-      'Declaração de Rendimentos (Carta da empresa ou recibo de vencimento)'
-    ],
-    custo: 'Varia (Geralmente depósito inicial mínimo de 500 a 1000 MT)',
-    locais: 'Balcões de qualquer banco comercial.',
-    dica: 'Para contas "Móvel" ou simplificadas, muitas vezes basta o BI e NUIT, mas têm limites de transação menores.'
-  },
-  {
-    id: 12,
-    titulo: 'M-Pesa (Vodacom)',
-    categoria: 'bancos',
-    resumo: 'Como registar e aumentar o limite da sua conta M-Pesa para transações maiores.',
-    icone: 'bi-phone',
-    corClasse: 'bg-danger-soft text-danger',
-    corTema: 'danger',
-    requisitos: [
-      'Cartão SIM Vodacom registado',
-      'Bilhete de Identidade válido (Original)',
-      'Preenchimento do formulário de registo',
-      'Presença física do titular'
-    ],
-    custo: 'Gratuito',
-    locais: 'Lojas Vodacom ou Agentes autorizados M-Pesa.',
-    dica: 'Para aumentar limites (Tier 2/3), deve ir a uma loja oficial com o BI e comprovativo de residência.'
-  },
-  {
-    id: 13,
-    titulo: 'E-Mola (Movitel)',
-    categoria: 'bancos',
-    resumo: 'Serviço financeiro móvel da Movitel. Saiba como ativar e usar.',
-    icone: 'bi-phone-vibrate',
-    corClasse: 'bg-warning-soft text-warning',
-    corTema: 'warning',
-    requisitos: [
-      'Cartão SIM Movitel registado',
-      'Documento de identificação válido (BI, Passaporte, DIRE)',
-      'Registo via menu *898#'
-    ],
-    custo: 'Gratuito',
-    locais: 'Lojas Movitel ou Agentes E-Mola.',
-    dica: 'A E-Mola permite levantar dinheiro sem cartão em ATMs do BCI e Ponto24.'
+    custo: 'Aproximadamente 250 MT (Varia conforme o tipo de certidão).',
+    locais: 'Conservatórias do Registo Civil onde foi feito o registo original.',
+    dica: 'Se não souber os dados do livro, os serviços podem fazer uma busca pelo nome e data de nascimento, mas pode demorar mais.'
   }
 ];
 
