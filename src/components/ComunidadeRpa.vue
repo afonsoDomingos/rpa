@@ -378,6 +378,9 @@
             <button @click="shareTo('twitter')" class="btn-share twitter">
               <i class="fab fa-twitter me-2"></i> X (Twitter)
             </button>
+            <button @click="shareTo('instagram')" class="btn-share instagram">
+              <i class="fab fa-instagram me-2"></i> Instagram
+            </button>
             <button @click="shareTo('copy')" class="btn-share copy">
               <i class="bi bi-clipboard me-2"></i> Copiar Texto
             </button>
@@ -708,8 +711,8 @@ const canDelete = (post) => {
 // --- Lógica de Partilha ---
 const compartilharPost = async (post) => {
   const shareData = {
-    title: "Comunidade RPA",
-    text: `📢 *RPA Moçambique* \n\n${post.conteudo}\n\n🔗 Saiba mais em: https://rpa.mz`,
+    title: "RPA Moçambique - Comunidade",
+    text: `📢 *RPA Moçambique* \n\n${post.conteudo}\n\n🔗 Visite: https://rpa.mz`,
     url: "https://rpa.mz"
   };
 
@@ -769,6 +772,21 @@ const shareTo = (platform) => {
     case 'twitter': // X
       link = `https://twitter.com/intent/tweet?text=${text}`;
       break;
+    case 'instagram':
+      // Instagram não tem web sharer para texto direto no desktop.
+      // A melhor estratégia "premium" é copiar o texto e abrir o site.
+      navigator.clipboard.writeText(`${postToShare.value.conteudo}\n\n📲 RPA Moçambique`);
+      Swal.fire({
+        icon: 'info',
+        title: 'Instagram',
+        text: 'O texto do post foi copiado! Agora cole no seu Story ou Feed do Instagram.',
+        confirmButtonText: 'Abrir Instagram',
+        confirmButtonColor: '#E4405F'
+      }).then(() => {
+        window.open('https://www.instagram.com/', '_blank');
+      });
+      closeShareModal();
+      return;
     case 'copy':
       navigator.clipboard.writeText(`${postToShare.value.conteudo}\n\nLink: https://rpa.mz`);
       Swal.fire({
@@ -1424,6 +1442,7 @@ onBeforeUnmount(() => socket.disconnect());
 .btn-share.facebook { background-color: #1877F2; }
 .btn-share.linkedin { background-color: #0A66C2; }
 .btn-share.twitter { background-color: #000000; }
+.btn-share.instagram { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
 .btn-share.copy { background-color: #6c757d; }
 
 /* Toast Notification */
