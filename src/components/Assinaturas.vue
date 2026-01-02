@@ -1,23 +1,33 @@
 <template>
-  <div class="subscription-container">
-    <header class="header">
-      <button @click="goBack" class="back-button">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="m15 18-6-6 6-6" />
-        </svg>
-        Voltar
-      </button>
-      <h1 class="title">Escolha seu Plano</h1>
+  <div class="container-fluid position-sticky z-index-sticky top-0 px-0">
+    <div class="row gx-0">
+      <div class="col-12">
+        <NavbarDefault :sticky="true" />
+      </div>
+    </div>
+  </div>
+
+  <div class="subscription-container pt-8">
+    <header class="header mt-5">
+      <div class="container d-flex flex-column align-items-start">
+        <button @click="goBack" class="back-button mb-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+          Voltar
+        </button>
+        <h1 class="title">Escolha seu Plano</h1>
+      </div>
     </header>
 
     <div class="content-wrapper">
@@ -327,11 +337,14 @@
       </div>
     </aside>
   </div>
+  <FooterDefault />
 </template>
 
 <script setup>
 import { ref, reactive, nextTick, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
+import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
+import FooterDefault from "../examples/footers/FooterDefault.vue";
 import api from "@/api";
 import mpesaIcon from "@/assets/img/Mpesa.png";
 import emolaIcon from "@/assets/img/Emola.png";
