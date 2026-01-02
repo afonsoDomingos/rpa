@@ -114,9 +114,6 @@
           </div>
         </div>
 
-        <!-- Google Ad Monitazation -->
-        <GoogleAd adSlot="1234567890" /> 
-
         <!-- Secção FAQ -->
         <section class="faq-section mt-6 pb-5 px-3 px-lg-0">
           <div class="container maxWidth-md mx-auto">
@@ -375,7 +372,6 @@ import { ref, reactive, nextTick, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../examples/footers/FooterDefault.vue";
-import GoogleAd from "@/components/GoogleAd.vue";
 import api from "@/api";
 import mpesaIcon from "@/assets/img/Mpesa.png";
 import emolaIcon from "@/assets/img/Emola.png";
