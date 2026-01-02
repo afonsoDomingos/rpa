@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://recuperaaqui.vercel.app/</loc>
     <lastmod>2026-01-02</lastmod>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://recuperaaqui.vercel.app/rpa.png</image:loc>
+      <image:title>Recupera Aqui Moçambique - Logotipo</image:title>
+      <image:caption>Plataforma para recuperação de documentos perdidos e achados em Moçambique</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://recuperaaqui.vercel.app/about</loc>

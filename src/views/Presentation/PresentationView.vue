@@ -241,45 +241,46 @@ const solicitarDocumento = async () => {
               <!-- Logos Originais -->
               <div class="partner-slide">
                 <a href="https://www.facebook.com/profile.php?id=61558461805280" target="_blank" rel="noopener">
-                  <img :src="logoBootstrap" alt="Bootstrap" width="100" height="70" loading="lazy" />
+                  <img :src="logoBootstrap" alt="Bootcamp RPA - Parceiro Recupera Aqui Moçambique" width="100" height="70" loading="lazy" />
                 </a>
               </div>
               <div class="partner-slide">
                 <a href="https://www.facebook.com/profile.php?id=61570930139844&sk=photos" target="_blank" rel="noopener">
-                  <img :src="logoVue" alt="Vue.js" width="100" height="70" loading="lazy" />
+                  <img :src="logoVue" alt="Payboom - Sistema de Pagamentos Parceiro Recupera Aqui" width="100" height="70" loading="lazy" />
                 </a>
               </div>
               <div class="partner-slide">
                 <a href="https://www.facebook.com/Techvibemz/" target="_blank" rel="noopener">
-                  <img :src="logoTechvibe" alt="Techvibe" width="100" height="70" loading="lazy" />
+                  <img :src="logoTechvibe" alt="Techvibe - Desenvolvimento de Software Parceiro" width="100" height="70" loading="lazy" />
                 </a>
               </div>
 
 
                <div class="partner-slide">
                 <a href="http://madfin.vercel.app/" target="_blank" rel="noopener">
-                  <img :src="logoMafin" alt="Madfin" width="100" height="70" loading="lazy" />
+                  <img :src="logoMafin" alt="Madfin - Consultoria Financeira Parceiro Recupera Aqui" width="100" height="70" loading="lazy" />
                 </a>
               </div>
 
               <!-- Duplicados para efeito infinito -->
               <div class="partner-slide">
                 <a href="https://www.facebook.com/profile.php?id=61558461805280" target="_blank" rel="noopener">
-                  <img :src="logoBootstrap" alt="Bootstrap" width="100" height="70" loading="lazy" />
+                  <img :src="logoBootstrap" alt="Bootcamp RPA - Parceiro Recupera Aqui" width="100" height="70" loading="lazy" />
                 </a>
               </div>
               <div class="partner-slide">
                 <a href="https://www.facebook.com/profile.php?id=61570930139844&sk=photos" target="_blank" rel="noopener">
-                  <img :src="logoVue" alt="Vue.js" width="100" height="70" loading="lazy" />
+                  <img :src="logoVue" alt="Payboom - Parceiro Recupera Aqui" width="100" height="70" loading="lazy" />
                 </a>
               </div>
               <div class="partner-slide">
-                <a href="https://www.facebook.com/Techvibemz/" target="_blank" rel="noopener">
+                <a href="https://www.facebook.com Techvibemz/" target="_blank" rel="noopener">
+                   <img :src="logoTechvibe" alt="Techvibe - Parceiro" width="100" height="70" loading="lazy" />
                 </a>
               </div>
                <div class="partner-slide">
                 <a href="http://madfin.vercel.app/" target="_blank" rel="noopener">
-                  <img :src="logoMafin" alt="Madfin" width="100" height="70" loading="lazy" />
+                  <img :src="logoMafin" alt="Madfin - Parceiro" width="100" height="70" loading="lazy" />
                 </a>
               </div>
             </div>

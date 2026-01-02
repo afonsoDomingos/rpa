@@ -116,7 +116,7 @@ defineProps({
         <div class="col-md-3 mb-4 ms-auto">
           <div>
             <a :href="brand.route">
-              <img :src="brand.logo" class="mb-3 footer-logo" alt="main_logo" />
+              <img :src="brand.logo" class="mb-3 footer-logo" alt="Logotipo Recupera Aqui Moçambique - Recuperação de Documentos" />
             </a>
             <h6 class="font-weight-bolder mb-4 text-purple">{{ brand.name }}</h6>
           </div>

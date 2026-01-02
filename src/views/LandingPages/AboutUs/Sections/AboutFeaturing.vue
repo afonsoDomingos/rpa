@@ -38,42 +38,42 @@ onMounted(() => {
           <img
             class="w-100 opacity-7"
             src="@/assets/img/logos/gray-logos/pay.jpg"
-            alt="logo"
+            alt="Parceiro Recupera Aqui Moçambique"
           />
         </div>
         <div class="col-lg-2 col-md-4 col-6 mb-4">
           <img
             class="w-100 opacity-7"
             src="@/assets/img/logos/gray-logos/pay.jpg"
-            alt="logo"
+            alt="Parceiro Recupera Aqui Moçambique"
           />
         </div>
         <div class="col-lg-2 col-md-4 col-6 mb-4">
           <img
             class="w-100 opacity-7"
             src="@/assets/img/logos/gray-logos/pay.jpg"
-            alt="logo"
+            alt="Parceiro Recupera Aqui Moçambique"
           />
         </div>
         <div class="col-lg-2 col-md-4 col-6 mb-4">
           <img
             class="w-100 opacity-7"
             src="@/assets/img/logos/gray-logos/pay.jpg"
-            alt="logo"
+            alt="Parceiro Recupera Aqui Moçambique"
           />
         </div>
         <div class="col-lg-2 col-md-4 col-6 mb-4">
           <img
             class="w-100 opacity-7"
             src="@/assets/img/logos/gray-logos/pay.jpg"
-            alt="logo"
+            alt="Parceiro Recupera Aqui Moçambique"
           />
         </div>
         <div class="col-lg-2 col-md-4 col-6 mb-4">
           <img
             class="w-100 opacity-7"
             src="@/assets/img/logos/gray-logos/pay.jpg"
-            alt="logo"
+            alt="Parceiro Recupera Aqui Moçambique"
           />
         </div>
       </div>
