@@ -70,8 +70,8 @@ onUnmounted(() => {
               <h1>Cartao de Eleitor</h1>
             </div>
             <p class="lead mb-4 text-white opacity-8">
-              Bem-vindo à Rpa, a solução confiável e rápida para a recuperação
-              de documentos perdidos
+              Bem-vindo à RPA Moçambique (Recupera Aqui), a solução confiável e
+              rápida para a recuperação de documentos perdidos.
             </p>
             <button type="submit" class="btn bg-white text-dark">
               Reportar

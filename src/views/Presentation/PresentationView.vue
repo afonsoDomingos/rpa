@@ -199,8 +199,8 @@ const solicitarDocumento = async () => {
       <div class="container">
         <div class="row">
           <div class="col-lg-7 text-center mx-auto">
-            <h1 class="text-white pt-3 mt-n5 visually-hidden">Recupera Aqui - Recuperação de Documentos Perdidos e Achados em Moçambique</h1>
-            <p class="lead text-white mt-3 visually-hidden">A plataforma líder para encontrar seu Bilhete de Identidade, Passaporte e outros documentos em Moçambique.</p>
+            <h1 class="text-white pt-3 mt-n5 visually-hidden">RPA Moçambique (Recupera Aqui) - Recuperação de Documentos Perdidos e Achados</h1>
+            <p class="lead text-white mt-3 visually-hidden">A RPA Moçambique é a plataforma líder para encontrar seu Bilhete de Identidade, Passaporte e outros documentos perdidos.</p>
           </div>
         </div>
       </div>

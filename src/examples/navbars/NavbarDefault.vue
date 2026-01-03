@@ -227,6 +227,16 @@
                 <i class="bi bi-person-badge-fill text-info"></i> Gestão Interna
               </router-link>
 
+              <!-- Validar Comprovativos (Admin) -->
+              <router-link
+                v-if="usuario && ['admin', 'superadmin'].includes(usuario.role?.toLowerCase())"
+                :to="{ name: 'AdminComprovativos' }"
+                class="dropdown-item border-radius-md d-flex align-items-center gap-2"
+                @click="fecharDropdown"
+              >
+                <i class="bi bi-receipt-cutoff text-success"></i> Validar Comprovativos
+              </router-link>
+
               <!-- Meus Pagamentos -->
               <router-link
                 :to="{ name: 'MeusPagamentos' }"

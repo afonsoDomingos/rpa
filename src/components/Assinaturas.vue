@@ -7,26 +7,14 @@
     </div>
   </div>
 
-  <div class="subscription-container pt-5">
-    <header class="header">
-      <div class="container d-flex flex-column align-items-start">
-        <button @click="goBack" class="back-button mb-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="m15 18-6-6 6-6" />
-          </svg>
+  <div class="subscription-container">
+    <header class="page-header border-bottom-0">
+      <div class="container d-flex flex-column align-items-start px-0">
+        <button @click="goBack" class="btn-back">
+          <i class="bi bi-arrow-left me-2"></i>
           Voltar
         </button>
-        <h1 class="title">Escolha seu Plano</h1>
+        <h1 class="title mt-3">Escolha seu Plano</h1>
       </div>
     </header>
 
@@ -96,6 +84,19 @@
               {{
                 selectedPackage?.id === pkg.id ? "Selecionado" : (pkg.id === 'teste' ? "Começar Grátis" : "Selecionar")
               }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Já fez o pagamento? Envie o comprovativo -->
+        <div v-if="currentStep === 1" class="comprovativo-section mt-5 text-center">
+          <div class="comprovativo-card">
+            <i class="bi bi-receipt-cutoff comprovativo-icon"></i>
+            <h4 class="comprovativo-title">Já efetuou o pagamento?</h4>
+            <p class="comprovativo-text">Envie o comprovativo de pagamento para ativação imediata</p>
+            <button class="btn-enviar-comprovativo" @click="showComprovantivoModal = true">
+              <i class="bi bi-cloud-upload me-2"></i>
+              Enviar Comprovativo
             </button>
           </div>
         </div>
@@ -363,6 +364,23 @@
         </button>
       </div>
     </aside>
+
+    <!-- Modal de Envio de Comprovativo -->
+    <transition name="fade-modal">
+      <div v-if="showComprovantivoModal" class="modal-backdrop" @click.self="showComprovantivoModal = false">
+        <div class="modal-dialog-centered">
+          <div class="modal-content-custom">
+            <button class="btn-close-modal" @click="showComprovantivoModal = false">
+              <i class="bi bi-x-lg"></i>
+            </button>
+            <EnviarComprovativo 
+              :initial-service="selectedPackage ? (selectedPackage.id === 'anual' ? 'assinatura_anual' : 'assinatura_mensal') : null"
+              @close="showComprovantivoModal = false" 
+            />
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
   <FooterDefault />
 </template>
@@ -372,6 +390,7 @@ import { ref, reactive, nextTick, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import NavbarDefault from "../examples/navbars/NavbarDefault.vue";
 import FooterDefault from "../examples/footers/FooterDefault.vue";
+import EnviarComprovativo from "./EnviarComprovativo.vue";
 import api from "@/api";
 import mpesaIcon from "@/assets/img/Mpesa.png";
 import emolaIcon from "@/assets/img/Emola.png";
@@ -387,6 +406,7 @@ const loading = ref(false);
 const showSuccess = ref(false);
 const errorMessage = ref("");
 const stripeError = ref("");
+const showComprovantivoModal = ref(false); // Modal de comprovativo
 
 const phoneInput = ref(null);
 const inputFocused = ref(false);
@@ -804,37 +824,42 @@ onMounted(() => {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
   scroll-padding-bottom: 300px;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding: 5rem 0 2rem 0; /* Puxado um pouco mais para cima */
 }
 
-.header {
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.page-header {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 2rem; /* Reduzido de 1.5rem */
+  gap: 0.25rem;
 }
-.back-button {
+
+.btn-back {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  background: transparent;
-  border: none;
-  color: #a0a0a0;
-  cursor: pointer;
-  font-size: 0.875rem;
-  padding: 0.5rem 0;
-  transition: color 0.2s;
 }
-.back-button:hover {
-  color: #ffffff;
+
+.btn-back:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 
 .title {
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 700;
-  margin: 1rem 0 0 0;
+  margin: 0;
   background: linear-gradient(to right, #ffffff, #a0a0a0);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  letter-spacing: -0.5px;
 }
 
 .content-wrapper {
@@ -863,7 +888,7 @@ onMounted(() => {
   background: #1a1a1a;
   border: 2px solid transparent;
   border-radius: 1rem;
-  padding: 2rem;
+  padding: 1.5rem; /* Reduzido de 2rem */
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -898,9 +923,9 @@ onMounted(() => {
 }
 
 .package-name {
-  font-size: 1.5rem;
+  font-size: 1.25rem; /* Reduzido de 1.5rem */
   font-weight: 700;
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.75rem 0;
   color: #ffffff;
 }
 .package-price {
@@ -915,7 +940,7 @@ onMounted(() => {
   color: #a0a0a0;
 }
 .amount {
-  font-size: 2.5rem;
+  font-size: 2.2rem; /* Reduzido de 2.5rem */
   font-weight: 700;
   color: #ffffff;
 }
@@ -923,7 +948,7 @@ onMounted(() => {
 .benefits-list {
   list-style: none;
   padding: 0;
-  margin: 0 0 2rem 0;
+  margin: 0 0 1.5rem 0; /* Reduzido de 2rem */
 }
 .benefit-item {
   display: flex;
@@ -1404,5 +1429,184 @@ onMounted(() => {
 
 .maxWidth-md {
   max-width: 800px;
+}
+
+/* Comprovativo Section Styles */
+.comprovativo-section {
+  animation: fadeIn 1s ease-out 0.4s both;
+}
+
+.comprovativo-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(128, 0, 128, 0.1));
+  border: 2px solid rgba(128, 0, 128, 0.3);
+  border-radius: 1.5rem;
+  padding: 2.5rem 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  backdrop-filter: blur(10px);
+  transition: all 0.4s ease;
+}
+
+.comprovativo-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(128, 0, 128, 0.25);
+  border-color: rgba(128, 0, 128, 0.5);
+}
+
+.comprovativo-icon {
+  font-size: 3.5rem;
+  color: #9b30ff;
+  margin-bottom: 1rem;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.comprovativo-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+
+.comprovativo-text {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.btn-enviar-comprovativo {
+  background: linear-gradient(135deg, #800080, #9b30ff);
+  color: #fff;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-enviar-comprovativo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(128, 0, 128, 0.4);
+  background: linear-gradient(135deg, #9b30ff, #800080);
+}
+
+/* Modal Styles */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.modal-dialog-centered {
+  width: 100%;
+  max-width: 650px;
+  margin: auto;
+}
+
+.modal-content-custom {
+  position: relative;
+  background: #fff;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.btn-close-modal {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #f8f9fa;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  color: #6c757d;
+  font-size: 1.2rem;
+}
+
+.btn-close-modal:hover {
+  background: #dc3545;
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+/* Modal Transition */
+.fade-modal-enter-active,
+.fade-modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-modal-enter-from,
+.fade-modal-leave-to {
+  opacity: 0;
+}
+
+.fade-modal-enter-active .modal-content-custom,
+.fade-modal-leave-active .modal-content-custom {
+  transition: transform 0.3s ease;
+}
+
+.fade-modal-enter-from .modal-content-custom {
+  transform: translateY(-30px) scale(0.95);
+}
+
+.fade-modal-leave-to .modal-content-custom {
+  transform: translateY(30px) scale(0.95);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .comprovativo-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .comprovativo-icon {
+    font-size: 2.5rem;
+  }
+
+  .comprovativo-title {
+    font-size: 1.25rem;
+  }
+
+  .modal-content-custom {
+    padding: 1.5rem;
+  }
 }
 </style>

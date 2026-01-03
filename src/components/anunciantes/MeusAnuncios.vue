@@ -105,6 +105,14 @@
                 <span>Remover</span>
               </button>
             </div>
+
+            <!-- BOTÃO DE COMPROVATIVO PARA ANÚNCIOS PENDENTES -->
+            <div class="acoes-linha mt-2" v-if="ad.status === 'pending'">
+              <button @click="abrirModalComprovativo(ad)" class="btn-comprovativo" type="button">
+                <i class="bi bi-receipt-cutoff"></i>
+                <span>Enviar Comprovativo</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

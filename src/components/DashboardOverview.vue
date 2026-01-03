@@ -147,6 +147,10 @@
             <i class="bi bi-bar-chart"></i>
             <span>Ver Estatísticas</span>
           </button>
+          <button class="action-btn action-teal" @click="abrirComprovativos">
+            <i class="bi bi-receipt-cutoff"></i>
+            <span>Validar Comprovativos</span>
+          </button>
         </div>
       </div>
     </div>
@@ -155,8 +159,11 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import api from "@/api";
 import Swal from "sweetalert2";
+
+const router = useRouter();
 
 defineEmits(['refresh']);
 
@@ -241,6 +248,11 @@ const exportarRelatorio = () => {
 // Função de refresh
 const refresh = async () => {
   await calcularEstatisticas();
+};
+
+// Função para abrir página de comprovativos
+const abrirComprovativos = () => {
+  router.push('/admin/comprovativos');
 };
 
 onMounted(() => {
@@ -482,6 +494,7 @@ defineExpose({
 .action-green { background: linear-gradient(135deg, #4CAF50, #388E3C); }
 .action-blue { background: linear-gradient(135deg, #2196F3, #1976D2); }
 .action-orange { background: linear-gradient(135deg, #FF9800, #F57C00); }
+.action-teal { background: linear-gradient(135deg, #00BCD4, #0097A7); }
 
 .action-btn:hover {
   transform: translateY(-3px);
