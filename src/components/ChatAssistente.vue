@@ -597,6 +597,34 @@ function toggle() {
   open.value = !open.value;
 }
 
+// Função para higienizar HTML e prevenir XSS
+const sanitizeHtml = (html) => {
+  if (!html) return "";
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+  
+  // Remover tags perigosas
+  const dangerousTags = ["script", "iframe", "object", "embed", "style", "form"];
+  dangerousTags.forEach(tag => {
+    doc.querySelectorAll(tag).forEach(el => el.remove());
+  });
+
+  // Remover atributos on* (event handlers) de todas as tags
+  doc.querySelectorAll("*").forEach(el => {
+    Array.from(el.attributes).forEach(attr => {
+      if (attr.name.toLowerCase().startsWith("on")) {
+        el.removeAttribute(attr.name);
+      }
+      // Sanitizar href de links para evitar javascript:
+      if (attr.name.toLowerCase() === "href" && attr.value.trim().toLowerCase().startsWith("javascript:")) {
+        el.removeAttribute(attr.name);
+      }
+    });
+  });
+
+  return doc.body.innerHTML;
+};
+
 // Função para detectar se o usuário quer buscar documento perdido
 function detectarBuscaDocumento(mensagem) {
   const palavrasChave = [
@@ -943,7 +971,8 @@ function responderFaq(id) {
 }
 
 // Efeito digitação gradual
-function typeWriter(text, callback) {
+function typeWriter(rawText, callback) {
+  const text = sanitizeHtml(rawText);
   let i = 0;
   const speed = 20; // Aumentar um pouco a velocidade se necessário
   let current = "";

@@ -24,7 +24,15 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error("API Error:", error.response?.data || error.message);
+    // Em produção, não expomos detalhes internos da API no console
+    const isProduction = import.meta.env.PROD;
+
+    if (isProduction) {
+      console.error("Erro na comunicação com o servidor. Por favor, tente novamente mais tarde.");
+    } else {
+      console.error("API Error Detail:", error.response?.data || error.message);
+    }
+
     return Promise.reject(error);
   }
 );

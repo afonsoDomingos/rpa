@@ -176,8 +176,6 @@ onUnmounted(() => {
 
     <ScrollToolsCTA />
     <CustomCursor />
-    <ScrollToolsCTA />
-    <CustomCursor />
     <OfflineOverlay />
     <SocialIcons :size="14" />
     <InstallButton />
@@ -233,9 +231,6 @@ onUnmounted(() => {
       </div>
     </transition>
 
-    <OfflineOverlay />
-    <SocialIcons :size="14" />
-    <InstallButton />
     <ChatAssistente :hide-fab-when-scrolled="showScrollTop" />
 
     <button v-show="showScrollTop" @click="scrollToTop" class="scroll-top-btn">
