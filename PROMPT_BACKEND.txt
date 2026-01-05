@@ -1,0 +1,310 @@
+Preciso implementar um sistema de upload e validação de comprovativos de pagamento no backend da aplicação RPA. O frontend já está 100% implementado e está esperando esses endpoints. Aqui está tudo que preciso:
+
+---
+
+## TABELA NO BANCO DE DADOS
+
+Primeiro, crie esta tabela:
+
+```sql
+CREATE TABLE comprovativos_pagamento (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  usuario_id INT NOT NULL,
+  metodo_pagamento VARCHAR(50) NOT NULL,
+  valor_pago DECIMAL(10,2) NOT NULL,
+  referencia VARCHAR(100),
+  observacoes TEXT,
+  tipo VARCHAR(50) DEFAULT 'assinatura',
+  arquivo_path VARCHAR(255) NOT NULL,
+  status ENUM('pendente', 'aprovado', 'rejeitado') DEFAULT 'pendente',
+  obs_admin TEXT,
+  admin_responsavel VARCHAR(100),
+  admin_id INT,
+  data_envio DATETIME DEFAULT CURRENT_TIMESTAMP,
+  data_validacao DATETIME,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+  INDEX idx_status (status)
+);
+```
+
+---
+
+## ENDPOINT 1: UPLOAD DE COMPROVATIVO (USUÁRIO)
+
+**Rota:** `POST /api/pagamentos/comprovativo`  
+**Auth:** JWT obrigatório  
+**Content-Type:** multipart/form-data
+
+**Request (FormData):**
+- `comprovativo`: File (PNG, JPG, JPEG, PDF - máx 5MB)
+- `metodo_pagamento`: String ("M-Pesa", "Emola", "NIB BIM", "PayPal")
+- `valor_pago`: Number (ex: 150)
+- `referencia`: String (opcional)
+- `observacoes`: String (opcional)
+- `tipo`: String (default: "assinatura")
+
+**Response (201):**
+```json
+{
+  "sucesso": true,
+  "mensagem": "Comprovativo recebido com sucesso!",
+  "comprovativo": {
+    "id": 123,
+    "usuario_id": 456,
+    "status": "pendente"
+  }
+}
+```
+
+**O que fazer:**
+1. Validar tipo de arquivo (PNG, JPG, JPEG, PDF)
+2. Validar tamanho máximo (5MB)
+3. Renomear arquivo para: `{timestamp}_{userId}_{random}.{ext}`
+4. Salvar em: `/uploads/comprovativos/`
+5. Inserir registro no banco
+6. Retornar sucesso
+
+**Configuração Multer:**
+```javascript
+const multer = require('multer');
+const path = require('path');
+
+const storage = multer.diskStorage({
+  destination: 'uploads/comprovativos/',
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, `${uniqueSuffix}_${req.user.id}${path.extname(file.originalname)}`);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = /jpeg|jpg|png|pdf/;
+    const valid = allowed.test(path.extname(file.originalname).toLowerCase());
+    cb(valid ? null : new Error('Apenas PNG, JPG, PDF'), valid);
+  }
+});
+```
+
+---
+
+## ENDPOINT 2: LISTAR COMPROVATIVOS (ADMIN)
+
+**Rota:** `GET /api/pagamentos/comprovativos?status=pendente&metodo=M-Pesa`  
+**Auth:** JWT + Role Admin obrigatório
+
+**Response (200):**
+```json
+{
+  "sucesso": true,
+  "comprovativos": [
+    {
+      "id": 123,
+      "usuario": {
+        "id": 456,
+        "nome": "João Silva",
+        "email": "joao@email.com"
+      },
+      "metodo_pagamento": "M-Pesa",
+      "valor_pago": 150.00,
+      "referencia": "MP12345678",
+      "observacoes": "Pagamento mensal",
+      "arquivo_path": "1704294000_456.jpg",
+      "status": "pendente",
+      "data_envio": "2026-01-03T13:45:00Z",
+      "obs_admin": null,
+      "admin_responsavel": null
+    }
+  ],
+  "estatisticas": {
+    "pendentes": 15,
+    "aprovados": 42,
+    "rejeitados": 3,
+    "total": 60
+  }
+}
+```
+
+**SQL:**
+```sql
+SELECT 
+  c.*,
+  u.nome as usuario_nome,
+  u.email as usuario_email,
+  a.nome as admin_nome
+FROM comprovativos_pagamento c
+LEFT JOIN usuarios u ON c.usuario_id = u.id
+LEFT JOIN usuarios a ON c.admin_id = a.id
+WHERE status = ? AND metodo_pagamento = ?
+ORDER BY data_envio DESC
+```
+
+**O que fazer:**
+1. Verificar se usuário é admin
+2. Aceitar query params: `status`, `metodo`
+3. Fazer JOIN com tabela usuarios
+4. Calcular estatísticas (COUNT por status)
+5. Retornar lista + estatísticas
+
+---
+
+## ENDPOINT 3: APROVAR COMPROVATIVO (ADMIN)
+
+**Rota:** `POST /api/pagamentos/comprovativos/:id/aprovar`  
+**Auth:** JWT + Role Admin obrigatório
+
+**Request:**
+```json
+{
+  "obs_admin": "Comprovativo válido. Assinatura ativada." // Opcional
+}
+```
+
+**Response (200):**
+```json
+{
+  "sucesso": true,
+  "mensagem": "Comprovativo aprovado com sucesso"
+}
+```
+
+**O que fazer (IMPORTANTE):**
+1. Verificar se comprovativo existe
+2. Verificar se `status = 'pendente'` (não aprovar já processado)
+3. UPDATE comprovativo:
+   - `status = 'aprovado'`
+   - `admin_id = req.user.id`
+   - `admin_responsavel = req.user.nome`
+   - `obs_admin = req.body.obs_admin`
+   - `data_validacao = NOW()`
+4. **ATIVAR ASSINATURA DO USUÁRIO** (ajuste conforme sua estrutura):
+```sql
+UPDATE usuarios 
+SET assinatura_ativa = true,
+    assinatura_inicio = NOW(),
+    assinatura_fim = DATE_ADD(NOW(), INTERVAL 30 DAY)
+WHERE id = ?
+```
+5. Enviar email ao usuário: "Pagamento confirmado! Assinatura ativa."
+
+---
+
+## ENDPOINT 4: REJEITAR COMPROVATIVO (ADMIN)
+
+**Rota:** `POST /api/pagamentos/comprovativos/:id/rejeitar`  
+**Auth:** JWT + Role Admin obrigatório
+
+**Request:**
+```json
+{
+  "obs_admin": "Comprovativo ilegível. Envie novamente." // OBRIGATÓRIO
+}
+```
+
+**Response (200):**
+```json
+{
+  "sucesso": true,
+  "mensagem": "Comprovativo rejeitado"
+}
+```
+
+**O que fazer:**
+1. Validar se `obs_admin` foi enviado (é obrigatório!)
+2. Verificar se comprovativo existe
+3. Verificar se `status = 'pendente'`
+4. UPDATE comprovativo:
+   - `status = 'rejeitado'`
+   - `admin_id = req.user.id`
+   - `admin_responsavel = req.user.nome`
+   - `obs_admin = req.body.obs_admin`
+   - `data_validacao = NOW()`
+5. Enviar email ao usuário: "Comprovativo rejeitado. Motivo: {obs_admin}"
+
+---
+
+## ENDPOINT 5: SERVIR ARQUIVO (OPCIONAL MAS RECOMENDADO)
+
+**Rota:** `GET /api/uploads/:filename`  
+**Auth:** JWT obrigatório
+
+**O que fazer:**
+1. Verificar se arquivo existe em `/uploads/comprovativos/`
+2. Verificar se usuário = dono do arquivo OU é admin
+3. `res.sendFile(filepath)`
+
+---
+
+## EMAILS DE NOTIFICAÇÃO
+
+### Comprovativo Aprovado:
+```
+Para: {usuario.email}
+Assunto: ✅ Pagamento Confirmado - RPA
+Mensagem: 
+  Olá {usuario.nome}!
+  Seu comprovativo foi aprovado!
+  Sua assinatura está ativa.
+  Link: https://recuperaaqui.vercel.app/dashboard
+```
+
+### Comprovativo Rejeitado:
+```
+Para: {usuario.email}
+Assunto: ❌ Comprovativo Rejeitado - RPA
+Mensagem: 
+  Olá {usuario.nome}!
+  Seu comprovativo foi rejeitado.
+  Motivo: {obs_admin}
+  Por favor, envie novamente.
+  Link: https://recuperaaqui.vercel.app/assinaturas
+```
+
+---
+
+## TESTE COM POSTMAN
+
+```bash
+# 1. Upload
+POST http://localhost:3000/api/pagamentos/comprovativo
+Header: Authorization: Bearer {token}
+Body: form-data
+  - comprovativo: [selecionar arquivo]
+  - metodo_pagamento: M-Pesa
+  - valor_pago: 150
+
+# 2. Listar (Admin)
+GET http://localhost:3000/api/pagamentos/comprovativos
+Header: Authorization: Bearer {admin_token}
+
+# 3. Aprovar (Admin)
+POST http://localhost:3000/api/pagamentos/comprovativos/1/aprovar
+Header: Authorization: Bearer {admin_token}
+Body: { "obs_admin": "OK" }
+
+# 4. Rejeitar (Admin)
+POST http://localhost:3000/api/pagamentos/comprovativos/2/rejeitar
+Header: Authorization: Bearer {admin_token}
+Body: { "obs_admin": "Ilegível" }
+```
+
+---
+
+## CHECKLIST
+
+- [ ] Criar tabela `comprovativos_pagamento`
+- [ ] `npm install multer`
+- [ ] Criar pasta `/uploads/comprovativos/`
+- [ ] Endpoint 1: Upload
+- [ ] Endpoint 2: Listar (Admin)
+- [ ] Endpoint 3: Aprovar (Admin) + Ativar assinatura
+- [ ] Endpoint 4: Rejeitar (Admin)
+- [ ] Endpoint 5: Servir arquivo
+- [ ] Configurar emails
+- [ ] Testar tudo com Postman
+
+---
+
+O frontend está 100% pronto e conectado nesses endpoints. Quando implementares, testa e me avisa se funcionou!

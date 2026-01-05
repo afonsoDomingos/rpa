@@ -1,4 +1,31 @@
+# robots.txt para RPA - Recupera Aqui Moçambique
+# Site: https://recuperaaqui.vercel.app
+
 User-agent: *
 Allow: /
+Allow: /home
+Allow: /about
+Allow: /contactus
+Allow: /comunidade
+Allow: /CVGenerator
+Allow: /guia-documentos
+Allow: /assinaturas
+Allow: /anuncie
+Allow: /termsconditions
+Allow: /privacypolicy
 
+# Bloquear páginas administrativas e privadas
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /meus-documentos
+Disallow: /meus-pagamentos
+Disallow: /guardardocumentos
+Disallow: /meus-anuncios
+Disallow: /olhodedeus
+
+# Bloquear assets e arquivos do sistema
+Disallow: /src/
+Disallow: /node_modules/
+
+# Sitemap
 Sitemap: https://recuperaaqui.vercel.app/sitemap.xml

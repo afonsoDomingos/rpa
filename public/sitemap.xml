@@ -1,34 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- Página Principal / Login -->
   <url>
     <loc>https://recuperaaqui.vercel.app/</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
-    <image:image>
-      <image:loc>https://recuperaaqui.vercel.app/rpa.png</image:loc>
-      <image:title>Recupera Aqui Moçambique - Logotipo</image:title>
-      <image:caption>Plataforma para recuperação de documentos perdidos e achados em Moçambique</image:caption>
-    </image:image>
   </url>
+
+  <!-- Home / Apresentação -->
+  <url>
+    <loc>https://recuperaaqui.vercel.app/home</loc>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Sobre Nós -->
   <url>
     <loc>https://recuperaaqui.vercel.app/about</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- Contacte-nos -->
   <url>
     <loc>https://recuperaaqui.vercel.app/contactus</loc>
-    <lastmod>2026-01-02</lastmod>
-    <priority>0.7</priority>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
+
+  <!-- Comunidade -->
   <url>
     <loc>https://recuperaaqui.vercel.app/comunidade</loc>
-    <lastmod>2026-01-02</lastmod>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
+
+  <!-- Gerador de CV -->
+  <url>
+    <loc>https://recuperaaqui.vercel.app/CVGenerator</loc>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Guia de Documentos -->
   <url>
     <loc>https://recuperaaqui.vercel.app/guia-documentos</loc>
-    <lastmod>2026-01-02</lastmod>
-    <priority>0.9</priority>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
+
+  <!-- Assinaturas -->
+  <url>
+    <loc>https://recuperaaqui.vercel.app/assinaturas</loc>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Anuncie Connosco -->
+  <url>
+    <loc>https://recuperaaqui.vercel.app/anuncie</loc>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Termos e Condições -->
+  <url>
+    <loc>https://recuperaaqui.vercel.app/termsconditions</loc>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <!-- Política de Privacidade -->
+  <url>
+    <loc>https://recuperaaqui.vercel.app/privacypolicy</loc>
+    <lastmod>2026-01-03</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
 </urlset>

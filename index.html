@@ -10,6 +10,10 @@
   <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
   <link rel="manifest" href="/site.webmanifest" />
 
+  <!-- SEO: Canonical URL & Sitemap -->
+  <link rel="canonical" href="https://recuperaaqui.vercel.app/" />
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+
   <!-- Security: Content Security Policy -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
@@ -44,9 +48,11 @@
   <!-- Meta Pixel Code (ÚNICO E PERFEITO) -->
   <script src="/js/pixel.js"></script>
 
+  <!-- Application Name for SEO -->
+  <meta name="application-name" content="RPA - Recupera Aqui" />
+  <meta property="og:site_name" content="RPA - Recupera Aqui" />
 
-
-  <title>Recupera Aqui - Recuperação de Documentos em Moçambique</title>
+  <title>RPA - Recupera Aqui Moçambique | Recuperação de Documentos Perdidos</title>
 
   <!-- Google Analytics (GA4) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-20TZCTF13W"></script>
@@ -57,28 +63,29 @@
     gtag('config', 'G-20TZCTF13W');
   </script>
   <meta name="description"
-    content="Plataforma líder em Moçambique para recuperação de documentos perdidos e achados. Encontre seu BI, Passaporte, Cartão de Eleitor e mais. Simples, rápido e seguro." />
+    content="Recupera Aqui (RPA Moçambique) é a plataforma líder para recuperação de documentos perdidos e achados. Encontre seu BI, Passaporte e Cartão de Eleitor de forma rápida." />
   <meta name="keywords"
-    content="documentos perdidos, achados e perdidos Moçambique, recuperar BI Moçambique, extravio de documentos, Recupera Aqui Moçambique" />
+    content="RPA Moçambique, documentos perdidos, achados e perdidos Moçambique, recuperar BI Moçambique, extravio de documentos, Recupera Aqui Moçambique, RPA documentos" />
   <meta name="author" content="Recupera Aqui" />
   <meta name="robots" content="index, follow" />
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://recuperaaqui.vercel.app/" />
-  <meta property="og:title" content="Recupera Aqui - Recuperação de Documentos em Moçambique" />
+  <meta property="og:title" content="RPA - Recupera Aqui Moçambique | Recuperação de Documentos" />
   <meta property="og:description"
-    content="Ajudamos cidadãos moçambicanos a recuperar documentos perdidos de forma rápida e segura. BI, Passaporte, Cartas e mais." />
+    content="Ajudamos cidadãos moçambicanos no RPA (Recupera Aqui) a recuperar documentos perdidos de forma rápida e segura. BI, Passaporte e mais." />
   <meta property="og:image" content="https://recuperaaqui.vercel.app/rpa.png" />
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:url" content="https://recuperaaqui.vercel.app/" />
-  <meta property="twitter:title" content="Recupera Aqui - Recuperação de Documentos em Moçambique" />
+  <meta property="twitter:title" content="RPA - Recupera Aqui Moçambique | Documentos Perdidos" />
   <meta property="twitter:description"
-    content="Ajudamos cidadãos moçambicanos a recuperar documentos perdidos de forma rápida e segura." />
+    content="A RPA Moçambique (Recupera Aqui) ajuda-o a recuperar documentos perdidos de forma rápida e segura." />
   <meta property="twitter:image" content="https://recuperaaqui.vercel.app/rpa.png" />
 
+  <!-- Organization Schema -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -122,6 +129,92 @@
       "award": [
         "1º lugar no Fórum de Projetos da AIESEC",
         "Participante da 8ª capacitação em Gestão de Negócios do Projecto Nhluvuko (GAPI/MOZAL)"
+      ]
+    }
+  </script>
+
+  <!-- WebSite Schema with Search Action -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "RPA - Recupera Aqui Moçambique",
+      "alternateName": ["Recupera Aqui", "RPA Moçambique"],
+      "url": "https://recuperaaqui.vercel.app/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://recuperaaqui.vercel.app/comunidade?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+  </script>
+
+  <!-- Site Navigation Elements for Sitelinks -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Navegação Principal",
+      "itemListElement": [
+        {
+          "@type": "SiteNavigationElement",
+          "position": 1,
+          "name": "Login",
+          "description": "Acesse sua conta no RPA",
+          "url": "https://recuperaaqui.vercel.app/"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 2,
+          "name": "Sobre Nós",
+          "description": "Conheça a história e missão do RPA Moçambique",
+          "url": "https://recuperaaqui.vercel.app/about"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 3,
+          "name": "Contacte-nos",
+          "description": "Entre em contacto com nossa equipe",
+          "url": "https://recuperaaqui.vercel.app/contactus"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 4,
+          "name": "Comunidade",
+          "description": "Participe da comunidade RPA e encontre documentos perdidos",
+          "url": "https://recuperaaqui.vercel.app/comunidade"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 5,
+          "name": "Gerador de CV",
+          "description": "Crie seu currículo profissional gratuitamente",
+          "url": "https://recuperaaqui.vercel.app/CVGenerator"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 6,
+          "name": "Guia de Documentos",
+          "description": "Aprenda como recuperar seus documentos perdidos",
+          "url": "https://recuperaaqui.vercel.app/guia-documentos"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 7,
+          "name": "Anuncie Connosco",
+          "description": "Publique anúncios na plataforma RPA",
+          "url": "https://recuperaaqui.vercel.app/anuncie"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 8,
+          "name": "Assinaturas",
+          "description": "Planos e assinaturas premium",
+          "url": "https://recuperaaqui.vercel.app/assinaturas"
+        }
       ]
     }
   </script>
