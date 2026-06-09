@@ -597,7 +597,7 @@ function toggle() {
   open.value = !open.value;
 }
 
-<<<<<<< Updated upstream
+
 // Função para higienizar HTML e prevenir XSS
 const sanitizeHtml = (html) => {
   if (!html) return "";
