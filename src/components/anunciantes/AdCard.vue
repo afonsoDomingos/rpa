@@ -1,14 +1,12 @@
 <template>
   <transition name="slide-slow">
     <div v-if="showAd" class="ad-card-container" @click.self="closeAd">
-      <!-- CONTEÚDO DINÂMICO (LOCAL OU GOOGLE) -->
       <transition name="fade-ad" mode="out-in">
         <div v-if="activeAd" :key="activeAd.type === 'google' ? 'google' : currentIndex" class="ad-content">
           <button @click="closeAd" class="close-btn">
             <i class="bi bi-x-lg"></i>
           </button>
 
-          <!-- TEMA GOOGLE ADS -->
           <div v-if="activeAd.type === 'google'" class="ad-google-content">
             <div class="ad-sponsored">
                <i class="bi bi-google"></i>
@@ -22,7 +20,6 @@
             </button>
           </div>
 
-          <!-- TEMA ANÚNCIO LOCAL -->
           <div v-else class="ad-local-content">
             <div class="ad-sponsored">
               <i class="bi bi-megaphone-fill"></i>
@@ -54,7 +51,6 @@
                 <span>Falta <strong>{{ countdown }}s</strong></span>
               </div>
 
-              <!-- BOTÃO WHATSAPP -->
               <button
                 @click.stop="handleWhatsAppClick"
                 class="ad-action-btn ad-whatsapp-btn"
@@ -84,7 +80,6 @@
           </div>
         </div>
 
-        <!-- FALLBACK CASO TUDO FALHE -->
         <div v-else class="ad-placeholder">
           <div class="placeholder-icon">
             <i class="bi bi-megaphone-fill"></i>
@@ -109,7 +104,6 @@ import GoogleAd from "@/components/GoogleAd.vue";
 
 const router = useRouter();
 
-// Estado
 const showAd = ref(false);
 const activeAd = ref(null);
 const activeAds = ref([]);
@@ -124,13 +118,7 @@ let reappearTimeout = null;
 
 const ONE_HOUR_MS = 60 * 60 * 1000;
 
-// BUSCAR ANÚNCIOS (sempre fresco)
 const fetchActiveAds = async () => {
-  console.log(
-    "%cAdCard: Buscando anúncios fresquinhos...",
-    "color: cyan; font-weight: bold"
-  );
-
   try {
     const res = await api.get("/anuncios/ativos", { timeout: 10000 });
     const data = Array.isArray(res.data) ? res.data : [];
@@ -143,14 +131,11 @@ const fetchActiveAds = async () => {
           ad.image &&
           ad._id
       )
-      .slice(0, 10); // máximo 10 anúncios
+      .slice(0, 10);
 
-    // Salva no cache para fallback offline
     localStorage.setItem("cachedAds", JSON.stringify(activeAds.value));
 
-    // Lógica Profissional de Rotação (Local vs Google)
     if (activeAds.value.length > 0) {
-      // Chance de 30% de mostrar um Google Ad se houver anúncios locais
       if (Math.random() < 0.3) {
         activeAd.value = { type: 'google' };
       } else {
@@ -160,15 +145,11 @@ const fetchActiveAds = async () => {
       showAd.value = true;
       startCountdown();
     } else {
-      // Se não tem nada local, mostramos Google Ads como conteúdo principal do card
       activeAd.value = { type: 'google' };
       showAd.value = true;
       startCountdown();
     }
   } catch (err) {
-    console.error("Erro ao buscar anúncios:", err.response || err);
-
-    // Tenta carregar do cache se falhar
     const cached = localStorage.getItem("cachedAds");
     if (cached) {
       activeAds.value = JSON.parse(cached);
@@ -182,15 +163,12 @@ const fetchActiveAds = async () => {
   }
 };
 
-// CONTADOR
 const startCountdown = () => {
   countdown.value = 30;
   clearTimers();
-
   intervalId = setInterval(() => {
     if (countdown.value > 0) countdown.value--;
   }, 1000);
-
   timeoutId = setTimeout(closeAd, 30000);
 };
 
@@ -200,9 +178,7 @@ const nextAd = () => {
     startCountdown();
     return;
   }
-  
   clearTimers();
-  // Ciclo: Se estamos num Google Ad, voltamos para local. Se estamos em local, 30% chance de Google.
   if (activeAd.value.type === 'google') {
     currentIndex.value = 0;
     activeAd.value = activeAds.value[currentIndex.value];
@@ -219,47 +195,34 @@ const nextAd = () => {
 
 const debouncedNextAd = debounce(nextAd, 300);
 
-// VIEW + CLIQUE
 const registrarView = async (id) => {
   if (!id) return;
   try {
     await api.post(`/anuncios/${id}/view`);
-  } catch (err) {
-    console.warn("View não registrada", err);
-  }
+  } catch (err) {}
 };
 
 const handleWhatsAppClick = async () => {
   if (enviandoWhatsapp.value) return;
   enviandoWhatsapp.value = true;
-
   const ad = activeAd.value;
-
   try {
     await api.post(`/anuncios/${ad._id}/clique`);
-  } catch (err) {
-    console.warn("Clique não registrado", err);
-  }
-
+  } catch (err) {}
   let numero = (ad.phone || "258840000000").replace(/\D/g, "");
   if (numero.length < 9) numero = "258840000000";
-
   const mensagem = ad.ctaLink
     ? `Olá! Vi o anúncio: *${ad.name}* — ${ad.ctaLink}`
     : `Olá! Gostaria de saber mais sobre *${ad.name}* (R${ad.price})`;
-
   const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
   window.open(url, "_blank", "noopener,noreferrer");
-
   setTimeout(() => (enviandoWhatsapp.value = false), 1500);
 };
 
-// FECHAR → e forçar atualização fresca quando voltar
 const closeAd = () => {
   showAd.value = false;
   clearTimers();
   localStorage.setItem("adLastClosed", Date.now().toString());
-
   clearTimeout(reappearTimeout);
   reappearTimeout = setTimeout(() => {
     fetchActiveAds();
@@ -283,20 +246,13 @@ const formatPrice = (v) =>
     minimumFractionDigits: 0,
   }).format(v);
 
-// CICLO DE VIDA
 onMounted(() => {
-  fetchActiveAds(); // primeira carga
-
+  fetchActiveAds();
   pollingInterval = setInterval(() => {
     const lastClosed = localStorage.getItem("adLastClosed");
-    const canReappearNow =
-      !lastClosed || Date.now() - parseInt(lastClosed) >= ONE_HOUR_MS;
-
-    if (!showAd.value || canReappearNow) {
-      fetchActiveAds();
-    }
+    const canReappearNow = !lastClosed || Date.now() - parseInt(lastClosed) >= ONE_HOUR_MS;
+    if (!showAd.value || canReappearNow) fetchActiveAds();
   }, 10 * 60 * 1000);
-
   window.addEventListener("newAdCreated", fetchActiveAds);
 });
 
@@ -312,9 +268,7 @@ onUnmounted(() => {
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css");
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap");
 
-.ad-card-container * {
-  font-family: "Poppins", sans-serif;
-}
+.ad-card-container * { font-family: "Poppins", sans-serif; }
 
 .ad-card-container {
   position: fixed;
@@ -327,219 +281,86 @@ onUnmounted(() => {
   pointer-events: auto;
 }
 
-/* === PATROCINADO (COM ÍCONE, PEQUENO) === */
 .ad-sponsored {
-  position: absolute;
-  top: 0.6rem;
-  left: 0.6rem;
-  background: rgba(88, 27, 135, 0.85);
-  color: #fff;
-  font-size: 0.58rem;
-  font-weight: 600;
-  padding: 0.2rem 0.45rem;
-  border-radius: 1.2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  z-index: 5;
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-  letter-spacing: 0.2px;
-  text-transform: none;
+  position: absolute; top: 0.6rem; left: 0.6rem;
+  background: rgba(88, 27, 135, 0.85); color: #fff;
+  font-size: 0.58rem; font-weight: 600; padding: 0.2rem 0.45rem;
+  border-radius: 1.2rem; display: flex; align-items: center; gap: 0.3rem;
+  z-index: 5; backdrop-filter: blur(6px); border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2); letter-spacing: 0.2px;
 }
 
-.ad-sponsored i {
-  font-size: 0.75rem;
-  opacity: 0.9;
-}
-
-/* === BOTÃO PADRÃO (TODOS IGUAIS) === */
 .ad-action-btn {
-  font-weight: 600;
-  font-size: 0.82rem;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  background: rgba(0, 0, 0, 0.25);
-  padding: 0.35rem 2.2rem;
-  border-radius: 2rem;
-  border: 1px solid rgba(102, 187, 106, 0.4);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin: 0.3rem auto 0;
-  width: 100%;
-  max-width: 200px;
-  height: 36px;
+  font-weight: 600; font-size: 0.82rem; color: #ffffff;
+  display: flex; align-items: center; justify-content: center; gap: 0.35rem;
+  background: rgba(0, 0, 0, 0.25); padding: 0.35rem 2.2rem;
+  border-radius: 2rem; border: 1px solid rgba(102, 187, 106, 0.4);
+  cursor: pointer; transition: all 0.3s ease; margin: 0.3rem auto 0;
+  width: 100%; max-width: 200px; height: 36px;
 }
 
-.ad-action-btn:hover {
-  background: rgba(0, 0, 0, 0.973);
-  border-color: rgba(102, 187, 106, 0.6);
-  transform: scale(1.05);
-}
+.ad-action-btn:hover { background: rgba(0, 0, 0, 0.973); transform: scale(1.05); }
+.ad-whatsapp-btn { background: linear-gradient(135deg, #800080, #800080); }
+.ad-timer-btn { background: rgba(255, 138, 101, 0.15); animation: pulse 2s infinite; cursor: default; }
+.ad-next-btn { background: linear-gradient(135deg, #ffffff, #ffffff); color: #800080; }
 
-/* === WHATSAPP (MESMO ESTILO) === */
-.ad-whatsapp-btn {
-  background: linear-gradient(135deg, #800080, #800080);
-  color: #fff;
-  border: 1px solid rgba(102, 187, 106, 0.4);
-}
-
-.ad-whatsapp-btn:hover {
-  background: linear-gradient(135deg, #4caf50, #4caf50);
-  transform: scale(1.05);
-}
-
-/* === CONTADOR (MESMO ESTILO) === */
-.ad-timer-btn {
-  background: rgba(255, 138, 101, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #fff;
-  animation: pulse 2s infinite;
-  cursor: default;
-}
-
-/* === PRÓXIMO ANÚNCIO (MESMO ESTILO) === */
-.ad-next-btn {
-  background: linear-gradient(135deg, #ffffff, #ffffff);
-  color: #800080;
-  border: 1px solid rgba(102, 187, 106, 0.4);
-}
-
-.ad-next-btn:hover {
-  background: #f0f0f0;
-  transform: scale(1.05);
-}
-
-/* === RESTANTE DO CSS === */
 @media (max-width: 1024px) {
-  .ad-card-container {
-    right: 50%;
-    transform: translateX(50%) translateY(-50%);
-    width: 90%;
-    max-width: 340px;
-  }
+  .ad-card-container { right: 50%; transform: translateX(50%) translateY(-50%); width: 90%; max-width: 340px; }
 }
 
 @media (max-width: 480px) {
   .ad-card-container {
-    width: 200px;
-    right: 1rem;
-    top: 7rem;
-    transform: none;
-    animation: none;
+    width: 100% !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    left: 0 !important;
+    transform: none !important;
+    animation: none !important;
+    z-index: 10002 !important;
   }
+  .ad-content {
+      border-radius: 0 !important;
+      padding: 8px 12px !important;
+      display: flex !important;
+      align-items: center !important;
+      height: 75px !important;
+      text-align: left !important;
+      background: white !important;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1) !important;
+  }
+  .ad-image { width: 55px !important; height: 55px !important; margin-bottom: 0 !important; border-radius: 8px !important; }
+  .ad-body { padding-left: 10px !important; display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; width: 100% !important; flex: 1 !important; }
+  .ad-title { font-size: 0.85rem !important; color: #333 !important; margin: 0 !important; max-width: 140px !important; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .ad-description, .ad-price, .ad-timer-btn, .ad-sponsored, .ad-next-btn { display: none !important; }
+  .ad-action-btn { width: auto !important; padding: 0 10px !important; height: 32px !important; font-size: 0.75rem !important; margin: 0 !important; background: #800080 !important; }
+  .close-btn { width: 24px !important; height: 24px !important; top: -12px !important; right: 10px !important; background: #800080 !important; box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important; }
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(-50%) translateY(0); }
-  50% { transform: translateY(-50%) translateY(-10px); }
-}
+@keyframes float { 0%, 100% { transform: translateY(-50%) translateY(0); } 50% { transform: translateY(-50%) translateY(-10px); } }
 
-.ad-placeholder,
-.ad-content {
-  background: linear-gradient(135deg, rgba(15, 10, 35, 0.12), rgba(252, 24, 24, 0.15));
-  background-size: 200% 200%;
-  backdrop-filter: blur(26px);
-  -webkit-backdrop-filter: blur(26px);
-  border: 1px solid rgba(120, 180, 240, 0.18);
-  border-radius: 1.4rem;
-  padding: 1.3rem;
-  text-align: center;
-  cursor: default;
-  transition: all 0.7s ease;
-  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.32);
-  position: relative;
-  overflow: hidden;
-}
-
-.ad-placeholder:hover,
-.ad-content:hover {
-  background-position: 100% 100%;
-  border-color: rgba(120, 180, 240, 0.38);
-  box-shadow: 0 24px 60px rgba(15, 10, 35, 0.38);
-}
-
-.placeholder-icon {
-  width: 48px; height: 48px;
-  background: rgba(102, 187, 106, 0.22);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 0.7rem;
-  font-size: 1.5rem;
-  color: #66bb6a;
-}
-
-.placeholder-title {
-  font-weight: 800; font-size: 1.2rem;
-  color: #ffffff; margin-bottom: 0.3rem;
-}
-
-.placeholder-subtitle {
-  font-weight: 500; font-size: 0.82rem;
-  color: #b8e6b8; margin-bottom: 0.9rem;
+.ad-placeholder, .ad-content {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(245, 245, 245, 0.98));
+  backdrop-filter: blur(20px); border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 1.4rem; padding: 1.3rem; text-align: center;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.15); position: relative; overflow: hidden;
 }
 
 .close-btn {
   position: absolute; top: 0.6rem; right: 0.6rem;
-  background: rgba(255, 255, 255, 0.15);
-  border: none; border-radius: 50%;
-  width: 32px; height: 32px;
-  color: #eee; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.95rem; transition: all 0.3s;
-  z-index: 10;
+  background: rgba(0, 0, 0, 0.1); border: none; border-radius: 50%;
+  width: 28px; height: 28px; color: #666; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 0.8rem; z-index: 10;
 }
 
-.close-btn:hover {
-  background: rgba(46, 241, 7, 0.55);
-  color: #ffffff; transform: scale(1.1);
-}
+.ad-image { width: 100%; height: 130px; object-fit: cover; border-radius: 0.9rem; margin-bottom: 0.9rem; background: #f0f0f0; }
+.ad-title { font-weight: 700; font-size: 1.1rem; color: #333; margin-bottom: 0.4rem; line-height: 1.2; }
+.ad-description { font-weight: 400; font-size: 0.85rem; color: #666; margin-bottom: 0.7rem; }
+.ad-price { font-weight: 700; font-size: 1.25rem; color: #800080; margin: 0.5rem 0; display: flex; align-items: center; justify-content: center; gap: 0.4rem; }
 
-.ad-image {
-  width: 100%; height: 130px;
-  object-fit: cover; border-radius: 0.9rem;
-  margin-bottom: 0.9rem; background: #141414;
-  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.3);
-}
-
-.ad-title {
-  font-weight: 500; font-size: 1.1rem;
-  color: #ffffff; margin-bottom: 0.4rem;
-  line-height: 1.2;
-}
-
-.ad-description {
-  font-weight: 300; font-size: 0.85rem;
-  color: #e0f2e0; margin-bottom: 0.7rem;
-}
-
-.ad-price {
-  font-weight: 700; font-size: 1.2rem;
-  color: #81c784; margin: 0.6rem 0 0.7rem;
-  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
-}
-
-.ad-google-content {
-  padding: 1rem 0;
-}
-
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.85; } }
-
-.slide-slow-enter-active, .slide-slow-leave-active { transition: all 1.2s cubic-bezier(0.25, 0.8, 0.25, 1); }
-.slide-slow-enter-from, .slide-slow-leave-to { opacity: 0; transform: translateY(-50%) translateX(120px); }
-
-.fade-ad-enter-active, .fade-ad-leave-active { transition: all 0.5s ease; }
-.fade-ad-enter-from { opacity: 0; transform: scale(0.95) translateY(10px); }
-.fade-ad-leave-to { opacity: 0; transform: scale(0.95) translateY(-10px); }
-
-@media (max-width: 480px) {
-  .ad-image { height: 90px; }
-  .ad-title { font-size: 0.8rem; }
-  .ad-description { font-size: 0.65rem; }
-  .ad-price { font-size: 0.9rem; }
-}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+.slide-slow-enter-active, .slide-slow-leave-active { transition: all 0.8s ease; }
+.slide-slow-enter-from, .slide-slow-leave-to { opacity: 0; transform: translateY(-50%) translateX(50px); }
+.fade-ad-enter-active, .fade-ad-leave-active { transition: opacity 0.3s; }
+.fade-ad-enter-from, .fade-ad-leave-to { opacity: 0; }
 </style>

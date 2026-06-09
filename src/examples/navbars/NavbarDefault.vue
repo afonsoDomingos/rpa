@@ -712,17 +712,92 @@ body {
 }
 
 /* FIX MOBILE - Força dropdowns funcionarem com touch */
+@media (max-width: 480px) {
+  .ad-card-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    left: 0 !important;
+    transform: none !important;
+    animation: none !important;
+    border-radius: 0 !important;
+  }
+  .ad-content {
+      border-radius: 0 !important;
+      padding: 10px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      text-align: left !important;
+  }
+  .ad-image {
+      width: 60px !important;
+      height: 60px !important;
+      margin-bottom: 0 !important;
+  }
+  .ad-body {
+      flex: 1 !important;
+  }
+  .ad-title {
+      font-size: 0.85rem !important;
+      margin-bottom: 2px !important;
+  }
+  .ad-description, .ad-price {
+      display: none !important; 
+  }
+  .ad-action-btn {
+      width: auto !important;
+      padding: 4px 12px !important;
+      font-size: 0.7rem !important;
+      margin-top: 0 !important;
+  }
+  .social-icons-sidebar {
+      display: none !important;
+  }
+}
+
 @media (max-width: 991px) {
   .navbar {
-    width: 95%;
-    max-width: 540px;
-    margin: 0 auto;
-    border-radius: 12px;
+    width: 98% !important;
+    max-width: 450px !important;
+    margin: 0 auto !important;
+    padding: 5px 0 !important;
   }
   .navbar .container {
-    padding-left: 10px;
-    padding-right: 10px;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding-left: 5px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
   }
+  .btn-assinatura {
+    padding: 6px 12px !important;
+    font-size: 0.75rem !important;
+    margin-left: auto !important;
+    margin-right: 8px !important;
+    white-space: nowrap !important;
+  }
+  .navbar-brand {
+    margin-right: 10px !important;
+  }
+  .eye-logo {
+    width: 32px !important;
+    height: 32px !important;
+  }
+}
+
+/* Ocultar sidebars no mobile para evitar sobreposições */
+@media (max-width: 768px) {
+  .social-wrapper, 
+  .floating-box, 
+  .reaparecer-btn {
+    display: none !important;
+  }
+}
 
   /* Força dropdown-item ser clicável */
   .dropdown-item {
@@ -737,5 +812,4 @@ body {
     cursor: pointer !important;
     pointer-events: auto !important;
   }
-}
 </style>
