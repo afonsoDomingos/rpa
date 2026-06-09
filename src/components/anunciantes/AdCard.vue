@@ -292,10 +292,26 @@ onUnmounted(() => {
 .ad-action-btn { width: 100%; padding: 8px; border-radius: 0.5rem; border: none; background: #800080; color: #fff; font-weight: 600; cursor: pointer; margin-top: 5px; }
 
 @media (max-width: 480px) {
-  .ad-card-container { width: 180px; right: 10px; top: 120px; transform: none; }
-  .ad-image { height: 90px; }
-  .ad-title { font-size: 0.9rem; }
-  .ad-description { display: none; }
+  .ad-card-container { 
+    width: 155px !important; 
+    right: 8px !important; 
+    top: 160px !important; 
+    transform: none !important; 
+    z-index: 900 !important; /* Abaixo do menu */
+  }
+  .ad-image { height: 80px !important; }
+  .ad-title { font-size: 0.8rem !important; }
+  .ad-description, .ad-price, .ad-timer-btn, .ad-sponsored, .ad-next-btn, .mt-2 { 
+    display: none !important; 
+  }
+  .ad-action-btn { 
+    font-size: 0.7rem !important; 
+    padding: 4px !important; 
+    height: 28px !important;
+  }
+  .ad-content {
+      padding: 0.6rem !important;
+  }
 }
 
 @keyframes float { 0%, 100% { transform: translateY(-50%) translateY(0); } 50% { transform: translateY(-50%) translateY(-10px); } }
