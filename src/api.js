@@ -1,6 +1,7 @@
 import axios from "axios";
 
-export const ROOT_URL = "https://apirpa.onrender.com";
+// Pega a URL do .env se existir, caso contrário usa o fallback
+export const ROOT_URL = import.meta.env.VITE_APP_API_URL || "https://apirpa.onrender.com";
 export const BASE_URL = `${ROOT_URL}/api`;
 
 const api = axios.create({
@@ -24,11 +25,17 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Em produção, não expomos detalhes internos da API no console
     const isProduction = import.meta.env.PROD;
+    const isSilentAuth = error.config?.url?.includes("/auth/me");
+
+    // Se for 401 em uma rota de "me", é esperado (não logado)
+    if (error.response?.status === 401 && isSilentAuth) {
+      return Promise.reject(error);
+    }
 
     if (isProduction) {
-      console.error("Erro na comunicação com o servidor. Por favor, tente novamente mais tarde.");
+      // Loga um erro um pouco mais descritivo se não for auth silencioso
+      console.error(`Erro na comunicação (${error.response?.status || 'Network'}): Por favor, tente novamente mais tarde.`);
     } else {
       console.error("API Error Detail:", error.response?.data || error.message);
     }

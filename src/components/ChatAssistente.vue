@@ -597,6 +597,7 @@ function toggle() {
   open.value = !open.value;
 }
 
+<<<<<<< Updated upstream
 // Função para higienizar HTML e prevenir XSS
 const sanitizeHtml = (html) => {
   if (!html) return "";
@@ -833,7 +834,7 @@ async function processarFluxoDocumento(mensagem) {
       dadosDocumento.value.provincia = provinciaSelecionada;
       dadosDocumento.value.etapa = "finalizando";
 
-      // Realizar a busca
+        // Realizar a busca
       await realizarBuscaDocumento();
       break;
   }
@@ -953,6 +954,8 @@ async function send() {
   input.value = "";
   await processMessage(userMsg);
 }
+
+
 
 function responderFaq(id) {
   const pergunta = predefinidas.find((p) => p.id === id);
