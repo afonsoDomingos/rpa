@@ -872,7 +872,9 @@ async function realizarBuscaDocumento() {
       data: new Date().toISOString()
     }).then(async () => {
       const totalAntigo = totalPesquisas.value;
-      await buscarTotalPesquisas();
+      if (localStorage.getItem("token")) {
+        await buscarTotalPesquisas();
+      }
       const novoTotal = totalPesquisas.value;
 
       if (novoTotal > totalAntigo) {
@@ -1104,9 +1106,11 @@ onMounted(() => {
   window.addEventListener("mousemove", atualizarMouse);
   animarOlhos();
   
-  // Buscar dados do utilizador e total inicial
-  buscarDadosUsuario();
-  buscarTotalPesquisas();
+  // Buscar dados do utilizador e total inicial se estiver logado
+  if (localStorage.getItem("token")) {
+    buscarDadosUsuario();
+    buscarTotalPesquisas();
+  }
 
   onUnmounted(() => {
     window.removeEventListener("mousemove", atualizarMouse);

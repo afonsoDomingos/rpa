@@ -26,7 +26,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const isProduction = import.meta.env.PROD;
-    const isSilentAuth = error.config?.url?.includes("/auth/me");
+    const isSilentAuth = error.config?.url?.includes("/auth/me") || error.config?.url?.includes("/documentos/pesquisas");
 
     // Se for 401 em uma rota de "me", é esperado (não logado)
     if (error.response?.status === 401 && isSilentAuth) {
