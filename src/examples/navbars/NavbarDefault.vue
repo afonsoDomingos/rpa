@@ -714,8 +714,8 @@ body {
 /* FIX MOBILE - Força dropdowns funcionarem com touch */
 @media (max-width: 991px) {
   .navbar {
-    width: 90%;
-    max-width: 380px;
+    width: 95%;
+    max-width: 540px;
     margin: 0 auto;
     border-radius: 12px;
   }

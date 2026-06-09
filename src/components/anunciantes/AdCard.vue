@@ -426,9 +426,9 @@ onUnmounted(() => {
 
 @media (max-width: 480px) {
   .ad-card-container {
-    width: 160px;
-    right: 0.5rem;
-    top: 5.5rem;
+    width: 200px;
+    right: 1rem;
+    top: 7rem;
     transform: none;
     animation: none;
   }
