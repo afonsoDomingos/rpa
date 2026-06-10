@@ -37,6 +37,7 @@ import MapaDocumentos from "../../components/MapaDocumentos.vue";
 import DoacaoProjeto from "../../components/DoacaoProjeto.vue";
 
 import NoticiasList from "../../components/NoticiasList.vue";
+import GoogleAd from "../../components/GoogleAd.vue";
 
 //images
 import vueMkHeader from "@/assets/img/banner.webp";
@@ -214,6 +215,15 @@ const solicitarDocumento = async () => {
 
     <!-- Componente para Exibir Documentos -->
     <Verdocumentos />
+
+    <!-- Google AdSense - Bloco Fixo no Conteúdo para evitar violação -->
+    <div class="container py-3">
+      <div class="row">
+        <div class="col-12 text-center">
+          <GoogleAd adSlot="0987654321" />
+        </div>
+      </div>
+    </div>
 
     <!-- <Guardardocumentos />-->
     <!-- Componente para Contador de Apresentação -->

@@ -2,25 +2,12 @@
   <transition name="slide-slow">
     <div v-if="showAd" class="ad-card-container" @click.self="closeAd">
       <transition name="fade-ad" mode="out-in">
-        <div v-if="activeAd" :key="activeAd.type === 'google' ? 'google' : currentIndex" class="ad-content">
+        <div v-if="activeAd" :key="currentIndex" class="ad-content">
           <button @click="closeAd" class="close-btn">
             <i class="bi bi-x-lg"></i>
           </button>
 
-          <div v-if="activeAd.type === 'google'" class="ad-google-content">
-            <div class="ad-sponsored">
-               <i class="bi bi-google"></i>
-               <span>Publicidade</span>
-            </div>
-            <p class="ad-title mb-2">Google Ads</p>
-            <GoogleAd adSlot="0987654321" />
-            <p class="ad-description mt-2 small">Anúncios sugeridos pela Google.</p>
-            <button @click.stop="$router.push('/anuncie')" class="ad-action-btn mt-2">
-              <i class="bi bi-megaphone-fill"></i> Anuncie aqui
-            </button>
-          </div>
-
-          <div v-else class="ad-local-content">
+          <div class="ad-local-content">
             <div class="ad-sponsored">
               <i class="bi bi-megaphone-fill"></i>
               <span>Patrocinado</span>
@@ -136,18 +123,12 @@ const fetchActiveAds = async () => {
     localStorage.setItem("cachedAds", JSON.stringify(activeAds.value));
 
     if (activeAds.value.length > 0) {
-      if (Math.random() < 0.3) {
-        activeAd.value = { type: 'google' };
-      } else {
-        currentIndex.value = Math.floor(Math.random() * activeAds.value.length);
-        activeAd.value = activeAds.value[currentIndex.value];
-      }
+      currentIndex.value = Math.floor(Math.random() * activeAds.value.length);
+      activeAd.value = activeAds.value[currentIndex.value];
       showAd.value = true;
       startCountdown();
     } else {
-      activeAd.value = { type: 'google' };
-      showAd.value = true;
-      startCountdown();
+      showAd.value = false;
     }
   } catch (err) {
     const cached = localStorage.getItem("cachedAds");
