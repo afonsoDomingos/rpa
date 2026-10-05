@@ -344,6 +344,7 @@ const verificarAssinaturaAntesDeSolicitar = async (doc) => {
     const { data } = await api.get("/pagamentos/assinatura/ativa");
 
     if (data.ativa) {
+      eventBus.emit("preencherSolicitacao", doc);
       const modalElement = document.getElementById("exampleModal");
       if (modalElement) new Modal(modalElement).show();
     } else {
