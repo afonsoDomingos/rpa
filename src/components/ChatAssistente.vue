@@ -1,31 +1,47 @@
 <template>
-  <div class="chat-assistente-fixed" v-show="open">
-    <div class="chat-header" @click="toggle">
+  <div class="chat-assistente-fixed" :class="{ maximized: isMaximized }" v-show="open">
+    <div class="chat-header" @click="!isMaximized && toggle()">
       <span class="chat-avatar">
         <img src="/copilot-mascot.jpg" alt="Copilot" class="chat-avatar-img" />
       </span>
       <span class="chat-title">Copilot</span>
 
-      <!-- BOTÃO NOVO CHAT (só esta linha nova + o botão de fechar) -->
-      <!-- BOTÃO NOVO CHAT + FECHAR -->
+      <!-- BOTÃO NOVO CHAT + MAXIMIZAR + FECHAR -->
       <div class="header-right">
         <button
           @click.stop="abrirModalNovoChat"
           class="new-chat-btn"
-          title="Começar novo chat novo"
+          title="Começar novo chat"
         >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-          >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M12 5v14M5 12h14" />
           </svg>
           <span class="new-chat-text">Novo</span>
         </button>
+
+        <!-- Botão maximizar / restaurar -->
+        <button
+          class="maximize-btn"
+          @click.stop="toggleMaximize"
+          :title="isMaximized ? 'Restaurar tamanho' : 'Expandir para ecrã completo'"
+          :aria-label="isMaximized ? 'Restaurar' : 'Maximizar'"
+        >
+          <!-- Ícone expandir (quando normal) -->
+          <svg v-if="!isMaximized" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <polyline points="15 3 21 3 21 9"/>
+            <polyline points="9 21 3 21 3 15"/>
+            <line x1="21" y1="3" x2="14" y2="10"/>
+            <line x1="3" y1="21" x2="10" y2="14"/>
+          </svg>
+          <!-- Ícone restaurar (quando maximizado) -->
+          <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <polyline points="4 14 10 14 10 20"/>
+            <polyline points="20 10 14 10 14 4"/>
+            <line x1="10" y1="14" x2="3" y2="21"/>
+            <line x1="21" y1="3" x2="14" y2="10"/>
+          </svg>
+        </button>
+
         <button class="close-btn" @click.stop="toggle">×</button>
       </div>
     </div>
@@ -270,10 +286,17 @@ const props = defineProps({
 });
 
 const open = ref(false);
+const isMaximized = ref(false);
 const input = ref("");
 const faqOpen = ref(false);
 const chatMessagesRef = ref(null);
 const showScrollBtn = ref(false);
+
+function toggleMaximize() {
+  isMaximized.value = !isMaximized.value;
+  // Scroll to bottom after resize so messages stay visible
+  nextTick(() => scrollToBottom("auto"));
+}
 
 // Estados para o microfone
 const isRecording = ref(false);
@@ -1321,8 +1344,7 @@ onMounted(() => {
   bottom: 4px;
   right: 4px;
 
-  width: auto;
-  /* pode aumentar um pouco também */
+  width: 420px;
   max-width: 500px;
 
   background: #fff;
@@ -1336,8 +1358,77 @@ onMounted(() => {
 
   /* Altura máxima do chat inteiro */
   max-height: 80vh;
-  /* antes não tinha limite */
-  /* ou: max-height: 720px; */
+
+  /* Transição suave para o modo maximizado */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Modo Ecrã Completo ── */
+.chat-assistente-fixed.maximized {
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  border-radius: 0 !important;
+  z-index: 99999;
+}
+
+.chat-assistente-fixed.maximized .chat-body {
+  max-height: none !important;
+  flex: 1;
+}
+
+.chat-assistente-fixed.maximized .chat-messages {
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.chat-assistente-fixed.maximized .chat-body {
+  padding: 20px 24px;
+}
+
+.chat-assistente-fixed.maximized .faq-menu {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.chat-assistente-fixed.maximized .chat-footer {
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Botão maximizar */
+.maximize-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  flex-shrink: 0;
+  margin-right: 4px;
+  padding: 0;
+}
+
+.maximize-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.maximize-btn:active {
+  transform: scale(0.95);
 }
 
 .chat-header {
@@ -1595,6 +1686,10 @@ onMounted(() => {
 
 /* Mobile: mostra label sempre visível */
 @media (max-width: 600px) {
+  .maximize-btn {
+    display: none;
+  }
+
   .chat-assistente-fixed {
     width: 100vw;
     right: 0;
