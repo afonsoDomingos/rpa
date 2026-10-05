@@ -2,16 +2,23 @@
   <div class="chat-assistente-fixed" v-show="open">
     <div class="chat-header" @click="toggle">
       <span class="chat-avatar">
-        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-          <circle cx="16" cy="16" r="16" fill="#fff" />
-          <ellipse cx="16" cy="19" rx="10" ry="7" fill="#e6e6fa" />
-          <ellipse cx="16" cy="13" rx="7" ry="7" fill="#800080" />
-          <ellipse cx="13.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff" />
-          <ellipse cx="18.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff" />
-          <rect x="13" y="16" width="6" height="2" rx="1" fill="#fff" />
+        <!-- Copilot-style icon -->
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="copilotGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#00b4d8"/>
+              <stop offset="50%" stop-color="#7b2ff7"/>
+              <stop offset="100%" stop-color="#f72585"/>
+            </linearGradient>
+          </defs>
+          <circle cx="16" cy="16" r="16" fill="white"/>
+          <path d="M8 12C8 9.8 9.8 8 12 8h8c2.2 0 4 1.8 4 4v4a8 8 0 0 1-8 8 8 8 0 0 1-8-8v-4z" fill="url(#copilotGrad)" opacity="0.9"/>
+          <circle cx="13" cy="14" r="1.5" fill="white"/>
+          <circle cx="19" cy="14" r="1.5" fill="white"/>
+          <path d="M12 18.5c1.1 1 2.6 1.5 4 1.5s2.9-.5 4-1.5" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
         </svg>
       </span>
-      <span class="chat-title">Rpa.Ai</span>
+      <span class="chat-title">Copilot</span>
 
       <!-- BOTÃO NOVO CHAT (só esta linha nova + o botão de fechar) -->
       <!-- BOTÃO NOVO CHAT + FECHAR -->
@@ -215,25 +222,43 @@
     </form>
   </div>
 
-  <button
+  <!-- Copilot FAB - Botão notável ao estilo Microsoft Copilot -->
+  <div
     v-show="!open && !props.hideFabWhenScrolled"
-    class="chat-fab"
+    class="copilot-fab-wrapper"
     @click="toggle"
-    aria-label="Falar com Assistent"
+    role="button"
+    aria-label="Abrir Copilot - Assistente Virtual"
+    tabindex="0"
+    @keydown.enter="toggle"
   >
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z"
-        fill="#fff"
-      />
-      <path
-        d="M7 10h10M7 14h7"
-        stroke="#800080"
-        stroke-width="2"
-        stroke-linecap="round"
-      />
-    </svg>
-  </button>
+    <!-- Anel de pulso animado -->
+    <span class="copilot-pulse-ring"></span>
+    <span class="copilot-pulse-ring copilot-pulse-ring--delay"></span>
+
+    <!-- Botão principal -->
+    <div class="copilot-fab-btn">
+      <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="fabGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#00b4d8"/>
+            <stop offset="50%" stop-color="#7b2ff7"/>
+            <stop offset="100%" stop-color="#f72585"/>
+          </linearGradient>
+        </defs>
+        <path d="M4 12C4 7.6 7.6 4 12 4h8c4.4 0 8 3.6 8 8v4a12 12 0 0 1-12 12A12 12 0 0 1 4 16v-4z" fill="url(#fabGrad)"/>
+        <circle cx="12" cy="14" r="2" fill="white"/>
+        <circle cx="20" cy="14" r="2" fill="white"/>
+        <path d="M10 20c1.5 1.5 3.5 2.5 6 2.5s4.5-1 6-2.5" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+
+    <!-- Label "Copilot" visível ao lado -->
+    <div class="copilot-fab-label">
+      <span class="copilot-fab-label-name">Copilot</span>
+      <span class="copilot-fab-label-sub">Assistente IA</span>
+    </div>
+  </div>
 
   <!-- Modal bonito de confirmação -->
   <div
@@ -1503,32 +1528,116 @@ onMounted(() => {
   transform: scale(0.95);
 }
 
-/* Botão do chat no canto inferior direito */
-.chat-fab {
+/* ═══════════════════════════════════════════════
+   COPILOT FAB - Botão notável estilo Microsoft Copilot
+   ═══════════════════════════════════════════════ */
+.copilot-fab-wrapper {
   position: fixed;
-  bottom: 16px;
-  right: 18px;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #800080 60%, #198754 100%);
-  color: #fff;
+  bottom: 20px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  cursor: pointer;
+  z-index: 10001;
   border: none;
-  box-shadow: 0 4px 16px rgba(60, 60, 60, 0.15);
+  background: transparent;
+  outline: none;
+  transition: transform 0.25s ease;
+  isolation: isolate;
+}
+
+.copilot-fab-wrapper:hover {
+  transform: translateY(-3px);
+}
+
+.copilot-fab-wrapper:hover .copilot-fab-btn {
+  box-shadow: 0 10px 30px rgba(123, 47, 247, 0.5), 0 0 0 4px rgba(0, 180, 216, 0.2);
+}
+
+.copilot-fab-wrapper:hover .copilot-fab-label {
+  max-width: 140px;
+  opacity: 1;
+  margin-left: 10px;
+  padding: 6px 12px;
+}
+
+/* Botão circular principal */
+.copilot-fab-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0f0f1a 0%, #1a0533 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  z-index: 10001;
-  transition: all 0.2s;
+  box-shadow: 0 6px 24px rgba(123, 47, 247, 0.4), 0 2px 8px rgba(0,0,0,0.3);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  transition: box-shadow 0.3s ease;
 }
 
-.chat-fab:hover {
-  background: linear-gradient(135deg, #198754 60%, #800080 100%);
-  box-shadow: 0 6px 20px rgba(128, 0, 128, 0.25);
-  transform: scale(1.1) rotate(-10deg);
+/* Label que aparece ao hover */
+.copilot-fab-label {
+  background: linear-gradient(135deg, #0f0f1a 0%, #1a0533 100%);
+  border-radius: 14px;
+  padding: 0;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.35s ease, opacity 0.3s ease, padding 0.3s ease, margin-left 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 }
 
+.copilot-fab-label-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+.copilot-fab-label-sub {
+  font-size: 0.7rem;
+  color: rgba(0, 180, 216, 0.9);
+  font-weight: 500;
+}
+
+/* Anéis de pulso */
+.copilot-pulse-ring {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid rgba(123, 47, 247, 0.6);
+  animation: copilot-pulse 2.5s ease-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.copilot-pulse-ring--delay {
+  animation-delay: 1.25s;
+  border-color: rgba(0, 180, 216, 0.5);
+}
+
+@keyframes copilot-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* Mobile: mostra label sempre visível */
 @media (max-width: 600px) {
   .chat-assistente-fixed {
     width: 100vw;
@@ -1547,7 +1656,7 @@ onMounted(() => {
 
   .chat-footer input {
     height: 38px;
-    font-size: 16px; /* Evita zoom automático no iOS */
+    font-size: 16px;
   }
 
   .mic-btn, .chat-send-btn {
@@ -1556,11 +1665,22 @@ onMounted(() => {
     min-width: 38px;
   }
 
-  .chat-fab {
-    right: 16px;
+  .copilot-fab-wrapper {
     bottom: 24px;
-    width: 48px;
-    height: 48px;
+    right: 14px;
+  }
+
+  .copilot-fab-btn {
+    width: 54px;
+    height: 54px;
+  }
+
+  /* Label sempre visível no mobile */
+  .copilot-fab-label {
+    max-width: 120px;
+    opacity: 1;
+    margin-left: 8px;
+    padding: 6px 10px;
   }
 }
 
