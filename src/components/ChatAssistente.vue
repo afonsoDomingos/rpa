@@ -2,21 +2,7 @@
   <div class="chat-assistente-fixed" v-show="open">
     <div class="chat-header" @click="toggle">
       <span class="chat-avatar">
-        <!-- Copilot-style icon -->
-        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="copilotGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#00b4d8"/>
-              <stop offset="50%" stop-color="#7b2ff7"/>
-              <stop offset="100%" stop-color="#f72585"/>
-            </linearGradient>
-          </defs>
-          <circle cx="16" cy="16" r="16" fill="white"/>
-          <path d="M8 12C8 9.8 9.8 8 12 8h8c2.2 0 4 1.8 4 4v4a8 8 0 0 1-8 8 8 8 0 0 1-8-8v-4z" fill="url(#copilotGrad)" opacity="0.9"/>
-          <circle cx="13" cy="14" r="1.5" fill="white"/>
-          <circle cx="19" cy="14" r="1.5" fill="white"/>
-          <path d="M12 18.5c1.1 1 2.6 1.5 4 1.5s2.9-.5 4-1.5" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-        </svg>
+        <img src="/copilot-mascot.jpg" alt="Copilot" class="chat-avatar-img" />
       </span>
       <span class="chat-title">Copilot</span>
 
@@ -115,14 +101,7 @@
           :class="['msg', msg.from]"
         >
           <span v-if="msg.from === 'bot'" class="msg-bot-avatar">
-            <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
-              <circle cx="16" cy="16" r="16" fill="#fff" />
-              <ellipse cx="16" cy="19" rx="10" ry="7" fill="#e6e6fa" />
-              <ellipse cx="16" cy="13" rx="7" ry="7" fill="#800080" />
-              <ellipse cx="13.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff" />
-              <ellipse cx="18.5" cy="12.5" rx="1.2" ry="1.5" fill="#fff" />
-              <rect x="13" y="16" width="6" height="2" rx="1" fill="#fff" />
-            </svg>
+            <img src="/copilot-mascot.jpg" alt="Copilot" class="msg-bot-avatar-img" />
           </span>
           <span
             class="msg-text"
@@ -236,21 +215,9 @@
     <span class="copilot-pulse-ring"></span>
     <span class="copilot-pulse-ring copilot-pulse-ring--delay"></span>
 
-    <!-- Botão principal -->
+    <!-- Botão principal com mascote -->
     <div class="copilot-fab-btn">
-      <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="fabGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#00b4d8"/>
-            <stop offset="50%" stop-color="#7b2ff7"/>
-            <stop offset="100%" stop-color="#f72585"/>
-          </linearGradient>
-        </defs>
-        <path d="M4 12C4 7.6 7.6 4 12 4h8c4.4 0 8 3.6 8 8v4a12 12 0 0 1-12 12A12 12 0 0 1 4 16v-4z" fill="url(#fabGrad)"/>
-        <circle cx="12" cy="14" r="2" fill="white"/>
-        <circle cx="20" cy="14" r="2" fill="white"/>
-        <path d="M10 20c1.5 1.5 3.5 2.5 6 2.5s4.5-1 6-2.5" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
-      </svg>
+      <img src="/copilot-mascot.jpg" alt="Copilot" class="copilot-fab-mascot" />
     </div>
 
     <!-- Label "Copilot" visível ao lado -->
@@ -292,7 +259,7 @@
 
 <script setup>
 import api, { ROOT_URL } from "../api";
-import { ref, nextTick, onUpdated, onMounted, onUnmounted, computed } from "vue";
+import { ref, nextTick, onUpdated, onMounted, computed } from "vue";
 import Swal from "sweetalert2";
 
 const props = defineProps({
@@ -1081,69 +1048,58 @@ function scrollToBottom(behavior = "auto") {
   }
 }
 
+
 onMounted(() => {
-  const avatar = document.querySelector(".chat-avatar svg");
-  const olhoEsq = avatar.querySelector("ellipse:nth-child(4)");
-  const olhoDir = avatar.querySelector("ellipse:nth-child(5)");
-
-  let mouseX = 0;
-  let mouseY = 0;
-  let olhoX = 13.5;
-  let olhoY = 12.5;
-  let olhoXDir = 18.5;
-  let olhoYDir = 12.5;
-
-  const limite = 2; // máximo de movimento dos olhos (em px)
-
-  function atualizarMouse(e) {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  }
-
-  function animarOlhos() {
-    const rect = avatar.getBoundingClientRect();
-    const centroX = rect.left + rect.width / 2;
-    const centroY = rect.top + rect.height / 2;
-
-    // deslocamento proporcional
-    let offsetX = (mouseX - centroX) / 30;
-    let offsetY = (mouseY - centroY) / 30;
-
-    // limitar deslocamento
-    offsetX = Math.max(-limite, Math.min(limite, offsetX));
-    offsetY = Math.max(-limite, Math.min(limite, offsetY));
-
-    // interpolação suave
-    olhoX += (13.5 + offsetX - olhoX) * 0.2;
-    olhoY += (12.5 + offsetY - olhoY) * 0.2;
-    olhoXDir += (18.5 + offsetX - olhoXDir) * 0.2;
-    olhoYDir += (12.5 + offsetY - olhoYDir) * 0.2;
-
-    // aplicar posições
-    olhoEsq.setAttribute("cx", olhoX);
-    olhoEsq.setAttribute("cy", olhoY);
-    olhoDir.setAttribute("cx", olhoXDir);
-    olhoDir.setAttribute("cy", olhoYDir);
-
-    requestAnimationFrame(animarOlhos);
-  }
-
-  window.addEventListener("mousemove", atualizarMouse);
-  animarOlhos();
-  
   // Buscar dados do utilizador e total inicial se estiver logado
   if (localStorage.getItem("token")) {
     buscarDadosUsuario();
     buscarTotalPesquisas();
   }
-
-  onUnmounted(() => {
-    window.removeEventListener("mousemove", atualizarMouse);
-  });
 });
 </script>
 
 <style scoped>
+/* ── Mascote Copilot ── */
+.chat-avatar-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top center;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  display: block;
+}
+
+.msg-bot-avatar-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top center;
+  border: 1.5px solid #d1c4e9;
+  display: block;
+  flex-shrink: 0;
+}
+
+.copilot-fab-mascot {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+/* ── Ajuste do msg-bot-avatar para imagem ── */
+.msg-bot-avatar {
+  display: inline-flex;
+  align-items: flex-start;
+  margin-right: 6px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
 .faq-select-box {
   margin-bottom: 10px;
 }
