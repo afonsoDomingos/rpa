@@ -85,22 +85,24 @@
           <li class="nav-item dropdown dropdown-hover mx-2">
             <a
               role="button"
-              class="nav-link ps-2 d-flex cursor-pointer align-items-center borda-destacada"
+              class="nav-link ps-2 d-flex cursor-pointer align-items-center justify-content-between"
               :class="getTextColor()"
               id="dropdownMenuPages"
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              <i
-                class="material-icons-round opacity-6 me-2 text-md"
-                :class="getTextColor()"
-                >dashboard</i
-              >
-              Páginas
+              <div class="d-flex align-items-center">
+                <i
+                  class="material-icons-round opacity-6 me-2 text-md"
+                  :class="getTextColor()"
+                  >dashboard</i
+                >
+                <span>Páginas</span>
+              </div>
               <img
                 :src="getArrowColor()"
                 alt="down-arrow"
-                class="arrow ms-2 d-lg-block d-none"
+                class="arrow ms-auto ms-lg-2"
               />
             </a>
 
@@ -161,22 +163,24 @@
           <li v-if="usuario" class="nav-item dropdown dropdown-hover mx-2">
             <a
               role="button"
-              class="nav-link ps-2 d-flex cursor-pointer align-items-center"
+              class="nav-link ps-2 d-flex cursor-pointer align-items-center justify-content-between"
               :class="getTextColor()"
               id="dropdownUser"
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              <i
-                class="material-icons-round opacity-6 me-2 text-md rotatable-profile"
-                :class="getTextColor()"
-                >person</i
-              >
-              {{ usuario?.nome || "Usuário" }}
+              <div class="d-flex align-items-center overflow-hidden">
+                <i
+                  class="material-icons-round opacity-6 me-2 text-md rotatable-profile flex-shrink-0"
+                  :class="getTextColor()"
+                  >person</i
+                >
+                <span class="text-truncate">{{ usuario?.nome || "Usuário" }}</span>
+              </div>
               <img
                 :src="getArrowColor()"
                 alt="down-arrow"
-                class="arrow ms-2 d-lg-block d-none"
+                class="arrow ms-auto ms-lg-2 flex-shrink-0"
               />
             </a>
 
@@ -274,11 +278,11 @@
           <li v-else class="nav-item dropdown dropdown-hover mx-2">
             <router-link
               to="/"
-              class="nav-link d-flex cursor-pointer align-items-center"
+              class="nav-link ps-2 d-flex cursor-pointer align-items-center"
               @click="fecharDropdown"
             >
               <i class="material-icons-round opacity-6 me-2 text-md">person</i>
-              Entrar
+              <span>Entrar</span>
             </router-link>
           </li>
 
@@ -286,18 +290,20 @@
           <li v-if="usuario" class="nav-item dropdown dropdown-hover mx-2">
             <a
               role="button"
-              class="nav-link ps-2 d-flex cursor-pointer align-items-center"
+              class="nav-link ps-2 d-flex cursor-pointer align-items-center justify-content-between"
               :class="getTextColor()"
               id="dropdownTools"
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              <i class="bi bi-gear-fill me-2 rotatable-icon"></i>
-              Ferramentas
+              <div class="d-flex align-items-center">
+                <i class="bi bi-gear-fill me-2 rotatable-icon"></i>
+                <span>Ferramentas</span>
+              </div>
               <img
                 :src="getArrowColor()"
                 alt="down-arrow"
-                class="arrow ms-2 d-lg-block d-none"
+                class="arrow ms-auto ms-lg-2"
               />
             </a>
 
@@ -451,6 +457,15 @@ function fecharDropdown() {
 
   const collapse = bootstrap.Collapse.getInstance(navbarCollapse.value);
   if (collapse) collapse.hide();
+
+  // Fecha submenus abertos manualmente no mobile
+  document.querySelectorAll('.dropdown-menu.show').forEach(m => {
+    m.classList.remove('show');
+  });
+  document.querySelectorAll('[data-mobile-fixed="true"]').forEach(t => {
+    t.setAttribute('aria-expanded', 'false');
+  });
+  isMenuOpen.value = false;
 }
 
 // Imagens
@@ -713,14 +728,19 @@ body {
 
 @media (max-width: 991px) {
   .navbar {
-    width: 95% !important;
-    max-width: 500px !important;
+    width: 94% !important;
+    max-width: 520px !important;
     margin: 10px auto !important;
-    border-radius: 12px !important;
+    border-radius: 16px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
   }
   .navbar .container {
     display: flex !important;
-    flex-wrap: nowrap !important;
+    flex-wrap: wrap !important;
     align-items: center !important;
     justify-content: space-between !important;
     padding-left: 10px !important;
@@ -728,10 +748,126 @@ body {
   }
   .btn-assinatura {
     padding: 6px 12px !important;
-    font-size: 0.75rem !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.4px;
     margin-left: auto !important;
-    margin-right: 8px !important;
+    margin-right: 6px !important;
     white-space: nowrap !important;
+  }
+
+  /* Painel do Menu no Mobile */
+  .navbar-collapse {
+    flex-basis: 100% !important;
+    width: 100% !important;
+    max-height: calc(82vh - 65px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    padding-top: 14px !important;
+    padding-bottom: 8px !important;
+    margin-top: 6px !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .navbar-collapse::-webkit-scrollbar {
+    width: 4px;
+  }
+  .navbar-collapse::-webkit-scrollbar-thumb {
+    background: rgba(128, 0, 128, 0.2);
+    border-radius: 4px;
+  }
+
+  .navbar-nav {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .navbar-nav .nav-item {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .navbar-nav .nav-link {
+    width: 100% !important;
+    padding: 11px 14px !important;
+    border-radius: 10px !important;
+    background: rgba(0, 0, 0, 0.03) !important;
+    color: #344767 !important;
+    font-weight: 600 !important;
+    font-size: 0.92rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    transition: all 0.25s ease !important;
+  }
+
+  .navbar-nav .nav-link:hover,
+  .navbar-nav .nav-link:active,
+  .navbar-nav .nav-link[aria-expanded="true"] {
+    background: rgba(128, 0, 128, 0.08) !important;
+    color: #800080 !important;
+  }
+
+  /* Submenus / Dropdowns no Mobile */
+  .dropdown-menu {
+    position: static !important;
+    float: none !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: 1px solid rgba(128, 0, 128, 0.12) !important;
+    border-radius: 12px !important;
+    margin-top: 6px !important;
+    margin-bottom: 6px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 8px !important;
+    background-color: #faf9fb !important;
+  }
+
+  .dropdown-menu .dropdown-item {
+    padding: 10px 14px !important;
+    border-radius: 8px !important;
+    font-size: 0.88rem !important;
+    color: #344767 !important;
+    font-weight: 500 !important;
+    margin-bottom: 2px !important;
+    width: 100% !important;
+    transition: all 0.15s ease !important;
+  }
+
+  .dropdown-menu .dropdown-item:hover,
+  .dropdown-menu .dropdown-item:active {
+    background: rgba(128, 0, 128, 0.08) !important;
+    color: #800080 !important;
+    transform: translateX(4px);
+  }
+
+  .dropdown-header {
+    font-size: 0.72rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    color: #888 !important;
+    padding: 6px 12px 2px !important;
+  }
+
+  .borda-destacada {
+    border-width: 1px !important;
+    box-shadow: none !important;
+  }
+
+  .arrow {
+    display: inline-block !important;
+    transition: transform 0.25s ease;
+  }
+
+  [aria-expanded="true"] .arrow {
+    transform: rotate(180deg);
   }
 }
 
