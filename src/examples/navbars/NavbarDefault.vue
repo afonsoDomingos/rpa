@@ -755,6 +755,27 @@ body {
     white-space: nowrap !important;
   }
 
+  .navbar-toggler {
+    width: 38px !important;
+    height: 38px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    background: rgba(0, 0, 0, 0.03) !important;
+    outline: none !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .navbar-toggler:hover,
+  .navbar-toggler:active {
+    background: rgba(128, 0, 128, 0.08) !important;
+    border-color: rgba(128, 0, 128, 0.2) !important;
+  }
+
   /* Painel do Menu no Mobile */
   .navbar-collapse {
     flex-basis: 100% !important;
