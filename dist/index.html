@@ -3,16 +3,38 @@
 
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="/rpa.png" />
   <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
   <link rel="manifest" href="/site.webmanifest" />
 
+  <!-- SEO: Canonical URL & Sitemap -->
+  <link rel="canonical" href="https://recuperaaqui.vercel.app/" />
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+
+  <!-- Security: Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://accounts.google.com/gsi/client https://pagead2.googlesyndication.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://js.stripe.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://accounts.google.com https://cdn.jsdelivr.net;
+    font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.jsdelivr.net;
+    img-src 'self' data: https:;
+    connect-src 'self' https://apirpa.onrender.com https://www.google-analytics.com https://stats.g.doubleclick.net https://connect.facebook.net https://accounts.google.com https://ep1.adtrafficquality.google;
+    frame-src 'self' https://accounts.google.com https://td.doubleclick.net https://bid.g.doubleclick.net https://js.stripe.com https://googleads.g.doubleclick.net;
+    worker-src 'self' blob:;
+  ">
+
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2592660234462216"
+    crossorigin="anonymous"></script>
+
   <!-- Performance Optimizations -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://apirpa.onrender.com" crossorigin>
+  <link rel="dns-prefetch" href="https://apirpa.onrender.com">
 
   <!-- Material Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
@@ -20,17 +42,189 @@
     href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
     rel="stylesheet">
 
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <meta name="google-site-verification" content="i03Nl43Ev8IJtNUrwCuA1HVikcqNmxlzslj1zdzZ-dY" />
+
   <!-- Meta Pixel Code (ÚNICO E PERFEITO) -->
   <script src="/js/pixel.js"></script>
 
+  <!-- Application Name for SEO -->
+  <meta name="application-name" content="RPA - Recupera Aqui" />
+  <meta property="og:site_name" content="RPA - Recupera Aqui" />
 
+  <title>RPA - Recupera Aqui Moçambique | Recuperação de Documentos Perdidos</title>
 
-  <title>Recupera Aqui - Moçambique</title>
-  <script type="module" crossorigin src="/assets/index-vjWTRVQN.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/vue-vendor-DzBArNFL.js">
+  <!-- Google Analytics (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-20TZCTF13W"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-20TZCTF13W');
+  </script>
+  <meta name="description"
+    content="Recupera Aqui (RPA Moçambique) é a plataforma líder para recuperação de documentos perdidos e achados. Encontre seu BI, Passaporte e Cartão de Eleitor de forma rápida." />
+  <meta name="keywords"
+    content="RPA Moçambique, documentos perdidos, achados e perdidos Moçambique, recuperar BI Moçambique, extravio de documentos, Recupera Aqui Moçambique, RPA documentos" />
+  <meta name="author" content="Recupera Aqui" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://recuperaaqui.vercel.app/" />
+  <meta property="og:title" content="RPA - Recupera Aqui Moçambique | Recuperação de Documentos" />
+  <meta property="og:description"
+    content="Ajudamos cidadãos moçambicanos no RPA (Recupera Aqui) a recuperar documentos perdidos de forma rápida e segura. BI, Passaporte e mais." />
+  <meta property="og:image" content="https://recuperaaqui.vercel.app/rpa.png" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://recuperaaqui.vercel.app/" />
+  <meta property="twitter:title" content="RPA - Recupera Aqui Moçambique | Documentos Perdidos" />
+  <meta property="twitter:description"
+    content="A RPA Moçambique (Recupera Aqui) ajuda-o a recuperar documentos perdidos de forma rápida e segura." />
+  <meta property="twitter:image" content="https://recuperaaqui.vercel.app/rpa.png" />
+
+  <!-- Organization Schema -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Recupera Aqui",
+      "alternateName": "RPA Moçambique",
+      "url": "https://recuperaaqui.vercel.app/",
+      "logo": "https://recuperaaqui.vercel.app/rpa.png",
+      "founder": {
+        "@type": "Person",
+        "name": "Afonso Domingos"
+      },
+      "foundingDate": "2025",
+      "foundingLocation": {
+        "@type": "Place",
+        "name": "Maputo, Moçambique"
+      },
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "telephone": "+258-847877405",
+          "contactType": "customer service",
+          "email": "info@recuperaaqui.co.mz",
+          "areaServed": "MZ",
+          "availableLanguage": ["Portuguese", "English"]
+        }
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Museu",
+        "addressLocality": "Maputo",
+        "addressCountry": "MZ"
+      },
+      "sameAs": [
+        "https://www.facebook.com/profile.php?id=61570930139844",
+        "https://www.linkedin.com/in/afonso-domingos-6b59361a5/",
+        "https://www.instagram.com/rpamocambique/",
+        "https://whatsapp.com/channel/0029Vb7LiyEBlHpZinsHGG2v"
+      ],
+      "description": "A maior plataforma de Moçambique para a recuperação de documentos perdidos (BI, Passaporte, Cartas) e registo de achados.",
+      "award": [
+        "1º lugar no Fórum de Projetos da AIESEC",
+        "Participante da 8ª capacitação em Gestão de Negócios do Projecto Nhluvuko (GAPI/MOZAL)"
+      ]
+    }
+  </script>
+
+  <!-- WebSite Schema with Search Action -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "RPA - Recupera Aqui Moçambique",
+      "alternateName": ["Recupera Aqui", "RPA Moçambique"],
+      "url": "https://recuperaaqui.vercel.app/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://recuperaaqui.vercel.app/comunidade?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+  </script>
+
+  <!-- Site Navigation Elements for Sitelinks -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Navegação Principal",
+      "itemListElement": [
+        {
+          "@type": "SiteNavigationElement",
+          "position": 1,
+          "name": "Login",
+          "description": "Acesse sua conta no RPA",
+          "url": "https://recuperaaqui.vercel.app/"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 2,
+          "name": "Sobre Nós",
+          "description": "Conheça a história e missão do RPA Moçambique",
+          "url": "https://recuperaaqui.vercel.app/about"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 3,
+          "name": "Contacte-nos",
+          "description": "Entre em contacto com nossa equipe",
+          "url": "https://recuperaaqui.vercel.app/contactus"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 4,
+          "name": "Comunidade",
+          "description": "Participe da comunidade RPA e encontre documentos perdidos",
+          "url": "https://recuperaaqui.vercel.app/comunidade"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 5,
+          "name": "Gerador de CV",
+          "description": "Crie seu currículo profissional gratuitamente",
+          "url": "https://recuperaaqui.vercel.app/CVGenerator"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 6,
+          "name": "Guia de Documentos",
+          "description": "Aprenda como recuperar seus documentos perdidos",
+          "url": "https://recuperaaqui.vercel.app/guia-documentos"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 7,
+          "name": "Anuncie Connosco",
+          "description": "Publique anúncios na plataforma RPA",
+          "url": "https://recuperaaqui.vercel.app/anuncie"
+        },
+        {
+          "@type": "SiteNavigationElement",
+          "position": 8,
+          "name": "Assinaturas",
+          "description": "Planos e assinaturas premium",
+          "url": "https://recuperaaqui.vercel.app/assinaturas"
+        }
+      ]
+    }
+  </script>
+  <script type="module" crossorigin src="/assets/index-WZH7NChN.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/vue-vendor-4GKfRE0x.js">
   <link rel="modulepreload" crossorigin href="/assets/maps-vendor-BnQ5qQtM.js">
-  <link rel="modulepreload" crossorigin href="/assets/pdf-vendor-CNO2UYcZ.js">
-  <link rel="stylesheet" crossorigin href="/assets/index-Bpf1NsDk.css">
+  <link rel="modulepreload" crossorigin href="/assets/pdf-vendor-p2-bSVUK.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-KHy78e8P.css">
 <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
 
 <body>
