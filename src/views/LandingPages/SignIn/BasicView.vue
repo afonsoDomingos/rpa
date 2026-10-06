@@ -182,7 +182,9 @@ const handleCredentialResponse = async (response: { credential: string }) => {
       (["admin", "SuperAdmin"].includes(role) ? "/dashboard/admin" : "/home");
     await router.push(redirectUrl);
   } catch (err: any) {
-    errorMessage.value = err.response?.data?.msg || "Falha no login com Google";
+    console.error("Erro Google Login:", err.response?.data || err.message);
+    const apiMsg = err.response?.data?.erro || err.response?.data?.msg;
+    errorMessage.value = apiMsg || "Falha no login com Google. Tente novamente ou entre com e-mail e senha.";
   } finally {
     isLoading.value = false;
   }
