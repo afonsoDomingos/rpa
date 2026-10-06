@@ -395,25 +395,50 @@ function getPortugueseVoice() {
 
 function cleanTextForSpeech(htmlOrText) {
   if (!htmlOrText) return "";
+
+  // 1. Converter quebras estruturais em pausas naturais antes de remover HTML
+  let formatted = htmlOrText
+    .replace(/<br\s*\/?>/gi, ". ")
+    .replace(/<\/(p|div|h[1-6])>/gi, ". ")
+    .replace(/<\/li>/gi, "; ")
+    .replace(/\n+/g, ". ");
+
   const tempDiv = document.createElement("div");
-  tempDiv.innerHTML = htmlOrText;
+  tempDiv.innerHTML = formatted;
   let text = tempDiv.textContent || tempDiv.innerText || "";
 
-  // 1. Remove URLs e links
+  // 2. Remove URLs e links mantendo apenas o texto visível
   text = text.replace(/https?:\/\/\S+/g, "");
   text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
 
-  // 2. Remove emojis, pictogramas e ícones visuais para não serem lidos pela voz
+  // 3. Remove emojis, pictogramas e ícones visuais para não serem lidos
   text = text.replace(/\p{Extended_Pictographic}/gu, "");
   text = text.replace(/[0-9]️⃣/gu, "");
   text = text.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1FA70}-\u{1FAFF}\u{200D}\u{FE0F}]/gu, "");
   text = text.replace(/[➔➜➡➤▶►◀◄▲▼●◆■▪▫★☆✨💡🔔🎉⚠️❌✅❓❗🔍🔎📌📍💬👤📄📅🔢]/gu, "");
 
-  // 3. Remove caracteres de formatação markdown
+  // 4. Remove formatação markdown e caracteres especiais não verbalizáveis
   text = text.replace(/[*_#`~>|]/g, " ");
+  // Remove traço/hífen usado como bullet no início de linha
+  text = text.replace(/(^|\. )[-–—]\s+/g, "$1");
+  // Listas numeradas: "1. texto" → "texto" (o número já foi falado pelo ponto anterior)
+  text = text.replace(/(^|\. )\d+\.\s+/g, "$1");
+  // Remove "a)" "b)" bullets de letras
+  text = text.replace(/(^|\. )[a-zA-Z]\)\s+/g, "$1");
+  // Transforma dois-pontos após palavra em pausa com vírgula
+  text = text.replace(/(\w):\s+/g, "$1, ");
 
-  // 4. Corrige pontuações soltas após a remoção de emojis e remove espaços múltiplos
-  text = text.replace(/\s+([,.;:!?])/g, "$1");
+  // 5. Normalizar pontuações para pausas corretas de fala
+  text = text.replace(/\s*([,.;:!?])\s*/g, "$1 ");
+  text = text.replace(/([.?!])[\s.;,]+/g, "$1 ");
+  text = text.replace(/\.{2,}/g, ". ");
+  text = text.replace(/,(\s*,)+/g, ", ");
+  text = text.replace(/;\s*;+/g, "; ");
+  // Garante espaço antes de letra maiúscula após ponto (se estiver colado)
+  text = text.replace(/\.([A-ZÁÉÍÓÚÀÂÊÔÃÕÇ])/g, ". $1");
+  // Remove pontuação no início do texto
+  text = text.replace(/^[,.;:!?\s]+/, "");
+
   return text.replace(/\s+/g, " ").trim();
 }
 
