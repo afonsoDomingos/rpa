@@ -6,7 +6,7 @@
           <img src="/copilot-mascot.jpg" alt="Copilot" class="chat-avatar-img" />
         </span>
         <div class="header-info">
-          <span class="chat-title">Copilot</span>
+          <span class="chat-title">Rpa Copilot</span>
           <span class="chat-subtitle">
             <span class="status-indicator"></span>
             Assistente Virtual
@@ -265,7 +265,7 @@
     class="copilot-fab-wrapper"
     @click="toggle"
     role="button"
-    aria-label="Abrir Copilot - Assistente Virtual"
+    aria-label="Abrir Rpa Copilot - Assistente Virtual"
     tabindex="0"
     @keydown.enter="toggle"
   >
@@ -279,8 +279,8 @@
         <img src="/copilot-mascot.jpg" alt="Copilot" class="copilot-fab-mascot" />
       </div>
       <div class="copilot-fab-text">
-        <span class="copilot-fab-label-name">Copilot</span>
-        <span class="copilot-fab-label-sub">Assistente IA</span>
+        <span class="copilot-fab-label-name">Rpa Copilot</span>
+        <span class="copilot-fab-label-sub">Assistente Virtual</span>
       </div>
     </div>
   </div>
