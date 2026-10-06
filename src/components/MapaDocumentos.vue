@@ -225,7 +225,11 @@ onMounted(async () => {
   }).setView([-18.25, 35.3], 5); // ← Todo o país visível com margem
 
   L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+    "https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    {
+      maxZoom: 16,
+      attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
+    }
   ).addTo(mapa.value);
 
   L.control

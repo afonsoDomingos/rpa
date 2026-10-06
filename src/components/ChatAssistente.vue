@@ -275,7 +275,7 @@
 
 <script setup>
 import api, { ROOT_URL } from "../api";
-import { ref, nextTick, onUpdated, onMounted, computed } from "vue";
+import { ref, nextTick, onUpdated, onMounted, onUnmounted, computed } from "vue";
 import Swal from "sweetalert2";
 
 const props = defineProps({
