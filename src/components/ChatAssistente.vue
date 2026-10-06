@@ -357,12 +357,40 @@ const currentSpeakingText = ref("");
 function getPortugueseVoice() {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const voices = window.speechSynthesis.getVoices();
-  return (
-    voices.find((v) => v.lang === "pt-PT") ||
-    voices.find((v) => v.lang === "pt-BR") ||
-    voices.find((v) => v.lang && v.lang.toLowerCase().startsWith("pt")) ||
-    null
+  if (!voices || voices.length === 0) return null;
+
+  // Filtra todas as vozes em português
+  const ptVoices = voices.filter(
+    (v) => v.lang && v.lang.toLowerCase().replace("_", "-").startsWith("pt")
   );
+
+  if (ptVoices.length === 0) return null;
+
+  // 1. TOP PRIORIDADE: Vozes neurais e ultra-realistas (Natural / Neural / Online do Edge/Chrome) em Português de Portugal
+  const ptPtNatural = ptVoices.find(
+    (v) =>
+      v.lang.toLowerCase().replace("_", "-") === "pt-pt" &&
+      /(natural|neural|online|google|premium)/i.test(v.name)
+  );
+  if (ptPtNatural) return ptPtNatural;
+
+  // 2. Vozes neurais / naturais de alta definição em qualquer variante do português (ex: Google, Microsoft Natural)
+  const anyNatural = ptVoices.find((v) =>
+    /(natural|neural|online|google|premium)/i.test(v.name)
+  );
+  if (anyNatural) return anyNatural;
+
+  // 3. Vozes pt-PT padrão
+  const ptPtStandard = ptVoices.find(
+    (v) => v.lang.toLowerCase().replace("_", "-") === "pt-pt"
+  );
+  if (ptPtStandard) return ptPtStandard;
+
+  // 4. Vozes que não sejam desktop legado robótico (evita vozes antigas SAPI do Windows se houver alternativa)
+  const nonDesktop = ptVoices.find((v) => !/desktop/i.test(v.name));
+  if (nonDesktop) return nonDesktop;
+
+  return ptVoices[0];
 }
 
 function cleanTextForSpeech(htmlOrText) {
@@ -382,15 +410,15 @@ function speakText(text) {
   const clean = cleanTextForSpeech(text);
   if (!clean) return;
 
-  const utterance = new SpeechSynthesisUtterance(clean);
-  utterance.lang = "pt-PT";
-
   const voice = getPortugueseVoice();
   if (voice) {
     utterance.voice = voice;
+    utterance.lang = voice.lang;
+  } else {
+    utterance.lang = "pt-PT";
   }
 
-  utterance.rate = 1.0;
+  utterance.rate = 1.05;
   utterance.pitch = 1.0;
 
   utterance.onstart = () => {
