@@ -212,23 +212,39 @@ const loadGoogleScript = () => {
 onMounted(async () => {
   try {
     await loadGoogleScript();
+
+    // Timeout de segurança: para o interval após 10 segundos se o SDK não carregar
+    let elapsed = 0;
     const waitForGoogle = setInterval(async () => {
+      elapsed += 100;
+      if (elapsed > 10000) {
+        clearInterval(waitForGoogle);
+        console.warn("Google SDK não carregou após 10s. Botão Google desativado.");
+        return;
+      }
       if (window.google?.accounts?.id) {
         clearInterval(waitForGoogle);
+        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+        if (!clientId) {
+          console.error("VITE_GOOGLE_CLIENT_ID não definido no .env");
+          return;
+        }
         window.google.accounts.id.initialize({
-          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+          client_id: clientId,
           callback: handleCredentialResponse,
         });
         await nextTick();
-        window.google.accounts.id.renderButton(
-          document.getElementById("googleButton"),
-          {
-            theme: "outline",
-            size: "large",
-            width: "300",
-            type: "standard",
-          }
-        );
+        const googleBtn = document.getElementById("googleButton");
+        if (!googleBtn) {
+          console.warn("Elemento #googleButton não encontrado no DOM.");
+          return;
+        }
+        window.google.accounts.id.renderButton(googleBtn, {
+          theme: "outline",
+          size: "large",
+          width: "300",
+          type: "standard",
+        });
         window.google.accounts.id.prompt();
       }
     }, 100);
