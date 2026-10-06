@@ -1,10 +1,18 @@
 <template>
   <div class="chat-assistente-fixed" :class="{ maximized: isMaximized }" v-show="open">
     <div class="chat-header" @click="!isMaximized && toggle()">
-      <span class="chat-avatar">
-        <img src="/copilot-mascot.jpg" alt="Copilot" class="chat-avatar-img" />
-      </span>
-      <span class="chat-title">Copilot</span>
+      <div class="header-left">
+        <span class="chat-avatar">
+          <img src="/copilot-mascot.jpg" alt="Copilot" class="chat-avatar-img" />
+        </span>
+        <div class="header-info">
+          <span class="chat-title">Copilot</span>
+          <span class="chat-subtitle">
+            <span class="status-indicator"></span>
+            Assistente Virtual
+          </span>
+        </div>
+      </div>
 
       <!-- BOTÃO NOVO CHAT + MAXIMIZAR + FECHAR -->
       <div class="header-right">
@@ -13,7 +21,7 @@
           class="new-chat-btn"
           title="Começar novo chat"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M12 5v14M5 12h14" />
           </svg>
           <span class="new-chat-text">Novo</span>
@@ -27,14 +35,14 @@
           :aria-label="isMaximized ? 'Restaurar' : 'Maximizar'"
         >
           <!-- Ícone expandir (quando normal) -->
-          <svg v-if="!isMaximized" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <svg v-if="!isMaximized" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
             <polyline points="15 3 21 3 21 9"/>
             <polyline points="9 21 3 21 3 15"/>
             <line x1="21" y1="3" x2="14" y2="10"/>
             <line x1="3" y1="21" x2="10" y2="14"/>
           </svg>
           <!-- Ícone restaurar (quando maximizado) -->
-          <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
             <polyline points="4 14 10 14 10 20"/>
             <polyline points="20 10 14 10 14 4"/>
             <line x1="10" y1="14" x2="3" y2="21"/>
@@ -42,11 +50,9 @@
           </svg>
         </button>
 
-        <button class="close-btn" @click.stop="toggle">×</button>
+        <button class="close-btn" @click.stop="toggle" title="Fechar">×</button>
       </div>
     </div>
-
-    <div class="chat-desc">Assistente Virtual</div>
 
     <div class="chat-body" ref="chatMessagesRef" @scroll="handleScroll">
       <!-- Menu suspenso de perguntas -->
@@ -231,15 +237,15 @@
     <span class="copilot-pulse-ring"></span>
     <span class="copilot-pulse-ring copilot-pulse-ring--delay"></span>
 
-    <!-- Botão principal com mascote -->
-    <div class="copilot-fab-btn">
-      <img src="/copilot-mascot.jpg" alt="Copilot" class="copilot-fab-mascot" />
-    </div>
-
-    <!-- Label "Copilot" visível ao lado -->
-    <div class="copilot-fab-label">
-      <span class="copilot-fab-label-name">Copilot</span>
-      <span class="copilot-fab-label-sub">Assistente IA</span>
+    <!-- Cápsula branca arredondada estilo Copilot moderno -->
+    <div class="copilot-fab-capsule">
+      <div class="copilot-fab-avatar">
+        <img src="/copilot-mascot.jpg" alt="Copilot" class="copilot-fab-mascot" />
+      </div>
+      <div class="copilot-fab-text">
+        <span class="copilot-fab-label-name">Copilot</span>
+        <span class="copilot-fab-label-sub">Assistente IA</span>
+      </div>
     </div>
   </div>
 
@@ -1338,18 +1344,21 @@ onMounted(() => {
   box-shadow: 0 6px 16px rgba(25, 135, 84, 0.3);
 }
 
-/* Posição original: canto inferior direito */
+/* Posição original: canto inferior direito (branco, mais largo, bordas mais circulares) */
 .chat-assistente-fixed {
   position: fixed;
-  bottom: 4px;
-  right: 4px;
+  bottom: 16px;
+  right: 16px;
 
-  width: 420px;
-  max-width: 500px;
+  /* Mais largo e confortável */
+  width: 480px;
+  max-width: min(520px, calc(100vw - 32px));
 
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(60, 60, 60, 0.18);
+  background: #ffffff;
+  /* Bordas mais circulares */
+  border-radius: 26px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.14), 0 4px 16px rgba(128, 0, 128, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.07);
   z-index: 10000;
   display: flex;
   flex-direction: column;
@@ -1357,7 +1366,7 @@ onMounted(() => {
   font-family: inherit;
 
   /* Altura máxima do chat inteiro */
-  max-height: 80vh;
+  max-height: 82vh;
 
   /* Transição suave para o modo maximizado */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1404,64 +1413,152 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
+/* Cabeçalho branco elegante e moderno */
+.chat-header {
+  background: #ffffff;
+  color: #111827;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  user-select: none;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-avatar-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #f3e8ff;
+  box-shadow: 0 2px 8px rgba(128, 0, 128, 0.12);
+}
+
+.header-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.2px;
+  line-height: 1.2;
+}
+
+.chat-subtitle {
+  font-size: 0.74rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+}
+
+.status-indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  display: inline-block;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.new-chat-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  color: #64748b;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.new-chat-btn:hover {
+  background: #f3e8ff;
+  border-color: #d8b4fe;
+  color: #800080;
+}
+
 /* Botão maximizar */
 .maximize-btn {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 6px;
-  color: #fff;
-  width: 28px;
-  height: 28px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s, transform 0.15s;
+  transition: all 0.2s;
   flex-shrink: 0;
-  margin-right: 4px;
   padding: 0;
 }
 
 .maximize-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.1);
+  background: #f1f5f9;
+  color: #111827;
+  border-color: #cbd5e1;
 }
 
 .maximize-btn:active {
   transform: scale(0.95);
 }
 
-.chat-header {
-  background: linear-gradient(90deg, #800080 60%, #198754 100%);
-  color: #fff;
-  font-weight: 600;
-  padding: 12px 16px;
+.close-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  font-size: 1.25rem;
+  line-height: 1;
   cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
 }
 
-.close-btn {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1.3rem;
-  cursor: pointer;
-}
-
-.chat-desc {
-  background: #f8f8fa;
-  color: #666;
-  padding: 8px 16px;
-  font-size: 0.9rem;
-  border-bottom: 1px solid #eee;
+.close-btn:hover {
+  background: #fee2e2;
+  color: #ef4444;
+  border-color: #fecaca;
 }
 
 .chat-body {
   flex: 1;
-  padding: 12px 10px;
-  background: #f8f8fa;
+  padding: 14px 16px;
+  background: #ffffff; /* Fundo branco limpo */
   overflow-y: auto;
   /* Altura antiga */
   /*  max-height: 280px; */
@@ -1528,24 +1625,32 @@ onMounted(() => {
 
 .chat-footer {
   display: flex;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #f1f5f9;
   background: #fff;
-  padding: 8px 10px;
+  padding: 12px 16px;
   align-items: center;
+  gap: 8px;
 }
 
 .chat-footer input {
   flex: 1;
   min-width: 0;
-  border: none;
-  border-radius: 20px;
-  padding: 8px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 8px 16px;
   font-size: 0.95rem;
   outline: none;
-  background: #f0edf5;
-  margin-right: 8px;
-  height: 38px;
+  background: #f8fafc;
+  height: 42px;
   box-sizing: border-box;
+  color: #1e293b;
+  transition: all 0.2s ease;
+}
+
+.chat-footer input:focus {
+  background: #ffffff;
+  border-color: #800080;
+  box-shadow: 0 0 0 3px rgba(128, 0, 128, 0.1);
 }
 
 
@@ -1576,96 +1681,93 @@ onMounted(() => {
 }
 
 /* ═══════════════════════════════════════════════
-   COPILOT FAB - Botão notável estilo Microsoft Copilot
+   COPILOT FAB - CÁPSULA BRANCA COM BORDAS CIRCULARES
    ═══════════════════════════════════════════════ */
 .copilot-fab-wrapper {
   position: fixed;
-  bottom: 20px;
-  right: 16px;
-  display: flex;
-  align-items: center;
-  gap: 0;
+  bottom: 22px;
+  right: 20px;
   cursor: pointer;
   z-index: 10001;
   border: none;
   background: transparent;
   outline: none;
-  transition: transform 0.25s ease;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   isolation: isolate;
 }
 
 .copilot-fab-wrapper:hover {
-  transform: translateY(-3px);
+  transform: translateY(-3px) scale(1.02);
 }
 
-.copilot-fab-wrapper:hover .copilot-fab-btn {
-  box-shadow: 0 10px 30px rgba(123, 47, 247, 0.5), 0 0 0 4px rgba(0, 180, 216, 0.2);
+.copilot-fab-capsule {
+  background: #ffffff;
+  border: 1.5px solid rgba(128, 0, 128, 0.18);
+  border-radius: 50px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(128, 0, 128, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 18px 6px 6px;
+  transition: all 0.25s ease;
 }
 
-.copilot-fab-wrapper:hover .copilot-fab-label {
-  max-width: 140px;
-  opacity: 1;
-  margin-left: 10px;
-  padding: 6px 12px;
+.copilot-fab-wrapper:hover .copilot-fab-capsule {
+  border-color: #800080;
+  box-shadow: 0 14px 36px rgba(128, 0, 128, 0.22);
 }
 
-/* Botão circular principal */
-.copilot-fab-btn {
-  width: 56px;
-  height: 56px;
+.copilot-fab-avatar {
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0f0f1a 0%, #1a0533 100%);
+  overflow: hidden;
+  background: #f3e8ff;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 24px rgba(123, 47, 247, 0.4), 0 2px 8px rgba(0,0,0,0.3);
   flex-shrink: 0;
-  position: relative;
-  z-index: 2;
-  transition: box-shadow 0.3s ease;
+  border: 1.5px solid #d8b4fe;
 }
 
-/* Label que aparece ao hover */
-.copilot-fab-label {
-  background: linear-gradient(135deg, #0f0f1a 0%, #1a0533 100%);
-  border-radius: 14px;
-  padding: 0;
-  max-width: 0;
-  opacity: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  transition: max-width 0.35s ease, opacity 0.3s ease, padding 0.3s ease, margin-left 0.3s ease;
+.copilot-fab-mascot {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.copilot-fab-text {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 }
 
 .copilot-fab-label-name {
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  color: #fff;
-  letter-spacing: 0.5px;
+  color: #111827;
+  letter-spacing: -0.2px;
   line-height: 1.2;
 }
 
 .copilot-fab-label-sub {
-  font-size: 0.7rem;
-  color: rgba(0, 180, 216, 0.9);
-  font-weight: 500;
+  font-size: 0.72rem;
+  color: #800080;
+  font-weight: 600;
 }
 
 /* Anéis de pulso */
 .copilot-pulse-ring {
   position: absolute;
-  width: 56px;
-  height: 56px;
+  top: 4px;
+  left: 4px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: transparent;
-  border: 2px solid rgba(123, 47, 247, 0.6);
+  border: 2px solid rgba(123, 47, 247, 0.5);
   animation: copilot-pulse 2.5s ease-out infinite;
   pointer-events: none;
-  z-index: 1;
+  z-index: -1;
 }
 
 .copilot-pulse-ring--delay {
@@ -1679,12 +1781,12 @@ onMounted(() => {
     opacity: 0.8;
   }
   100% {
-    transform: scale(1.8);
+    transform: scale(1.6);
     opacity: 0;
   }
 }
 
-/* Mobile: mostra label sempre visível */
+/* Mobile: ajusta espaçamentos */
 @media (max-width: 600px) {
   .maximize-btn {
     display: none;
@@ -1717,21 +1819,26 @@ onMounted(() => {
   }
 
   .copilot-fab-wrapper {
-    bottom: 24px;
+    bottom: 20px;
     right: 14px;
   }
 
-  .copilot-fab-btn {
-    width: 54px;
-    height: 54px;
+  .copilot-fab-capsule {
+    padding: 5px 14px 5px 5px;
+    gap: 8px;
   }
 
-  /* Label sempre visível no mobile */
-  .copilot-fab-label {
-    max-width: 120px;
-    opacity: 1;
-    margin-left: 8px;
-    padding: 6px 10px;
+  .copilot-fab-avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .copilot-fab-label-name {
+    font-size: 0.88rem;
+  }
+
+  .copilot-fab-label-sub {
+    font-size: 0.68rem;
   }
 }
 
