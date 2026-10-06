@@ -340,6 +340,23 @@ const verificarAssinaturaAntesDeSolicitar = async (doc) => {
     });
   }
 
+  if (!localStorage.getItem("token")) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Inicie Sessão',
+      text: 'Você precisa fazer login para solicitar um documento.',
+      confirmButtonColor: '#800080',
+      confirmButtonText: 'Fazer Login',
+      showCancelButton: true,
+      cancelButtonText: 'Cancelar'
+    }).then((r) => {
+      if (r.isConfirmed) {
+        router.push("/login");
+      }
+    });
+    return;
+  }
+
   try {
     const { data } = await api.get("/pagamentos/assinatura/ativa");
 
@@ -351,13 +368,29 @@ const verificarAssinaturaAntesDeSolicitar = async (doc) => {
       Swal.fire({
         icon: 'warning',
         title: 'Assinatura Necessária',
-        text: 'Você precisa de uma assinatura ativa.',
+        text: 'Você precisa de uma assinatura ativa para solicitar documentos.',
         confirmButtonColor: '#800080',
         confirmButtonText: 'Ver Planos'
       }).then((r) => r.isConfirmed && router.push("/assinaturas"));
     }
   } catch (err) {
-    Swal.fire({ icon: 'error', title: 'Erro', text: 'Tente novamente.' });
+    if (err.response?.status === 401) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sessão Expirada',
+        text: 'Sua sessão expirou. Faça login novamente para prosseguir.',
+        confirmButtonColor: '#800080',
+        confirmButtonText: 'Fazer Login',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar'
+      }).then((r) => {
+        if (r.isConfirmed) {
+          router.push("/login");
+        }
+      });
+    } else {
+      Swal.fire({ icon: 'error', title: 'Erro', text: 'Ocorreu um erro ao verificar sua assinatura. Tente novamente mais tarde.' });
+    }
   }
 };
 

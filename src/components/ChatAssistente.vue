@@ -14,8 +14,27 @@
         </div>
       </div>
 
-      <!-- BOTÃO NOVO CHAT + MAXIMIZAR + FECHAR -->
+      <!-- BOTÃO VOZ + NOVO CHAT + MAXIMIZAR + FECHAR -->
       <div class="header-right">
+        <!-- Botão Voz (Ligar/Desligar resposta em áudio) -->
+        <button
+          @click.stop="toggleVoice"
+          class="voice-toggle-btn"
+          :class="{ active: voiceEnabled }"
+          :title="voiceEnabled ? 'Voz ativada (clique para silenciar)' : 'Voz desativada (clique para ativar áudio)'"
+          :aria-label="voiceEnabled ? 'Desativar voz' : 'Ativar voz'"
+        >
+          <svg v-if="voiceEnabled" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+
         <button
           @click.stop="abrirModalNovoChat"
           class="new-chat-btn"
@@ -125,11 +144,28 @@
           <span v-if="msg.from === 'bot'" class="msg-bot-avatar">
             <img src="/copilot-mascot.jpg" alt="Copilot" class="msg-bot-avatar-img" />
           </span>
-          <span
-            class="msg-text"
-            v-if="msg.from === 'bot'"
-            v-html="msg.text"
-          ></span>
+          <div class="msg-content-wrapper" v-if="msg.from === 'bot'">
+            <span
+              class="msg-text"
+              v-html="msg.text"
+            ></span>
+            <button
+              class="msg-speak-btn"
+              :class="{ speaking: isSpeakingThis(msg) }"
+              @click.stop="toggleSpeakMessage(msg)"
+              :title="isSpeakingThis(msg) ? 'Parar voz' : 'Ouvir resposta'"
+              aria-label="Ouvir resposta"
+            >
+              <svg v-if="!isSpeakingThis(msg)" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              </svg>
+              <svg v-else width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="6" y="4" width="4" height="16" fill="currentColor"></rect>
+                <rect x="14" y="4" width="4" height="16" fill="currentColor"></rect>
+              </svg>
+            </button>
+          </div>
           <span class="msg-text" v-else>{{ msg.text }}</span>
         </div>
         <button
@@ -313,6 +349,95 @@ let mediaRecorder = null;
 let audioChunks = [];
 let recordingTimer = null;
 
+// Estados para síntese de voz (Text-to-Speech)
+const voiceEnabled = ref(true);
+const isSpeaking = ref(false);
+const currentSpeakingText = ref("");
+
+function getPortugueseVoice() {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  return (
+    voices.find((v) => v.lang === "pt-PT") ||
+    voices.find((v) => v.lang === "pt-BR") ||
+    voices.find((v) => v.lang && v.lang.toLowerCase().startsWith("pt")) ||
+    null
+  );
+}
+
+function cleanTextForSpeech(htmlOrText) {
+  if (!htmlOrText) return "";
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = htmlOrText;
+  let text = tempDiv.textContent || tempDiv.innerText || "";
+  text = text.replace(/https?:\/\/\S+/g, "");
+  text = text.replace(/[*_#`~>]/g, " ");
+  return text.replace(/\s+/g, " ").trim();
+}
+
+function speakText(text) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+  stopSpeaking();
+
+  const clean = cleanTextForSpeech(text);
+  if (!clean) return;
+
+  const utterance = new SpeechSynthesisUtterance(clean);
+  utterance.lang = "pt-PT";
+
+  const voice = getPortugueseVoice();
+  if (voice) {
+    utterance.voice = voice;
+  }
+
+  utterance.rate = 1.0;
+  utterance.pitch = 1.0;
+
+  utterance.onstart = () => {
+    isSpeaking.value = true;
+    currentSpeakingText.value = text;
+  };
+
+  utterance.onend = () => {
+    isSpeaking.value = false;
+    currentSpeakingText.value = "";
+  };
+
+  utterance.onerror = () => {
+    isSpeaking.value = false;
+    currentSpeakingText.value = "";
+  };
+
+  window.speechSynthesis.speak(utterance);
+}
+
+function stopSpeaking() {
+  if (typeof window !== "undefined" && "speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
+  isSpeaking.value = false;
+  currentSpeakingText.value = "";
+}
+
+function toggleVoice() {
+  voiceEnabled.value = !voiceEnabled.value;
+  if (!voiceEnabled.value) {
+    stopSpeaking();
+  }
+}
+
+function toggleSpeakMessage(msg) {
+  if (isSpeakingThis(msg)) {
+    stopSpeaking();
+  } else {
+    speakText(msg.text);
+  }
+}
+
+function isSpeakingThis(msg) {
+  return isSpeaking.value && currentSpeakingText.value === msg.text;
+}
+
 // Estados para o fluxo de busca de documentos
 const buscandoDocumento = ref(false);
 const dadosDocumento = ref({
@@ -453,12 +578,18 @@ const provincias = [
 
 // Usamos a instância 'api' centralizada para chamadas do chatbot
 
-// Inicialização do microfone
+// Inicialização do microfone e voz
 onMounted(async () => {
   await checkMicrophoneSupport();
+  if (typeof window !== "undefined" && "speechSynthesis" in window) {
+    window.speechSynthesis.onvoiceschanged = () => {
+      window.speechSynthesis.getVoices();
+    };
+  }
 });
 
 onUnmounted(() => {
+  stopSpeaking();
   if (recordingTimer) {
     clearInterval(recordingTimer);
   }
@@ -616,6 +747,9 @@ async function useBrowserSpeechRecognition() {
 
 function toggle() {
   open.value = !open.value;
+  if (!open.value) {
+    stopSpeaking();
+  }
 }
 
 
@@ -706,6 +840,7 @@ function abrirModalNovoChat() {
 }
 
 function confirmarNovoChat() {
+  stopSpeaking();
   messages.value = [
     {
       from: "bot",
@@ -998,6 +1133,9 @@ function responderFaq(id) {
 
 // Efeito digitação gradual
 function typeWriter(rawText, callback) {
+  if (voiceEnabled.value) {
+    speakText(rawText);
+  }
   const text = sanitizeHtml(rawText);
   let i = 0;
   const speed = 20; // Aumentar um pouco a velocidade se necessário
@@ -1505,6 +1643,39 @@ onMounted(() => {
   color: #800080;
 }
 
+/* Botão alternar resposta de voz */
+.voice-toggle-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.voice-toggle-btn:hover {
+  background: #f1f5f9;
+  color: #111827;
+  border-color: #cbd5e1;
+}
+
+.voice-toggle-btn.active {
+  background: #f3e8ff;
+  border-color: #d8b4fe;
+  color: #800080;
+}
+
+.voice-toggle-btn:active {
+  transform: scale(0.95);
+}
+
 /* Botão maximizar */
 .maximize-btn {
   background: #f8fafc;
@@ -1596,6 +1767,13 @@ onMounted(() => {
   vertical-align: middle;
 }
 
+.msg-content-wrapper {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: 88%;
+}
+
 .msg.bot .msg-text {
   background: #e6e6fa;
   color: #800080;
@@ -1605,9 +1783,48 @@ onMounted(() => {
   padding: 7px 13px;
   border-radius: 14px;
   font-size: 1rem;
-  max-width: 80%;
   word-break: break-word;
   margin-bottom: 2px;
+}
+
+.msg-speak-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  color: #800080;
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+  margin-bottom: 4px;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.msg-speak-btn:hover {
+  opacity: 1;
+  background: #f3e8ff;
+  border-color: #d8b4fe;
+  transform: scale(1.1);
+}
+
+.msg-speak-btn.speaking {
+  opacity: 1;
+  background: #800080;
+  color: #ffffff;
+  border-color: #800080;
+  animation: pulse-speak 1.2s infinite;
+}
+
+@keyframes pulse-speak {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(128, 0, 128, 0.4); }
+  70% { transform: scale(1.08); box-shadow: 0 0 0 6px rgba(128, 0, 128, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(128, 0, 128, 0); }
 }
 
 .msg.user .msg-text {

@@ -256,21 +256,23 @@ onUnmounted(() => {
   right: 1.2rem;
   top: 50%;
   transform: translateY(-50%);
-  width: 260px;
+  width: 220px;
   z-index: 998;
   animation: float 6s ease-in-out infinite;
 }
 
 .ad-placeholder, .ad-content {
-  background: white; border: 1px solid #eee; border-radius: 1rem;
-  padding: 1rem; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  background: white; border: 1px solid #eee; border-radius: 0.8rem;
+  padding: 0.7rem; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.09);
   position: relative;
 }
 
-.ad-image { width: 100%; height: 120px; object-fit: cover; border-radius: 0.5rem; margin-bottom: 0.5rem; }
-.ad-title { font-weight: 700; font-size: 1rem; color: #333; margin-bottom: 0.3rem; }
-.ad-description { font-size: 0.8rem; color: #666; margin-bottom: 0.5rem; }
-.ad-action-btn { width: 100%; padding: 8px; border-radius: 0.5rem; border: none; background: #800080; color: #fff; font-weight: 600; cursor: pointer; margin-top: 5px; }
+.ad-image { width: 100%; height: 90px; object-fit: cover; border-radius: 0.4rem; margin-bottom: 0.35rem; }
+.ad-title { font-weight: 700; font-size: 0.82rem; color: #333; margin-bottom: 0.2rem; }
+.ad-description { font-size: 0.7rem; color: #666; margin-bottom: 0.35rem; }
+.ad-price { font-size: 0.75rem; margin-bottom: 0.3rem; }
+.ad-action-btn { width: 100%; padding: 5px 8px; border-radius: 0.4rem; border: none; background: #800080; color: #fff; font-weight: 600; font-size: 0.75rem; cursor: pointer; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.ad-action-btn i { font-size: 0.78rem; }
 
 @media (max-width: 480px) {
   .ad-card-container { 
