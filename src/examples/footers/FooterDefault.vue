@@ -168,13 +168,22 @@ defineProps({
 
         <div class="col-12">
           <div class="text-center">
-            <p class="text-dark my-4 text-sm font-weight-normal">
-              Todos os Direitos Reservados.
-              {{ new Date().getFullYear() }}
-              Rpa By
-              <a href="https://www.facebook.com/Techvibemz/" target="_blank"
-                >Techvibe</a
-              >.
+            <p class="text-dark my-4 text-sm font-weight-normal d-flex align-items-center justify-content-center gap-2 flex-wrap">
+              <span>Powered By</span>
+              <a
+                href="https://www.wehosthere.com/"
+                target="_blank"
+                rel="noopener"
+                class="wehosthere-link"
+                title="WeHosThere - Cloud & Hosting"
+              >
+                <span class="wehosthere-name">WeHosThere</span>
+                <img
+                  src="/wehosthere-logo.png"
+                  alt="WeHosThere Logo"
+                  class="wehosthere-footer-logo"
+                />
+              </a>
             </p>
             <button 
               v-if="isAdmin"
@@ -241,5 +250,28 @@ export default {
 
 .nav-link:hover {
   color: #800080 !important;
+}
+
+.wehosthere-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #0084ff !important;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  vertical-align: middle;
+}
+
+.wehosthere-link:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+.wehosthere-footer-logo {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+  vertical-align: middle;
 }
 </style>
