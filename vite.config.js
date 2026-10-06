@@ -7,7 +7,8 @@ import viteCompression from "vite-plugin-compression";
 export default defineConfig({
   plugins: [
     vue(),
-    viteCompression(),
+    viteCompression({ algorithm: 'gzip', ext: '.gz' }),
+    viteCompression({ algorithm: 'brotliCompress', ext: '.br' }),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg', 'rpa.png'],
@@ -46,6 +47,21 @@ export default defineConfig({
             purpose: 'maskable'
           }
         ]
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: { cacheName: 'google-fonts-cache', expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 } }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: { cacheName: 'gstatic-fonts-cache', expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 } }
+          }
+        ]
       }
     })
   ],
@@ -57,17 +73,20 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
-    // ADICIONA ISTO AQUI (resolve o erro CSP em dev)
     headers: {
       "Content-Security-Policy": ""
     }
   },
   build: {
+    target: 'esnext',          // Bundle menor e mais rápido para browsers modernos
+    cssCodeSplit: true,         // CSS separado por rota = carregamento mais rápido
+    sourcemap: false,           // Sem sourcemaps em produção = build menor
+    minify: 'esbuild',         // esbuild é ~10x mais rápido que terser
     rollupOptions: {
       output: {
         manualChunks: {
           'vue-vendor': ['vue', 'vue-router', 'pinia'],
-          'ui-vendor': ['bootstrap', '@popperjs/core', '@fortawesome/fontawesome-free', 'material-icons'],
+          'ui-vendor': ['bootstrap', '@popperjs/core'],
           'chart-vendor': ['chart.js', 'vue-chartjs'],
           'maps-vendor': ['leaflet'],
           'pdf-vendor': ['jspdf', 'html2canvas', 'html2pdf.js'],
@@ -76,4 +95,4 @@ export default defineConfig({
     },
     chunkSizeWarningLimit: 1000,
   },
-});
+});

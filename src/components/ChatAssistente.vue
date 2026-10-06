@@ -2148,28 +2148,32 @@ onMounted(() => {
     bottom: 0;
     height: 100dvh;
     border-radius: 0;
+    /* Safe area para dispositivos com notch/home bar */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   .chat-footer {
-    padding: 12px 10px;
-    padding-bottom: env(safe-area-inset-bottom, 12px);
+    padding: 10px 12px;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+    padding-left: calc(env(safe-area-inset-left, 0px) + 10px);
+    padding-right: calc(env(safe-area-inset-right, 0px) + 10px);
     background: #fff;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
   }
 
   .chat-footer input {
-    height: 38px;
-    font-size: 16px;
+    height: 40px;
+    font-size: 16px; /* Evita zoom auto no iOS */
   }
 
   .mic-btn, .chat-send-btn {
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
   }
 
   .copilot-fab-wrapper {
-    bottom: 20px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
     right: 14px;
   }
 
@@ -2189,6 +2193,50 @@ onMounted(() => {
 
   .copilot-fab-label-sub {
     font-size: 0.68rem;
+  }
+}
+
+/* Telefónos muito pequenos (< 380px) */
+@media (max-width: 380px) {
+  .chat-header {
+    padding: 10px 12px;
+  }
+
+  .chat-title {
+    font-size: 0.92rem;
+  }
+
+  .chat-subtitle {
+    font-size: 0.7rem;
+  }
+
+  .header-right {
+    gap: 6px;
+  }
+
+  .voice-toggle-btn,
+  .new-chat-btn {
+    padding: 6px 8px;
+    font-size: 0.8rem;
+  }
+
+  .msg-text {
+    font-size: 0.9rem;
+  }
+
+  /* FAB mais compacto em telefónos muito pequenos */
+  .copilot-fab-label-name,
+  .copilot-fab-label-sub {
+    display: none; /* Esconde texto, mostra só o avatar */
+  }
+
+  .copilot-fab-text {
+    display: none;
+  }
+
+  .copilot-fab-capsule {
+    padding: 5px;
+    border-radius: 50%;
   }
 }
 

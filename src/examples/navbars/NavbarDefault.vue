@@ -729,7 +729,7 @@ body {
 @media (max-width: 991px) {
   .navbar {
     width: 94% !important;
-    max-width: 520px !important;
+    max-width: 600px !important;
     margin: 10px auto !important;
     border-radius: 16px !important;
     background: rgba(255, 255, 255, 0.96) !important;
