@@ -403,12 +403,59 @@ function cleanTextForSpeech(htmlOrText) {
   return text.replace(/\s+/g, " ").trim();
 }
 
-function speakText(text) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-  stopSpeaking();
+let currentAudioElement = null;
 
-  const clean = cleanTextForSpeech(text);
-  if (!clean) return;
+async function speakWithElevenLabs(cleanText, originalText) {
+  try {
+    const response = await api.post(
+      "/chatbot/tts",
+      { text: cleanText },
+      { responseType: "blob", timeout: 12000 }
+    );
+
+    // Se o backend retornou áudio válido
+    if (!response.data || response.data.size < 100) return false;
+
+    const audioBlob = response.data;
+    const audioUrl = URL.createObjectURL(audioBlob);
+
+    if (currentAudioElement) {
+      currentAudioElement.pause();
+      currentAudioElement = null;
+    }
+
+    const audio = new Audio(audioUrl);
+    currentAudioElement = audio;
+
+    audio.onplay = () => {
+      isSpeaking.value = true;
+      currentSpeakingText.value = originalText;
+    };
+    audio.onended = () => {
+      isSpeaking.value = false;
+      currentSpeakingText.value = "";
+      URL.revokeObjectURL(audioUrl);
+      currentAudioElement = null;
+    };
+    audio.onerror = () => {
+      isSpeaking.value = false;
+      currentSpeakingText.value = "";
+      URL.revokeObjectURL(audioUrl);
+      currentAudioElement = null;
+      speakWithBrowserTTS(cleanText, originalText);
+    };
+
+    await audio.play();
+    return true;
+  } catch (err) {
+    // ElevenLabs não configurado ou limite atingido -> usa fallback neural do navegador
+    return false;
+  }
+}
+
+function speakWithBrowserTTS(cleanText, originalText) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+  const utterance = new SpeechSynthesisUtterance(cleanText);
 
   const voice = getPortugueseVoice();
   if (voice) {
@@ -423,7 +470,7 @@ function speakText(text) {
 
   utterance.onstart = () => {
     isSpeaking.value = true;
-    currentSpeakingText.value = text;
+    currentSpeakingText.value = originalText;
   };
 
   utterance.onend = () => {
@@ -439,7 +486,26 @@ function speakText(text) {
   window.speechSynthesis.speak(utterance);
 }
 
+async function speakText(text) {
+  stopSpeaking();
+
+  const clean = cleanTextForSpeech(text);
+  if (!clean) return;
+
+  // 1. Tentar primeiro voz ultra-humana de estúdio do ElevenLabs
+  const played = await speakWithElevenLabs(clean, text);
+  if (played) return;
+
+  // 2. Fallback imediato para a voz neural do navegador
+  speakWithBrowserTTS(clean, text);
+}
+
 function stopSpeaking() {
+  if (currentAudioElement) {
+    currentAudioElement.pause();
+    currentAudioElement.currentTime = 0;
+    currentAudioElement = null;
+  }
   if (typeof window !== "undefined" && "speechSynthesis" in window) {
     window.speechSynthesis.cancel();
   }
